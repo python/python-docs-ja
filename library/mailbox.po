@@ -1,0 +1,2123 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2001-2017, Python Software Foundation
+# This file is distributed under the same license as the Python package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Python 3.6\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Yusuke Miyazaki <miyazaki.dev@gmail.com>, 2017\n"
+"Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../library/mailbox.rst:2
+msgid ":mod:`mailbox` --- Manipulate mailboxes in various formats"
+msgstr ":mod:`mailbox` --- 様々な形式のメールボックス操作"
+
+#: ../../library/mailbox.rst:10
+msgid "**Source code:** :source:`Lib/mailbox.py`"
+msgstr "**ソースコード:** :source:`Lib/mailbox.py`"
+
+#: ../../library/mailbox.rst:14
+msgid ""
+"This module defines two classes, :class:`Mailbox` and :class:`Message`, for "
+"accessing and manipulating on-disk mailboxes and the messages they contain. "
+":class:`Mailbox` offers a dictionary-like mapping from keys to messages. "
+":class:`Message` extends the :mod:`email.message` module's "
+":class:`~email.message.Message` class with format-specific state and "
+"behavior. Supported mailbox formats are Maildir, mbox, MH, Babyl, and MMDF."
+msgstr ""
+"このモジュールでは二つのクラス :class:`Mailbox` および :class:`Message` "
+"をディスク上のメールボックスとそこに収められたメッセージへのアクセスと操作のために定義しています。 :class:`Mailbox` "
+"は辞書のようなキーからメッセージへの対応付けを提供しています。 :class:`Message` は :mod:`email.message` "
+"モジュールの :class:`~email.message.Message` "
+"を拡張して形式ごとの状態と振る舞いを追加しています。サポートされるメールボックスの形式は Maildir, mbox, MH, Babyl, MMDF "
+"です。"
+
+#: ../../library/mailbox.rst:24
+msgid "Module :mod:`email`"
+msgstr ":mod:`email` モジュール"
+
+#: ../../library/mailbox.rst:25
+msgid "Represent and manipulate messages."
+msgstr "メッセージの表現と操作。"
+
+#: ../../library/mailbox.rst:31
+msgid ":class:`Mailbox` objects"
+msgstr ":class:`Mailbox` オブジェクト"
+
+#: ../../library/mailbox.rst:35
+msgid "A mailbox, which may be inspected and modified."
+msgstr "メールボックス。内容を確認したり変更したりできます。"
+
+#: ../../library/mailbox.rst:37
+msgid ""
+"The :class:`Mailbox` class defines an interface and is not intended to be "
+"instantiated.  Instead, format-specific subclasses should inherit from "
+":class:`Mailbox` and your code should instantiate a particular subclass."
+msgstr ""
+":class:`Mailbox` "
+"自体はインタフェースを定義し形式ごとのサブクラスに継承されるように意図されたもので、インスタンス化されることは想定されていません。インスタンス化したいならばサブクラスを代わりに使うべきです。"
+
+#: ../../library/mailbox.rst:41
+msgid ""
+"The :class:`Mailbox` interface is dictionary-like, with small keys "
+"corresponding to messages. Keys are issued by the :class:`Mailbox` instance "
+"with which they will be used and are only meaningful to that "
+":class:`Mailbox` instance. A key continues to identify a message even if the"
+" corresponding message is modified, such as by replacing it with another "
+"message."
+msgstr ""
+":class:`Mailbox` のインタフェースは辞書風で、小さなキーがメッセージに対応します。キーは対象となる :class:`Mailbox` "
+"インスタンスが発行するもので、そのインスタンスに対してのみ意味を持ちます。一つのキーは一つのメッセージにひも付けられ、その対応はメッセージが他のメッセージで置き換えられるような更新をされたあとも続きます。"
+
+#: ../../library/mailbox.rst:47
+msgid ""
+"Messages may be added to a :class:`Mailbox` instance using the set-like "
+"method :meth:`add` and removed using a ``del`` statement or the set-like "
+"methods :meth:`remove` and :meth:`discard`."
+msgstr ""
+"メッセージを :class:`Mailbox` インスタンスに追加するには集合風のメソッド :meth:`add` を使います。また削除は "
+"``del`` 文または集合風の :meth:`remove` や :meth:`discard` を使って行ないます。"
+
+#: ../../library/mailbox.rst:51
+msgid ""
+":class:`Mailbox` interface semantics differ from dictionary semantics in "
+"some noteworthy ways. Each time a message is requested, a new representation"
+" (typically a :class:`Message` instance) is generated based upon the current"
+" state of the mailbox. Similarly, when a message is added to a "
+":class:`Mailbox` instance, the provided message representation's contents "
+"are copied. In neither case is a reference to the message representation "
+"kept by the :class:`Mailbox` instance."
+msgstr ""
+":class:`Mailbox` "
+"インタフェースのセマンティクスと辞書のそれとは注意すべき違いがあります。メッセージは、要求されるたびに新しい表現(典型的には "
+":class:`Message` インスタンス)が現在のメールボックスの状態に基づいて生成されます。同様に、メッセージが "
+":class:`Mailbox` インスタンスに追加される時も、渡されたメッセージ表現の内容がコピーされます。どちらの場合も "
+":class:`Mailbox` インスタンスにメッセージ表現への参照は保たれません。"
+
+#: ../../library/mailbox.rst:59
+msgid ""
+"The default :class:`Mailbox` iterator iterates over message representations,"
+" not keys as the default dictionary iterator does. Moreover, modification of"
+" a mailbox during iteration is safe and well-defined. Messages added to the "
+"mailbox after an iterator is created will not be seen by the iterator. "
+"Messages removed from the mailbox before the iterator yields them will be "
+"silently skipped, though using a key from an iterator may result in a "
+":exc:`KeyError` exception if the corresponding message is subsequently "
+"removed."
+msgstr ""
+"デフォルトの :class:`Mailbox` "
+"イテレータはメッセージ表現ごとに繰り返すもので、辞書のイテレータのようにキーごとの繰り返しではありません。さらに、繰り返し中のメールボックスを変更することは安全であり整合的に定義されています。イテレータが作られた後にメールボックスに追加されたメッセージはそのイテレータからは見えません。そのイテレータが"
+" yield "
+"するまえにメールボックスから削除されたメッセージは黙ってスキップされますが、イテレータからのキーを使ったときにはそのキーに対応するメッセージが削除されているならば"
+" :exc:`KeyError` を受け取ることになります。"
+
+#: ../../library/mailbox.rst:70
+msgid ""
+"Be very cautious when modifying mailboxes that might be simultaneously "
+"changed by some other process.  The safest mailbox format to use for such "
+"tasks is Maildir; try to avoid using single-file formats such as mbox for "
+"concurrent writing.  If you're modifying a mailbox, you *must* lock it by "
+"calling the :meth:`lock` and :meth:`unlock` methods *before* reading any "
+"messages in the file or making any changes by adding or deleting a message."
+"  Failing to lock the mailbox runs the risk of losing messages or corrupting"
+" the entire mailbox."
+msgstr ""
+"十分な注意を、何か他のプロセスによっても同時に変更される可能性のあるメールボックスを更新する時は、払わなければなりません。そのようなタスクをこなすのに最も安全なメールボックス形式は"
+" Maildir で、 mbox "
+"のような単一ファイルの形式を並行した書き込みに利用するのは避けるように努力しましょう。メールボックスを更新する場面では、 *必ず* "
+":meth:`lock` と :meth:`unlock` メソッドを、ファイル内のメッセージを読んだり書き込んだり削除したりといった操作をする *前*"
+" に、呼び出してロックします。メールボックスをロックし損なうと、メッセージを失ったりメールボックス全体をぐちゃぐちゃにしたりする羽目に陥ります。"
+
+#: ../../library/mailbox.rst:79
+msgid ":class:`Mailbox` instances have the following methods:"
+msgstr ":class:`Mailbox` インスタンスには次のメソッドがあります:"
+
+#: ../../library/mailbox.rst:84
+msgid ""
+"Add *message* to the mailbox and return the key that has been assigned to "
+"it."
+msgstr "メールボックスに *message* を追加し、それに割り当てられたキーを返します。"
+
+#: ../../library/mailbox.rst:87
+msgid ""
+"Parameter *message* may be a :class:`Message` instance, an "
+":class:`email.message.Message` instance, a string, a byte string, or a file-"
+"like object (which should be open in binary mode). If *message* is an "
+"instance of the appropriate format-specific :class:`Message` subclass (e.g.,"
+" if it's an :class:`mboxMessage` instance and this is an :class:`mbox` "
+"instance), its format-specific information is used. Otherwise, reasonable "
+"defaults for format-specific information are used."
+msgstr ""
+"引数 *message* は :class:`Message` インスタンス、 :class:`email.message.Message` "
+"インスタンス、文字列、バイト文字列、ファイル風オブジェクト (バイナリモードで開かれていなければなりません) を使えます。 *message* "
+"が適切な形式に特化した :class:`Message` サブクラスのインスタンス (例えばメールボックスが :class:`mbox` "
+"インスタンスのときの :class:`mboxMessage` インスタンス) "
+"であれば、形式ごとの情報が利用されます。そうでなければ、形式ごとに必要な情報は適当なデフォルトが使われます。"
+
+#: ../../library/mailbox.rst:96
+msgid "Support for binary input was added."
+msgstr "バイナリ入力のサポートが追加されました。"
+
+#: ../../library/mailbox.rst:104
+msgid "Delete the message corresponding to *key* from the mailbox."
+msgstr "メールボックスから *key* に対応するメッセージを削除します。"
+
+#: ../../library/mailbox.rst:106
+msgid ""
+"If no such message exists, a :exc:`KeyError` exception is raised if the "
+"method was called as :meth:`remove` or :meth:`__delitem__` but no exception "
+"is raised if the method was called as :meth:`discard`. The behavior of "
+":meth:`discard` may be preferred if the underlying mailbox format supports "
+"concurrent modification by other processes."
+msgstr ""
+"対応するメッセージが無い場合、メソッドが :meth:`remove` または :meth:`__delitem__` として呼び出されている時は "
+":exc:`KeyError` 例外が送出されます。しかし、 :meth:`discard` "
+"として呼び出されている場合は例外は発生しません。基づいているメールボックス形式が別のプロセスからの平行した変更をサポートしているならば、この "
+":meth:`discard` の振る舞いの方が好まれるかもしれません。"
+
+#: ../../library/mailbox.rst:115
+msgid ""
+"Replace the message corresponding to *key* with *message*. Raise a "
+":exc:`KeyError` exception if no message already corresponds to *key*."
+msgstr ""
+"*key* に対応するメッセージを *message* で置き換えます。 *key* に対応しているメッセージが既に無くなっている場合 "
+":exc:`KeyError` 例外が送出されます。"
+
+#: ../../library/mailbox.rst:118
+msgid ""
+"As with :meth:`add`, parameter *message* may be a :class:`Message` instance,"
+" an :class:`email.message.Message` instance, a string, a byte string, or a "
+"file-like object (which should be open in binary mode). If *message* is an "
+"instance of the appropriate format-specific :class:`Message` subclass (e.g.,"
+" if it's an :class:`mboxMessage` instance and this is an :class:`mbox` "
+"instance), its format-specific information is used. Otherwise, the format-"
+"specific information of the message that currently corresponds to *key* is "
+"left unchanged."
+msgstr ""
+":meth:`add` と同様に、引数の *message* には :class:`Message` インスタンス、 "
+":class:`email.message.Message` インスタンス、文字列、バイト文字列、ファイル風オブジェクト "
+"(バイナリモードで開かれていなければなりません) を使えます。 *message* が適切な形式に特化した :class:`Message` "
+"サブクラスのインスタンス (例えばメールボックスが :class:`mbox` インスタンスのときの :class:`mboxMessage` "
+"インスタンス) であれば、形式ごとの情報が利用されます。そうでなければ、現在 *key* に対応するメッセージの形式ごとの情報が変更されずに残ります。"
+
+#: ../../library/mailbox.rst:132
+msgid ""
+"Return an iterator over all keys if called as :meth:`iterkeys` or return a "
+"list of keys if called as :meth:`keys`."
+msgstr ""
+":meth:`iterkeys` として呼び出されると全てのキーについてのイテレータを返しますが、 :meth:`keys` "
+"として呼び出されるとキーのリストを返します。"
+
+#: ../../library/mailbox.rst:140
+msgid ""
+"Return an iterator over representations of all messages if called as "
+":meth:`itervalues` or :meth:`__iter__` or return a list of such "
+"representations if called as :meth:`values`. The messages are represented as"
+" instances of the appropriate format-specific :class:`Message` subclass "
+"unless a custom message factory was specified when the :class:`Mailbox` "
+"instance was initialized."
+msgstr ""
+":meth:`itervalues` または :meth:`__iter__` "
+"として呼び出されると全てのメッセージの表現についてのイテレータを返しますが、 :meth:`values` "
+"として呼び出されるとその表現のリストを返します。メッセージは適切な形式ごとの :class:`Message` "
+"サブクラスのインスタンスとして表現されるのが普通ですが、 :class:`Mailbox` "
+"インスタンスが初期化されるときに指定すればお好みのメッセージファクトリを使うこともできます。"
+
+#: ../../library/mailbox.rst:149
+msgid ""
+"The behavior of :meth:`__iter__` is unlike that of dictionaries, which "
+"iterate over keys."
+msgstr ":meth:`__iter__` は辞書のそれのようにキーについてのイテレータではありません。"
+
+#: ../../library/mailbox.rst:156
+msgid ""
+"Return an iterator over (*key*, *message*) pairs, where *key* is a key and "
+"*message* is a message representation, if called as :meth:`iteritems` or "
+"return a list of such pairs if called as :meth:`items`. The messages are "
+"represented as instances of the appropriate format-specific :class:`Message`"
+" subclass unless a custom message factory was specified when the "
+":class:`Mailbox` instance was initialized."
+msgstr ""
+"(*key*, *message*) ペア、ただし *key* はキーで *message* "
+"はメッセージ表現、のイテレータ(:meth:`iteritems` として呼び出された場合)、またはリスト(:meth:`items` "
+"として呼び出された場合)を返します。メッセージは適切な形式ごとの :class:`Message` "
+"サブクラスのインスタンスとして表現されるのが普通ですが、 :class:`Mailbox` "
+"インスタンスが初期化されるときに指定すればお好みのメッセージファクトリを使うこともできます。"
+
+#: ../../library/mailbox.rst:167
+msgid ""
+"Return a representation of the message corresponding to *key*. If no such "
+"message exists, *default* is returned if the method was called as "
+":meth:`get` and a :exc:`KeyError` exception is raised if the method was "
+"called as :meth:`__getitem__`. The message is represented as an instance of "
+"the appropriate format-specific :class:`Message` subclass unless a custom "
+"message factory was specified when the :class:`Mailbox` instance was "
+"initialized."
+msgstr ""
+"*key* に対応するメッセージの表現を返します。対応するメッセージが存在しない場合、 :meth:`get` として呼び出されたなら "
+"*default* を返しますが、 :meth:`__getitem__` として呼び出されたなら :exc:`KeyError` "
+"例外が送出されます。メッセージは適切な形式ごとの :class:`Message` サブクラスのインスタンスとして表現されるのが普通ですが、 "
+":class:`Mailbox` スタンスが初期化されるときに指定すればお好みのメッセージファクトリを使うこともできます。"
+
+#: ../../library/mailbox.rst:178
+msgid ""
+"Return a representation of the message corresponding to *key* as an instance"
+" of the appropriate format-specific :class:`Message` subclass, or raise a "
+":exc:`KeyError` exception if no such message exists."
+msgstr ""
+"*key* に対応するメッセージの表現を形式ごとの :class:`Message` "
+"サブクラスのインスタンスとして返します。もし対応するメッセージが存在しなければ :exc:`KeyError` 例外が送出されます。"
+
+#: ../../library/mailbox.rst:185
+msgid ""
+"Return a byte representation of the message corresponding to *key*, or raise"
+" a :exc:`KeyError` exception if no such message exists."
+msgstr ""
+"*key* に対応するメッセージのバイト列を返すか、そのようなメッセージが存在しない場合は :exc:`KeyError` 例外を送出します。"
+
+#: ../../library/mailbox.rst:193
+msgid ""
+"Return a string representation of the message corresponding to *key*, or "
+"raise a :exc:`KeyError` exception if no such message exists.  The message is"
+" processed through :class:`email.message.Message` to convert it to a 7bit "
+"clean representation."
+msgstr ""
+"*key* に対応するメッセージの文字列表現を返すか、そのようなメッセージが存在しない場合は :exc:`KeyError` "
+"例外を送出します。このメッセージは :class:`email.message.Message` "
+"を通して処理されて7ビットクリーンな表現へ変換されます。"
+
+#: ../../library/mailbox.rst:201
+msgid ""
+"Return a file-like representation of the message corresponding to *key*, or "
+"raise a :exc:`KeyError` exception if no such message exists.  The file-like "
+"object behaves as if open in binary mode.  This file should be closed once "
+"it is no longer needed."
+msgstr ""
+"*key* に対応するメッセージの表現をファイル風表現として返します。もし対応するメッセージが存在しなければ :exc:`KeyError` "
+"例外が送出されます。ファイル風オブジェクトはバイナリモードで開かれているように振る舞います。このファイルは必要がなくなったら閉じなければなりません。"
+
+#: ../../library/mailbox.rst:206
+msgid ""
+"The file object really is a binary file; previously it was incorrectly "
+"returned in text mode.  Also, the file-like object now supports the context "
+"management protocol: you can use a :keyword:`with` statement to "
+"automatically close it."
+msgstr ""
+"ファイルオブジェクトは実際はバイナリファイルです; 以前は誤ってテキストモードで返されていました。 "
+"また、現在ファイル風オブジェクトはコンテキストマネージャプロトコルをサポートしています: :keyword:`with` "
+"文を用いることで自動的にファイルを閉じることができます。"
+
+#: ../../library/mailbox.rst:214
+msgid ""
+"Unlike other representations of messages, file-like representations are not "
+"necessarily independent of the :class:`Mailbox` instance that created them "
+"or of the underlying mailbox.  More specific documentation is provided by "
+"each subclass."
+msgstr ""
+"他の表現方法とは違い、ファイル風オブジェクトはそれを作り出した :class:`Mailbox` "
+"インスタンスやそれが基づいているメールボックスと独立である必要がありません。より詳細な説明は各サブクラスごとにあります。"
+
+#: ../../library/mailbox.rst:222
+msgid ""
+"Return ``True`` if *key* corresponds to a message, ``False`` otherwise."
+msgstr "*key* がメッセージに対応していれば ``True`` を、そうでなければ ``False`` を返します。"
+
+#: ../../library/mailbox.rst:227
+msgid "Return a count of messages in the mailbox."
+msgstr "メールボックス中のメッセージ数を返します。"
+
+#: ../../library/mailbox.rst:232
+msgid "Delete all messages from the mailbox."
+msgstr "メールボックスから全てのメッセージを削除します。"
+
+#: ../../library/mailbox.rst:237
+msgid ""
+"Return a representation of the message corresponding to *key* and delete the"
+" message. If no such message exists, return *default*. The message is "
+"represented as an instance of the appropriate format-specific "
+":class:`Message` subclass unless a custom message factory was specified when"
+" the :class:`Mailbox` instance was initialized."
+msgstr ""
+"*key* に対応するメッセージの表現を返します。メッセージは適切な形式ごとの :class:`Message` "
+"サブクラスのインスタンスとして表現されるのが普通ですが、 :class:`Mailbox` "
+"インスタンスが初期化されるときに指定すればお好みのメッセージファクトリを使うこともできます。"
+
+#: ../../library/mailbox.rst:246
+msgid ""
+"Return an arbitrary (*key*, *message*) pair, where *key* is a key and "
+"*message* is a message representation, and delete the corresponding message."
+" If the mailbox is empty, raise a :exc:`KeyError` exception. The message is "
+"represented as an instance of the appropriate format-specific "
+":class:`Message` subclass unless a custom message factory was specified when"
+" the :class:`Mailbox` instance was initialized."
+msgstr ""
+"任意に選んだ (*key*, *message*) ペアを返します。ただしここで *key* はキーで *message* "
+"はメッセージ表現です。もしメールボックスが空ならば、 :exc:`KeyError` 例外を送出します。メッセージは適切な形式ごとの "
+":class:`Message` サブクラスのインスタンスとして表現されるのが普通ですが、 :class:`Mailbox` "
+"インスタンスが初期化されるときに指定すればお好みのメッセージファクトリを使うこともできます。"
+
+#: ../../library/mailbox.rst:256
+msgid ""
+"Parameter *arg* should be a *key*-to-*message* mapping or an iterable of "
+"(*key*, *message*) pairs. Updates the mailbox so that, for each given *key* "
+"and *message*, the message corresponding to *key* is set to *message* as if "
+"by using :meth:`__setitem__`. As with :meth:`__setitem__`, each *key* must "
+"already correspond to a message in the mailbox or else a :exc:`KeyError` "
+"exception will be raised, so in general it is incorrect for *arg* to be a "
+":class:`Mailbox` instance."
+msgstr ""
+"引数 *arg* は *key* から *message* へのマッピングまたは (*key*, *message*) "
+"ペアのイテレート可能オブジェクトでなければなりません。メールボックスは、各 *key* と *message* のペアについて "
+":meth:`__setitem__` を使ったかのように *key* に対応するメッセージが *message* になるように更新されます。 "
+":meth:`__setitem__` と同様に、 *key* は既存のメールボックス中のメッセージに対応しているものでなければならず、そうでなければ "
+":exc:`KeyError` が送出されます。ですから、一般的には *arg* に :class:`Mailbox` "
+"インスタンスを渡すのは間違いです。"
+
+#: ../../library/mailbox.rst:266
+msgid "Unlike with dictionaries, keyword arguments are not supported."
+msgstr "辞書と違い、キーワード引数はサポートされていません。"
+
+#: ../../library/mailbox.rst:271
+msgid ""
+"Write any pending changes to the filesystem. For some :class:`Mailbox` "
+"subclasses, changes are always written immediately and :meth:`flush` does "
+"nothing, but you should still make a habit of calling this method."
+msgstr ""
+"保留されている変更をファイルシステムに書き込みます。 :class:`Mailbox` のサブクラスによっては変更はいつも直ちにファイルに書き込まれ "
+":meth:`flush` は何もしないということもありますが、それでもこのメソッドを呼ぶように習慣付けておきましょう。"
+
+#: ../../library/mailbox.rst:278
+msgid ""
+"Acquire an exclusive advisory lock on the mailbox so that other processes "
+"know not to modify it. An :exc:`ExternalClashError` is raised if the lock is"
+" not available. The particular locking mechanisms used depend upon the "
+"mailbox format.  You should *always* lock the mailbox before making any "
+"modifications to its contents."
+msgstr ""
+"メールボックスの排他的アドバイザリロックを取得し、他のプロセスが変更しないようにします。ロックが取得できない場合 "
+":exc:`ExternalClashError` "
+"が送出されます。ロック機構はメールボックス形式によって変わります。メールボックスの内容に変更を加えるときは *いつも* ロックを掛けるべきです。"
+
+#: ../../library/mailbox.rst:287
+msgid "Release the lock on the mailbox, if any."
+msgstr "メールボックスのロックが存在する場合は解放します。"
+
+#: ../../library/mailbox.rst:292
+msgid ""
+"Flush the mailbox, unlock it if necessary, and close any open files. For "
+"some :class:`Mailbox` subclasses, this method does nothing."
+msgstr ""
+"メールボックスをフラッシュし、必要ならばアンロックし、開いているファイルを閉じます。 :class:`Mailbox` "
+"サブクラスによっては何もしないこともあります。"
+
+#: ../../library/mailbox.rst:299
+msgid ":class:`Maildir`"
+msgstr ":class:`Maildir`"
+
+#: ../../library/mailbox.rst:304
+msgid ""
+"A subclass of :class:`Mailbox` for mailboxes in Maildir format. Parameter "
+"*factory* is a callable object that accepts a file-like message "
+"representation (which behaves as if opened in binary mode) and returns a "
+"custom representation. If *factory* is ``None``, :class:`MaildirMessage` is "
+"used as the default message representation. If *create* is ``True``, the "
+"mailbox is created if it does not exist."
+msgstr ""
+"Maildir 形式のメールボックスのための :class:`Mailbox` のサブクラス。パラメータ *factory* "
+"は呼び出し可能オブジェクトで (バイナリモードで開かれているかのように振る舞う)ファイル風メッセージ表現を受け付けて好みの表現を返すものです。 "
+"*factory* が ``None`` ならば、 :class:`MaildirMessage` がデフォルトのメッセージ表現として使われます。 "
+"*create* が ``True`` ならばメールボックスが存在しないときには作成します。"
+
+#: ../../library/mailbox.rst:311
+msgid ""
+"It is for historical reasons that *dirname* is named as such rather than "
+"*path*."
+msgstr "*path* ではなく *dirname* と命名される歴史的な理由のためです。"
+
+#: ../../library/mailbox.rst:313
+msgid ""
+"Maildir is a directory-based mailbox format invented for the qmail mail "
+"transfer agent and now widely supported by other programs. Messages in a "
+"Maildir mailbox are stored in separate files within a common directory "
+"structure. This design allows Maildir mailboxes to be accessed and modified "
+"by multiple unrelated programs without data corruption, so file locking is "
+"unnecessary."
+msgstr ""
+"Maildir はディレクトリ型のメールボックス形式でメール転送エージェント qmail "
+"用に発明され、現在では多くの他のプログラムでもサポートされているものです。Maildir "
+"メールボックス中のメッセージは共通のディレクトリ構造の下で個別のファイルに保存されます。このデザインにより、Maildir "
+"メールボックスは複数の無関係のプログラムからデータを失うことなくアクセスしたり変更したりできます。そのためロックは不要です。"
+
+#: ../../library/mailbox.rst:320
+msgid ""
+"Maildir mailboxes contain three subdirectories, namely: :file:`tmp`, "
+":file:`new`, and :file:`cur`. Messages are created momentarily in the "
+":file:`tmp` subdirectory and then moved to the :file:`new` subdirectory to "
+"finalize delivery. A mail user agent may subsequently move the message to "
+"the :file:`cur` subdirectory and store information about the state of the "
+"message in a special \"info\" section appended to its file name."
+msgstr ""
+"Maildir メールボックスには三つのサブディレクトリ :file:`tmp`, :file:`new`, :file:`cur` "
+"があります。メッセージはまず :file:`tmp` サブディレクトリに瞬間的に作られた後、 :file:`new` "
+"サブディレクトリに移動されて配送を完了します。メールユーザエージェントが引き続いて :file:`cur` "
+"サブディレクトリにメッセージを移動しメッセージの状態についての情報をファイル名に追加される特別な \"info\" セクションに保存することができます。"
+
+#: ../../library/mailbox.rst:327
+msgid ""
+"Folders of the style introduced by the Courier mail transfer agent are also "
+"supported. Any subdirectory of the main mailbox is considered a folder if "
+"``'.'`` is the first character in its name. Folder names are represented by "
+":class:`Maildir` without the leading ``'.'``. Each folder is itself a "
+"Maildir mailbox but should not contain other folders. Instead, a logical "
+"nesting is indicated using ``'.'`` to delimit levels, e.g., "
+"\"Archived.2005.07\"."
+msgstr ""
+"Courier メール転送エージェントによって導入されたスタイルのフォルダもサポートされます。主たるメールボックスのサブディレクトリは ``'.'`` "
+"がファイル名の先頭であればフォルダと見なされます。フォルダ名は :class:`Maildir` によって先頭の ``'.'`` "
+"を除いて表現されます。各フォルダはまた Maildir メールボックスですがさらにフォルダを含むことはできません。その代わり、論理的包含関係は例えば "
+"\"Archived.2005.07\" のような ``'.'`` を使ったレベル分けで表わされます。"
+
+#: ../../library/mailbox.rst:336
+msgid ""
+"The Maildir specification requires the use of a colon (``':'``) in certain "
+"message file names. However, some operating systems do not permit this "
+"character in file names, If you wish to use a Maildir-like format on such an"
+" operating system, you should specify another character to use instead. The "
+"exclamation point (``'!'``) is a popular choice. For example::"
+msgstr ""
+"本来の Maildir 仕様ではある種のメッセージのファイル名にコロン (``':'``) "
+"を使う必要があります。しかしながら、オペレーティングシステムによってはこの文字をファイル名に含めることができないことがあります。そういった環境で "
+"Maildir のような形式を使いたい場合、代わりに使われる文字を指定する必要があります。感嘆符 (``'!'``) "
+"を使うのが一般的な選択です。以下の例を見てください::"
+
+#: ../../library/mailbox.rst:346
+msgid "The :attr:`colon` attribute may also be set on a per-instance basis."
+msgstr ":attr:`colon` 属性はインスタンスごとにセットしても構いません。"
+
+#: ../../library/mailbox.rst:348
+msgid ""
+":class:`Maildir` instances have all of the methods of :class:`Mailbox` in "
+"addition to the following:"
+msgstr ":class:`Maildir` インスタンスには :class:`Mailbox` の全てのメソッドに加え以下のメソッドもあります:"
+
+#: ../../library/mailbox.rst:354 ../../library/mailbox.rst:532
+msgid "Return a list of the names of all folders."
+msgstr "全てのフォルダ名のリストを返します。"
+
+#: ../../library/mailbox.rst:359
+msgid ""
+"Return a :class:`Maildir` instance representing the folder whose name is "
+"*folder*. A :exc:`NoSuchMailboxError` exception is raised if the folder does"
+" not exist."
+msgstr ""
+"名前が *folder* であるフォルダを表わす :class:`Maildir` インスタンスを返します。そのようなフォルダが存在しなければ "
+":exc:`NoSuchMailboxError` 例外が送出されます。"
+
+#: ../../library/mailbox.rst:366
+msgid ""
+"Create a folder whose name is *folder* and return a :class:`Maildir` "
+"instance representing it."
+msgstr "名前が *folder* であるフォルダを作り、それを表わす :class:`Maildir` インスタンスを返します。"
+
+#: ../../library/mailbox.rst:372 ../../library/mailbox.rst:550
+msgid ""
+"Delete the folder whose name is *folder*. If the folder contains any "
+"messages, a :exc:`NotEmptyError` exception will be raised and the folder "
+"will not be deleted."
+msgstr ""
+"名前が *folder* であるフォルダを削除します。もしフォルダに一つでもメッセージが含まれていれば :exc:`NotEmptyError` "
+"例外が送出されフォルダは削除されません。"
+
+#: ../../library/mailbox.rst:379
+msgid ""
+"Delete temporary files from the mailbox that have not been accessed in the "
+"last 36 hours. The Maildir specification says that mail-reading programs "
+"should do this occasionally."
+msgstr ""
+"過去36時間以内にアクセスされなかったメールボックス内の一時ファイルを削除します。Maildir "
+"仕様はメールを読むプログラムはときどきこの作業をすべきだとしています。"
+
+#: ../../library/mailbox.rst:383
+msgid ""
+"Some :class:`Mailbox` methods implemented by :class:`Maildir` deserve "
+"special remarks:"
+msgstr ":class:`Maildir` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注意が必要です:"
+
+#: ../../library/mailbox.rst:393
+msgid ""
+"These methods generate unique file names based upon the current process ID. "
+"When using multiple threads, undetected name clashes may occur and cause "
+"corruption of the mailbox unless threads are coordinated to avoid using "
+"these methods to manipulate the same mailbox simultaneously."
+msgstr ""
+"これらのメソッドは一意的なファイル名をプロセスIDに基づいて生成します。複数のスレッドを使う場合は、同じメールボックスを同時に操作しないようにスレッド間で調整しておかないと検知されない名前の衝突が起こりメールボックスを壊すかもしれません。"
+
+#: ../../library/mailbox.rst:401
+msgid ""
+"All changes to Maildir mailboxes are immediately applied, so this method "
+"does nothing."
+msgstr "Maildir メールボックスへの変更は即時に適用されるので、このメソッドは何もしません。"
+
+#: ../../library/mailbox.rst:408
+msgid ""
+"Maildir mailboxes do not support (or require) locking, so these methods do "
+"nothing."
+msgstr "Maildir メールボックスはロックをサポート(または要求)しないので、このメソッドは何もしません。"
+
+#: ../../library/mailbox.rst:414
+msgid ""
+":class:`Maildir` instances do not keep any open files and the underlying "
+"mailboxes do not support locking, so this method does nothing."
+msgstr ""
+":class:`Maildir` インスタンスは開いたファイルを保持しませんしメールボックスはロックをサポートしませんので、このメソッドは何もしません。"
+
+#: ../../library/mailbox.rst:420
+msgid ""
+"Depending upon the host platform, it may not be possible to modify or remove"
+" the underlying message while the returned file remains open."
+msgstr "ホストのプラットフォームによっては、返されたファイルが開いている間、元になったメッセージを変更したり削除したりできない場合があります。"
+
+#: ../../library/mailbox.rst:427
+msgid ""
+"`maildir man page from qmail <http://www.qmail.org/man/man5/maildir.html>`_"
+msgstr ""
+"`qmail の maildir マニュアルページ <http://www.qmail.org/man/man5/maildir.html>`_"
+
+#: ../../library/mailbox.rst:427
+msgid "The original specification of the format."
+msgstr "Maildir 形式のオリジナルの仕様。"
+
+#: ../../library/mailbox.rst:431
+msgid "`Using maildir format <https://cr.yp.to/proto/maildir.html>`_"
+msgstr "`Using maildir format <https://cr.yp.to/proto/maildir.html>`_"
+
+#: ../../library/mailbox.rst:430
+msgid ""
+"Notes on Maildir by its inventor. Includes an updated name-creation scheme "
+"and details on \"info\" semantics."
+msgstr "Maildir 形式の発明者による注意書き。更新された名前生成規則と \"info\" の解釈についても含まれます。"
+
+#: ../../library/mailbox.rst:434
+msgid ""
+"`maildir man page from Courier <http://www.courier-mta.org/maildir.html>`_"
+msgstr ""
+"`Courier の maildir マニュアルページ <http://www.courier-mta.org/maildir.html>`_"
+
+#: ../../library/mailbox.rst:434
+msgid ""
+"Another specification of the format. Describes a common extension for "
+"supporting folders."
+msgstr "Maildir 形式のもう一つの仕様。フォルダをサポートする一般的な拡張について記述されています。"
+
+#: ../../library/mailbox.rst:441
+msgid ":class:`mbox`"
+msgstr ":class:`mbox`"
+
+#: ../../library/mailbox.rst:446
+msgid ""
+"A subclass of :class:`Mailbox` for mailboxes in mbox format. Parameter "
+"*factory* is a callable object that accepts a file-like message "
+"representation (which behaves as if opened in binary mode) and returns a "
+"custom representation. If *factory* is ``None``, :class:`mboxMessage` is "
+"used as the default message representation. If *create* is ``True``, the "
+"mailbox is created if it does not exist."
+msgstr ""
+"mbox 形式のメールボックスのための :class:`Mailbox` のサブクラス。パラメータ *factory* は呼び出し可能オブジェクトで "
+"(バイナリモードで開かれているかのように振る舞う)ファイル風メッセージ表現を受け付けて好みの表現を返すものです。 *factory* が "
+"``None`` ならば、 :class:`mboxMessage` がデフォルトのメッセージ表現として使われます。 *create* が "
+"``True`` ならばメールボックスが存在しないときには作成します。"
+
+#: ../../library/mailbox.rst:453
+msgid ""
+"The mbox format is the classic format for storing mail on Unix systems. All "
+"messages in an mbox mailbox are stored in a single file with the beginning "
+"of each message indicated by a line whose first five characters are \"From "
+"\"."
+msgstr ""
+"mbox 形式は Unixシステム上でメールを保存する古くからある形式です。mbox "
+"メールボックスでは全てのメッセージが一つのファイルに保存されておりそれぞれのメッセージは \"From \" "
+"という5文字で始まる行を先頭に付けられています。"
+
+#: ../../library/mailbox.rst:457
+msgid ""
+"Several variations of the mbox format exist to address perceived "
+"shortcomings in the original. In the interest of compatibility, "
+":class:`mbox` implements the original format, which is sometimes referred to"
+" as :dfn:`mboxo`. This means that the :mailheader:`Content-Length` header, "
+"if present, is ignored and that any occurrences of \"From \" at the "
+"beginning of a line in a message body are transformed to \">From \" when "
+"storing the message, although occurrences of \">From \" are not transformed "
+"to \"From \" when reading the message."
+msgstr ""
+"mbox 形式には幾つかのバリエーションがあり、それぞれオリジナルの形式にあった欠点を克服すると主張しています。互換性のために、 "
+":class:`mbox` はオリジナルの(時に :dfn:`mboxo` と呼ばれる) 形式を実装しています。すなわち、 :mailheader"
+":`Content-Length` ヘッダはもしあっても無視され、メッセージのボディにある行頭の \"From \" はメッセージを保存する際に "
+"\">From \" に変換されますが、この \">From \" は読み出し時にも \"From \" に変換されません。"
+
+#: ../../library/mailbox.rst:465
+msgid ""
+"Some :class:`Mailbox` methods implemented by :class:`mbox` deserve special "
+"remarks:"
+msgstr ":class:`mbox` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注意が必要です:"
+
+#: ../../library/mailbox.rst:471
+msgid ""
+"Using the file after calling :meth:`flush` or :meth:`close` on the "
+":class:`mbox` instance may yield unpredictable results or raise an "
+"exception."
+msgstr ""
+":class:`mbox` インスタンスに対し :meth:`flush` や :meth:`close` "
+"を呼び出した後でファイルを使用すると予期しない結果を引き起こしたり例外が送出されたりすることがあります。"
+
+#: ../../library/mailbox.rst:479 ../../library/mailbox.rst:691
+#: ../../library/mailbox.rst:742
+msgid ""
+"Three locking mechanisms are used---dot locking and, if available, the "
+":c:func:`flock` and :c:func:`lockf` system calls."
+msgstr ""
+"3種類のロック機構が使われます --- ドットロッキングと、もし使用可能ならば :c:func:`flock` と :c:func:`lockf` "
+"システムコールです。"
+
+#: ../../library/mailbox.rst:486
+msgid "`mbox man page from qmail <http://www.qmail.org/man/man5/mbox.html>`_"
+msgstr "`qmail の mbox マニュアルページ  <http://www.qmail.org/man/man5/mbox.html>`_"
+
+#: ../../library/mailbox.rst:486
+msgid "A specification of the format and its variations."
+msgstr "mbox 形式の仕様および種々のバリエーション。"
+
+#: ../../library/mailbox.rst:489
+msgid ""
+"`mbox man page from tin "
+"<http://www.tin.org/bin/man.cgi?section=5&topic=mbox>`_"
+msgstr ""
+"`tin の mbox マニュアルページ <http://www.tin.org/bin/man.cgi?section=5&topic=mbox>`_"
+
+#: ../../library/mailbox.rst:489
+msgid "Another specification of the format, with details on locking."
+msgstr "もう一つの mbox 形式の仕様でロックについての詳細を含む。"
+
+#: ../../library/mailbox.rst:492
+msgid ""
+"`Configuring Netscape Mail on Unix: Why The Content-Length Format is Bad "
+"<https://www.jwz.org/doc/content-length.html>`_"
+msgstr ""
+"`Configuring Netscape Mail on Unix: Why The Content-Length Format is Bad "
+"<https://www.jwz.org/doc/content-length.html>`_"
+
+#: ../../library/mailbox.rst:492
+msgid ""
+"An argument for using the original mbox format rather than a variation."
+msgstr "バリエーションの一つではなくオリジナルの mbox を使う理由。"
+
+#: ../../library/mailbox.rst:494
+msgid ""
+"`\"mbox\" is a family of several mutually incompatible mailbox formats "
+"<http://homepage.ntlworld.com/jonathan.deboynepollard/FGA/mail-mbox-"
+"formats.html>`_"
+msgstr ""
+"`\"mbox\" is a family of several mutually incompatible mailbox formats "
+"<http://homepage.ntlworld.com/jonathan.deboynepollard/FGA/mail-mbox-"
+"formats.html>`_"
+
+#: ../../library/mailbox.rst:495
+msgid "A history of mbox variations."
+msgstr "mbox バリエーションの歴史。"
+
+#: ../../library/mailbox.rst:501
+msgid ":class:`MH`"
+msgstr ":class:`MH`"
+
+#: ../../library/mailbox.rst:506
+msgid ""
+"A subclass of :class:`Mailbox` for mailboxes in MH format. Parameter "
+"*factory* is a callable object that accepts a file-like message "
+"representation (which behaves as if opened in binary mode) and returns a "
+"custom representation. If *factory* is ``None``, :class:`MHMessage` is used "
+"as the default message representation. If *create* is ``True``, the mailbox "
+"is created if it does not exist."
+msgstr ""
+"MH 形式のメールボックスのための :class:`Mailbox` のサブクラス。パラメータ *factory* は呼び出し可能オブジェクトで "
+"(バイナリモードで開かれているかのように振る舞う)ファイル風メッセージ表現を受け付けて好みの表現を返すものです。 *factory* が "
+"``None`` ならば、 :class:`MHMessage` がデフォルトのメッセージ表現として使われます。 *create* が ``True``"
+" ならばメールボックスが存在しないときには作成します。"
+
+#: ../../library/mailbox.rst:513
+msgid ""
+"MH is a directory-based mailbox format invented for the MH Message Handling "
+"System, a mail user agent. Each message in an MH mailbox resides in its own "
+"file. An MH mailbox may contain other MH mailboxes (called :dfn:`folders`) "
+"in addition to messages. Folders may be nested indefinitely. MH mailboxes "
+"also support :dfn:`sequences`, which are named lists used to logically group"
+" messages without moving them to sub-folders. Sequences are defined in a "
+"file called :file:`.mh_sequences` in each folder."
+msgstr ""
+"MH はディレクトリに基づいたメールボックス形式で MH Message Handling System "
+"というメールユーザエージェントのために発明されました。 MH メールボックス中のそれぞれのメッセージは一つのファイルとして収められています。 MH "
+"メールボックスにはメッセージの他に別の MH メールボックス (:dfn:`フォルダ` "
+"と呼ばれます)を含んでもかまいません。フォルダは無限にネストできます。 MH メールボックスにはもう一つ :dfn:`シーケンス` "
+"という名前付きのリストでメッセージをサブフォルダに移動することなく論理的に分類するものがサポートされています。シーケンスは各フォルダの "
+":file:`.mh_sequences` というファイルで定義されます。"
+
+#: ../../library/mailbox.rst:521
+msgid ""
+"The :class:`MH` class manipulates MH mailboxes, but it does not attempt to "
+"emulate all of :program:`mh`'s behaviors. In particular, it does not modify "
+"and is not affected by the :file:`context` or :file:`.mh_profile` files that"
+" are used by :program:`mh` to store its state and configuration."
+msgstr ""
+":class:`MH` クラスは MH メールボックスを操作しますが、 :program:`mh` の動作の全てを模倣しようとはしていません。特に、 "
+":program:`mh` が状態と設定を保存する :file:`context` や :file:`.mh_profile` "
+"といったファイルは書き換えませんし影響も受けません。"
+
+#: ../../library/mailbox.rst:526
+msgid ""
+":class:`MH` instances have all of the methods of :class:`Mailbox` in "
+"addition to the following:"
+msgstr ":class:`MH` インスタンスには :class:`Mailbox` の全てのメソッドの他に次のメソッドがあります:"
+
+#: ../../library/mailbox.rst:537
+msgid ""
+"Return an :class:`MH` instance representing the folder whose name is "
+"*folder*. A :exc:`NoSuchMailboxError` exception is raised if the folder does"
+" not exist."
+msgstr ""
+"*folder* という名前のフォルダを表わす :class:`MH` インスタンスを返します。もしフォルダが存在しなければ "
+":exc:`NoSuchMailboxError` 例外が送出されます。"
+
+#: ../../library/mailbox.rst:544
+msgid ""
+"Create a folder whose name is *folder* and return an :class:`MH` instance "
+"representing it."
+msgstr "*folder* という名前のフォルダを作成し、それを表わす :class:`MH` インスタンスを返します。"
+
+#: ../../library/mailbox.rst:557
+msgid ""
+"Return a dictionary of sequence names mapped to key lists. If there are no "
+"sequences, the empty dictionary is returned."
+msgstr ""
+"*folder* という名前のフォルダを削除します。フォルダにメッセージが一つでも残っていれば、:exc:`NotEmptyError` "
+"例外が送出されフォルダは削除されません。"
+
+#: ../../library/mailbox.rst:563
+msgid ""
+"Re-define the sequences that exist in the mailbox based upon *sequences*, a "
+"dictionary of names mapped to key lists, like returned by "
+":meth:`get_sequences`."
+msgstr "シーケンス名をキーのリストに対応付ける辞書を返します。シーケンスが一つもなければ空の辞書を返します。"
+
+#: ../../library/mailbox.rst:570
+msgid ""
+"Rename messages in the mailbox as necessary to eliminate gaps in numbering."
+"  Entries in the sequences list are updated correspondingly."
+msgstr ""
+"メールボックス中のシーケンスを :meth:`get_sequences` で返されるような名前とキーのリストを対応付ける辞書 *sequences* "
+"に基づいて再定義します。"
+
+#: ../../library/mailbox.rst:575
+msgid ""
+"Already-issued keys are invalidated by this operation and should not be "
+"subsequently used."
+msgstr ""
+"番号付けの間隔を詰める必要に応じてメールボックス中のメッセージの名前を付け替えます。シーケンスのリストのエントリもそれに応じて更新されます。"
+
+#: ../../library/mailbox.rst:578
+msgid ""
+"Some :class:`Mailbox` methods implemented by :class:`MH` deserve special "
+"remarks:"
+msgstr "既に発行されたキーはこの操作によって無効になるのでそれ以降使ってはなりません:"
+
+#: ../../library/mailbox.rst:586
+msgid ""
+"These methods immediately delete the message. The MH convention of marking a"
+" message for deletion by prepending a comma to its name is not used."
+msgstr "これらのメソッドはメッセージを直ちに削除します。名前の前にコンマを付加してメッセージに削除の印を付けるという MH の規約は使いません。"
+
+#: ../../library/mailbox.rst:593
+msgid ""
+"Three locking mechanisms are used---dot locking and, if available, the "
+":c:func:`flock` and :c:func:`lockf` system calls. For MH mailboxes, locking "
+"the mailbox means locking the :file:`.mh_sequences` file and, only for the "
+"duration of any operations that affect them, locking individual message "
+"files."
+msgstr ""
+"3種類のロック機構が使われます --- ドットロッキングと、もし使用可能ならば :c:func:`flock` と :c:func:`lockf` "
+"システムコールです。 MH メールボックスに対するロックとは :file:`.mh_sequences` "
+"のロックと、それが影響を与える操作中だけの個々のメッセージファイルに対するロックを意味します。"
+
+#: ../../library/mailbox.rst:602
+msgid ""
+"Depending upon the host platform, it may not be possible to remove the "
+"underlying message while the returned file remains open."
+msgstr "ホストプラットフォームにより、ファイルが開かれたままの場合はメッセージを削除することができない場合があります。"
+
+#: ../../library/mailbox.rst:608
+msgid ""
+"All changes to MH mailboxes are immediately applied, so this method does "
+"nothing."
+msgstr "MH メールボックスへの変更は即時に適用されますのでこのメソッドは何もしません。"
+
+#: ../../library/mailbox.rst:614
+msgid ""
+":class:`MH` instances do not keep any open files, so this method is "
+"equivalent to :meth:`unlock`."
+msgstr ":class:`MH` インスタンスは開いたファイルを保持しませんのでこのメソッドは :meth:`unlock` と同じです。"
+
+#: ../../library/mailbox.rst:621
+msgid "`nmh - Message Handling System <http://www.nongnu.org/nmh/>`_"
+msgstr "`nmh - Message Handling System <http://www.nongnu.org/nmh/>`_"
+
+#: ../../library/mailbox.rst:621
+msgid ""
+"Home page of :program:`nmh`, an updated version of the original "
+":program:`mh`."
+msgstr ":program:`mh` の改良版である :program:`nmh` のホームページ。"
+
+#: ../../library/mailbox.rst:624
+msgid ""
+"`MH & nmh: Email for Users & Programmers <http://rand-"
+"mh.sourceforge.net/book/>`_"
+msgstr ""
+"`MH & nmh: Email for Users & Programmers <http://rand-"
+"mh.sourceforge.net/book/>`_"
+
+#: ../../library/mailbox.rst:624
+msgid ""
+"A GPL-licensed book on :program:`mh` and :program:`nmh`, with some "
+"information on the mailbox format."
+msgstr ""
+"GPLライセンスの :program:`mh` および :program:`nmh` の本で、このメールボックス形式についての情報があります。"
+
+#: ../../library/mailbox.rst:631
+msgid ":class:`Babyl`"
+msgstr ":class:`Babyl`"
+
+#: ../../library/mailbox.rst:636
+msgid ""
+"A subclass of :class:`Mailbox` for mailboxes in Babyl format. Parameter "
+"*factory* is a callable object that accepts a file-like message "
+"representation (which behaves as if opened in binary mode) and returns a "
+"custom representation. If *factory* is ``None``, :class:`BabylMessage` is "
+"used as the default message representation. If *create* is ``True``, the "
+"mailbox is created if it does not exist."
+msgstr ""
+"Babyl 形式のメールボックスのための :class:`Mailbox` のサブクラス。パラメータ *factory* は呼び出し可能オブジェクトで "
+"(バイナリモードで開かれているかのように振る舞う)ファイル風メッセージ表現を受け付けて好みの表現を返すものです。 *factory* が "
+"``None`` ならば、 :class:`BabylMessage` がデフォルトのメッセージ表現として使われます。 *create* が "
+"``True`` ならばメールボックスが存在しないときには作成します。"
+
+#: ../../library/mailbox.rst:643
+msgid ""
+"Babyl is a single-file mailbox format used by the Rmail mail user agent "
+"included with Emacs. The beginning of a message is indicated by a line "
+"containing the two characters Control-Underscore (``'\\037'``) and Control-L"
+" (``'\\014'``). The end of a message is indicated by the start of the next "
+"message or, in the case of the last message, a line containing a Control-"
+"Underscore (``'\\037'``) character."
+msgstr ""
+"Babyl は単一ファイルのメールボックス形式で Emacs に付属している Rmail "
+"メールユーザエージェントで使われているものです。メッセージの開始は Control-Underscore (``'\\037'``) および "
+"Control-L (``'\\014'``) の二文字を含む行で示されます。メッセージの終了は次のメッセージの開始または最後のメッセージの場合には "
+"Control-Underscore を含む行で示されます。"
+
+#: ../../library/mailbox.rst:650
+msgid ""
+"Messages in a Babyl mailbox have two sets of headers, original headers and "
+"so-called visible headers. Visible headers are typically a subset of the "
+"original headers that have been reformatted or abridged to be more "
+"attractive. Each message in a Babyl mailbox also has an accompanying list of"
+" :dfn:`labels`, or short strings that record extra information about the "
+"message, and a list of all user-defined labels found in the mailbox is kept "
+"in the Babyl options section."
+msgstr ""
+"Babyl "
+"メールボックス中のメッセージには二つのヘッダのセット、オリジナルヘッダといわゆる可視ヘッダ、があります。可視ヘッダは典型的にはオリジナルヘッダの一部を分り易いように再整形したり短くしたりしたものです。"
+" Babyl メールボックス中のそれぞれのメッセージには :dfn:`ラベル` "
+"というそのメッセージについての追加情報を記録する短い文字列のリストを伴い、メールボックス中に見出されるユーザが定義した全てのラベルのリストは Babyl"
+" オプションセクションに保持されます。"
+
+#: ../../library/mailbox.rst:658
+msgid ""
+":class:`Babyl` instances have all of the methods of :class:`Mailbox` in "
+"addition to the following:"
+msgstr ":class:`Babyl` インスタンスには :class:`Mailbox` の全てのメソッドの他に次のメソッドがあります:"
+
+#: ../../library/mailbox.rst:664
+msgid ""
+"Return a list of the names of all user-defined labels used in the mailbox."
+msgstr "メールボックスで使われているユーザが定義した全てのラベルのリストを返します。"
+
+#: ../../library/mailbox.rst:668
+msgid ""
+"The actual messages are inspected to determine which labels exist in the "
+"mailbox rather than consulting the list of labels in the Babyl options "
+"section, but the Babyl section is updated whenever the mailbox is modified."
+msgstr ""
+"メールボックスにどのようなラベルが存在するかを決めるのに、Babyl "
+"オプションセクションのリストを参考にせず、実際のメッセージを捜索しますが、Babyl "
+"セクションもメールボックスが変更されたときにはいつでも更新されます。"
+
+#: ../../library/mailbox.rst:673
+msgid ""
+"Some :class:`Mailbox` methods implemented by :class:`Babyl` deserve special "
+"remarks:"
+msgstr ":class:`Babyl` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注意が必要です:"
+
+#: ../../library/mailbox.rst:679
+msgid ""
+"In Babyl mailboxes, the headers of a message are not stored contiguously "
+"with the body of the message. To generate a file-like representation, the "
+"headers and body are copied together into an :class:`io.BytesIO` instance, "
+"which has an API identical to that of a file. As a result, the file-like "
+"object is truly independent of the underlying mailbox but does not save "
+"memory compared to a string representation."
+msgstr ""
+"Babyl "
+"メールボックスにおいて、メッセージのヘッダはボディと繋がって格納されていません。ファイル風の表現を生成するために、ヘッダとボディがファイルと同じ API"
+" を持つ :class:`io.BytesIO` "
+"インスタンスに一緒にコピーされます。その結果、ファイル風オブジェクトは元にしているメールボックスとは真に独立していますが、文字列表現と比べてメモリーを節約することにはなりません。"
+
+#: ../../library/mailbox.rst:698
+msgid ""
+"`Format of Version 5 Babyl Files <https://quimby.gnus.org/notes/BABYL>`_"
+msgstr ""
+"`Format of Version 5 Babyl Files <https://quimby.gnus.org/notes/BABYL>`_"
+
+#: ../../library/mailbox.rst:698
+msgid "A specification of the Babyl format."
+msgstr "Babyl 形式の仕様。"
+
+#: ../../library/mailbox.rst:700
+msgid ""
+"`Reading Mail with Rmail "
+"<https://www.gnu.org/software/emacs/manual/html_node/emacs/Rmail.html>`_"
+msgstr ""
+"`Reading Mail with Rmail "
+"<https://www.gnu.org/software/emacs/manual/html_node/emacs/Rmail.html>`_"
+
+#: ../../library/mailbox.rst:701
+msgid "The Rmail manual, with some information on Babyl semantics."
+msgstr "Rmail のマニュアルで Babyl のセマンティクスについての情報も少しある。"
+
+#: ../../library/mailbox.rst:707
+msgid ":class:`MMDF`"
+msgstr ":class:`MMDF`"
+
+#: ../../library/mailbox.rst:712
+msgid ""
+"A subclass of :class:`Mailbox` for mailboxes in MMDF format. Parameter "
+"*factory* is a callable object that accepts a file-like message "
+"representation (which behaves as if opened in binary mode) and returns a "
+"custom representation. If *factory* is ``None``, :class:`MMDFMessage` is "
+"used as the default message representation. If *create* is ``True``, the "
+"mailbox is created if it does not exist."
+msgstr ""
+"MMDF 形式のメールボックスのための :class:`Mailbox` のサブクラス。パラメータ *factory* は呼び出し可能オブジェクトで "
+"(バイナリモードで開かれているかのように振る舞う)ファイル風メッセージ表現を受け付けて好みの表現を返すものです。 *factory* が "
+"``None`` ならば、 :class:`MMDFMessage` がデフォルトのメッセージ表現として使われます。 *create* が "
+"``True`` ならばメールボックスが存在しないときには作成します。"
+
+#: ../../library/mailbox.rst:719
+msgid ""
+"MMDF is a single-file mailbox format invented for the Multichannel "
+"Memorandum Distribution Facility, a mail transfer agent. Each message is in "
+"the same form as an mbox message but is bracketed before and after by lines "
+"containing four Control-A (``'\\001'``) characters. As with the mbox format,"
+" the beginning of each message is indicated by a line whose first five "
+"characters are \"From \", but additional occurrences of \"From \" are not "
+"transformed to \">From \" when storing messages because the extra message "
+"separator lines prevent mistaking such occurrences for the starts of "
+"subsequent messages."
+msgstr ""
+"MMDF は単一ファイルのメールボックス形式で Multichannel Memorandum Distribution Facility "
+"というメール転送エージェント用に発明されたものです。各メッセージは mbox と同様の形式で収められますが、前後を4つの Control-A "
+"(``'\\001'``) を含む行で挟んであります。mbox 形式と同じようにそれぞれのメッセージの開始は \"From \" "
+"の5文字を含む行で示されますが、それ以外の場所での \"From \" は格納の際 \">From \" "
+"には変えられません。それは追加されたメッセージ区切りによって新たなメッセージの開始と見間違うことが避けられるからです。"
+
+#: ../../library/mailbox.rst:728
+msgid ""
+"Some :class:`Mailbox` methods implemented by :class:`MMDF` deserve special "
+"remarks:"
+msgstr ":class:`MMDF` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注意が必要です:"
+
+#: ../../library/mailbox.rst:734
+msgid ""
+"Using the file after calling :meth:`flush` or :meth:`close` on the "
+":class:`MMDF` instance may yield unpredictable results or raise an "
+"exception."
+msgstr ""
+":class:`MMDF` インスタンスに対し :meth:`flush` や :meth:`close` "
+"を呼び出した後でファイルを使用すると予期しない結果を引き起こしたり例外が送出されたりすることがあります。"
+
+#: ../../library/mailbox.rst:749
+msgid ""
+"`mmdf man page from tin "
+"<http://www.tin.org/bin/man.cgi?section=5&topic=mmdf>`_"
+msgstr ""
+"`mmdf man page from tin "
+"<http://www.tin.org/bin/man.cgi?section=5&topic=mmdf>`_"
+
+#: ../../library/mailbox.rst:749
+msgid ""
+"A specification of MMDF format from the documentation of tin, a newsreader."
+msgstr "ニュースリーダ tin のドキュメント中の MMDF 形式仕様。"
+
+#: ../../library/mailbox.rst:752
+msgid "`MMDF <https://en.wikipedia.org/wiki/MMDF>`_"
+msgstr "`MMDF <https://en.wikipedia.org/wiki/MMDF>`_"
+
+#: ../../library/mailbox.rst:752
+msgid ""
+"A Wikipedia article describing the Multichannel Memorandum Distribution "
+"Facility."
+msgstr "Multichannel Memorandum Distribution Facility についてのウィキペディアの記事。"
+
+#: ../../library/mailbox.rst:759
+msgid ":class:`Message` objects"
+msgstr ":class:`Message` objects"
+
+#: ../../library/mailbox.rst:764
+msgid ""
+"A subclass of the :mod:`email.message` module's "
+":class:`~email.message.Message`. Subclasses of :class:`mailbox.Message` add "
+"mailbox-format-specific state and behavior."
+msgstr ""
+":mod:`email.message` モジュールの :class:`~email.message.Message` のサブクラス。 "
+":class:`mailbox.Message` のサブクラスはメールボックス形式ごとの状態と動作を追加します。"
+
+#: ../../library/mailbox.rst:768
+msgid ""
+"If *message* is omitted, the new instance is created in a default, empty "
+"state. If *message* is an :class:`email.message.Message` instance, its "
+"contents are copied; furthermore, any format-specific information is "
+"converted insofar as possible if *message* is a :class:`Message` instance. "
+"If *message* is a string, a byte string, or a file, it should contain an "
+":rfc:`2822`\\ -compliant message, which is read and parsed.  Files should be"
+" open in binary mode, but text mode files are accepted for backward "
+"compatibility."
+msgstr ""
+"*message* が省略された場合、新しいインスタンスはデフォルトの空の状態で生成されます。 *message* が "
+":class:`email.message.Message` インスタンスならばその内容がコピーされます。さらに、 *message* が "
+":class:`Message` インスタンスならば、形式固有の情報も可能な限り変換されます。 *message* "
+"が文字列かバイト列またはファイルならば、読まれ解析されるべき :rfc:`2822` "
+"準拠のメッセージを含んでいなければなりません。ファイルはバイナリモードで開かれているべきですが、後方互換性のためテキストモードファイルも受け付けます。"
+
+#: ../../library/mailbox.rst:777
+msgid ""
+"The format-specific state and behaviors offered by subclasses vary, but in "
+"general it is only the properties that are not specific to a particular "
+"mailbox that are supported (although presumably the properties are specific "
+"to a particular mailbox format). For example, file offsets for single-file "
+"mailbox formats and file names for directory-based mailbox formats are not "
+"retained, because they are only applicable to the original mailbox. But "
+"state such as whether a message has been read by the user or marked as "
+"important is retained, because it applies to the message itself."
+msgstr ""
+"サブクラスにより提供される形式ごとの状態と動作は様々ですが、一般に或るメールボックスに固有のものでないプロパティだけがサポートされます(おそらくプロパティのセットはメールボックス形式ごとに固有でしょうが)。例えば、単一ファイルメールボックス形式におけるファイルオフセットやディレクトリ式メールボックス形式におけるファイル名は保持されません、というのもそれらは元々のメールボックスにしか適用できないからです。しかし、メッセージがユーザに読まれたかどうかあるいは重要だとマークされたかどうかという状態は保持されます、というのはそれらはメッセージ自体に適用されるからです。"
+
+#: ../../library/mailbox.rst:786
+msgid ""
+"There is no requirement that :class:`Message` instances be used to represent"
+" messages retrieved using :class:`Mailbox` instances. In some situations, "
+"the time and memory required to generate :class:`Message` representations "
+"might not be acceptable. For such situations, :class:`Mailbox` instances "
+"also offer string and file-like representations, and a custom message "
+"factory may be specified when a :class:`Mailbox` instance is initialized."
+msgstr ""
+":class:`Mailbox` インスタンスを使って取得したメッセージを表現するのに :class:`Message` "
+"インスタンスが使われなければいけないとは要求していません。ある種の状況では :class:`Message` "
+"による表現を生成するのに必要な時間やメモリーが受け入れられないこともあります。そういった状況では :class:`Mailbox` "
+"インスタンスは文字列やファイル風オブジェクトの表現も提供できますし、 :class:`Mailbox` "
+"インスタンスを初期化する際にメッセージファクトリーを指定することもできます。"
+
+#: ../../library/mailbox.rst:797
+msgid ":class:`MaildirMessage`"
+msgstr ":class:`MaildirMessage`"
+
+#: ../../library/mailbox.rst:802
+msgid ""
+"A message with Maildir-specific behaviors. Parameter *message* has the same "
+"meaning as with the :class:`Message` constructor."
+msgstr ""
+"Maildir 固有の動作をするメッセージ。引数 *message* は :class:`Message` のコンストラクタと同じ意味を持ちます。"
+
+#: ../../library/mailbox.rst:805
+msgid ""
+"Typically, a mail user agent application moves all of the messages in the "
+":file:`new` subdirectory to the :file:`cur` subdirectory after the first "
+"time the user opens and closes the mailbox, recording that the messages are "
+"old whether or not they've actually been read. Each message in :file:`cur` "
+"has an \"info\" section added to its file name to store information about "
+"its state. (Some mail readers may also add an \"info\" section to messages "
+"in :file:`new`.)  The \"info\" section may take one of two forms: it may "
+"contain \"2,\" followed by a list of standardized flags (e.g., \"2,FR\") or "
+"it may contain \"1,\" followed by so-called experimental information. "
+"Standard flags for Maildir messages are as follows:"
+msgstr ""
+"通常、メールユーザエージェントは :file:`new` サブディレクトリにある全てのメッセージをユーザが最初にメールボックスを開くか閉じるかした後で "
+":file:`cur` サブディレクトリに移動し、メッセージが実際に読まれたかどうかを記録します。 :file:`cur` "
+"にある各メッセージには状態情報を保存するファイル名に付け加えられた \"info\" セクションがあります。(メールリーダの中には \"info\" "
+"セクションを :file:`new` にあるメッセージに付けることもあります。) \"info\" セクションには二つの形式があります。一つは "
+"\"2,\" の後に標準化されたフラグのリストを付けたもの (たとえば \"2,FR\")、もう一つは \"1,\" "
+"の後にいわゆる実験的情報を付け加えるものです。 Maildir の標準的なフラグは以下の通りです:"
+
+#: ../../library/mailbox.rst:817 ../../library/mailbox.rst:984
+#: ../../library/mailbox.rst:1354
+msgid "Flag"
+msgstr "Flag"
+
+#: ../../library/mailbox.rst:817 ../../library/mailbox.rst:984
+#: ../../library/mailbox.rst:1354
+msgid "Meaning"
+msgstr "意味"
+
+#: ../../library/mailbox.rst:817 ../../library/mailbox.rst:984
+#: ../../library/mailbox.rst:1134 ../../library/mailbox.rst:1221
+#: ../../library/mailbox.rst:1354
+msgid "Explanation"
+msgstr "説明"
+
+#: ../../library/mailbox.rst:819 ../../library/mailbox.rst:990
+#: ../../library/mailbox.rst:1360
+msgid "D"
+msgstr "D"
+
+#: ../../library/mailbox.rst:819
+msgid "Draft"
+msgstr "ドラフト(Draft)"
+
+#: ../../library/mailbox.rst:819
+msgid "Under composition"
+msgstr "作成中"
+
+#: ../../library/mailbox.rst:821 ../../library/mailbox.rst:992
+#: ../../library/mailbox.rst:1362
+msgid "F"
+msgstr "F"
+
+#: ../../library/mailbox.rst:821 ../../library/mailbox.rst:992
+#: ../../library/mailbox.rst:1362
+msgid "Flagged"
+msgstr "フラグ付き(Flagged)"
+
+#: ../../library/mailbox.rst:821 ../../library/mailbox.rst:992
+#: ../../library/mailbox.rst:1140 ../../library/mailbox.rst:1362
+msgid "Marked as important"
+msgstr "重要とされたもの"
+
+#: ../../library/mailbox.rst:823
+msgid "P"
+msgstr "P"
+
+#: ../../library/mailbox.rst:823
+msgid "Passed"
+msgstr "通過(Passed)"
+
+#: ../../library/mailbox.rst:823
+msgid "Forwarded, resent, or bounced"
+msgstr "転送、再送またはバウンス"
+
+#: ../../library/mailbox.rst:825 ../../library/mailbox.rst:986
+#: ../../library/mailbox.rst:1356
+msgid "R"
+msgstr "R"
+
+#: ../../library/mailbox.rst:825
+msgid "Replied"
+msgstr "返答済み(Replied)"
+
+#: ../../library/mailbox.rst:825 ../../library/mailbox.rst:994
+#: ../../library/mailbox.rst:1138 ../../library/mailbox.rst:1229
+#: ../../library/mailbox.rst:1364
+msgid "Replied to"
+msgstr "返答されたもの"
+
+#: ../../library/mailbox.rst:827
+msgid "S"
+msgstr "S"
+
+#: ../../library/mailbox.rst:827
+msgid "Seen"
+msgstr "既読(Seen)"
+
+#: ../../library/mailbox.rst:827 ../../library/mailbox.rst:986
+#: ../../library/mailbox.rst:986 ../../library/mailbox.rst:1356
+#: ../../library/mailbox.rst:1356
+msgid "Read"
+msgstr "読んだもの"
+
+#: ../../library/mailbox.rst:829
+msgid "T"
+msgstr "T"
+
+#: ../../library/mailbox.rst:829
+msgid "Trashed"
+msgstr "ごみ(Trashed)"
+
+#: ../../library/mailbox.rst:829 ../../library/mailbox.rst:990
+#: ../../library/mailbox.rst:1225 ../../library/mailbox.rst:1360
+msgid "Marked for subsequent deletion"
+msgstr "削除予定とされたもの"
+
+#: ../../library/mailbox.rst:832
+msgid ":class:`MaildirMessage` instances offer the following methods:"
+msgstr ":class:`MaildirMessage` インスタンスは以下のメソッドを提供します:"
+
+#: ../../library/mailbox.rst:837
+msgid ""
+"Return either \"new\" (if the message should be stored in the :file:`new` "
+"subdirectory) or \"cur\" (if the message should be stored in the :file:`cur`"
+" subdirectory)."
+msgstr ""
+"\"new\" (メッセージが :file:`new` サブディレクトリに保存されるべき場合) または \"cur\" (メッセージが "
+":file:`cur` サブディレクトリに保存されるべき場合)のどちらかを返します。"
+
+#: ../../library/mailbox.rst:843
+msgid ""
+"A message is typically moved from :file:`new` to :file:`cur` after its "
+"mailbox has been accessed, whether or not the message is has been read. A "
+"message ``msg`` has been read if ``\"S\" in msg.get_flags()`` is ``True``."
+msgstr ""
+"メッセージは通常メールボックスがアクセスされた後、メッセージが読まれたかどうかに関わらず :file:`new` から :file:`cur` "
+"に移動されます。メッセージ ``msg`` は ``\"S\" in msg.get_flags()`` が ``True`` ならば読まれています。"
+
+#: ../../library/mailbox.rst:851
+msgid ""
+"Set the subdirectory the message should be stored in. Parameter *subdir* "
+"must be either \"new\" or \"cur\"."
+msgstr ""
+"メッセージが保存されるべきサブディレクトリをセットします。パラメータ *subdir* は \"new\" または \"cur\" "
+"のいずれかでなければなりません。"
+
+#: ../../library/mailbox.rst:857
+msgid ""
+"Return a string specifying the flags that are currently set. If the message "
+"complies with the standard Maildir format, the result is the concatenation "
+"in alphabetical order of zero or one occurrence of each of ``'D'``, ``'F'``,"
+" ``'P'``, ``'R'``, ``'S'``, and ``'T'``. The empty string is returned if no "
+"flags are set or if \"info\" contains experimental semantics."
+msgstr ""
+"現在セットされているフラグを特定する文字列を返します。メッセージが標準 Maildir "
+"形式に準拠しているならば、結果はアルファベット順に並べられたゼロまたは1回の "
+"``'D'``、``'F'``、``'P'``、``'R'``、``'S'``、``'T'`` "
+"をつなげたものです。空文字列が返されるのはフラグが一つもない場合、または \"info\" が実験的セマンティクスを使っている場合です。"
+
+#: ../../library/mailbox.rst:867
+msgid "Set the flags specified by *flags* and unset all others."
+msgstr "*flags* で指定されたフラグをセットし、他のフラグは下ろします。"
+
+#: ../../library/mailbox.rst:872
+msgid ""
+"Set the flag(s) specified by *flag* without changing other flags. To add "
+"more than one flag at a time, *flag* may be a string of more than one "
+"character. The current \"info\" is overwritten whether or not it contains "
+"experimental information rather than flags."
+msgstr ""
+"*flag* で指定されたフラグをセットしますが他のフラグは変えません。一度に二つ以上のフラグをセットすることは、*flag* "
+"に2文字以上の文字列を指定すればできます。現在の \"info\" はフラグの代わりに実験的情報を使っていても上書きされます。"
+
+#: ../../library/mailbox.rst:880
+msgid ""
+"Unset the flag(s) specified by *flag* without changing other flags. To "
+"remove more than one flag at a time, *flag* maybe a string of more than one "
+"character.  If \"info\" contains experimental information rather than flags,"
+" the current \"info\" is not modified."
+msgstr ""
+"*flag* で指定されたフラグを下ろしますが他のフラグは変えません。一度に二つ以上のフラグを取り除くことは、*flag* "
+"に2文字以上の文字列を指定すればできます。\"info\" がフラグの代わりに実験的情報を使っている場合は現在の \"info\" "
+"は書き換えられません。"
+
+#: ../../library/mailbox.rst:888
+msgid ""
+"Return the delivery date of the message as a floating-point number "
+"representing seconds since the epoch."
+msgstr "メッセージの配送日時をエポックからの秒数を表わす浮動小数点数で返します。"
+
+#: ../../library/mailbox.rst:894
+msgid ""
+"Set the delivery date of the message to *date*, a floating-point number "
+"representing seconds since the epoch."
+msgstr "メッセージの配送日時を *date* にセットします。*date* はエポックからの秒数を表わす浮動小数点数です。"
+
+#: ../../library/mailbox.rst:900
+msgid ""
+"Return a string containing the \"info\" for a message. This is useful for "
+"accessing and modifying \"info\" that is experimental (i.e., not a list of "
+"flags)."
+msgstr ""
+"メッセージの \"info\" を含む文字列を返します。このメソッドは実験的 (即ちフラグのリストでない) \"info\" "
+"にアクセスし、また変更するのに役立ちます。"
+
+#: ../../library/mailbox.rst:907
+msgid "Set \"info\" to *info*, which should be a string."
+msgstr "\"info\" に文字列 *info* をセットします。"
+
+#: ../../library/mailbox.rst:909
+msgid ""
+"When a :class:`MaildirMessage` instance is created based upon an "
+":class:`mboxMessage` or :class:`MMDFMessage` instance, the "
+":mailheader:`Status` and :mailheader:`X-Status` headers are omitted and the "
+"following conversions take place:"
+msgstr ""
+":class:`MaildirMessage` インスタンスが :class:`mboxMessage` や :class:`MMDFMessage` "
+"のインスタンスに基づいて生成されるとき、 :mailheader:`Status` および :mailheader:`X-Status` "
+"ヘッダは省かれ以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:915 ../../library/mailbox.rst:933
+#: ../../library/mailbox.rst:948 ../../library/mailbox.rst:1055
+#: ../../library/mailbox.rst:1072 ../../library/mailbox.rst:1087
+#: ../../library/mailbox.rst:1102 ../../library/mailbox.rst:1169
+#: ../../library/mailbox.rst:1184 ../../library/mailbox.rst:1198
+#: ../../library/mailbox.rst:1295 ../../library/mailbox.rst:1312
+#: ../../library/mailbox.rst:1326 ../../library/mailbox.rst:1426
+#: ../../library/mailbox.rst:1443 ../../library/mailbox.rst:1458
+#: ../../library/mailbox.rst:1474
+msgid "Resulting state"
+msgstr "結果の状態"
+
+#: ../../library/mailbox.rst:915 ../../library/mailbox.rst:1184
+#: ../../library/mailbox.rst:1312
+msgid ":class:`mboxMessage` or :class:`MMDFMessage` state"
+msgstr ":class:`mboxMessage` または :class:`MMDFMessage` の状態"
+
+#: ../../library/mailbox.rst:918 ../../library/mailbox.rst:935
+#: ../../library/mailbox.rst:950 ../../library/mailbox.rst:1059
+#: ../../library/mailbox.rst:1430
+msgid "\"cur\" subdirectory"
+msgstr "\"cur\" サブディレクトリ"
+
+#: ../../library/mailbox.rst:918 ../../library/mailbox.rst:1059
+#: ../../library/mailbox.rst:1076 ../../library/mailbox.rst:1091
+#: ../../library/mailbox.rst:1106 ../../library/mailbox.rst:1106
+#: ../../library/mailbox.rst:1430 ../../library/mailbox.rst:1447
+#: ../../library/mailbox.rst:1462 ../../library/mailbox.rst:1478
+#: ../../library/mailbox.rst:1478
+msgid "O flag"
+msgstr "O フラグ"
+
+#: ../../library/mailbox.rst:920 ../../library/mailbox.rst:920
+#: ../../library/mailbox.rst:939 ../../library/mailbox.rst:1063
+#: ../../library/mailbox.rst:1063 ../../library/mailbox.rst:1078
+#: ../../library/mailbox.rst:1110 ../../library/mailbox.rst:1110
+#: ../../library/mailbox.rst:1175 ../../library/mailbox.rst:1191
+#: ../../library/mailbox.rst:1434 ../../library/mailbox.rst:1434
+#: ../../library/mailbox.rst:1449 ../../library/mailbox.rst:1482
+#: ../../library/mailbox.rst:1482
+msgid "F flag"
+msgstr "F フラグ"
+
+#: ../../library/mailbox.rst:922 ../../library/mailbox.rst:924
+#: ../../library/mailbox.rst:941 ../../library/mailbox.rst:956
+#: ../../library/mailbox.rst:1057 ../../library/mailbox.rst:1065
+#: ../../library/mailbox.rst:1104 ../../library/mailbox.rst:1104
+#: ../../library/mailbox.rst:1173 ../../library/mailbox.rst:1301
+#: ../../library/mailbox.rst:1428 ../../library/mailbox.rst:1436
+#: ../../library/mailbox.rst:1476 ../../library/mailbox.rst:1476
+msgid "R flag"
+msgstr "R フラグ"
+
+#: ../../library/mailbox.rst:922 ../../library/mailbox.rst:1065
+#: ../../library/mailbox.rst:1080 ../../library/mailbox.rst:1095
+#: ../../library/mailbox.rst:1112 ../../library/mailbox.rst:1112
+#: ../../library/mailbox.rst:1189 ../../library/mailbox.rst:1319
+#: ../../library/mailbox.rst:1436 ../../library/mailbox.rst:1451
+#: ../../library/mailbox.rst:1466 ../../library/mailbox.rst:1484
+#: ../../library/mailbox.rst:1484
+msgid "A flag"
+msgstr "A フラグ"
+
+#: ../../library/mailbox.rst:924 ../../library/mailbox.rst:1057
+#: ../../library/mailbox.rst:1428
+msgid "S flag"
+msgstr "S フラグ"
+
+#: ../../library/mailbox.rst:926 ../../library/mailbox.rst:958
+#: ../../library/mailbox.rst:1061 ../../library/mailbox.rst:1299
+#: ../../library/mailbox.rst:1432
+msgid "T flag"
+msgstr "T フラグ"
+
+#: ../../library/mailbox.rst:926 ../../library/mailbox.rst:1061
+#: ../../library/mailbox.rst:1093 ../../library/mailbox.rst:1108
+#: ../../library/mailbox.rst:1108 ../../library/mailbox.rst:1317
+#: ../../library/mailbox.rst:1432 ../../library/mailbox.rst:1464
+#: ../../library/mailbox.rst:1480 ../../library/mailbox.rst:1480
+msgid "D flag"
+msgstr "D フラグ"
+
+#: ../../library/mailbox.rst:929
+msgid ""
+"When a :class:`MaildirMessage` instance is created based upon an "
+":class:`MHMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`MaildirMessage` インスタンスが :class:`MHMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:933 ../../library/mailbox.rst:1072
+#: ../../library/mailbox.rst:1326 ../../library/mailbox.rst:1443
+msgid ":class:`MHMessage` state"
+msgstr ":class:`MHMessage` の状態"
+
+#: ../../library/mailbox.rst:935 ../../library/mailbox.rst:1076
+#: ../../library/mailbox.rst:1171 ../../library/mailbox.rst:1187
+#: ../../library/mailbox.rst:1200 ../../library/mailbox.rst:1328
+#: ../../library/mailbox.rst:1447
+msgid "\"unseen\" sequence"
+msgstr "\"unseen\" シーケンス"
+
+#: ../../library/mailbox.rst:937 ../../library/mailbox.rst:952
+msgid "\"cur\" subdirectory and S flag"
+msgstr "\"cur\" サブディレクトリおよび S フラグ"
+
+#: ../../library/mailbox.rst:937 ../../library/mailbox.rst:1074
+#: ../../library/mailbox.rst:1445
+msgid "no \"unseen\" sequence"
+msgstr "\"unseen\" シーケンス無し"
+
+#: ../../library/mailbox.rst:939 ../../library/mailbox.rst:1078
+#: ../../library/mailbox.rst:1175 ../../library/mailbox.rst:1191
+#: ../../library/mailbox.rst:1449
+msgid "\"flagged\" sequence"
+msgstr "\"flagged\" シーケンス"
+
+#: ../../library/mailbox.rst:941 ../../library/mailbox.rst:1080
+#: ../../library/mailbox.rst:1173 ../../library/mailbox.rst:1189
+#: ../../library/mailbox.rst:1202 ../../library/mailbox.rst:1330
+#: ../../library/mailbox.rst:1451
+msgid "\"replied\" sequence"
+msgstr "\"replied\" シーケンス"
+
+#: ../../library/mailbox.rst:944
+msgid ""
+"When a :class:`MaildirMessage` instance is created based upon a "
+":class:`BabylMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`MaildirMessage` インスタンスが :class:`BabylMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:948 ../../library/mailbox.rst:1087
+#: ../../library/mailbox.rst:1198 ../../library/mailbox.rst:1458
+msgid ":class:`BabylMessage` state"
+msgstr ":class:`BabylMessage` の状態"
+
+#: ../../library/mailbox.rst:950 ../../library/mailbox.rst:1091
+#: ../../library/mailbox.rst:1200 ../../library/mailbox.rst:1297
+#: ../../library/mailbox.rst:1315 ../../library/mailbox.rst:1328
+#: ../../library/mailbox.rst:1462
+msgid "\"unseen\" label"
+msgstr "\"unseen\" ラベル"
+
+#: ../../library/mailbox.rst:952 ../../library/mailbox.rst:1089
+#: ../../library/mailbox.rst:1460
+msgid "no \"unseen\" label"
+msgstr "\"unseen\" ラベル無し"
+
+#: ../../library/mailbox.rst:954 ../../library/mailbox.rst:1303
+msgid "P flag"
+msgstr "P フラグ"
+
+#: ../../library/mailbox.rst:954
+msgid "\"forwarded\" or \"resent\" label"
+msgstr "\"forwarded\" または \"resent\" ラベル"
+
+#: ../../library/mailbox.rst:956 ../../library/mailbox.rst:1095
+#: ../../library/mailbox.rst:1202 ../../library/mailbox.rst:1301
+#: ../../library/mailbox.rst:1319 ../../library/mailbox.rst:1330
+#: ../../library/mailbox.rst:1466
+msgid "\"answered\" label"
+msgstr "\"answered\" ラベル"
+
+#: ../../library/mailbox.rst:958 ../../library/mailbox.rst:1093
+#: ../../library/mailbox.rst:1299 ../../library/mailbox.rst:1317
+#: ../../library/mailbox.rst:1464
+msgid "\"deleted\" label"
+msgstr "\"deleted\" ラベル"
+
+#: ../../library/mailbox.rst:965
+msgid ":class:`mboxMessage`"
+msgstr ":class:`mboxMessage`"
+
+#: ../../library/mailbox.rst:970
+msgid ""
+"A message with mbox-specific behaviors. Parameter *message* has the same "
+"meaning as with the :class:`Message` constructor."
+msgstr ""
+"mbox 固有の動作をするメッセージ。引数 *message* は :class:`Message` のコンストラクタと同じ意味を持ちます。"
+
+#: ../../library/mailbox.rst:973
+msgid ""
+"Messages in an mbox mailbox are stored together in a single file. The "
+"sender's envelope address and the time of delivery are typically stored in a"
+" line beginning with \"From \" that is used to indicate the start of a "
+"message, though there is considerable variation in the exact format of this "
+"data among mbox implementations. Flags that indicate the state of the "
+"message, such as whether it has been read or marked as important, are "
+"typically stored in :mailheader:`Status` and :mailheader:`X-Status` headers."
+msgstr ""
+"mbox メールボックス中のメッセージは単一ファイルにまとめて格納されています。送り主のエンベロープアドレスおよび配送日時は通常メッセージの開始を示す "
+"\"From \" から始まる行に記録されますが、正確なフォーマットに関しては mbox "
+"の実装ごとに大きな違いがあります。メッセージの状態を示すフラグ、たとえば読んだかどうかあるいは重要だとマークを付けられているかどうかといったようなもの、は典型的には"
+" :mailheader:`Status` および :mailheader:`X-Status` に収められます。"
+
+#: ../../library/mailbox.rst:981
+msgid "Conventional flags for mbox messages are as follows:"
+msgstr "規定されている mbox メッセージのフラグは以下の通りです:"
+
+#: ../../library/mailbox.rst:988 ../../library/mailbox.rst:1358
+msgid "O"
+msgstr "O"
+
+#: ../../library/mailbox.rst:988 ../../library/mailbox.rst:1358
+msgid "Old"
+msgstr "古い(Old)"
+
+#: ../../library/mailbox.rst:988 ../../library/mailbox.rst:1358
+msgid "Previously detected by MUA"
+msgstr "以前に MUA に発見された"
+
+#: ../../library/mailbox.rst:990 ../../library/mailbox.rst:1360
+msgid "Deleted"
+msgstr "削除(Deleted)"
+
+#: ../../library/mailbox.rst:994 ../../library/mailbox.rst:1364
+msgid "A"
+msgstr "A"
+
+#: ../../library/mailbox.rst:994 ../../library/mailbox.rst:1364
+msgid "Answered"
+msgstr "返答済み(Answered)"
+
+#: ../../library/mailbox.rst:997 ../../library/mailbox.rst:1367
+msgid ""
+"The \"R\" and \"O\" flags are stored in the :mailheader:`Status` header, and"
+" the \"D\", \"F\", and \"A\" flags are stored in the :mailheader:`X-Status` "
+"header. The flags and headers typically appear in the order mentioned."
+msgstr ""
+"\"R\" および \"O\" フラグは :mailheader:`Status` ヘッダに記録され、 \"D\"、\"F\"、\"A\" フラグは "
+":mailheader:`X-Status` ヘッダに記録されます。フラグとヘッダは通常記述された順番に出現します。"
+
+#: ../../library/mailbox.rst:1001
+msgid ":class:`mboxMessage` instances offer the following methods:"
+msgstr ":class:`mboxMessage` インスタンスは以下のメソッドを提供します:"
+
+#: ../../library/mailbox.rst:1006 ../../library/mailbox.rst:1377
+msgid ""
+"Return a string representing the \"From \" line that marks the start of the "
+"message in an mbox mailbox. The leading \"From \" and the trailing newline "
+"are excluded."
+msgstr ""
+"mbox メールボックスのメッセージの開始を示す \"From \" 行を表わす文字列を返します。先頭の \"From \" "
+"および末尾の改行は含まれません。"
+
+#: ../../library/mailbox.rst:1013 ../../library/mailbox.rst:1384
+msgid ""
+"Set the \"From \" line to *from_*, which should be specified without a "
+"leading \"From \" or trailing newline. For convenience, *time_* may be "
+"specified and will be formatted appropriately and appended to *from_*. If "
+"*time_* is specified, it should be a :class:`time.struct_time` instance, a "
+"tuple suitable for passing to :meth:`time.strftime`, or ``True`` (to use "
+":meth:`time.gmtime`)."
+msgstr ""
+"\"From \" 行を *from_* にセットします。 *from_* は先頭の \"From \" "
+"や末尾の改行を含まない形で指定しなければなりません。利便性のために、 *time_* を指定して適切に整形して *from_* "
+"に追加させることができます。 *time_* を指定する場合、それは :class:`time.struct_time` インスタンス、 "
+":meth:`time.strftime` に渡すのに適したタプル、または ``True`` (この場合 :meth:`time.gmtime` "
+"を使います) のいずれかでなければなりません。"
+
+#: ../../library/mailbox.rst:1023 ../../library/mailbox.rst:1394
+msgid ""
+"Return a string specifying the flags that are currently set. If the message "
+"complies with the conventional format, the result is the concatenation in "
+"the following order of zero or one occurrence of each of ``'R'``, ``'O'``, "
+"``'D'``, ``'F'``, and ``'A'``."
+msgstr ""
+"現在セットされているフラグを特定する文字列を返します。メッセージが規定された形式に準拠しているならば、結果は次の順に並べられた 0回か1回の "
+"``'R'``、``'O'``、``'D'``、``'F'``、``'A'`` です。"
+
+#: ../../library/mailbox.rst:1031 ../../library/mailbox.rst:1402
+msgid ""
+"Set the flags specified by *flags* and unset all others. Parameter *flags* "
+"should be the concatenation in any order of zero or more occurrences of each"
+" of ``'R'``, ``'O'``, ``'D'``, ``'F'``, and ``'A'``."
+msgstr ""
+"*flags* で指定されたフラグをセットして、他のフラグは下ろします。*flags* は並べられたゼロまたは1回の "
+"``'R'``、``'O'``、``'D'``、``'F'``、``'A'`` です。"
+
+#: ../../library/mailbox.rst:1038 ../../library/mailbox.rst:1409
+msgid ""
+"Set the flag(s) specified by *flag* without changing other flags. To add "
+"more than one flag at a time, *flag* may be a string of more than one "
+"character."
+msgstr ""
+"*flag* で指定されたフラグをセットしますが他のフラグは変えません。一度に二つ以上のフラグをセットすることは、*flag* "
+"に2文字以上の文字列を指定すればできます。"
+
+#: ../../library/mailbox.rst:1045 ../../library/mailbox.rst:1416
+msgid ""
+"Unset the flag(s) specified by *flag* without changing other flags. To "
+"remove more than one flag at a time, *flag* maybe a string of more than one "
+"character."
+msgstr ""
+"*flag* で指定されたフラグを下ろしますが他のフラグは変えません。一二つ以上のフラグを取り除くことは、*flag* "
+"に2文字以上の文字列を指定すればできます。"
+
+#: ../../library/mailbox.rst:1049
+msgid ""
+"When an :class:`mboxMessage` instance is created based upon a "
+":class:`MaildirMessage` instance, a \"From \" line is generated based upon "
+"the :class:`MaildirMessage` instance's delivery date, and the following "
+"conversions take place:"
+msgstr ""
+":class:`mboxMessage` インスタンスが :class:`MaildirMessage` インスタンスに基づいて生成されるとき、 "
+":class:`MaildirMessage` インスタンスの配送日時に基づいて \"From \" 行が作り出され、次の変換が行われます:"
+
+#: ../../library/mailbox.rst:1055 ../../library/mailbox.rst:1169
+#: ../../library/mailbox.rst:1295 ../../library/mailbox.rst:1426
+msgid ":class:`MaildirMessage` state"
+msgstr ":class:`MaildirMessage` の状態"
+
+#: ../../library/mailbox.rst:1068
+msgid ""
+"When an :class:`mboxMessage` instance is created based upon an "
+":class:`MHMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`mboxMessage` インスタンスが :class:`MHMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1074 ../../library/mailbox.rst:1089
+#: ../../library/mailbox.rst:1445 ../../library/mailbox.rst:1460
+msgid "R flag and O flag"
+msgstr "R フラグおよび O フラグ"
+
+#: ../../library/mailbox.rst:1083
+msgid ""
+"When an :class:`mboxMessage` instance is created based upon a "
+":class:`BabylMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`mboxMessage` インスタンスが :class:`BabylMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1098
+msgid ""
+"When a :class:`Message` instance is created based upon an "
+":class:`MMDFMessage` instance, the \"From \" line is copied and all flags "
+"directly correspond:"
+msgstr ""
+":class:`mboxMessage` インスタンスが :class:`MMDFMessage` インスタンスに基づいて生成されるとき、\"From "
+"\" 行はコピーされ全てのフラグは直接対応します:"
+
+#: ../../library/mailbox.rst:1102
+msgid ":class:`MMDFMessage` state"
+msgstr ":class:`MMDFMessage` の状態"
+
+#: ../../library/mailbox.rst:1119
+msgid ":class:`MHMessage`"
+msgstr ":class:`MHMessage`"
+
+#: ../../library/mailbox.rst:1124
+msgid ""
+"A message with MH-specific behaviors. Parameter *message* has the same "
+"meaning as with the :class:`Message` constructor."
+msgstr "MH 固有の動作をするメッセージ。引数 *message* は :class:`Message` のコンストラクタと同じ意味を持ちます。"
+
+#: ../../library/mailbox.rst:1127
+msgid ""
+"MH messages do not support marks or flags in the traditional sense, but they"
+" do support sequences, which are logical groupings of arbitrary messages. "
+"Some mail reading programs (although not the standard :program:`mh` and "
+":program:`nmh`) use sequences in much the same way flags are used with other"
+" formats, as follows:"
+msgstr ""
+"MH メッセージは伝統的な意味あいにおいてマークやフラグをサポートしません。しかし、MH "
+"メッセージにはシーケンスがあり任意のメッセージを論理的にグループ分けできます。いくつかのメールソフト(標準の :program:`mh` や "
+":program:`nmh` はそうではありませんが) は他の形式におけるフラグとほぼ同じようにシーケンスを使います:"
+
+#: ../../library/mailbox.rst:1134
+msgid "Sequence"
+msgstr "シーケンス"
+
+#: ../../library/mailbox.rst:1136 ../../library/mailbox.rst:1223
+msgid "unseen"
+msgstr "unseen"
+
+#: ../../library/mailbox.rst:1136 ../../library/mailbox.rst:1223
+msgid "Not read, but previously detected by MUA"
+msgstr "読んではいないが既にMUAに見つけられている"
+
+#: ../../library/mailbox.rst:1138
+msgid "replied"
+msgstr "replied"
+
+#: ../../library/mailbox.rst:1140
+msgid "flagged"
+msgstr "flagged"
+
+#: ../../library/mailbox.rst:1143
+msgid ":class:`MHMessage` instances offer the following methods:"
+msgstr ":class:`MHMessage` インスタンスは以下のメソッドを提供します:"
+
+#: ../../library/mailbox.rst:1148
+msgid "Return a list of the names of sequences that include this message."
+msgstr "このメッセージを含むシーケンスの名前のリストを返す。"
+
+#: ../../library/mailbox.rst:1153
+msgid "Set the list of sequences that include this message."
+msgstr "このメッセージを含むシーケンスのリストをセットする。"
+
+#: ../../library/mailbox.rst:1158
+msgid "Add *sequence* to the list of sequences that include this message."
+msgstr "*sequence* をこのメッセージを含むシーケンスのリストに追加する。"
+
+#: ../../library/mailbox.rst:1163
+msgid ""
+"Remove *sequence* from the list of sequences that include this message."
+msgstr "*sequence* をこのメッセージを含むシーケンスのリストから除く。"
+
+#: ../../library/mailbox.rst:1165
+msgid ""
+"When an :class:`MHMessage` instance is created based upon a "
+":class:`MaildirMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`MHMessage` インスタンスが :class:`MaildirMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1171 ../../library/mailbox.rst:1297
+msgid "no S flag"
+msgstr "S フラグ無し"
+
+#: ../../library/mailbox.rst:1178
+msgid ""
+"When an :class:`MHMessage` instance is created based upon an "
+":class:`mboxMessage` or :class:`MMDFMessage` instance, the "
+":mailheader:`Status` and :mailheader:`X-Status` headers are omitted and the "
+"following conversions take place:"
+msgstr ""
+":class:`MHMessage` インスタンスが :class:`mboxMessage` や :class:`MMDFMessage` "
+"のインスタンスに基づいて生成されるとき、 :mailheader:`Status` および :mailheader:`X-Status` "
+"ヘッダは省かれ以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1187 ../../library/mailbox.rst:1315
+msgid "no R flag"
+msgstr "R フラグ無し"
+
+#: ../../library/mailbox.rst:1194
+msgid ""
+"When an :class:`MHMessage` instance is created based upon a "
+":class:`BabylMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`MHMessage` インスタンスが :class:`BabylMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1209
+msgid ":class:`BabylMessage`"
+msgstr ":class:`BabylMessage`"
+
+#: ../../library/mailbox.rst:1214
+msgid ""
+"A message with Babyl-specific behaviors. Parameter *message* has the same "
+"meaning as with the :class:`Message` constructor."
+msgstr ""
+"Babyl 固有の動作をするメッセージ。引数 *message* は :class:`Message` のコンストラクタと同じ意味を持ちます。"
+
+#: ../../library/mailbox.rst:1217
+msgid ""
+"Certain message labels, called :dfn:`attributes`, are defined by convention "
+"to have special meanings. The attributes are as follows:"
+msgstr ""
+"ある種のメッセージラベルは :dfn:`アトリビュート` と呼ばれ、規約により特別な意味が与えられています。アトリビュートは以下の通りです:"
+
+#: ../../library/mailbox.rst:1221
+msgid "Label"
+msgstr "ラベル"
+
+#: ../../library/mailbox.rst:1225
+msgid "deleted"
+msgstr "deleted"
+
+#: ../../library/mailbox.rst:1227
+msgid "filed"
+msgstr "filed"
+
+#: ../../library/mailbox.rst:1227
+msgid "Copied to another file or mailbox"
+msgstr "他のファイルまたはメールボックスにコピーされた"
+
+#: ../../library/mailbox.rst:1229
+msgid "answered"
+msgstr "answered"
+
+#: ../../library/mailbox.rst:1231
+msgid "forwarded"
+msgstr "forwarded"
+
+#: ../../library/mailbox.rst:1231
+msgid "Forwarded"
+msgstr "転送された"
+
+#: ../../library/mailbox.rst:1233
+msgid "edited"
+msgstr "edited"
+
+#: ../../library/mailbox.rst:1233
+msgid "Modified by the user"
+msgstr "ユーザによって変更された"
+
+#: ../../library/mailbox.rst:1235
+msgid "resent"
+msgstr "resent"
+
+#: ../../library/mailbox.rst:1235
+msgid "Resent"
+msgstr "再送された"
+
+#: ../../library/mailbox.rst:1238
+msgid ""
+"By default, Rmail displays only visible headers. The :class:`BabylMessage` "
+"class, though, uses the original headers because they are more complete. "
+"Visible headers may be accessed explicitly if desired."
+msgstr ""
+"デフォルトでは Rmail は可視ヘッダのみ表示します。 :class:`BabylMessage` "
+"クラスはしかし、オリジナルヘッダをより完全だという理由で使います。可視ヘッダは望むならそのように指示してアクセスすることができます。"
+
+#: ../../library/mailbox.rst:1242
+msgid ":class:`BabylMessage` instances offer the following methods:"
+msgstr ":class:`BabylMessage` インスタンスは以下のメソッドを提供します:"
+
+#: ../../library/mailbox.rst:1247
+msgid "Return a list of labels on the message."
+msgstr "メッセージに付いているラベルのリストを返します。"
+
+#: ../../library/mailbox.rst:1252
+msgid "Set the list of labels on the message to *labels*."
+msgstr "メッセージに付いているラベルのリストを *labels* にセットします。"
+
+#: ../../library/mailbox.rst:1257
+msgid "Add *label* to the list of labels on the message."
+msgstr "メッセージに付いているラベルのリストに *label* を追加します。"
+
+#: ../../library/mailbox.rst:1262
+msgid "Remove *label* from the list of labels on the message."
+msgstr "メッセージに付いているラベルのリストから *label* を削除します。"
+
+#: ../../library/mailbox.rst:1267
+msgid ""
+"Return an :class:`Message` instance whose headers are the message's visible "
+"headers and whose body is empty."
+msgstr "ヘッダがメッセージの可視ヘッダでありボディが空であるような :class:`Message` インスタンスを返します。"
+
+#: ../../library/mailbox.rst:1273
+msgid ""
+"Set the message's visible headers to be the same as the headers in "
+"*message*.  Parameter *visible* should be a :class:`Message` instance, an "
+":class:`email.message.Message` instance, a string, or a file-like object "
+"(which should be open in text mode)."
+msgstr ""
+"メッセージの可視ヘッダを *visible* のヘッダと同じにセットします。引数 *visible* は :class:`Message` "
+"インスタンスまたは :class:`email.message.Message` "
+"インスタンス、文字列、ファイル風オブジェクト(テキストモードで開かれてなければなりません)のいずれかです。"
+
+#: ../../library/mailbox.rst:1281
+msgid ""
+"When a :class:`BabylMessage` instance's original headers are modified, the "
+"visible headers are not automatically modified to correspond. This method "
+"updates the visible headers as follows: each visible header with a "
+"corresponding original header is set to the value of the original header, "
+"each visible header without a corresponding original header is removed, and "
+"any of :mailheader:`Date`, :mailheader:`From`, :mailheader:`Reply-To`, "
+":mailheader:`To`, :mailheader:`CC`, and :mailheader:`Subject` that are "
+"present in the original headers but not the visible headers are added to the"
+" visible headers."
+msgstr ""
+":class:`BabylMessage` "
+"インスタンスのオリジナルヘッダが変更されたとき、可視ヘッダは自動的に対応して変更されるわけではありません。このメソッドは可視ヘッダを以下のように更新します。対応するオリジナルヘッダのある可視ヘッダはオリジナルヘッダの値がセットされます。対応するオリジナルヘッダの無い可視ヘッダは除去されます。そして、オリジナルヘッダにあって可視ヘッダに無い"
+" :mailheader:`Date` 、 :mailheader:`From` 、 :mailheader:`Reply-To` 、 "
+":mailheader:`To` 、 :mailheader:`CC` 、 :mailheader:`Subject` は可視ヘッダに追加されます。"
+
+#: ../../library/mailbox.rst:1291
+msgid ""
+"When a :class:`BabylMessage` instance is created based upon a "
+":class:`MaildirMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`BabylMessage` インスタンスが :class:`MaildirMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1303
+msgid "\"forwarded\" label"
+msgstr "\"forwarded\" ラベル"
+
+#: ../../library/mailbox.rst:1306
+msgid ""
+"When a :class:`BabylMessage` instance is created based upon an "
+":class:`mboxMessage` or :class:`MMDFMessage` instance, the "
+":mailheader:`Status` and :mailheader:`X-Status` headers are omitted and the "
+"following conversions take place:"
+msgstr ""
+":class:`BabylMessage` インスタンスが :class:`mboxMessage` や :class:`MMDFMessage` "
+"のインスタンスに基づいて生成されるとき、 :mailheader:`Status` および :mailheader:`X-Status` "
+"ヘッダは省かれ以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1322
+msgid ""
+"When a :class:`BabylMessage` instance is created based upon an "
+":class:`MHMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`BabylMessage` インスタンスが :class:`MHMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1337
+msgid ":class:`MMDFMessage`"
+msgstr ":class:`MMDFMessage`"
+
+#: ../../library/mailbox.rst:1342
+msgid ""
+"A message with MMDF-specific behaviors. Parameter *message* has the same "
+"meaning as with the :class:`Message` constructor."
+msgstr ""
+"MMDF 固有の動作をするメッセージ。引数 *message* は :class:`Message` のコンストラクタと同じ意味を持ちます。"
+
+#: ../../library/mailbox.rst:1345
+msgid ""
+"As with message in an mbox mailbox, MMDF messages are stored with the "
+"sender's address and the delivery date in an initial line beginning with "
+"\"From \".  Likewise, flags that indicate the state of the message are "
+"typically stored in :mailheader:`Status` and :mailheader:`X-Status` headers."
+msgstr ""
+"mbox メールボックスのメッセージと同様に、MMDF メッセージは送り主のアドレスと配送日時が最初の \"From \" "
+"で始まる行に記録されています。同様に、メッセージの状態を示すフラグは通常 :mailheader:`Status` および "
+":mailheader:`X-Status` ヘッダに収められています。"
+
+#: ../../library/mailbox.rst:1350
+msgid ""
+"Conventional flags for MMDF messages are identical to those of mbox message "
+"and are as follows:"
+msgstr "よく使われる MMDF メッセージのフラグは mbox メッセージのものと同一で以下の通りです:"
+
+#: ../../library/mailbox.rst:1371
+msgid ""
+":class:`MMDFMessage` instances offer the following methods, which are "
+"identical to those offered by :class:`mboxMessage`:"
+msgstr ""
+":class:`MMDFMessage` インスタンスは :class:`mboxMessage` インスタンスと同一の以下のメソッドを提供します:"
+
+#: ../../library/mailbox.rst:1420
+msgid ""
+"When an :class:`MMDFMessage` instance is created based upon a "
+":class:`MaildirMessage` instance, a \"From \" line is generated based upon "
+"the :class:`MaildirMessage` instance's delivery date, and the following "
+"conversions take place:"
+msgstr ""
+":class:`MMDFMessage` インスタンスが :class:`MaildirMessage` "
+"インスタンスに基づいて生成されるとき、\"From\"行が :class:`MaildirMessage` "
+"インスタンスの配信日をもとに生成され、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1439
+msgid ""
+"When an :class:`MMDFMessage` instance is created based upon an "
+":class:`MHMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`MMDFMessage` インスタンスが :class:`MHMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1454
+msgid ""
+"When an :class:`MMDFMessage` instance is created based upon a "
+":class:`BabylMessage` instance, the following conversions take place:"
+msgstr ""
+":class:`MMDFMessage` インスタンスが :class:`BabylMessage` "
+"インスタンスに基づいて生成されるとき、以下の変換が行われます:"
+
+#: ../../library/mailbox.rst:1469
+msgid ""
+"When an :class:`MMDFMessage` instance is created based upon an "
+":class:`mboxMessage` instance, the \"From \" line is copied and all flags "
+"directly correspond:"
+msgstr ""
+":class:`MMDFMessage` インスタンスが :class:`mboxMessage` "
+"インスタンスに基づいて生成されるとき、\"From\"行がコピーされ、全てのフラグが直接対応します:"
+
+#: ../../library/mailbox.rst:1474
+msgid ":class:`mboxMessage` state"
+msgstr ":class:`mboxMessage` の状態"
+
+#: ../../library/mailbox.rst:1489
+msgid "Exceptions"
+msgstr "例外"
+
+#: ../../library/mailbox.rst:1491
+msgid ""
+"The following exception classes are defined in the :mod:`mailbox` module:"
+msgstr ":mod:`mailbox` モジュールでは以下の例外クラスが定義されています:"
+
+#: ../../library/mailbox.rst:1496
+msgid "The based class for all other module-specific exceptions."
+msgstr "他の全てのモジュール固有の例外の基底クラス。"
+
+#: ../../library/mailbox.rst:1501
+msgid ""
+"Raised when a mailbox is expected but is not found, such as when "
+"instantiating a :class:`Mailbox` subclass with a path that does not exist "
+"(and with the *create* parameter set to ``False``), or when opening a folder"
+" that does not exist."
+msgstr ""
+"メールボックスがあると思っていたが見つからなかった場合に送出されます。これはたとえば :class:`Mailbox` "
+"のサブクラスを存在しないパスでインスタンス化しようとしたとき(かつ *create* パラメータは ``False`` "
+"であった場合)、あるいは存在しないフォルダを開こうとした時などに発生します。"
+
+#: ../../library/mailbox.rst:1508
+msgid ""
+"Raised when a mailbox is not empty but is expected to be, such as when "
+"deleting a folder that contains messages."
+msgstr ""
+"メールボックスが空であることを期待されているときに空でない場合、たとえばメッセージの残っているフォルダを削除しようとした時などに送出されます。"
+
+#: ../../library/mailbox.rst:1514
+msgid ""
+"Raised when some mailbox-related condition beyond the control of the program"
+" causes it to be unable to proceed, such as when failing to acquire a lock "
+"that another program already holds a lock, or when a uniquely-generated file"
+" name already exists."
+msgstr ""
+"メールボックスに関係したある条件がプログラムの制御を外れてそれ以上作業を続けられなくなった場合、たとえば他のプログラムが既に保持しているロックを取得しようとして失敗したとき、あるいは一意的に生成されたファイル名が既に存在していた場合などに送出されます。"
+
+#: ../../library/mailbox.rst:1522
+msgid ""
+"Raised when the data in a file cannot be parsed, such as when an :class:`MH`"
+" instance attempts to read a corrupted :file:`.mh_sequences` file."
+msgstr ""
+"ファイル中のデータが解析できない場合、たとえば :class:`MH` インスタンスが壊れた :file:`.mh_sequences` "
+"ファイルを読もうと試みた場合などに送出されます。"
+
+#: ../../library/mailbox.rst:1529
+msgid "Examples"
+msgstr "使用例"
+
+#: ../../library/mailbox.rst:1531
+msgid ""
+"A simple example of printing the subjects of all messages in a mailbox that "
+"seem interesting::"
+msgstr "メールボックス中の面白そうなメッセージのサブジェクトを全て印字する簡単な例::"
+
+#: ../../library/mailbox.rst:1540
+msgid ""
+"To copy all mail from a Babyl mailbox to an MH mailbox, converting all of "
+"the format-specific information that can be converted::"
+msgstr "Babyl メールボックスから MH メールボックスへ全てのメールをコピーし、変換可能な全ての形式固有の情報を変換する::"
+
+#: ../../library/mailbox.rst:1551
+msgid ""
+"This example sorts mail from several mailing lists into different mailboxes,"
+" being careful to avoid mail corruption due to concurrent modification by "
+"other programs, mail loss due to interruption of the program, or premature "
+"termination due to malformed messages in the mailbox::"
+msgstr ""
+"この例は幾つかのメーリングリストのメールをソートするものです。他のプログラムと平行して変更を加えることでメールが破損したり、プログラムを中断することでメールを失ったり、はたまた半端なメッセージがメールボックス中にあることで途中で終了してしまう、といったことを避けるように注意深く扱っています::"

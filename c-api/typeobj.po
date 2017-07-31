@@ -1,0 +1,2158 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2001-2017, Python Software Foundation
+# This file is distributed under the same license as the Python package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Python 3.6\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: DaYeah Kim <lucy777110@gmail.com>, 2017\n"
+"Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../c-api/typeobj.rst:6
+msgid "Type Objects"
+msgstr "型オブジェクト"
+
+#: ../../c-api/typeobj.rst:8
+msgid ""
+"Perhaps one of the most important structures of the Python object system is "
+"the structure that defines a new type: the :c:type:`PyTypeObject` structure."
+"  Type objects can be handled using any of the :c:func:`PyObject_\\*` or "
+":c:func:`PyType_\\*` functions, but do not offer much that's interesting to "
+"most Python applications. These objects are fundamental to how objects "
+"behave, so they are very important to the interpreter itself and to any "
+"extension module that implements new types."
+msgstr ""
+"新スタイルの型を定義する構造体: :c:type:`PyTypeObject` 構造体は、おそらく Python "
+"オブジェクトシステムの中で最も重要な構造体の1つでしょう。型オブジェクトは :c:func:`PyObject_\\*` 系や "
+":c:func:`PyType_\\*` 系の関数で扱えますが、ほとんどの Python "
+"アプリケーションにとって、さして面白みのある機能を提供しません。型オブジェクトはオブジェクトがどのように振舞うかを決める基盤ですから、インタプリタ自体や新たな型を定義する拡張モジュールでは非常に重要な存在です。"
+
+#: ../../c-api/typeobj.rst:16
+msgid ""
+"Type objects are fairly large compared to most of the standard types. The "
+"reason for the size is that each type object stores a large number of "
+"values, mostly C function pointers, each of which implements a small part of"
+" the type's functionality.  The fields of the type object are examined in "
+"detail in this section.  The fields will be described in the order in which "
+"they occur in the structure."
+msgstr ""
+"型オブジェクトは標準の型 (standard type) に比べるとかなり大きな構造体です。各型オブジェクトは多くの値を保持しており、そのほとんどは C"
+" "
+"関数へのポインタで、それぞれの関数はその型の機能の小さい部分を実装しています。この節では、型オブジェクトの各フィールドについて詳細を説明します。各フィールドは、構造体内で出現する順番に説明されています。"
+
+#: ../../c-api/typeobj.rst:23
+msgid ""
+"Typedefs: unaryfunc, binaryfunc, ternaryfunc, inquiry, intargfunc, "
+"intintargfunc, intobjargproc, intintobjargproc, objobjargproc, destructor, "
+"freefunc, printfunc, getattrfunc, getattrofunc, setattrfunc, setattrofunc, "
+"reprfunc, hashfunc"
+msgstr ""
+"Typedefs: unaryfunc, binaryfunc, ternaryfunc, inquiry, intargfunc, "
+"intintargfunc, intobjargproc, intintobjargproc, objobjargproc, destructor, "
+"freefunc, printfunc, getattrfunc, getattrofunc, setattrfunc, setattrofunc, "
+"cmpfunc, reprfunc, hashfunc"
+
+#: ../../c-api/typeobj.rst:28
+msgid ""
+"The structure definition for :c:type:`PyTypeObject` can be found in "
+":file:`Include/object.h`.  For convenience of reference, this repeats the "
+"definition found there:"
+msgstr ""
+":c:type:`PyTypeObject` の構造体定義は :file:`Include/object.h` "
+"で見つけられるはずです。参照の手間を省くために、ここでは定義を繰り返します:"
+
+#: ../../c-api/typeobj.rst:35
+msgid ""
+"The type object structure extends the :c:type:`PyVarObject` structure. The "
+":attr:`ob_size` field is used for dynamic types (created by  "
+":func:`type_new`, usually called from a class statement). Note that "
+":c:data:`PyType_Type` (the metatype) initializes "
+":c:member:`~PyTypeObject.tp_itemsize`, which means that its instances (i.e. "
+"type objects) *must* have the :attr:`ob_size` field."
+msgstr ""
+"型オブジェクト構造体は :c:type:`PyVarObject` 構造体を拡張したものです。 :attr:`ob_size` フィールドは、(通常 "
+"class 文が呼び出す :func:`type_new` で生成される) 動的な型に使います。 :c:data:`PyType_Type` "
+"(メタタイプ) は :c:member:`~PyTypeObject.tp_itemsize` を初期化するので注意してください。すなわち、 "
+"インスタンス (つまり型オブジェクト) には :attr:`ob_size` フィールドが存在しなければ *なりません* 。"
+
+#: ../../c-api/typeobj.rst:45
+msgid ""
+"These fields are only present when the macro ``Py_TRACE_REFS`` is defined. "
+"Their initialization to *NULL* is taken care of by the "
+"``PyObject_HEAD_INIT`` macro.  For statically allocated objects, these "
+"fields always remain *NULL*. For dynamically allocated objects, these two "
+"fields are used to link the object into a doubly-linked list of *all* live "
+"objects on the heap.  This could be used for various debugging purposes; "
+"currently the only use is to print the objects that are still alive at the "
+"end of a run when the environment variable :envvar:`PYTHONDUMPREFS` is set."
+msgstr ""
+"これらのフィールドはマクロ ``Py_TRACE_REFS`` が定義されている場合のみ存在します。 ``PyObject_HEAD_INIT`` "
+"マクロを使うと、フィールドを *NULL* に初期化します。静的にメモリ確保されているオブジェクトでは、これらのフィールドは常に *NULL* "
+"のままです。動的にメモリ確保されるオブジェクトの場合、これら二つのフィールドは、ヒープ上の *全ての* "
+"存続中のオブジェクトからなる二重リンクリストでオブジェクトをリンクする際に使われます。このことは様々なデバッグ目的に利用できます; 現状では、環境変数 "
+":envvar:`PYTHONDUMPREFS` "
+"が設定されているときに、プログラムの実行終了時点で存続しているオブジェクトを出力するのが唯一の用例です。"
+
+#: ../../c-api/typeobj.rst:54
+msgid "These fields are not inherited by subtypes."
+msgstr "サブタイプはこのフィールドを継承しません。"
+
+#: ../../c-api/typeobj.rst:59
+msgid ""
+"This is the type object's reference count, initialized to ``1`` by the "
+"``PyObject_HEAD_INIT`` macro.  Note that for statically allocated type "
+"objects, the type's instances (objects whose :attr:`ob_type` points back to "
+"the type) do *not* count as references.  But for dynamically allocated type "
+"objects, the instances *do* count as references."
+msgstr ""
+"型オブジェクトの参照カウントで、 ``PyObject_HEAD_INIT`` はこの値を ``1`` "
+"に初期化します。静的にメモリ確保された型オブジェクトでは、型のインスタンス (:attr:`ob_type` が該当する型を指しているオブジェクト) "
+"は参照をカウントする対象には *なりません* 。動的にメモリ確保される型オブジェクトの場合、インスタンスは参照カウントの対象に *なります* 。"
+
+#: ../../c-api/typeobj.rst:65 ../../c-api/typeobj.rst:94
+#: ../../c-api/typeobj.rst:122
+msgid "This field is not inherited by subtypes."
+msgstr "サブタイプはこのフィールドを継承しません。"
+
+#: ../../c-api/typeobj.rst:70
+msgid ""
+"This is the type's type, in other words its metatype.  It is initialized by "
+"the argument to the ``PyObject_HEAD_INIT`` macro, and its value should "
+"normally be ``&PyType_Type``.  However, for dynamically loadable extension "
+"modules that must be usable on Windows (at least), the compiler complains "
+"that this is not a valid initializer.  Therefore, the convention is to pass "
+"*NULL* to the ``PyObject_HEAD_INIT`` macro and to initialize this field "
+"explicitly at the start of the module's initialization function, before "
+"doing anything else.  This is typically done like this::"
+msgstr ""
+"型自体の型、別の言い方をするとメタタイプです。 ``PyObject_HEAD_INIT`` マクロで初期化され、通常は "
+"``&PyType_Type`` になります。しかし、(少なくとも) Windows "
+"で利用できる動的ロード可能な拡張モジュールでは、コンパイラは有効な初期化ではないと文句をつけます。そこで、ならわしとして、 "
+"``PyObject_HEAD_INIT`` には *NULL* "
+"を渡して初期化しておき、他の操作を行う前にモジュールの初期化関数で明示的にこのフィールドを初期化することになっています。この操作は以下のように行います::"
+
+#: ../../c-api/typeobj.rst:81
+msgid ""
+"This should be done before any instances of the type are created. "
+":c:func:`PyType_Ready` checks if :attr:`ob_type` is *NULL*, and if so, "
+"initializes it to the :attr:`ob_type` field of the base class. "
+":c:func:`PyType_Ready` will not change this field if it is non-zero."
+msgstr ""
+"上の操作は、該当する型のいかなるインスタンス生成よりも前にしておかなければなりません。 :c:func:`PyType_Ready` は "
+":attr:`ob_type` が *NULL* かどうか調べ、 *NULL* の場合には基底クラスの :attr:`ob_type` "
+"フィールドに初期化します。 :attr:`ob_type` が非ゼロの場合、 :c:func:`PyType_Ready` "
+"はこのフィールドを変更しません。"
+
+#: ../../c-api/typeobj.rst:86 ../../c-api/typeobj.rst:188
+#: ../../c-api/typeobj.rst:255 ../../c-api/typeobj.rst:322
+#: ../../c-api/typeobj.rst:340 ../../c-api/typeobj.rst:666
+#: ../../c-api/typeobj.rst:683 ../../c-api/typeobj.rst:778
+#: ../../c-api/typeobj.rst:873 ../../c-api/typeobj.rst:966
+#: ../../c-api/typeobj.rst:1021
+msgid "This field is inherited by subtypes."
+msgstr "サブタイプはこのフィールドを継承します。"
+
+#: ../../c-api/typeobj.rst:91
+msgid ""
+"For statically allocated type objects, this should be initialized to zero.  "
+"For dynamically allocated type objects, this field has a special internal "
+"meaning."
+msgstr ""
+"静的にメモリ確保されている型オブジェクトの場合、このフィールドはゼロに初期化されます。動的にメモリ確保されている型オブジェクトの場合、このフィールドは内部使用される特殊な意味を持ちます。"
+
+#: ../../c-api/typeobj.rst:99
+msgid ""
+"Pointer to a NUL-terminated string containing the name of the type. For "
+"types that are accessible as module globals, the string should be the full "
+"module name, followed by a dot, followed by the type name; for built-in "
+"types, it should be just the type name.  If the module is a submodule of a "
+"package, the full package name is part of the full module name.  For "
+"example, a type named :class:`T` defined in module :mod:`M` in subpackage "
+":mod:`Q` in package :mod:`P` should have the "
+":c:member:`~PyTypeObject.tp_name` initializer ``\"P.Q.M.T\"``."
+msgstr ""
+"型の名前が入っている NUL "
+"終端された文字列へのポインタです。モジュールのグローバル変数としてアクセスできる型の場合、この文字列は完全なモジュール名、ドット、そして型の名前と続く文字列になります;"
+" "
+"組み込み型の場合、ただの型の名前です。モジュールがあるパッケージのサブモジュールの場合、完全なパッケージ名が完全なモジュール名の一部になっています。例えば、パッケージ"
+" :mod:`P` 内のサブモジュール :mod:`Q` に入っているモジュール :mod:`M` 内で定義されている :class:`T` は、 "
+":c:member:`~PyTypeObject.tp_name` を ``\"P.Q.M.T\"`` に初期化します。"
+
+#: ../../c-api/typeobj.rst:107
+msgid ""
+"For dynamically allocated type objects, this should just be the type name, "
+"and the module name explicitly stored in the type dict as the value for key "
+"``'__module__'``."
+msgstr ""
+"動的にメモリ確保される型オブジェクトの場合、このフィールドは単に型の名前になり、モジュール名は型の辞書内でキー ``'__module__'`` "
+"に対する値として明示的に保存されます。"
+
+#: ../../c-api/typeobj.rst:111
+msgid ""
+"For statically allocated type objects, the tp_name field should contain a "
+"dot. Everything before the last dot is made accessible as the "
+":attr:`__module__` attribute, and everything after the last dot is made "
+"accessible as the :attr:`~definition.__name__` attribute."
+msgstr ""
+"静的にメモリ確保される型オブジェクトの場合、 :attr:`tp_name` フィールドにはドットが含まれているはずです。\n"
+"最後のドットよりも前にある部分文字列全体は :attr:`__module__` 属性として、またドットよりも後ろにある部分は :attr:`~definition.__name__` 属性としてアクセスできます。"
+
+#: ../../c-api/typeobj.rst:116
+msgid ""
+"If no dot is present, the entire :c:member:`~PyTypeObject.tp_name` field is "
+"made accessible as the :attr:`~definition.__name__` attribute, and the "
+":attr:`__module__` attribute is undefined (unless explicitly set in the "
+"dictionary, as explained above).  This means your type will be impossible to"
+" pickle.  Additionally, it will not be listed in module documentations "
+"created with pydoc."
+msgstr ""
+"ドットが入っていない場合、 :c:member:`~PyTypeObject.tp_name` フィールドの内容全てが :attr:`~definition.__name__` 属性になり、 :attr:`__module__` 属性は (前述のように型の辞書内で明示的にセットしないかぎり) 未定義になります。\n"
+"このため、その型は pickle 化できないことになります。\n"
+"さらに、 pydoc が作成するモジュールドキュメントのリストにも載らなくなります。"
+
+#: ../../c-api/typeobj.rst:128
+msgid ""
+"These fields allow calculating the size in bytes of instances of the type."
+msgstr "これらのフィールドは、型インスタンスのバイトサイズを計算できるようにします。"
+
+#: ../../c-api/typeobj.rst:130
+msgid ""
+"There are two kinds of types: types with fixed-length instances have a zero "
+":c:member:`~PyTypeObject.tp_itemsize` field, types with variable-length "
+"instances have a non-zero :c:member:`~PyTypeObject.tp_itemsize` field.  For "
+"a type with fixed-length instances, all instances have the same size, given "
+"in :c:member:`~PyTypeObject.tp_basicsize`."
+msgstr ""
+"型には二つの種類があります: 固定長インスタンスの型は、 :c:member:`~PyTypeObject.tp_itemsize` "
+"フィールドがゼロで、可変長インスタンスの方は :c:member:`~PyTypeObject.tp_itemsize` "
+"フィールドが非ゼロの値になります。固定長インスタンスの型の場合、全てのインスタンスは等しく "
+":c:member:`~PyTypeObject.tp_basicsize` で与えられたサイズになります。"
+
+#: ../../c-api/typeobj.rst:135
+msgid ""
+"For a type with variable-length instances, the instances must have an "
+":attr:`ob_size` field, and the instance size is "
+":c:member:`~PyTypeObject.tp_basicsize` plus N times "
+":c:member:`~PyTypeObject.tp_itemsize`, where N is the \"length\" of the "
+"object.  The value of N is typically stored in the instance's "
+":attr:`ob_size` field.  There are exceptions:  for example, ints use a "
+"negative :attr:`ob_size` to indicate a negative number, and N is "
+"``abs(ob_size)`` there.  Also, the presence of an :attr:`ob_size` field in "
+"the instance layout doesn't mean that the instance structure is variable-"
+"length (for example, the structure for the list type has fixed-length "
+"instances, yet those instances have a meaningful :attr:`ob_size` field)."
+msgstr ""
+"可変長インスタンスの型の場合、インスタンスには :attr:`ob_size`  フィールドがなくてはならず、インスタンスのサイズは N "
+"をオブジェクトの \"長さ\" として、 :c:member:`~PyTypeObject.tp_basicsize` と "
+":c:member:`~PyTypeObject.tp_itemsize` の N 倍を足したものになります。 N の値は通常、インスタンスの "
+":attr:`ob_size`  フィールドに記憶されます。ただし例外がいくつかあります: 例えば、整数では負の値を :attr:`ob_size` "
+"に使って、インスタンスの表す値が負であることを示し、 N 自体は ``abs(ob_size)`` になります。また、 :attr:`ob_size` "
+"フィールドがあるからといって、必ずしもインスタンスが可変長であることを意味しません (例えば、 "
+"リスト型の構造体は固定長のインスタンスになるにもかかわらず、インスタンスにはちゃんと意味を持った :attr:`ob_size` "
+"フィールドがあります)。"
+
+#: ../../c-api/typeobj.rst:146
+msgid ""
+"The basic size includes the fields in the instance declared by the macro "
+":c:macro:`PyObject_HEAD` or :c:macro:`PyObject_VAR_HEAD` (whichever is used "
+"to declare the instance struct) and this in turn includes the "
+":attr:`_ob_prev` and :attr:`_ob_next` fields if they are present.  This "
+"means that the only correct way to get an initializer for the "
+":c:member:`~PyTypeObject.tp_basicsize` is to use the ``sizeof`` operator on "
+"the struct used to declare the instance layout. The basic size does not "
+"include the GC header size."
+msgstr ""
+"基本サイズには、 :c:macro:`PyObject_HEAD` マクロまたは  :c:macro:`PyObject_VAR_HEAD` マクロ "
+"(インスタンス構造体を宣言するのに使ったどちらかのマクロ) で宣言されているフィールドが入っています。さらに、 :attr:`_ob_prev` および"
+" :attr:`_ob_next` フィールドがある場合、これらのフィールドもサイズに加算されます。従って、 "
+":c:member:`~PyTypeObject.tp_basicsize` "
+"の正しい初期化値を得るには、インスタンスデータのレイアウトを宣言するのに使う構造体に対して ``sizeof`` "
+"演算子を使うしかありません。基本サイズには、GC ヘッダサイズは入っていません。"
+
+#: ../../c-api/typeobj.rst:154
+msgid ""
+"These fields are inherited separately by subtypes.  If the base type has a "
+"non-zero :c:member:`~PyTypeObject.tp_itemsize`, it is generally not safe to "
+"set :c:member:`~PyTypeObject.tp_itemsize` to a different non-zero value in a"
+" subtype (though this depends on the implementation of the base type)."
+msgstr ""
+"これらのフィールドはサブタイプに別々に継承されます。基底タイプが 0 でない :c:member:`~PyTypeObject.tp_itemsize`"
+" を持っていた場合、基底タイプの実装に依存しますが、一般的にはサブタイプで別の 0 で無い値を "
+":c:member:`~PyTypeObject.tp_itemsize` に設定するのは安全ではありません。"
+
+#: ../../c-api/typeobj.rst:159
+msgid ""
+"A note about alignment: if the variable items require a particular "
+"alignment, this should be taken care of by the value of "
+":c:member:`~PyTypeObject.tp_basicsize`.  Example: suppose a type implements "
+"an array of ``double``. :c:member:`~PyTypeObject.tp_itemsize` is "
+"``sizeof(double)``. It is the programmer's responsibility that "
+":c:member:`~PyTypeObject.tp_basicsize` is a multiple of ``sizeof(double)`` "
+"(assuming this is the alignment requirement for ``double``)."
+msgstr ""
+"アラインメントに関する注釈: 変数の各要素を配置する際に特定のアラインメントが必要となる場合、 "
+":c:member:`~PyTypeObject.tp_basicsize` の値に気をつけなければなりません。例: ある型が ``double`` "
+"の配列を実装しているとします。 :c:member:`~PyTypeObject.tp_itemsize` は ``sizeof(double)`` "
+"です。 :c:member:`~PyTypeObject.tp_basicsize` が ``sizeof(double)`` (ここではこれを "
+"``double`` のアラインメントが要求するサイズと仮定する) の個数分のサイズになるようにするのはプログラマの責任です。"
+
+#: ../../c-api/typeobj.rst:169
+msgid ""
+"A pointer to the instance destructor function.  This function must be "
+"defined unless the type guarantees that its instances will never be "
+"deallocated (as is the case for the singletons ``None`` and ``Ellipsis``)."
+msgstr ""
+"インスタンスのデストラクタ関数へのポインタです。この関数は (単量子 ``None`` や ``Ellipsis`` の場合のように) "
+"インスタンスが決してメモリ解放されない型でない限り必ず定義しなければなりません。"
+
+#: ../../c-api/typeobj.rst:173
+msgid ""
+"The destructor function is called by the :c:func:`Py_DECREF` and "
+":c:func:`Py_XDECREF` macros when the new reference count is zero.  At this "
+"point, the instance is still in existence, but there are no references to "
+"it.  The destructor function should free all references which the instance "
+"owns, free all memory buffers owned by the instance (using the freeing "
+"function corresponding to the allocation function used to allocate the "
+"buffer), and finally (as its last action) call the type's "
+":c:member:`~PyTypeObject.tp_free` function.  If the type is not subtypable "
+"(doesn't have the :const:`Py_TPFLAGS_BASETYPE` flag bit set), it is "
+"permissible to call the object deallocator directly instead of via "
+":c:member:`~PyTypeObject.tp_free`.  The object deallocator should be the one"
+" used to allocate the instance; this is normally :c:func:`PyObject_Del` if "
+"the instance was allocated using :c:func:`PyObject_New` or "
+":c:func:`PyObject_VarNew`, or :c:func:`PyObject_GC_Del` if the instance was "
+"allocated using :c:func:`PyObject_GC_New` or :c:func:`PyObject_GC_NewVar`."
+msgstr ""
+"デストラクタ関数は、参照カウントが新たにゼロになった際に :c:func:`Py_DECREF` や :c:func:`Py_XDECREF` "
+"マクロから呼び出されます。呼び出された時点では、インスタンスはまだ存在しますが、インスタンスに対する参照は全くない状態です。デストラクタ関数はインスタンスが保持している全ての参照を解放し、インスタンスが確保している全てのメモリバッファを"
+" (バッファの確保時に使った関数に対応するメモリ解放関数を使って) 解放し、最後に (デストラクタ関数の最後の操作として) その型の  "
+":c:member:`~PyTypeObject.tp_free` 関数を呼び出します。ある型がサブタイプを作成できない "
+"(:const:`Py_TPFLAGS_BASETYPE` フラグがセットされていない) 場合、 "
+":c:member:`~PyTypeObject.tp_free` の代わりにオブジェクトのメモリ解放関数 (deallocator) "
+"を直接呼び出してもかまいません。オブジェクトのメモリ解放関数は、インスタンスのメモリ確保を行う際に使った関数に対応したものでなければなりません; "
+"インスタンスを :c:func:`PyObject_New` や :c:func:`PyObject_VarNew` でメモリ 確保した場合には、通常 "
+":c:func:`PyObject_Del` を使い、 :c:func:`PyObject_GC_New` や "
+":c:func:`PyObject_GC_NewVar` で確保した場合には :c:func:`PyObject_GC_Del` を使います。"
+
+#: ../../c-api/typeobj.rst:193
+msgid "Reserved slot, formerly used for print formatting in Python 2.x."
+msgstr ""
+"予約済みのスロットです。\n"
+"以前は Python 2.x でオブジェクトのフォーマット出力をするのに使われていました。"
+
+#: ../../c-api/typeobj.rst:198
+msgid "An optional pointer to the get-attribute-string function."
+msgstr "オプションのポインタで、get-attribute-string を行う関数を指します。"
+
+#: ../../c-api/typeobj.rst:200
+msgid ""
+"This field is deprecated.  When it is defined, it should point to a function"
+" that acts the same as the :c:member:`~PyTypeObject.tp_getattro` function, "
+"but taking a C string instead of a Python string object to give the "
+"attribute name.  The signature is ::"
+msgstr ""
+"このフィールドは非推奨です。\n"
+"このフィールドを定義するときは、 :c:member:`~PyTypeObject.tp_getattro` 関数と同じように動作し、属性名は Python 文字列 オブジェクトではなく C 文字列で指定するような関数を指すようにしなければなりません。\n"
+"シグネチャは次の通りです::"
+
+#: ../../c-api/typeobj.rst:206
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_getattro`: a subtype inherits both "
+":c:member:`~PyTypeObject.tp_getattr` and "
+":c:member:`~PyTypeObject.tp_getattro` from its base type when the subtype's "
+":c:member:`~PyTypeObject.tp_getattr` and "
+":c:member:`~PyTypeObject.tp_getattro` are both *NULL*."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_getattro` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_getattr` および "
+":c:member:`~PyTypeObject.tp_getattro` が共に *NULL* の場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_getattr` と :c:member:`~PyTypeObject.tp_getattro`"
+" を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:213 ../../c-api/typeobj.rst:358
+msgid ""
+"An optional pointer to the function for setting and deleting attributes."
+msgstr "オプションのポインタで、属性の設定と削除を行う関数を指します。"
+
+#: ../../c-api/typeobj.rst:215
+msgid ""
+"This field is deprecated.  When it is defined, it should point to a function"
+" that acts the same as the :c:member:`~PyTypeObject.tp_setattro` function, "
+"but taking a C string instead of a Python string object to give the "
+"attribute name.  The signature is ::"
+msgstr ""
+"このフィールドは非推奨です。\n"
+"このフィールドを定義するときは、 :c:member:`~PyTypeObject.tp_setattro` 関数と同じように動作し、属性名は Python 文字列 オブジェクトではなく C 文字列で指定するような関数を指すようにしなければなりません。\n"
+"シグネチャは次の通りです::"
+
+#: ../../c-api/typeobj.rst:221
+msgid ""
+"The *v* argument is set to *NULL* to delete the attribute. This field is "
+"inherited by subtypes together with :c:member:`~PyTypeObject.tp_setattro`: a"
+" subtype inherits both :c:member:`~PyTypeObject.tp_setattr` and "
+":c:member:`~PyTypeObject.tp_setattro` from its base type when the subtype's "
+":c:member:`~PyTypeObject.tp_setattr` and "
+":c:member:`~PyTypeObject.tp_setattro` are both *NULL*."
+msgstr ""
+"引数 *v* に *NULL* を設定すると属性を削除します。\n"
+"このフィールドは :c:member:`~PyTypeObject.tp_setattro` と共にサブタイプに継承されます: すなわち、サブタイプの :c:member:`~PyTypeObject.tp_setattr` および :c:member:`~PyTypeObject.tp_setattro` が両方とも *NULL* のとき、サブタイプは基底タイプから :c:member:`~PyTypeObject.tp_setattr` と :c:member:`~PyTypeObject.tp_setattro` を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:229
+msgid ""
+"Pointer to an additional structure that contains fields relevant only to "
+"objects which implement :term:`awaitable` and :term:`asynchronous iterator` "
+"protocols at the C-level.  See :ref:`async-structs` for details."
+msgstr ""
+"追加の構造体を指すポインタです。\n"
+"この構造体は、 C レベルで :term:`awaitable` プロトコルと :term:`asynchronous iterator` プロトコルを実装するオブジェクトだけに関係するフィールドを持ちます。\n"
+"詳しいことは :ref:`async-structs` を参照してください。"
+
+#: ../../c-api/typeobj.rst:233
+msgid "Formerly known as ``tp_compare`` and ``tp_reserved``."
+msgstr "以前は ``tp_compare`` や ``tp_reserved`` として知られていました。"
+
+#: ../../c-api/typeobj.rst:241
+msgid ""
+"An optional pointer to a function that implements the built-in function "
+":func:`repr`."
+msgstr "オプションのポインタで、組み込み関数 :func:`repr` を実装している関数を指します。"
+
+#: ../../c-api/typeobj.rst:244
+msgid ""
+"The signature is the same as for :c:func:`PyObject_Repr`; it must return a "
+"string or a Unicode object.  Ideally, this function should return a string "
+"that, when passed to :func:`eval`, given a suitable environment, returns an "
+"object with the same value.  If this is not feasible, it should return a "
+"string starting with ``'<'`` and ending with ``'>'`` from which both the "
+"type and the value of the object can be deduced."
+msgstr ""
+"シグネチャは :c:func:`PyObject_Repr` と同じです。この関数は文字列オブジェクトか Unicode "
+"オブジェクトを返さなければなりません。理想的には、この関数が返す文字列は、適切な環境で :func:`eval` "
+"に渡した場合、同じ値を持つオブジェクトになるような文字列でなければなりません。不可能な場合には、オブジェクトの型と値から導出した内容の入った "
+"``'<'`` から始まって ``'>'`` で終わる文字列を返さなければなりません。"
+
+#: ../../c-api/typeobj.rst:251
+msgid ""
+"When this field is not set, a string of the form ``<%s object at %p>`` is "
+"returned, where ``%s`` is replaced by the type name, and ``%p`` by the "
+"object's memory address."
+msgstr ""
+"このフィールドが設定されていない場合、 ``<%s object at %p>`` の形式をとる文字列が返されます。 ``%s`` は型の名前に、 "
+"``%p`` はオブジェクトのメモリアドレスに置き換えられます。"
+
+#: ../../c-api/typeobj.rst:259
+msgid ""
+"Pointer to an additional structure that contains fields relevant only to "
+"objects which implement the number protocol.  These fields are documented in"
+" :ref:`number-structs`."
+msgstr ""
+"数値プロトコルを実装した追加の構造体を指すポインタです。これらのフィールドについては :ref:`number-structs` で説明されています。"
+
+#: ../../c-api/typeobj.rst:263
+msgid ""
+"The :c:member:`~PyTypeObject.tp_as_number` field is not inherited, but the "
+"contained fields are inherited individually."
+msgstr ""
+":c:member:`~PyTypeObject.tp_as_number` "
+"フィールドは継承されませんが、そこの含まれるフィールドが個別に継承されます。"
+
+#: ../../c-api/typeobj.rst:269
+msgid ""
+"Pointer to an additional structure that contains fields relevant only to "
+"objects which implement the sequence protocol.  These fields are documented "
+"in :ref:`sequence-structs`."
+msgstr ""
+"シーケンスプロトコルを実装した追加の構造体を指すポインタです。これらのフィールドについては :ref:`sequence-structs` "
+"で説明されています。"
+
+#: ../../c-api/typeobj.rst:273
+msgid ""
+"The :c:member:`~PyTypeObject.tp_as_sequence` field is not inherited, but the"
+" contained fields are inherited individually."
+msgstr ""
+":c:member:`~PyTypeObject.tp_as_sequence` "
+"フィールドは継承されませんが、これに含まれるフィールドが個別に継承されます。"
+
+#: ../../c-api/typeobj.rst:279
+msgid ""
+"Pointer to an additional structure that contains fields relevant only to "
+"objects which implement the mapping protocol.  These fields are documented "
+"in :ref:`mapping-structs`."
+msgstr ""
+"マッピングプロトコルを実装した追加の構造体を指すポインタです。これらのフィールドについては :ref:`mapping-structs` "
+"で説明されています。"
+
+#: ../../c-api/typeobj.rst:283
+msgid ""
+"The :c:member:`~PyTypeObject.tp_as_mapping` field is not inherited, but the "
+"contained fields are inherited individually."
+msgstr ""
+":c:member:`~PyTypeObject.tp_as_mapping` "
+"フィールドは継承されませんが、これに含まれるフィールドが個別に継承されます。"
+
+#: ../../c-api/typeobj.rst:291
+msgid ""
+"An optional pointer to a function that implements the built-in function "
+":func:`hash`."
+msgstr "オプションのポインタで、組み込み関数 :func:`hash` を実装している関数を指します。"
+
+#: ../../c-api/typeobj.rst:294
+msgid ""
+"The signature is the same as for :c:func:`PyObject_Hash`; it must return a "
+"value of the type Py_hash_t.  The value ``-1`` should not be returned as a "
+"normal return value; when an error occurs during the computation of the hash"
+" value, the function should set an exception and return ``-1``."
+msgstr ""
+"シグネチャは :c:func:`PyObject_Hash` と同じです。この関数は型 Py_hash_t の値を返さなければなりません。通常時には "
+"``-1`` を戻り値にしてはなりません; ハッシュ値の計算中にエラーが生じた場合、関数は例外をセットして ``-1`` を返さなければなりません。"
+
+#: ../../c-api/typeobj.rst:299
+msgid ""
+"This field can be set explicitly to :c:func:`PyObject_HashNotImplemented` to"
+" block inheritance of the hash method from a parent type. This is "
+"interpreted as the equivalent of ``__hash__ = None`` at the Python level, "
+"causing ``isinstance(o, collections.Hashable)`` to correctly return "
+"``False``. Note that the converse is also true - setting ``__hash__ = None``"
+" on a class at the Python level will result in the ``tp_hash`` slot being "
+"set to :c:func:`PyObject_HashNotImplemented`."
+msgstr ""
+"このフィールドは明示的に :c:func:`PyObject_HashNotImplemented` に設定することで、親 type "
+"からのハッシュメソッドの継承をブロックすることができます。これは Python レベルでの ``__hash__ = None`` と同等に解釈され、 "
+"``isinstance(o, collections.Hashable)`` が正しく ``False`` "
+"を返すようになります。逆もまた可能であることに注意してください - Python レベルで ``__hash__ = None`` を設定することで "
+"``tp_hash`` スロットは :c:func:`PyObject_HashNotImplemented` に設定されます。"
+
+#: ../../c-api/typeobj.rst:307
+msgid ""
+"When this field is not set, an attempt to take the hash of the object raises"
+" :exc:`TypeError`."
+msgstr "このフィールドがセットされていないときに、オブジェクトのハッシュ値を取ろうとすると :exc:`TypeError` が送出されます。"
+
+#: ../../c-api/typeobj.rst:310
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_richcompare`: a subtype inherits both of "
+":c:member:`~PyTypeObject.tp_richcompare` and "
+":c:member:`~PyTypeObject.tp_hash`, when the subtype's "
+":c:member:`~PyTypeObject.tp_richcompare` and "
+":c:member:`~PyTypeObject.tp_hash` are both *NULL*."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_richcompare` と共にサブタイプに継承されます: "
+"すなわち、サブタイプの :c:member:`~PyTypeObject.tp_richcompare` および "
+":c:member:`~PyTypeObject.tp_hash` が両方とも *NULL* のとき、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_richcompare` と :c:member:`~PyTypeObject.tp_hash`"
+" を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:318
+msgid ""
+"An optional pointer to a function that implements calling the object.  This "
+"should be *NULL* if the object is not callable.  The signature is the same "
+"as for :c:func:`PyObject_Call`."
+msgstr ""
+"オプションのポインタで、オブジェクトの呼び出しを実装している関数を指します。オブジェクトが呼び出し可能でない場合には *NULL* "
+"にしなければなりません。シグネチャは :c:func:`PyObject_Call` と同じです。"
+
+#: ../../c-api/typeobj.rst:327
+msgid ""
+"An optional pointer to a function that implements the built-in operation "
+":func:`str`.  (Note that :class:`str` is a type now, and :func:`str` calls "
+"the constructor for that type.  This constructor calls "
+":c:func:`PyObject_Str` to do the actual work, and :c:func:`PyObject_Str` "
+"will call this handler.)"
+msgstr ""
+"オプションのポインタで、組み込みの演算 :func:`str` を実装している関数を指します。(:class:`str` が型の一つになったため、 "
+":func:`str` は :class:`str` のコンストラクタを呼び出すことに注意してください。このコンストラクタは実際の処理を行う上で "
+":c:func:`PyObject_Str` を呼び出し、さらに :c:func:`PyObject_Str` "
+"がこのハンドラを呼び出すことになります。)"
+
+#: ../../c-api/typeobj.rst:332
+msgid ""
+"The signature is the same as for :c:func:`PyObject_Str`; it must return a "
+"string or a Unicode object.  This function should return a \"friendly\" "
+"string representation of the object, as this is the representation that will"
+" be used, among other things, by the :func:`print` function."
+msgstr ""
+"シグネチャは :c:func:`PyObject_Str` と同じです; この関数は文字列オブジェクトか Unicode "
+"オブジェクトを返さなければなりません。また、この関数はオブジェクトを \"分かりやすく (friendly)\" "
+"表現した文字列を返さなければなりません。というのは、この文字列はとりわけ :func:`print` 関数で使われることになる表記だからです。"
+
+#: ../../c-api/typeobj.rst:337
+msgid ""
+"When this field is not set, :c:func:`PyObject_Repr` is called to return a "
+"string representation."
+msgstr "このフィールドが設定されていない場合、文字列表現を返すためには :c:func:`PyObject_Repr` が呼び出されます。"
+
+#: ../../c-api/typeobj.rst:345
+msgid "An optional pointer to the get-attribute function."
+msgstr "オプションのポインタで、get-attribute を実装している関数を指します。"
+
+#: ../../c-api/typeobj.rst:347
+msgid ""
+"The signature is the same as for :c:func:`PyObject_GetAttr`.  It is usually "
+"convenient to set this field to :c:func:`PyObject_GenericGetAttr`, which "
+"implements the normal way of looking for object attributes."
+msgstr ""
+"シグネチャは :c:func:`PyObject_GetAttr` と同じです。\n"
+"通常の属性検索を実装している :c:func:`PyObject_GenericGetAttr`  をこのフィールドに設定しておくとたいていの場合は便利です。"
+
+#: ../../c-api/typeobj.rst:351
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_getattr`: a subtype inherits both "
+":c:member:`~PyTypeObject.tp_getattr` and "
+":c:member:`~PyTypeObject.tp_getattro` from its base type when the subtype's "
+":c:member:`~PyTypeObject.tp_getattr` and "
+":c:member:`~PyTypeObject.tp_getattro` are both *NULL*."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_getattr` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_getattr` および "
+":c:member:`~PyTypeObject.tp_getattro` が共に *NULL* の場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_getattr` と :c:member:`~PyTypeObject.tp_getattro`"
+" を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:360
+msgid ""
+"The signature is the same as for :c:func:`PyObject_SetAttr`, but setting *v*"
+" to *NULL* to delete an attribute must be supported.  It is usually "
+"convenient to set this field to :c:func:`PyObject_GenericSetAttr`, which "
+"implements the normal way of setting object attributes."
+msgstr ""
+"シグネチャは :c:func:`PyObject_SetAttr` と同じですが、 *v* に *NULL* を指定して属性を削除できるようにしなければなりません。\n"
+"通常の属性設定を実装している :c:func:`PyObject_GenericSetAttr`  をこのフィールドに設定しておくとたいていの場合は便利です。"
+
+#: ../../c-api/typeobj.rst:365
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_setattr`: a subtype inherits both "
+":c:member:`~PyTypeObject.tp_setattr` and "
+":c:member:`~PyTypeObject.tp_setattro` from its base type when the subtype's "
+":c:member:`~PyTypeObject.tp_setattr` and "
+":c:member:`~PyTypeObject.tp_setattro` are both *NULL*."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_setattr` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_setattr` および "
+":c:member:`~PyTypeObject.tp_setattro` が共に *NULL* の場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_setattr` と :c:member:`~PyTypeObject.tp_setattro`"
+" を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:372
+msgid ""
+"Pointer to an additional structure that contains fields relevant only to "
+"objects which implement the buffer interface.  These fields are documented "
+"in :ref:`buffer-structs`."
+msgstr ""
+"バッファインタフェースを実装しているオブジェクトにのみ関連する、一連のフィールド群が入った別の構造体を指すポインタです。構造体内の各フィールドは "
+":ref:`buffer-structs` で説明します。"
+
+#: ../../c-api/typeobj.rst:376
+msgid ""
+"The :c:member:`~PyTypeObject.tp_as_buffer` field is not inherited, but the "
+"contained fields are inherited individually."
+msgstr ""
+":c:member:`~PyTypeObject.tp_as_buffer` "
+"フィールド自体は継承されませんが、これに含まれるフィールドは個別に継承されます。"
+
+#: ../../c-api/typeobj.rst:382
+msgid ""
+"This field is a bit mask of various flags.  Some flags indicate variant "
+"semantics for certain situations; others are used to indicate that certain "
+"fields in the type object (or in the extension structures referenced via "
+":c:member:`~PyTypeObject.tp_as_number`, "
+":c:member:`~PyTypeObject.tp_as_sequence`, "
+":c:member:`~PyTypeObject.tp_as_mapping`, and "
+":c:member:`~PyTypeObject.tp_as_buffer`) that were historically not always "
+"present are valid; if such a flag bit is clear, the type fields it guards "
+"must not be accessed and must be considered to have a zero or *NULL* value "
+"instead."
+msgstr ""
+"このフィールドは様々なフラグからなるビットマスクです。いくつかのフラグは、特定の状況において変則的なセマンティクスが適用されることを示します; "
+"その他のフラグは、型オブジェクト (あるいは :c:member:`~PyTypeObject.tp_as_number` 、 "
+":c:member:`~PyTypeObject.tp_as_sequence` 、 "
+":c:member:`~PyTypeObject.tp_as_mapping` 、 および "
+":c:member:`~PyTypeObject.tp_as_buffer` が参照している拡張機能構造体) "
+"の特定のフィールドのうち、過去から現在までずっと存在していたわけではないものが有効になっていることを示すために使われます; "
+"フラグビットがクリアされていれば、フラグが保護しているフィールドにはアクセスしない代わりに、その値はゼロか *NULL* "
+"になっているとみなさなければなりません。"
+
+#: ../../c-api/typeobj.rst:390
+msgid ""
+"Inheritance of this field is complicated.  Most flag bits are inherited "
+"individually, i.e. if the base type has a flag bit set, the subtype inherits"
+" this flag bit.  The flag bits that pertain to extension structures are "
+"strictly inherited if the extension structure is inherited, i.e. the base "
+"type's value of the flag bit is copied into the subtype together with a "
+"pointer to the extension structure.  The :const:`Py_TPFLAGS_HAVE_GC` flag "
+"bit is inherited together with the :c:member:`~PyTypeObject.tp_traverse` and"
+" :c:member:`~PyTypeObject.tp_clear` fields, i.e. if the "
+":const:`Py_TPFLAGS_HAVE_GC` flag bit is clear in the subtype and the "
+":c:member:`~PyTypeObject.tp_traverse` and :c:member:`~PyTypeObject.tp_clear`"
+" fields in the subtype exist and have *NULL* values."
+msgstr ""
+"このフィールドの継承は込み入っています。ほとんどのフラグは個別に継承されます。すなわち、基底タイプのフラグビットが設定されていたら、サブタイプのフラグビットもそれを引き継ぎます。拡張機能構造体が継承される場合は、拡張機能構造体に関係するフラグビットは厳密に継承されます。すなわち、基底タイプのフラグビットの値は、拡張機能構造体へのポインタと共に、サブタイプにコピーされます。"
+" :const:`Py_TPFLAGS_HAVE_GC` フラグビットは :c:member:`~PyTypeObject.tp_traverse` "
+"フィールドと :c:member:`~PyTypeObject.tp_clear` フィールドと共に継承されます。すなわち、サブタイプにおいて、 "
+":const:`Py_TPFLAGS_HAVE_GC` フラグビットがクリアされていて、 "
+":c:member:`~PyTypeObject.tp_traverse` フィールドと "
+":c:member:`~PyTypeObject.tp_clear` フィールドが存在し *NULL* になっている場合に継承されます。"
+
+#: ../../c-api/typeobj.rst:401
+msgid ""
+"The following bit masks are currently defined; these can be ORed together "
+"using the ``|`` operator to form the value of the "
+":c:member:`~PyTypeObject.tp_flags` field.  The macro "
+":c:func:`PyType_HasFeature` takes a type and a flags value, *tp* and *f*, "
+"and checks whether ``tp->tp_flags & f`` is non-zero."
+msgstr ""
+"以下に挙げるビットマスクは現在定義されているものです; フラグは ``|`` 演算子で論理和を取って "
+":c:member:`~PyTypeObject.tp_flags` フィールドの値を作成できます。 "
+":c:func:`PyType_HasFeature` マクロは型とフラグ値、 *tp* および *f* をとり、 ``tp->tp_flags & "
+"f`` が非ゼロかどうか調べます。"
+
+#: ../../c-api/typeobj.rst:409
+msgid ""
+"This bit is set when the type object itself is allocated on the heap.  In "
+"this case, the :attr:`ob_type` field of its instances is considered a "
+"reference to the type, and the type object is INCREF'ed when a new instance "
+"is created, and DECREF'ed when an instance is destroyed (this does not apply"
+" to instances of subtypes; only the type referenced by the instance's "
+"ob_type gets INCREF'ed or DECREF'ed)."
+msgstr ""
+"型オブジェクト自体がヒープにメモリ確保される場合にセットされるビットです。型オブジェクト自体がヒープにメモリ確保される場合、インスタンスの "
+":attr:`ob_type` フィールドは型オブジェクトへの参照とみなされます。この場合、新たなインスタンスを生成する度に型オブジェクトを "
+"INCREF し、インスタンスを解放するたびに DECREF します (サブタイプのインスタンスには適当されません; インスタンスが "
+":attr:`ob_type` で参照している型だけが INCREF および DECREF されます)。"
+
+#: ../../c-api/typeobj.rst:419
+msgid ""
+"This bit is set when the type can be used as the base type of another type."
+"  If this bit is clear, the type cannot be subtyped (similar to a \"final\" "
+"class in Java)."
+msgstr ""
+"型を別の型の基底タイプとして使える場合にセットされるビットです。このビットがクリアならば、この型のサブタイプは生成できません (Java における "
+"\"final\" クラスに似たクラスになります)。"
+
+#: ../../c-api/typeobj.rst:426
+msgid ""
+"This bit is set when the type object has been fully initialized by "
+":c:func:`PyType_Ready`."
+msgstr "型オブジェクトが :c:func:`PyType_Ready` で完全に初期化されるとセットされるビットです。"
+
+#: ../../c-api/typeobj.rst:432
+msgid ""
+"This bit is set while :c:func:`PyType_Ready` is in the process of "
+"initializing the type object."
+msgstr ":c:func:`PyType_Ready` による型オブジェクトの初期化処理中にセットされるビットです。"
+
+#: ../../c-api/typeobj.rst:438
+msgid ""
+"This bit is set when the object supports garbage collection.  If this bit is"
+" set, instances must be created using :c:func:`PyObject_GC_New` and "
+"destroyed using :c:func:`PyObject_GC_Del`.  More information in section :ref"
+":`supporting-cycle-detection`.  This bit also implies that the GC-related "
+"fields :c:member:`~PyTypeObject.tp_traverse` and "
+":c:member:`~PyTypeObject.tp_clear` are present in the type object."
+msgstr ""
+"オブジェクトがガベージコレクション (GC) をサポートする場合にセットされるビットです。このビットがセットされている場合、インスタンスは "
+":c:func:`PyObject_GC_New` を使って生成し、 :c:func:`PyObject_GC_Del` "
+"を使って破棄しなければなりません。詳しい情報は :ref:`supporting-cycle-detection` にあります。このビットは、GC "
+"に関連するフィールド :c:member:`~PyTypeObject.tp_traverse` および "
+":c:member:`~PyTypeObject.tp_clear` が型オブジェクト内に存在することも示しています。"
+
+#: ../../c-api/typeobj.rst:448
+msgid ""
+"This is a bitmask of all the bits that pertain to the existence of certain "
+"fields in the type object and its extension structures. Currently, it "
+"includes the following bits: :const:`Py_TPFLAGS_HAVE_STACKLESS_EXTENSION`, "
+":const:`Py_TPFLAGS_HAVE_VERSION_TAG`."
+msgstr ""
+"型オブジェクトおよび拡張機能構造体の特定のフィールドの存在の有無に関連する全てのビットからなるビットマスクです。現状では、このビットマスクには以下のビット:"
+" :const:`Py_TPFLAGS_HAVE_STACKLESS_EXTENSION` および "
+":const:`Py_TPFLAGS_HAVE_VERSION_TAG` が入っています。"
+
+#: ../../c-api/typeobj.rst:463
+msgid ""
+"These flags are used by functions such as :c:func:`PyLong_Check` to quickly "
+"determine if a type is a subclass of a built-in type; such specific checks "
+"are faster than a generic check, like :c:func:`PyObject_IsInstance`. Custom "
+"types that inherit from built-ins should have their "
+":c:member:`~PyTypeObject.tp_flags` set appropriately, or the code that "
+"interacts with such types will behave differently depending on what kind of "
+"check is used."
+msgstr ""
+"これらのフラグは :c:func:`PyLong_Check` のような関数が、型がとある組み込み型のサブクラスかどうかを素早く判断するのに使われます;\n"
+"この専用のチェックは :c:func:`PyObject_IsInstance` のような汎用的なチェックよりも高速です。\n"
+"組み込み型を継承した独自の型では :c:member:`~PyTypeObject.tp_flags` を適切に設定すべきで、そうしないとその型が関わるコードでは、どんなチェックの方法が使われるかによって振る舞いが異なってしまうでしょう。"
+
+#: ../../c-api/typeobj.rst:474
+msgid ""
+"This bit is set when the :c:member:`~PyTypeObject.tp_finalize` slot is "
+"present in the type structure."
+msgstr ""
+"型構造体に :c:member:`~PyTypeObject.tp_finalize` スロットが存在しているときにセットされるビットです。"
+
+#: ../../c-api/typeobj.rst:482
+msgid ""
+"An optional pointer to a NUL-terminated C string giving the docstring for "
+"this type object.  This is exposed as the :attr:`__doc__` attribute on the "
+"type and instances of the type."
+msgstr ""
+"オプションのポインタで、この型オブジェクトの docstring を与える NUL 終端された C "
+"の文字列を指します。この値は型オブジェクトと型のインスタンスにおける :attr:`__doc__` 属性として公開されます。"
+
+#: ../../c-api/typeobj.rst:486
+msgid "This field is *not* inherited by subtypes."
+msgstr "サブタイプはこのフィールドを継承 *しません* 。"
+
+#: ../../c-api/typeobj.rst:491
+msgid ""
+"An optional pointer to a traversal function for the garbage collector.  This"
+" is only used if the :const:`Py_TPFLAGS_HAVE_GC` flag bit is set.  More "
+"information about Python's garbage collection scheme can be found in section"
+" :ref:`supporting-cycle-detection`."
+msgstr ""
+"オプションのポインタで、ガベージコレクタのためのトラバーサル関数 (traversal function) を指します。 "
+":const:`Py_TPFLAGS_HAVE_GC` がセットされている場合にのみ使われます。Pythonのガベージコレクションの枠組みに関する詳細は"
+" :ref:`supporting-cycle-detection` にあります。"
+
+#: ../../c-api/typeobj.rst:496
+msgid ""
+"The :c:member:`~PyTypeObject.tp_traverse` pointer is used by the garbage "
+"collector to detect reference cycles. A typical implementation of a "
+":c:member:`~PyTypeObject.tp_traverse` function simply calls "
+":c:func:`Py_VISIT` on each of the instance's members that are Python "
+"objects.  For example, this is function :c:func:`local_traverse` from the "
+":mod:`_thread` extension module::"
+msgstr ""
+":c:member:`~PyTypeObject.tp_traverse` ポインタは、ガベージコレクタが循環参照を見つけるために使われます。 "
+":c:member:`~PyTypeObject.tp_traverse` 関数の典型的な実装は、インスタンスの "
+"Pythonオブジェクトである各メンバに対して :c:func:`Py_VISIT` を呼び出します。例えば、次のコードは :mod:`_thread`"
+" 拡張モジュールの :c:func:`local_traverse` 関数です::"
+
+#: ../../c-api/typeobj.rst:511
+msgid ""
+"Note that :c:func:`Py_VISIT` is called only on those members that can "
+"participate in reference cycles.  Although there is also a ``self->key`` "
+"member, it can only be *NULL* or a Python string and therefore cannot be "
+"part of a reference cycle."
+msgstr ""
+":c:func:`Py_VISIT` が循環参照になる恐れのあるメンバにだけ呼び出されていることに注目してください。 ``self->key`` "
+"メンバもありますが、それは *NULL* か Python文字列なので、循環参照の一部になることはありません。"
+
+#: ../../c-api/typeobj.rst:515
+msgid ""
+"On the other hand, even if you know a member can never be part of a cycle, "
+"as a debugging aid you may want to visit it anyway just so the :mod:`gc` "
+"module's :func:`~gc.get_referents` function will include it."
+msgstr ""
+"一方、メンバが循環参照の一部になり得ないと判っていても、デバッグ目的で巡回したい場合があるかもしれないので、 :mod:`gc` モジュールの "
+":func:`~gc.get_referents` 関数は循環参照になり得ないメンバも返します。"
+
+#: ../../c-api/typeobj.rst:519
+msgid ""
+"Note that :c:func:`Py_VISIT` requires the *visit* and *arg* parameters to "
+":c:func:`local_traverse` to have these specific names; don't name them just "
+"anything."
+msgstr ""
+":c:func:`Py_VISIT` は :c:func:`local_traverse` が *visit* と *arg* "
+"という決まった名前の引数を持つことを要求します。"
+
+#: ../../c-api/typeobj.rst:523
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_clear` and the :const:`Py_TPFLAGS_HAVE_GC` flag "
+"bit: the flag bit, :c:member:`~PyTypeObject.tp_traverse`, and "
+":c:member:`~PyTypeObject.tp_clear` are all inherited from the base type if "
+"they are all zero in the subtype."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_clear` および :const:`Py_TPFLAGS_HAVE_GC` "
+"フラグビットと共にサブタイプに継承されます: すなわち、サブタイプの :c:member:`~PyTypeObject.tp_traverse` および"
+" :c:member:`~PyTypeObject.tp_clear` が両方ともゼロの場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_traverse` と :c:member:`~PyTypeObject.tp_clear` "
+"を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:531
+msgid ""
+"An optional pointer to a clear function for the garbage collector. This is "
+"only used if the :const:`Py_TPFLAGS_HAVE_GC` flag bit is set."
+msgstr ""
+"オプションのポインタで、ガベージコレクタにおける消去関数 (clear function) を指します。 "
+":const:`Py_TPFLAGS_HAVE_GC` がセットされている場合にのみ使われます。"
+
+#: ../../c-api/typeobj.rst:534
+msgid ""
+"The :c:member:`~PyTypeObject.tp_clear` member function is used to break "
+"reference cycles in cyclic garbage detected by the garbage collector.  Taken"
+" together, all :c:member:`~PyTypeObject.tp_clear` functions in the system "
+"must combine to break all reference cycles.  This is subtle, and if in any "
+"doubt supply a :c:member:`~PyTypeObject.tp_clear` function.  For example, "
+"the tuple type does not implement a :c:member:`~PyTypeObject.tp_clear` "
+"function, because it's possible to prove that no reference cycle can be "
+"composed entirely of tuples. Therefore the "
+":c:member:`~PyTypeObject.tp_clear` functions of other types must be "
+"sufficient to break any cycle containing a tuple.  This isn't immediately "
+"obvious, and there's rarely a good reason to avoid implementing "
+":c:member:`~PyTypeObject.tp_clear`."
+msgstr ""
+":c:member:`~PyTypeObject.tp_clear` メンバ関数は GC "
+"が検出した循環しているゴミの循環参照を壊すために用いられます。総合的な視点で考えると、システム内の全ての "
+":c:member:`~PyTypeObject.tp_clear` 関数が連携して、全ての循環参照を破壊しなければなりません。 (訳注: ある型が "
+":c:member:`~PyTypeObject.tp_clear` を実装しなくても全ての循環参照が破壊できるのであれば実装しなくても良い) "
+"これはとても繊細で、もし少しでも不確かな部分があるのであれば、 :c:member:`~PyTypeObject.tp_clear` "
+"関数を提供するべきです。例えば、タプルは :c:member:`~PyTypeObject.tp_clear` "
+"を実装しません。なぜなら、タプルだけで構成された循環参照がみつかることは無いからです。従って、タプル以外の型の "
+":c:member:`~PyTypeObject.tp_clear` "
+"関数だけで、タプルを含むどんな循環参照も必ず破壊できることになります。これは簡単に判ることではなく、 "
+":c:member:`~PyTypeObject.tp_clear` の実装を避ける良い理由はめったにありません。"
+
+#: ../../c-api/typeobj.rst:544
+msgid ""
+"Implementations of :c:member:`~PyTypeObject.tp_clear` should drop the "
+"instance's references to those of its members that may be Python objects, "
+"and set its pointers to those members to *NULL*, as in the following "
+"example::"
+msgstr ""
+"次の例にあるように、 :c:member:`~PyTypeObject.tp_clear` の実装は、インスタンスから Python "
+"オブジェクトだと思われるメンバへの参照を外し、それらのメンバへのポインタに *NULL* をセットすべきです::"
+
+#: ../../c-api/typeobj.rst:558
+msgid ""
+"The :c:func:`Py_CLEAR` macro should be used, because clearing references is "
+"delicate:  the reference to the contained object must not be decremented "
+"until after the pointer to the contained object is set to *NULL*.  This is "
+"because decrementing the reference count may cause the contained object to "
+"become trash, triggering a chain of reclamation activity that may include "
+"invoking arbitrary Python code (due to finalizers, or weakref callbacks, "
+"associated with the contained object). If it's possible for such code to "
+"reference *self* again, it's important that the pointer to the contained "
+"object be *NULL* at that time, so that *self* knows the contained object can"
+" no longer be used.  The :c:func:`Py_CLEAR` macro performs the operations in"
+" a safe order."
+msgstr ""
+"参照のクリアはデリケートなので、 :c:func:`Py_CLEAR` マクロを使うべきです: ポインタを *NULL* "
+"にセットするまで、そのオブジェクトの参照カウントをデクリメントしてはいけません。参照カウントのデクリメントすると、そのオブジェクトが破棄されるかもしれず、"
+" (そのオブジェクトに関連付けられたファイナライザ、弱参照のコールバックにより) "
+"任意のPythonコードの実行を含む後片付け処理が実行されるかもしれないからです。もしそういったコードが再び *self* "
+"を参照することがあれば、すでに持っていたオブジェクトへのポインタは *NULL* になっているので、 *self* "
+"は所有していたオブジェクトをもう利用できないことを認識できます。 :c:func:`Py_CLEAR` マクロはその手続きを安全な順番で実行します。"
+
+#: ../../c-api/typeobj.rst:569
+msgid ""
+"Because the goal of :c:member:`~PyTypeObject.tp_clear` functions is to break"
+" reference cycles, it's not necessary to clear contained objects like Python"
+" strings or Python integers, which can't participate in reference cycles. On"
+" the other hand, it may be convenient to clear all contained Python objects,"
+" and write the type's :c:member:`~PyTypeObject.tp_dealloc` function to "
+"invoke :c:member:`~PyTypeObject.tp_clear`."
+msgstr ""
+":c:member:`~PyTypeObject.tp_clear` 関数の目的は参照カウントを破壊することなので、 Python 文字列や "
+"Python 整数のような、循環参照に含むことのできないオブジェクトをクリアする必要はありません。一方、所有する全ての Python "
+"オブジェクトをクリアするようにし、その型の :c:member:`~PyTypeObject.tp_dealloc` 関数が "
+":c:member:`~PyTypeObject.tp_clear` 関数を実行するようにすると実装が楽になるでしょう。"
+
+#: ../../c-api/typeobj.rst:575
+msgid ""
+"More information about Python's garbage collection scheme can be found in "
+"section :ref:`supporting-cycle-detection`."
+msgstr ""
+"Pythonのガベージコレクションの仕組みについての詳細は、 :ref:`supporting-cycle-detection` にあります。"
+
+#: ../../c-api/typeobj.rst:578
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_traverse` and the :const:`Py_TPFLAGS_HAVE_GC` "
+"flag bit: the flag bit, :c:member:`~PyTypeObject.tp_traverse`, and "
+":c:member:`~PyTypeObject.tp_clear` are all inherited from the base type if "
+"they are all zero in the subtype."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_traverse` および "
+":const:`Py_TPFLAGS_HAVE_GC` フラグビットと共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_traverse` および :c:member:`~PyTypeObject.tp_clear`"
+" が両方ともゼロの場合、サブタイプは基底タイプから :c:member:`~PyTypeObject.tp_traverse` と "
+":c:member:`~PyTypeObject.tp_clear` を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:586
+msgid ""
+"An optional pointer to the rich comparison function, whose signature is "
+"``PyObject *tp_richcompare(PyObject *a, PyObject *b, int op)``. The first "
+"parameter is guaranteed to be an instance of the type that is defined by "
+":c:type:`PyTypeObject`."
+msgstr ""
+"オプションのポインタで、  ``PyObject *tp_richcompare(PyObject *a, PyObject *b, int op)`` というシグネチャを持つ拡張比較関数を指します。\n"
+"1つ目の引数は、 :c:type:`PyTypeObject` で定義された型のインスタンスであることが保証されています。"
+
+#: ../../c-api/typeobj.rst:591
+msgid ""
+"The function should return the result of the comparison (usually ``Py_True``"
+" or ``Py_False``).  If the comparison is undefined, it must return "
+"``Py_NotImplemented``, if another error occurred it must return ``NULL`` and"
+" set an exception condition."
+msgstr ""
+"この関数は、比較結果を返すべきです。(普通は ``Py_True`` か ``Py_False`` です。) "
+"比較が未定義の場合は、``Py_NotImplemented`` を、それ以外のエラーが発生した場合には例外状態をセットして ``NULL`` "
+"を返さなければなりません。"
+
+#: ../../c-api/typeobj.rst:598
+msgid ""
+"If you want to implement a type for which only a limited set of comparisons "
+"makes sense (e.g. ``==`` and ``!=``, but not ``<`` and friends), directly "
+"raise :exc:`TypeError` in the rich comparison function."
+msgstr ""
+"限られた種類の比較だけが可能 (例えば、 ``==`` と ``!=`` が可能で ``<`` などが不可能) な型を実装したい場合、拡張比較関数で直接"
+" :exc:`TypeError` を返します。"
+
+#: ../../c-api/typeobj.rst:602
+msgid ""
+"This field is inherited by subtypes together with "
+":c:member:`~PyTypeObject.tp_hash`: a subtype inherits "
+":c:member:`~PyTypeObject.tp_richcompare` and "
+":c:member:`~PyTypeObject.tp_hash` when the subtype's "
+":c:member:`~PyTypeObject.tp_richcompare` and "
+":c:member:`~PyTypeObject.tp_hash` are both *NULL*."
+msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_hash` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_richcompare` および "
+":c:member:`~PyTypeObject.tp_hash` が両方とも *NULL* のとき、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_richcompare` と :c:member:`~PyTypeObject.tp_hash`"
+" を両方とも継承します。"
+
+#: ../../c-api/typeobj.rst:607
+msgid ""
+"The following constants are defined to be used as the third argument for "
+":c:member:`~PyTypeObject.tp_richcompare` and for "
+":c:func:`PyObject_RichCompare`:"
+msgstr ""
+":c:member:`~PyTypeObject.tp_richcompare` および :c:func:`PyObject_RichCompare` "
+"関数の第三引数に使うための定数としては以下が定義されています:"
+
+#: ../../c-api/typeobj.rst:611
+msgid "Constant"
+msgstr "定数"
+
+#: ../../c-api/typeobj.rst:611
+msgid "Comparison"
+msgstr "比較"
+
+#: ../../c-api/typeobj.rst:613
+msgid ":const:`Py_LT`"
+msgstr ":const:`Py_LT`"
+
+#: ../../c-api/typeobj.rst:613
+msgid "``<``"
+msgstr "``<``"
+
+#: ../../c-api/typeobj.rst:615
+msgid ":const:`Py_LE`"
+msgstr ":const:`Py_LE`"
+
+#: ../../c-api/typeobj.rst:615
+msgid "``<=``"
+msgstr "``<=``"
+
+#: ../../c-api/typeobj.rst:617
+msgid ":const:`Py_EQ`"
+msgstr ":const:`Py_EQ`"
+
+#: ../../c-api/typeobj.rst:617
+msgid "``==``"
+msgstr "``==``"
+
+#: ../../c-api/typeobj.rst:619
+msgid ":const:`Py_NE`"
+msgstr ":const:`Py_NE`"
+
+#: ../../c-api/typeobj.rst:619
+msgid "``!=``"
+msgstr "``!=``"
+
+#: ../../c-api/typeobj.rst:621
+msgid ":const:`Py_GT`"
+msgstr ":const:`Py_GT`"
+
+#: ../../c-api/typeobj.rst:621
+msgid "``>``"
+msgstr "``>``"
+
+#: ../../c-api/typeobj.rst:623
+msgid ":const:`Py_GE`"
+msgstr ":const:`Py_GE`"
+
+#: ../../c-api/typeobj.rst:623
+msgid "``>=``"
+msgstr "``>=``"
+
+#: ../../c-api/typeobj.rst:629
+msgid ""
+"If the instances of this type are weakly referenceable, this field is "
+"greater than zero and contains the offset in the instance structure of the "
+"weak reference list head (ignoring the GC header, if present); this offset "
+"is used by :c:func:`PyObject_ClearWeakRefs` and the :c:func:`PyWeakref_\\*` "
+"functions.  The instance structure needs to include a field of type "
+":c:type:`PyObject\\*` which is initialized to *NULL*."
+msgstr ""
+"型のインスタンスが弱参照可能な場合、このフィールドはゼロよりも大きな数になり、インスタンス構造体における弱参照リストの先頭を示すオフセットが入ります "
+"(GC ヘッダがある場合には無視します); このオフセット値は :c:func:`PyObject_ClearWeakRefs` および "
+":c:func:`PyWeakref_\\*` 関数が利用します。インスタンス構造体には、 *NULL* に初期化された "
+":c:type:`PyObject\\*` 型のフィールドが入っていなければなりません。"
+
+#: ../../c-api/typeobj.rst:636
+msgid ""
+"Do not confuse this field with :c:member:`~PyTypeObject.tp_weaklist`; that "
+"is the list head for weak references to the type object itself."
+msgstr ""
+"このフィールドを :c:member:`~PyTypeObject.tp_weaklist` と混同しないようにしてください; "
+"これは型オブジェクト自身への弱参照からなるリストの先頭です。"
+
+#: ../../c-api/typeobj.rst:639
+msgid ""
+"This field is inherited by subtypes, but see the rules listed below. A "
+"subtype may override this offset; this means that the subtype uses a "
+"different weak reference list head than the base type.  Since the list head "
+"is always found via :c:member:`~PyTypeObject.tp_weaklistoffset`, this should"
+" not be a problem."
+msgstr ""
+"このフィールドはサブタイプに継承されますが、以下の規則を読んでください。サブタイプはこのオフセット値をオーバライドすることがあります; "
+"従って、サブタイプでは弱参照リストの先頭が基底タイプとは異なる場合があります。リストの先頭は常に "
+":c:member:`~PyTypeObject.tp_weaklistoffset` で分かるはずなので、このことは問題にはならないはずです。"
+
+#: ../../c-api/typeobj.rst:644
+msgid ""
+"When a type defined by a class statement has no :attr:`~object.__slots__` "
+"declaration, and none of its base types are weakly referenceable, the type "
+"is made weakly referenceable by adding a weak reference list head slot to "
+"the instance layout and setting the "
+":c:member:`~PyTypeObject.tp_weaklistoffset` of that slot's offset."
+msgstr ""
+":keyword:`class` 文で定義された型に :attr:`~object.__slots__` "
+"宣言が全くなく、かつ基底タイプが弱参照可能でない場合、その型を弱参照可能にするには弱参照リストの先頭を表すスロットをインスタンスデータレイアウト構造体に追加し、スロットのオフセットを"
+" :c:member:`~PyTypeObject.tp_weaklistoffset` に設定します。"
+
+#: ../../c-api/typeobj.rst:649
+msgid ""
+"When a type's :attr:`__slots__` declaration contains a slot named "
+":attr:`__weakref__`, that slot becomes the weak reference list head for "
+"instances of the type, and the slot's offset is stored in the type's "
+":c:member:`~PyTypeObject.tp_weaklistoffset`."
+msgstr ""
+"型の :attr:`__slots__` の宣言に :attr:`__weakref__` "
+"という名前のスロットが含まれているとき、スロットはその型のインスタンスにおける弱参照リストの先頭を表すスロットになり、スロットのオフセットが型の "
+":c:member:`~PyTypeObject.tp_weaklistoffset` に入ります。"
+
+#: ../../c-api/typeobj.rst:654
+msgid ""
+"When a type's :attr:`__slots__` declaration does not contain a slot named "
+":attr:`__weakref__`, the type inherits its "
+":c:member:`~PyTypeObject.tp_weaklistoffset` from its base type."
+msgstr ""
+"型の :attr:`__slots__` 宣言が :attr:`__weakref__` という名前のスロットを含んでいないとき、その型は基底タイプから"
+" :c:member:`~PyTypeObject.tp_weaklistoffset` を継承します。"
+
+#: ../../c-api/typeobj.rst:660
+msgid ""
+"An optional pointer to a function that returns an iterator for the object.  "
+"Its presence normally signals that the instances of this type are iterable "
+"(although sequences may be iterable without this function)."
+msgstr ""
+"オプションの変数で、そのオブジェクトのイテレータを返す関数へのポインタです。この値が存在することは、通常この型のインスタンスがイテレート可能であることを示しています"
+" (しかし、シーケンスはこの関数がなくてもイテレート可能です)。"
+
+#: ../../c-api/typeobj.rst:664
+msgid "This function has the same signature as :c:func:`PyObject_GetIter`."
+msgstr "この関数は :c:func:`PyObject_GetIter` と同じシグネチャを持っています。"
+
+#: ../../c-api/typeobj.rst:671
+msgid ""
+"An optional pointer to a function that returns the next item in an iterator."
+" When the iterator is exhausted, it must return *NULL*; a "
+":exc:`StopIteration` exception may or may not be set.  When another error "
+"occurs, it must return *NULL* too.  Its presence signals that the instances "
+"of this type are iterators."
+msgstr ""
+"オプションのポインタで、イテレータにおいて次の要素を返す関数を指します。イテレータの要素がなくなると、この関数は *NULL* "
+"を返さなければなりません。 :exc:`StopIteration` 例外は設定してもしなくても良いです。その他のエラーが発生したときも、 *NULL*"
+" を返さなければなりません。このフィールドがあると、この型のインスタンスがイテレータであることを示します。"
+
+#: ../../c-api/typeobj.rst:677
+msgid ""
+"Iterator types should also define the :c:member:`~PyTypeObject.tp_iter` "
+"function, and that function should return the iterator instance itself (not "
+"a new iterator instance)."
+msgstr ""
+"イテレータ型では、 :c:member:`~PyTypeObject.tp_iter` 関数も定義されていなければならず、その関数は "
+"(新たなイテレータインスタンスではなく) イテレータインスタンス自体を返さねばなりません。"
+
+#: ../../c-api/typeobj.rst:681
+msgid "This function has the same signature as :c:func:`PyIter_Next`."
+msgstr "この関数のシグネチャは :c:func:`PyIter_Next` と同じです。"
+
+#: ../../c-api/typeobj.rst:688
+msgid ""
+"An optional pointer to a static *NULL*-terminated array of "
+":c:type:`PyMethodDef` structures, declaring regular methods of this type."
+msgstr ""
+"オプションのポインタで、この型の正規 (regular) のメソッドを宣言している :c:type:`PyMethodDef` 構造体からなる、 "
+"*NULL* で終端された静的な配列を指します。"
+
+#: ../../c-api/typeobj.rst:691
+msgid ""
+"For each entry in the array, an entry is added to the type's dictionary (see"
+" :c:member:`~PyTypeObject.tp_dict` below) containing a method descriptor."
+msgstr ""
+"配列の各要素ごとに、メソッドデスクリプタの入った、要素が型の辞書 (下記の :c:member:`~PyTypeObject.tp_dict` 参照) "
+"に追加されます。"
+
+#: ../../c-api/typeobj.rst:694
+msgid ""
+"This field is not inherited by subtypes (methods are inherited through a "
+"different mechanism)."
+msgstr "サブタイプはこのフィールドを継承しません (メソッドは別個のメカニズムで継承されています)。"
+
+#: ../../c-api/typeobj.rst:700
+msgid ""
+"An optional pointer to a static *NULL*-terminated array of "
+":c:type:`PyMemberDef` structures, declaring regular data members (fields or "
+"slots) of instances of this type."
+msgstr ""
+"オプションのポインタで、型の正規 (regular) のデータメンバ (フィールドおよびスロット) を宣言している "
+":c:type:`PyMemberDef` 構造体からなる、 *NULL* で終端された静的な配列を指します。"
+
+#: ../../c-api/typeobj.rst:704
+msgid ""
+"For each entry in the array, an entry is added to the type's dictionary (see"
+" :c:member:`~PyTypeObject.tp_dict` below) containing a member descriptor."
+msgstr ""
+"配列の各要素ごとに、メンバデスクリプタの入った要素が型の辞書 (下記の :c:member:`~PyTypeObject.tp_dict` 参照) "
+"に追加されます。"
+
+#: ../../c-api/typeobj.rst:707
+msgid ""
+"This field is not inherited by subtypes (members are inherited through a "
+"different mechanism)."
+msgstr "サブタイプはこのフィールドを継承しません (メンバは別個のメカニズムで継承されています)。"
+
+#: ../../c-api/typeobj.rst:713
+msgid ""
+"An optional pointer to a static *NULL*-terminated array of "
+":c:type:`PyGetSetDef` structures, declaring computed attributes of instances"
+" of this type."
+msgstr ""
+"オプションのポインタで、インスタンスの算出属性 (computed attribute) を宣言している :c:type:`PyGetSetDef` "
+"構造体からなる、 *NULL* で終端された静的な配列を指します。"
+
+#: ../../c-api/typeobj.rst:716
+msgid ""
+"For each entry in the array, an entry is added to the type's dictionary (see"
+" :c:member:`~PyTypeObject.tp_dict` below) containing a getset descriptor."
+msgstr ""
+"配列の各要素ごとに、 getter/setter デスクリプタの入った、要素が型の辞書 (下記の "
+":c:member:`~PyTypeObject.tp_dict` 参照) に追加されます。"
+
+#: ../../c-api/typeobj.rst:719
+msgid ""
+"This field is not inherited by subtypes (computed attributes are inherited "
+"through a different mechanism)."
+msgstr "サブタイプはこのフィールドを継承しません (算出属性は別個のメカニズムで継承されています)。"
+
+#: ../../c-api/typeobj.rst:724
+msgid "Docs for PyGetSetDef::"
+msgstr "PyGetSetDef のドキュメント::"
+
+#: ../../c-api/typeobj.rst:740
+msgid ""
+"An optional pointer to a base type from which type properties are inherited."
+"  At this level, only single inheritance is supported; multiple inheritance "
+"require dynamically creating a type object by calling the metatype."
+msgstr ""
+"オプションのポインタで、型に関するプロパティを継承する基底タイプを指します。このフィールドのレベルでは、単継承 (single inheritance)"
+" だけがサポートされています; 多重継承はメタタイプの呼び出しによる動的な型オブジェクトの生成を必要とします。"
+
+#: ../../c-api/typeobj.rst:744
+msgid ""
+"This field is not inherited by subtypes (obviously), but it defaults to "
+"``&PyBaseObject_Type`` (which to Python programmers is known as the type "
+":class:`object`)."
+msgstr ""
+"(当たり前ですが) サブタイプはこのフィールドを継承しません。しかし、このフィールドのデフォルト値は (Python プログラマは "
+":class:`object` 型として知っている) ``&PyBaseObject_Type`` になります。"
+
+#: ../../c-api/typeobj.rst:751
+msgid "The type's dictionary is stored here by :c:func:`PyType_Ready`."
+msgstr "型の辞書は :c:func:`PyType_Ready` によってこのフィールドに収められます。"
+
+#: ../../c-api/typeobj.rst:753
+msgid ""
+"This field should normally be initialized to *NULL* before PyType_Ready is "
+"called; it may also be initialized to a dictionary containing initial "
+"attributes for the type.  Once :c:func:`PyType_Ready` has initialized the "
+"type, extra attributes for the type may be added to this dictionary only if "
+"they don't correspond to overloaded operations (like :meth:`__add__`)."
+msgstr ""
+"このフィールドは通常、 :c:func:`PyType_Ready` を呼び出す前に *NULL* に初期化しておかなければなりません; "
+"あるいは、型の初期属性の入った辞書で初期化しておいてもかまいません。 :c:func:`PyType_Ready` "
+"が型をひとたび初期化すると、型の新たな属性をこの辞書に追加できるのは、属性が (:meth:`__add__` のような) "
+"オーバロード用演算でないときだけです。"
+
+#: ../../c-api/typeobj.rst:759
+msgid ""
+"This field is not inherited by subtypes (though the attributes defined in "
+"here are inherited through a different mechanism)."
+msgstr "サブタイプはこのフィールドを継承しません (が、この辞書内で定義されている属性は異なるメカニズムで継承されます)。"
+
+#: ../../c-api/typeobj.rst:764
+msgid ""
+"It is not safe to use :c:func:`PyDict_SetItem` on or otherwise modify "
+":c:member:`~PyTypeObject.tp_dict` with the dictionary C-API."
+msgstr ""
+":c:member:`~PyTypeObject.tp_dict` に :c:func:`PyDict_SetItem` を使ったり、辞書 C-API "
+"で編集するのは安全ではありません。"
+
+#: ../../c-api/typeobj.rst:770
+msgid "An optional pointer to a \"descriptor get\" function."
+msgstr "オプションのポインタで、デスクリプタの get 関数を指します。"
+
+#: ../../c-api/typeobj.rst:772 ../../c-api/typeobj.rst:786
+#: ../../c-api/typeobj.rst:858 ../../c-api/typeobj.rst:880
+#: ../../c-api/typeobj.rst:911
+msgid "The function signature is ::"
+msgstr "関数のシグネチャは次のとおりです ::"
+
+#: ../../c-api/typeobj.rst:783
+msgid ""
+"An optional pointer to a function for setting and deleting a descriptor's "
+"value."
+msgstr "オプションのポインタで、デスクリプタの値の設定と削除を行う関数を指します。"
+
+#: ../../c-api/typeobj.rst:790
+msgid ""
+"The *value* argument is set to *NULL* to delete the value. This field is "
+"inherited by subtypes."
+msgstr ""
+"*value* 引数に *NULL* を設定して値を消します。\n"
+"このフィールドはサブタイプに継承されます。"
+
+#: ../../c-api/typeobj.rst:798
+msgid ""
+"If the instances of this type have a dictionary containing instance "
+"variables, this field is non-zero and contains the offset in the instances "
+"of the type of the instance variable dictionary; this offset is used by "
+":c:func:`PyObject_GenericGetAttr`."
+msgstr ""
+"型のインスタンスにインスタンス変数の入った辞書がある場合、このフィールドは非ゼロの値になり、型のインスタンスデータ構造体におけるインスタンス変数辞書へのオフセットが入ります;"
+" このオフセット値は :c:func:`PyObject_GenericGetAttr` が使います。"
+
+#: ../../c-api/typeobj.rst:803
+msgid ""
+"Do not confuse this field with :c:member:`~PyTypeObject.tp_dict`; that is "
+"the dictionary for attributes of the type object itself."
+msgstr ""
+"このフィールドを :c:member:`~PyTypeObject.tp_dict` と混同しないようにしてください; "
+"これは型オブジェクト自身の属性の辞書です。"
+
+#: ../../c-api/typeobj.rst:806
+msgid ""
+"If the value of this field is greater than zero, it specifies the offset "
+"from the start of the instance structure.  If the value is less than zero, "
+"it specifies the offset from the *end* of the instance structure.  A "
+"negative offset is more expensive to use, and should only be used when the "
+"instance structure contains a variable-length part.  This is used for "
+"example to add an instance variable dictionary to subtypes of :class:`str` "
+"or :class:`tuple`. Note that the :c:member:`~PyTypeObject.tp_basicsize` "
+"field should account for the dictionary added to the end in that case, even "
+"though the dictionary is not included in the basic object layout.  On a "
+"system with a pointer size of 4 bytes, "
+":c:member:`~PyTypeObject.tp_dictoffset` should be set to ``-4`` to indicate "
+"that the dictionary is at the very end of the structure."
+msgstr ""
+"このフィールドの値がゼロより大きければ、値はインスタンス構造体の先頭からの オフセットを表します。値がゼロより小さければ、インスタンス構造体の *末尾*"
+" からのオフセットを表します。負のオフセットを使うコストは比較的高くつくので、 インスタンス構造体に可変長部分があるときのみ使うべきです。例えば、 "
+":class:`str` や :class:`tuple` "
+"のサブタイプにインスタンス変数の辞書を追加する場合には、負のオフセットを使います。この場合、たとえ辞書が基本のオブジェクトレイアウトに含まれていなくても、"
+" :c:member:`~PyTypeObject.tp_basicsize` "
+"フィールドは追加された辞書を考慮にいれなければならないことに注意してください。ポインタサイズが 4 バイトのシステムでは、 "
+"構造体の最後尾に辞書が宣言されていることを示す場合、 :c:member:`~PyTypeObject.tp_dictoffset` を ``-4`` "
+"にしなければなりません。"
+
+#: ../../c-api/typeobj.rst:818
+msgid ""
+"The real dictionary offset in an instance can be computed from a negative "
+":c:member:`~PyTypeObject.tp_dictoffset` as follows::"
+msgstr ""
+"負の :c:member:`~PyTypeObject.tp_dictoffset` "
+"から、インスタンスでの実際のオフセットを計算するには以下のようにします::"
+
+#: ../../c-api/typeobj.rst:825
+msgid ""
+"where :c:member:`~PyTypeObject.tp_basicsize`, "
+":c:member:`~PyTypeObject.tp_itemsize` and "
+":c:member:`~PyTypeObject.tp_dictoffset` are taken from the type object, and "
+":attr:`ob_size` is taken from the instance.  The absolute value is taken "
+"because ints use the sign of :attr:`ob_size` to store the sign of the "
+"number.  (There's never a need to do this calculation yourself; it is done "
+"for you by :c:func:`_PyObject_GetDictPtr`.)"
+msgstr ""
+"ここで、 :c:member:`~PyTypeObject.tp_basicsize`、 "
+":c:member:`~PyTypeObject.tp_itemsize` および "
+":c:member:`~PyTypeObject.tp_dictoffset` は型オブジェクトから取り出され、 :attr:`ob_size` "
+"はインスタンスから取り出されます。 整数は符号を記憶するのに :attr:`ob_size` の符号を使うため、 :attr:`ob_size` "
+"は絶対値を使います。(この計算を自分で行う必要はまったくありません; 計算は :c:func:`_PyObject_GetDictPtr` "
+"がやってくれます。)"
+
+#: ../../c-api/typeobj.rst:831
+msgid ""
+"This field is inherited by subtypes, but see the rules listed below. A "
+"subtype may override this offset; this means that the subtype instances "
+"store the dictionary at a difference offset than the base type.  Since the "
+"dictionary is always found via :c:member:`~PyTypeObject.tp_dictoffset`, this"
+" should not be a problem."
+msgstr ""
+"このフィールドはサブタイプに継承されますが、以下の規則を読んでください。サブタイプはこのオフセット値をオーバライドすることがあります; "
+"従って、サブタイプでは辞書のオフセットが基底タイプとは異なる場合があります。辞書のオフセットは常に "
+":c:member:`~PyTypeObject.tp_dictoffset` で分かるはずなので、このことは問題にはならないはずです。"
+
+#: ../../c-api/typeobj.rst:836
+msgid ""
+"When a type defined by a class statement has no :attr:`~object.__slots__` "
+"declaration, and none of its base types has an instance variable dictionary,"
+" a dictionary slot is added to the instance layout and the "
+":c:member:`~PyTypeObject.tp_dictoffset` is set to that slot's offset."
+msgstr ""
+":keyword:`class` 文で定義された型に :attr:`~object.__slots__` "
+"宣言がなく、かつ基底タイプの全てにインスタンス変数辞書がない場合、辞書のスロットをインスタンスデータレイアウト構造体に追加し、スロットのオフセットを "
+":c:member:`~PyTypeObject.tp_dictoffset` に設定します。"
+
+#: ../../c-api/typeobj.rst:841
+msgid ""
+"When a type defined by a class statement has a :attr:`__slots__` "
+"declaration, the type inherits its :c:member:`~PyTypeObject.tp_dictoffset` "
+"from its base type."
+msgstr ""
+":keyword:`class` 文で定義された型に :attr:`__slots__` 宣言がある場合、この型は基底タイプから "
+":c:member:`~PyTypeObject.tp_dictoffset` を継承します。"
+
+#: ../../c-api/typeobj.rst:844
+msgid ""
+"(Adding a slot named :attr:`~object.__dict__` to the :attr:`__slots__` "
+"declaration does not have the expected effect, it just causes confusion.  "
+"Maybe this should be added as a feature just like :attr:`__weakref__` "
+"though.)"
+msgstr ""
+"(:attr:`~object.__dict__` という名前のスロットを :attr:`__slots__` "
+"宣言に追加しても、期待どおりの効果は得られず、単に混乱を招くだけになります。とはいえ、これは将来 :attr:`__weakref__` "
+"のように追加されるはずです。)"
+
+#: ../../c-api/typeobj.rst:851
+msgid "An optional pointer to an instance initialization function."
+msgstr "オプションのポインタで、インスタンス初期化関数を指します。"
+
+#: ../../c-api/typeobj.rst:853
+msgid ""
+"This function corresponds to the :meth:`__init__` method of classes.  Like "
+":meth:`__init__`, it is possible to create an instance without calling "
+":meth:`__init__`, and it is possible to reinitialize an instance by calling "
+"its :meth:`__init__` method again."
+msgstr ""
+"この関数はクラスにおける :meth:`__init__` メソッドに対応します。 :meth:`__init__` と同様、 "
+":meth:`__init__` を呼び出さずにインスタンスを作成できます。また、 :meth:`__init__` "
+"を再度呼び出してインスタンスの再初期化もできます。"
+
+#: ../../c-api/typeobj.rst:862
+msgid ""
+"The self argument is the instance to be initialized; the *args* and *kwds* "
+"arguments represent positional and keyword arguments of the call to "
+":meth:`__init__`."
+msgstr ""
+"*self* 引数は初期化するインスタンスです; *args* および *kwds* 引数は、 :meth:`__init__` "
+"を呼び出す際の固定引数およびキーワード引数です。"
+
+#: ../../c-api/typeobj.rst:866
+msgid ""
+"The :c:member:`~PyTypeObject.tp_init` function, if not *NULL*, is called "
+"when an instance is created normally by calling its type, after the type's "
+":c:member:`~PyTypeObject.tp_new` function has returned an instance of the "
+"type.  If the :c:member:`~PyTypeObject.tp_new` function returns an instance "
+"of some other type that is not a subtype of the original type, no "
+":c:member:`~PyTypeObject.tp_init` function is called; if "
+":c:member:`~PyTypeObject.tp_new` returns an instance of a subtype of the "
+"original type, the subtype's :c:member:`~PyTypeObject.tp_init` is called."
+msgstr ""
+":c:member:`~PyTypeObject.tp_init` 関数のフィールドが *NULL* "
+"でない場合、通常の型を呼び出す方法のインスタンス生成において、型の :c:member:`~PyTypeObject.tp_new` "
+"関数がインスタンスを返した後に呼び出されます。 :c:member:`~PyTypeObject.tp_new` "
+"が元の型のサブタイプでない別の型を返す場合、 :c:member:`~PyTypeObject.tp_init` は全く呼び出されません; "
+":c:member:`~PyTypeObject.tp_new` が元の型のサブタイプのインスタンスを返す場合、サブタイプの "
+":c:member:`~PyTypeObject.tp_init` が呼び出されます。"
+
+#: ../../c-api/typeobj.rst:878
+msgid "An optional pointer to an instance allocation function."
+msgstr "オプションのポインタで、インスタンスのメモリ確保関数を指します。"
+
+#: ../../c-api/typeobj.rst:884
+msgid ""
+"The purpose of this function is to separate memory allocation from memory "
+"initialization.  It should return a pointer to a block of memory of adequate"
+" length for the instance, suitably aligned, and initialized to zeros, but "
+"with :attr:`ob_refcnt` set to ``1`` and :attr:`ob_type` set to the type "
+"argument.  If the type's :c:member:`~PyTypeObject.tp_itemsize` is non-zero, "
+"the object's :attr:`ob_size` field should be initialized to *nitems* and the"
+" length of the allocated memory block should be ``tp_basicsize + "
+"nitems*tp_itemsize``, rounded up to a multiple of ``sizeof(void*)``; "
+"otherwise, *nitems* is not used and the length of the block should be "
+":c:member:`~PyTypeObject.tp_basicsize`."
+msgstr ""
+"この関数の目的は、メモリ確保をメモリ初期化から分離することにあります。この関数は、インスタンス用の的確なサイズ、適切なアラインメント、ゼロによる初期化がなされ、"
+" :attr:`ob_refcnt` を ``1`` に、 :attr:`ob_type` を型引数 (type argument) "
+"にセットしたメモリブロックへのポインタを返さねばなりません。型の :c:member:`~PyTypeObject.tp_itemsize` "
+"がゼロでない場合、オブジェクトの :attr:`ob_size` フィールドは *nitems* に初期化され、確保されるメモリブロックの長さは "
+"``tp_basicsize + nitems*tp_itemsize`` を ``sizeof(void*)`` の倍数に切り上げた値になるはずです;"
+" それ以外の場合、 *nitems* の値は使われず、メモリブロックの長さは "
+":c:member:`~PyTypeObject.tp_basicsize` になるはずです。"
+
+#: ../../c-api/typeobj.rst:894
+msgid ""
+"Do not use this function to do any other instance initialization, not even "
+"to allocate additional memory; that should be done by "
+":c:member:`~PyTypeObject.tp_new`."
+msgstr ""
+"この関数をインスタンス初期化の他のどの処理にも、追加でメモリ確保をする場合でさえ使ってはなりません; そうした処理は "
+":c:member:`~PyTypeObject.tp_new` で行わねばなりません。"
+
+#: ../../c-api/typeobj.rst:897
+msgid ""
+"This field is inherited by static subtypes, but not by dynamic subtypes "
+"(subtypes created by a class statement); in the latter, this field is always"
+" set to :c:func:`PyType_GenericAlloc`, to force a standard heap allocation "
+"strategy. That is also the recommended value for statically defined types."
+msgstr ""
+"静的なサブタイプはこのフィールドを継承しますが、動的なサブタイプ (:keyword:`class` 文で生成するサブタイプ) の場合は継承しません; "
+"後者の場合、このフィールドは常に :c:func:`PyType_GenericAlloc` "
+"にセットされ、標準のヒープ上メモリ確保戦略が強制されます。静的に定義する型の場合でも、 :c:func:`PyType_GenericAlloc` "
+"を推奨します。"
+
+#: ../../c-api/typeobj.rst:905
+msgid "An optional pointer to an instance creation function."
+msgstr "オプションのポインタで、インスタンス生成関数を指します。"
+
+#: ../../c-api/typeobj.rst:907
+msgid ""
+"If this function is *NULL* for a particular type, that type cannot be called"
+" to create new instances; presumably there is some other way to create "
+"instances, like a factory function."
+msgstr ""
+"このフィールドが *NULL* を指している型では、型を呼び出して新たなインスタンスを生成できません; "
+"こうした型では、おそらくファクトリ関数のように、インスタンスを生成する他の方法があるはずです。"
+
+#: ../../c-api/typeobj.rst:915
+msgid ""
+"The subtype argument is the type of the object being created; the *args* and"
+" *kwds* arguments represent positional and keyword arguments of the call to "
+"the type.  Note that subtype doesn't have to equal the type whose "
+":c:member:`~PyTypeObject.tp_new` function is called; it may be a subtype of "
+"that type (but not an unrelated type)."
+msgstr ""
+"*subtype* 引数は生成するオブジェクトの型です; *args* および *kwds* "
+"引数は、型を呼び出すときの位置引数およびキーワード引数です。サブタイプは :c:member:`~PyTypeObject.tp_new` "
+"関数を呼び出すときに使う型と同じである必要はないことに注意してください; その型の (無関係ではない) サブタイプのこともあります。"
+
+#: ../../c-api/typeobj.rst:921
+msgid ""
+"The :c:member:`~PyTypeObject.tp_new` function should call "
+"``subtype->tp_alloc(subtype, nitems)`` to allocate space for the object, and"
+" then do only as much further initialization as is absolutely necessary.  "
+"Initialization that can safely be ignored or repeated should be placed in "
+"the :c:member:`~PyTypeObject.tp_init` handler.  A good rule of thumb is that"
+" for immutable types, all initialization should take place in "
+":c:member:`~PyTypeObject.tp_new`, while for mutable types, most "
+"initialization should be deferred to :c:member:`~PyTypeObject.tp_init`."
+msgstr ""
+":c:member:`~PyTypeObject.tp_new` 関数は ``subtype->tp_alloc(subtype, nitems)`` "
+"を呼び出してオブジェクトのメモリ領域を確保し、初期化で絶対に必要とされる処理だけを行います。省略したり繰り返したりしても問題のない初期化処理は "
+":c:member:`~PyTypeObject.tp_init` "
+"ハンドラ内に配置しなければなりません。だいたいの目安としては、変更不能な型では初期化は全て "
+":c:member:`~PyTypeObject.tp_new` で行い、一方、変更可能な型ではほとんどの初期化を "
+":c:member:`~PyTypeObject.tp_init` に回すべきです。"
+
+#: ../../c-api/typeobj.rst:929
+msgid ""
+"This field is inherited by subtypes, except it is not inherited by static "
+"types whose :c:member:`~PyTypeObject.tp_base` is *NULL* or "
+"``&PyBaseObject_Type``."
+msgstr ""
+"サブタイプはこのフィールドを継承します。例外として、  :c:member:`~PyTypeObject.tp_base` が *NULL* か "
+"``&PyBaseObject_Type`` になっている静的な型では継承しません。"
+
+#: ../../c-api/typeobj.rst:935
+msgid ""
+"An optional pointer to an instance deallocation function.  Its signature is "
+":c:type:`freefunc`::"
+msgstr "インスタンスのメモリ解放関数を指す、オプションのポインタです。シグネチャは :c:type:`freefunc` です::"
+
+#: ../../c-api/typeobj.rst:940
+msgid ""
+"An initializer that is compatible with this signature is "
+":c:func:`PyObject_Free`."
+msgstr "このシグネチャと互換性のある初期化子は :c:func:`PyObject_Free` です。"
+
+#: ../../c-api/typeobj.rst:942
+msgid ""
+"This field is inherited by static subtypes, but not by dynamic subtypes "
+"(subtypes created by a class statement); in the latter, this field is set to"
+" a deallocator suitable to match :c:func:`PyType_GenericAlloc` and the value"
+" of the :const:`Py_TPFLAGS_HAVE_GC` flag bit."
+msgstr ""
+"静的なサブタイプはこのフィールドを継承しますが、動的なサブタイプ (:keyword:`class` 文で生成するサブタイプ) の場合は継承しません; "
+"後者の場合、このフィールドには :c:func:`PyType_GenericAlloc` と :const:`Py_TPFLAGS_HAVE_GC` "
+"フラグビットの値に対応させるのにふさわしいメモリ解放関数がセットされます。"
+
+#: ../../c-api/typeobj.rst:950
+msgid "An optional pointer to a function called by the garbage collector."
+msgstr "オプションのポインタで、ガベージコレクタから呼び出される関数を指します。"
+
+#: ../../c-api/typeobj.rst:952
+msgid ""
+"The garbage collector needs to know whether a particular object is "
+"collectible or not.  Normally, it is sufficient to look at the object's "
+"type's :c:member:`~PyTypeObject.tp_flags` field, and check the "
+":const:`Py_TPFLAGS_HAVE_GC` flag bit.  But some types have a mixture of "
+"statically and dynamically allocated instances, and the statically allocated"
+" instances are not collectible.  Such types should define this function; it "
+"should return ``1`` for a collectible instance, and ``0`` for a non-"
+"collectible instance. The signature is ::"
+msgstr ""
+"ガベージコレクタは、オブジェクトを回収して良いかどうかを知る必要があります。通常は、オブジェクトの型の "
+":c:member:`~PyTypeObject.tp_flags` フィールドを見て、 :const:`Py_TPFLAGS_HAVE_GC` "
+"フラグビットを調べるだけで十分です。しかし、ある型では静的にメモリ確保されたインスタンスと動的にメモリ確保されたインスタンスが混じっていて、静的にメモリ確保されたインスタンスは回収できません。こうした型では、関数を定義しなければなりません;"
+" 関数はインスタンスが回収可能の場合には ``1`` を、回収不能の場合には ``0`` を返さねばなりません。シグネチャは ::"
+
+#: ../../c-api/typeobj.rst:962
+msgid ""
+"(The only example of this are types themselves.  The metatype, "
+":c:data:`PyType_Type`, defines this function to distinguish between "
+"statically and dynamically allocated types.)"
+msgstr ""
+"(上記のような型の例は、型オブジェクト自体です。メタタイプ :c:data:`PyType_Type` "
+"は、型のメモリ確保が静的か動的かを区別するためにこの関数を定義しています。)"
+
+#: ../../c-api/typeobj.rst:971
+msgid "Tuple of base types."
+msgstr "基底型からなるタプルです。"
+
+#: ../../c-api/typeobj.rst:973
+msgid ""
+"This is set for types created by a class statement.  It should be *NULL* for"
+" statically defined types."
+msgstr ""
+":keyword:`class` 文で生成されたクラスの場合このフィールドがセットされます。静的に定義されている型の場合には、このフィールドは "
+"*NULL* になります。"
+
+#: ../../c-api/typeobj.rst:976
+msgid "This field is not inherited."
+msgstr "このフィールドは継承されません。"
+
+#: ../../c-api/typeobj.rst:981
+msgid ""
+"Tuple containing the expanded set of base types, starting with the type "
+"itself and ending with :class:`object`, in Method Resolution Order."
+msgstr ""
+"基底タイプ群を展開した集合が入っているタプルです。集合は該当する型自体からはじまり、 :class:`object` で終わります。メソッド解決順序 "
+"(Method Resolution Order) に従って並んでいます。"
+
+#: ../../c-api/typeobj.rst:984
+msgid ""
+"This field is not inherited; it is calculated fresh by "
+":c:func:`PyType_Ready`."
+msgstr "このフィールドは継承されません; フィールドの値は :c:func:`PyType_Ready` で毎回計算されます。"
+
+#: ../../c-api/typeobj.rst:989
+msgid ""
+"An optional pointer to an instance finalization function.  Its signature is "
+":c:type:`destructor`::"
+msgstr ""
+"オプションのポインタで、インスタンスの終了処理関数を指します。\n"
+"シグネチャは :c:type:`destructor` です::"
+
+#: ../../c-api/typeobj.rst:994
+msgid ""
+"If :c:member:`~PyTypeObject.tp_finalize` is set, the interpreter calls it "
+"once when finalizing an instance.  It is called either from the garbage "
+"collector (if the instance is part of an isolated reference cycle) or just "
+"before the object is deallocated.  Either way, it is guaranteed to be called"
+" before attempting to break reference cycles, ensuring that it finds the "
+"object in a sane state."
+msgstr ""
+":c:member:`~PyTypeObject.tp_finalize` が設定されている場合、インスタンスをファイナライズするときに、インタプリタがこの関数を1回呼び出します。\n"
+"ガベージコレクタ (このインスタンスが孤立した循環参照の一部だった場合) やオブジェクトが破棄される直前にもこの関数は呼び出されます。\n"
+"どちらの場合でも、循環参照を破壊しようとする前に呼び出されることが保証されていて、確実にオブジェクトが正常な状態にあるようにします。"
+
+#: ../../c-api/typeobj.rst:1001
+msgid ""
+":c:member:`~PyTypeObject.tp_finalize` should not mutate the current "
+"exception status; therefore, a recommended way to write a non-trivial "
+"finalizer is::"
+msgstr ""
+":c:member:`~PyTypeObject.tp_finalize` は現在の例外状態を変更すべきではありません; "
+"従って、単純でないファイナライザを書くには次の方法が推奨されます::"
+
+#: ../../c-api/typeobj.rst:1018
+msgid ""
+"For this field to be taken into account (even through inheritance), you must"
+" also set the :const:`Py_TPFLAGS_HAVE_FINALIZE` flags bit."
+msgstr ""
+"このフィールドを (継承した場合も含めて) 考慮から漏らさないように、 :const:`Py_TPFLAGS_HAVE_FINALIZE` "
+"フラグビットも設定しなければなりません。"
+
+#: ../../c-api/typeobj.rst:1025
+msgid "\"Safe object finalization\" (:pep:`442`)"
+msgstr "\"オブジェクトの安全な終了処理\" (:pep:`442`)"
+
+#: ../../c-api/typeobj.rst:1030
+msgid "Unused.  Not inherited.  Internal use only."
+msgstr "使用されていません。継承されません。内部で使用するためだけのものです。"
+
+#: ../../c-api/typeobj.rst:1035
+msgid ""
+"List of weak references to subclasses.  Not inherited.  Internal use only."
+msgstr "サブクラスへの弱参照からなるリストです。継承されません。内部で使用するためだけのものです。"
+
+#: ../../c-api/typeobj.rst:1040
+msgid ""
+"Weak reference list head, for weak references to this type object.  Not "
+"inherited.  Internal use only."
+msgstr "この型オブジェクトに対する弱参照からなるリストの先頭です。"
+
+#: ../../c-api/typeobj.rst:1043
+msgid ""
+"The remaining fields are only defined if the feature test macro "
+":const:`COUNT_ALLOCS` is defined, and are for internal use only. They are "
+"documented here for completeness.  None of these fields are inherited by "
+"subtypes."
+msgstr ""
+"残りのフィールドは、機能テスト用のマクロである :const:`COUNT_ALLOCS` "
+"が定義されている場合のみ利用でき、内部で使用するためだけのものです。これらのフィールドについて記述するのは単に完全性のためです。サブタイプはこれらのフィールドを継承しません。"
+
+#: ../../c-api/typeobj.rst:1051
+msgid "Number of allocations."
+msgstr "メモリ確保の回数です。"
+
+#: ../../c-api/typeobj.rst:1056
+msgid "Number of frees."
+msgstr "メモリ解放の回数です。"
+
+#: ../../c-api/typeobj.rst:1061
+msgid "Maximum simultaneously allocated objects."
+msgstr "同時にメモリ確保できる最大オブジェクト数です。"
+
+#: ../../c-api/typeobj.rst:1066
+msgid ""
+"Pointer to the next type object with a non-zero "
+":c:member:`~PyTypeObject.tp_allocs` field."
+msgstr "次のゼロでない :c:member:`~PyTypeObject.tp_allocs` フィールドを持つ型オブジェクトへのポインタです。"
+
+#: ../../c-api/typeobj.rst:1068
+msgid ""
+"Also, note that, in a garbage collected Python, tp_dealloc may be called "
+"from any Python thread, not just the thread which created the object (if the"
+" object becomes part of a refcount cycle, that cycle might be collected by a"
+" garbage collection on any thread).  This is not a problem for Python API "
+"calls, since the thread on which tp_dealloc is called will own the Global "
+"Interpreter Lock (GIL). However, if the object being destroyed in turn "
+"destroys objects from some other C or C++ library, care should be taken to "
+"ensure that destroying those objects on the thread which called tp_dealloc "
+"will not violate any assumptions of the library."
+msgstr ""
+"また、 Python のガベージコレクションでは、 *tp_dealloc* を呼び出すのはオブジェクトを生成したスレッドだけではなく、任意の "
+"Python スレッドかもしれないという点にも注意して下さい。 "
+"(オブジェクトが循環参照の一部の場合、任意のスレッドのガベージコレクションによって解放されてしまうかもしれません)。Python API 側からみれば、"
+" *tp_dealloc* を呼び出すスレッドはグローバルインタプリタロック (GIL: Global Interpreter Lock) "
+"を獲得するので、これは問題ではありません。しかしながら、削除されようとしているオブジェクトが何らかの C や C++ "
+"ライブラリ由来のオブジェクトを削除する場合、 *tp_dealloc* "
+"を呼び出すスレッドのオブジェクトを削除することで、ライブラリの仮定している何らかの規約に違反しないように気を付ける必要があります。"
+
+#: ../../c-api/typeobj.rst:1082
+msgid "Number Object Structures"
+msgstr "数値オブジェクト構造体"
+
+#: ../../c-api/typeobj.rst:1089
+msgid ""
+"This structure holds pointers to the functions which an object uses to "
+"implement the number protocol.  Each function is used by the function of "
+"similar name documented in the :ref:`number` section."
+msgstr ""
+"この構造体は数値型プロトコルを実装するために使われる関数群へのポインタを保持しています。\n"
+"以下のそれぞれの関数は :ref:`number` で解説されている似た名前の関数から利用されます。"
+
+#: ../../c-api/typeobj.rst:1093 ../../c-api/typeobj.rst:1366
+msgid "Here is the structure definition::"
+msgstr "以下は構造体の定義です::"
+
+#: ../../c-api/typeobj.rst:1140
+msgid ""
+"Binary and ternary functions must check the type of all their operands, and "
+"implement the necessary conversions (at least one of the operands is an "
+"instance of the defined type).  If the operation is not defined for the "
+"given operands, binary and ternary functions must return "
+"``Py_NotImplemented``, if another error occurred they must return ``NULL`` "
+"and set an exception."
+msgstr ""
+"二項関数と三項関数は、すべてのオペランドの型をチェックしなければならず、必要な変換を実装しなければなりません "
+"(すくなくともオペランドの一つは定義している型のインスタンスです). もし与えられたオペランドに対して操作が定義されなければ、二項関数と三項関数は "
+"``Py_NotImplemented`` を返さなければならず、他のエラーが起こった場合は、``NULL`` を返して例外を設定しなければなりません。"
+
+#: ../../c-api/typeobj.rst:1149
+msgid ""
+"The :c:data:`nb_reserved` field should always be ``NULL``.  It was "
+"previously called :c:data:`nb_long`, and was renamed in Python 3.0.1."
+msgstr ""
+":c:data:`nb_reserved` フィールドは常に ``NULL`` でなければなりません。以前は :c:data:`nb_long` "
+"と呼ばれていて、 Python 3.0.1 で名前が変更されました。"
+
+#: ../../c-api/typeobj.rst:1157
+msgid "Mapping Object Structures"
+msgstr "マップオブジェクト構造体"
+
+#: ../../c-api/typeobj.rst:1164
+msgid ""
+"This structure holds pointers to the functions which an object uses to "
+"implement the mapping protocol.  It has three members:"
+msgstr ""
+"この構造体はマップ型プロトコルを実装するために使われる関数群へのポインタを保持しています。\n"
+"以下の3つのメンバを持っています:"
+
+#: ../../c-api/typeobj.rst:1169
+msgid ""
+"This function is used by :c:func:`PyMapping_Length` and "
+":c:func:`PyObject_Size`, and has the same signature.  This slot may be set "
+"to *NULL* if the object has no defined length."
+msgstr ""
+"この関数は :c:func:`PyMapping_Length` や :c:func:`PyObject_Size` "
+"から利用され、それらと同じシグネチャを持っています。オブジェクトが定義された長さを持たない場合は、このスロットは *NULL* "
+"に設定されることがあります。"
+
+#: ../../c-api/typeobj.rst:1175
+msgid ""
+"This function is used by :c:func:`PyObject_GetItem` and has the same "
+"signature.  This slot must be filled for the :c:func:`PyMapping_Check` "
+"function to return ``1``, it can be *NULL* otherwise."
+msgstr ""
+"この関数は :c:func:`PyObject_GetItem` から利用され、同じシグネチャを持っています。このスロットは "
+":c:func:`PyMapping_Check` が ``1`` を返すためには必要で、そうでなければ *NULL* の場合があります。"
+
+#: ../../c-api/typeobj.rst:1181
+msgid ""
+"This function is used by :c:func:`PyObject_SetItem` and "
+":c:func:`PyObject_DelItem`.  It has the same signature as "
+":c:func:`PyObject_SetItem`, but *v* can also be set to *NULL* to delete an "
+"item.  If this slot is *NULL*, the object does not support item assignment "
+"and deletion."
+msgstr ""
+"この関数は :c:func:`PyObject_SetItem` および :c:func:`PyObject_DelItem` から利用されます。\n"
+":c:func:`PyObject_SetItem` と同じシグネチャを持ちますが、 *v* に *NULL* を設定して要素の削除もできます。このスロットが *NULL* の場合は、このオブジェクトはアイテムの代入と削除をサポートしません。"
+
+#: ../../c-api/typeobj.rst:1191
+msgid "Sequence Object Structures"
+msgstr "シーケンスオブジェクト構造体"
+
+#: ../../c-api/typeobj.rst:1198
+msgid ""
+"This structure holds pointers to the functions which an object uses to "
+"implement the sequence protocol."
+msgstr "この構造体はシーケンス型プロトコルを実装するために使われる関数群へのポインタを保持しています。"
+
+#: ../../c-api/typeobj.rst:1203
+msgid ""
+"This function is used by :c:func:`PySequence_Size` and "
+":c:func:`PyObject_Size`, and has the same signature."
+msgstr ""
+"この関数は :c:func:`PySequence_Size` や :c:func:`PyObject_Size` "
+"から利用され、それらと同じシグネチャを持っています。"
+
+#: ../../c-api/typeobj.rst:1208
+msgid ""
+"This function is used by :c:func:`PySequence_Concat` and has the same "
+"signature.  It is also used by the ``+`` operator, after trying the numeric "
+"addition via the :c:member:`~PyTypeObject.tp_as_number.nb_add` slot."
+msgstr ""
+"この関数は :c:func:`PySequence_Concat` で利用され、同じシグネチャを持っています。また、 ``+`` 演算子でも、 "
+":c:member:`~PyTypeObject.tp_as_number.nb_add` スロットによる数値加算を試した後に利用されます。"
+
+#: ../../c-api/typeobj.rst:1214
+msgid ""
+"This function is used by :c:func:`PySequence_Repeat` and has the same "
+"signature.  It is also used by the ``*`` operator, after trying numeric "
+"multiplication via the :c:member:`~PyTypeObject.tp_as_number.nb_multiply` "
+"slot."
+msgstr ""
+"この関数は :c:func:`PySequence_Repeat` で利用され、同じシグネチャを持っています。また、 ``*`` 演算でも、 "
+":c:member:`~PyTypeObject.tp_as_number.nb_multiply` スロットによる数値乗算を試したあとに利用されます。"
+
+#: ../../c-api/typeobj.rst:1221
+msgid ""
+"This function is used by :c:func:`PySequence_GetItem` and has the same "
+"signature.  This slot must be filled for the :c:func:`PySequence_Check` "
+"function to return ``1``, it can be *NULL* otherwise."
+msgstr ""
+"この関数は :c:func:`PySequence_GetItem` から利用され、同じシグネチャを持っています。このスロットは "
+":c:func:`PySequence_Check` が ``1`` を返すためには埋めなければならず、それ以外の場合は *NULL* "
+"の可能性があります。"
+
+#: ../../c-api/typeobj.rst:1225
+msgid ""
+"Negative indexes are handled as follows: if the :attr:`sq_length` slot is "
+"filled, it is called and the sequence length is used to compute a positive "
+"index which is passed to :attr:`sq_item`.  If :attr:`sq_length` is *NULL*, "
+"the index is passed as is to the function."
+msgstr ""
+"負のインデックスは次のように処理されます: :attr:`sq_length` "
+"スロットが埋められていれば、それを呼び出してシーケンスの長さから正のインデックスを計算し、 :attr:`sq_item` に渡します。 "
+":attr:`sq_length` が *NULL* の場合は、インデックスはそのままこの関数に渡されます。"
+
+#: ../../c-api/typeobj.rst:1232
+msgid ""
+"This function is used by :c:func:`PySequence_SetItem` and has the same "
+"signature.  This slot may be left to *NULL* if the object does not support "
+"item assignment and deletion."
+msgstr ""
+"この関数は :c:func:`PySequence_SetItem` から利用され、同じシグネチャを持っています。\n"
+"オブジェクトが要素の代入と削除をサポートしていない場合は、このスロットは *NULL* かもしれません。"
+
+#: ../../c-api/typeobj.rst:1238
+msgid ""
+"This function may be used by :c:func:`PySequence_Contains` and has the same "
+"signature.  This slot may be left to *NULL*, in this case "
+":c:func:`PySequence_Contains` simply traverses the sequence until it finds a"
+" match."
+msgstr ""
+"この関数は :c:func:`PySequence_Contains` から利用され、同じシグネチャを持っています。このスロットは *NULL* "
+"の場合があり、その時 :c:func:`PySequence_Contains` "
+"はシンプルにマッチするオブジェクトを見つけるまでシーケンスを巡回します。"
+
+#: ../../c-api/typeobj.rst:1245
+msgid ""
+"This function is used by :c:func:`PySequence_InPlaceConcat` and has the same"
+" signature.  It should modify its first operand, and return it."
+msgstr ""
+"この関数は :c:func:`PySequence_InPlaceConcat` "
+"から利用され、同じシグネチャを持っています。この関数は最初のオペランドを修正してそれを返すべきです。"
+
+#: ../../c-api/typeobj.rst:1250
+msgid ""
+"This function is used by :c:func:`PySequence_InPlaceRepeat` and has the same"
+" signature.  It should modify its first operand, and return it."
+msgstr ""
+"この関数は :c:func:`PySequence_InPlaceRepeat` "
+"から利用され、同じシグネチャを持っています。この関数は最初のオペランドを修正してそれを返すべきです。"
+
+#: ../../c-api/typeobj.rst:1260
+msgid "Buffer Object Structures"
+msgstr "バッファオブジェクト構造体 (buffer object structure)"
+
+#: ../../c-api/typeobj.rst:1268
+msgid ""
+"This structure holds pointers to the functions required by the :ref:`Buffer "
+"protocol <bufferobjects>`. The protocol defines how an exporter object can "
+"expose its internal data to consumer objects."
+msgstr ""
+"この構造体は :ref:`buffer プロトコル <bufferobjects>` が要求する関数群へのポインタを保持しています。\n"
+"そのプロトコルは、エクスポーターオブジェクトが如何にして、その内部データをコンシューマオブジェクトに渡すかを定義します。"
+
+#: ../../c-api/typeobj.rst:1274 ../../c-api/typeobj.rst:1323
+#: ../../c-api/typeobj.rst:1376 ../../c-api/typeobj.rst:1387
+#: ../../c-api/typeobj.rst:1398
+msgid "The signature of this function is::"
+msgstr "この関数のシグネチャは以下の通りです::"
+
+#: ../../c-api/typeobj.rst:1278
+msgid ""
+"Handle a request to *exporter* to fill in *view* as specified by *flags*. "
+"Except for point (3), an implementation of this function MUST take these "
+"steps:"
+msgstr ""
+"*flags* で指定された方法で *view* を埋めてほしいという *exporter* に対する要求を処理します。ステップ(3) "
+"を除いて、この関数の実装では以下のステップを行わなければなりません:"
+
+#: ../../c-api/typeobj.rst:1282
+msgid ""
+"Check if the request can be met. If not, raise :c:data:`PyExc_BufferError`, "
+"set :c:data:`view->obj` to *NULL* and return ``-1``."
+msgstr ""
+"リクエストが合致するか確認します。\n"
+"合致しない場合は、 :c:data:`PyExc_BufferError` を送出し、 :c:data:`view->obj` に *NULL* を設定し ``-1`` を返します。"
+
+#: ../../c-api/typeobj.rst:1285
+msgid "Fill in the requested fields."
+msgstr "要求されたフィールドを埋めます。"
+
+#: ../../c-api/typeobj.rst:1287
+msgid "Increment an internal counter for the number of exports."
+msgstr "エクスポートした回数を保持する内部カウンタをインクリメントします。"
+
+#: ../../c-api/typeobj.rst:1289
+msgid ""
+"Set :c:data:`view->obj` to *exporter* and increment :c:data:`view->obj`."
+msgstr ""
+":c:data:`view->obj` に *exporter* を設定し、 :c:data:`view->obj` をインクリメントします。"
+
+#: ../../c-api/typeobj.rst:1291
+msgid "Return ``0``."
+msgstr "``0`` を返します。"
+
+#: ../../c-api/typeobj.rst:1293
+msgid ""
+"If *exporter* is part of a chain or tree of buffer providers, two main "
+"schemes can be used:"
+msgstr "*exporter* がバッファプロバイダのチェインかツリーの一部であれば、２つの主要な方式が使用できます:"
+
+#: ../../c-api/typeobj.rst:1296
+msgid ""
+"Re-export: Each member of the tree acts as the exporting object and sets "
+":c:data:`view->obj` to a new reference to itself."
+msgstr ""
+"再エクスポート: ツリーの各要素がエクスポートされるオブジェクトとして振る舞い、自身への新しい参照を :c:data:`view->obj` "
+"へセットします。"
+
+#: ../../c-api/typeobj.rst:1299
+msgid ""
+"Redirect: The buffer request is redirected to the root object of the tree. "
+"Here, :c:data:`view->obj` will be a new reference to the root object."
+msgstr ""
+"リダイレクト: バッファ要求がツリーのルートオブジェクトにリダイレクトされます。ここでは、 :c:data:`view->obj` "
+"はルートオブジェクトへの新しい参照になります。"
+
+#: ../../c-api/typeobj.rst:1303
+msgid ""
+"The individual fields of *view* are described in section :ref:`Buffer "
+"structure <buffer-structure>`, the rules how an exporter must react to "
+"specific requests are in section :ref:`Buffer request types <buffer-request-"
+"types>`."
+msgstr ""
+"*view* の個別のフィールドは :ref:`バッファ構造体 <buffer-structure>` "
+"の節で説明されており、エクスポートが特定の要求に対しどう対応しなければならないかの規則は、 :ref:`バッファ要求のタイプ <buffer-"
+"request-types>` の節にあります。"
+
+#: ../../c-api/typeobj.rst:1308
+msgid ""
+"All memory pointed to in the :c:type:`Py_buffer` structure belongs to the "
+"exporter and must remain valid until there are no consumers left. "
+":c:member:`~Py_buffer.format`, :c:member:`~Py_buffer.shape`, "
+":c:member:`~Py_buffer.strides`, :c:member:`~Py_buffer.suboffsets` and "
+":c:member:`~Py_buffer.internal` are read-only for the consumer."
+msgstr ""
+":c:type:`Py_buffer` "
+"構造体の中から参照している全てのメモリはエクスポータに属し、コンシューマがいなくなるまで有効でなくてはなりません。 "
+":c:member:`~Py_buffer.format` 、 :c:member:`~Py_buffer.shape` 、 "
+":c:member:`~Py_buffer.strides` 、 :c:member:`~Py_buffer.suboffsets` 、 "
+":c:member:`~Py_buffer.internal` はコンシューマからは読み取り専用です。"
+
+#: ../../c-api/typeobj.rst:1315
+msgid ""
+":c:func:`PyBuffer_FillInfo` provides an easy way of exposing a simple bytes "
+"buffer while dealing correctly with all request types."
+msgstr ""
+":c:func:`PyBuffer_FillInfo` "
+"は、全てのリクエストタイプを正しく扱う際に、単純なバイトバッファを公開する簡単な方法を提供します。"
+
+#: ../../c-api/typeobj.rst:1318
+msgid ""
+":c:func:`PyObject_GetBuffer` is the interface for the consumer that wraps "
+"this function."
+msgstr ":c:func:`PyObject_GetBuffer` は、この関数をラップするコンシューマ向けのインタフェースです。"
+
+#: ../../c-api/typeobj.rst:1327
+msgid ""
+"Handle a request to release the resources of the buffer. If no resources "
+"need to be released, :c:member:`PyBufferProcs.bf_releasebuffer` may be "
+"*NULL*. Otherwise, a standard implementation of this function will take "
+"these optional steps:"
+msgstr ""
+"バッファのリソースを開放する要求を処理します。もし開放する必要のあるリソースがない場合、 "
+":c:member:`PyBufferProcs.bf_releasebuffer` は *NULL* "
+"にしても構いません。そうでない場合は、この関数の標準的な実装は、以下の任意の処理手順 (optional step) を行います:"
+
+#: ../../c-api/typeobj.rst:1332
+msgid "Decrement an internal counter for the number of exports."
+msgstr "エクスポートした回数を保持する内部カウンタをデクリメントします。"
+
+#: ../../c-api/typeobj.rst:1334
+msgid "If the counter is ``0``, free all memory associated with *view*."
+msgstr "カウンタが ``0`` の場合は、*view* に関連付けられた全てのメモリを解放します。"
+
+#: ../../c-api/typeobj.rst:1336
+msgid ""
+"The exporter MUST use the :c:member:`~Py_buffer.internal` field to keep "
+"track of buffer-specific resources. This field is guaranteed to remain "
+"constant, while a consumer MAY pass a copy of the original buffer as the "
+"*view* argument."
+msgstr ""
+"エクスポータは、バッファ固有のリソースを監視し続けるために :c:member:`~Py_buffer.internal` "
+"フィールドを使わなければなりません。このフィールドは、コンシューマが *view* "
+"引数としてオリジナルのバッファのコピーを渡しているであろう間、変わらないことが保証されています。"
+
+#: ../../c-api/typeobj.rst:1342
+msgid ""
+"This function MUST NOT decrement :c:data:`view->obj`, since that is done "
+"automatically in :c:func:`PyBuffer_Release` (this scheme is useful for "
+"breaking reference cycles)."
+msgstr ""
+"この関数は、:c:data:`view->obj` をデクリメントしてはいけません、なぜならそれは :c:func:`PyBuffer_Release`"
+" で自動的に行われるからです(この方式は参照の循環を防ぐのに有用です)。"
+
+#: ../../c-api/typeobj.rst:1347
+msgid ""
+":c:func:`PyBuffer_Release` is the interface for the consumer that wraps this"
+" function."
+msgstr ":c:func:`PyBuffer_Release` は、この関数をラップするコンシューマ向けのインタフェースです。"
+
+#: ../../c-api/typeobj.rst:1355
+msgid "Async Object Structures"
+msgstr "async オブジェクト構造体"
+
+#: ../../c-api/typeobj.rst:1363
+msgid ""
+"This structure holds pointers to the functions required to implement "
+":term:`awaitable` and :term:`asynchronous iterator` objects."
+msgstr ""
+"この構造体は :term:`awaitable` オブジェクトと :term:`asynchronous iterator` "
+"オブジェクトを実装するのに必要な関数へのポインタを保持しています。"
+
+#: ../../c-api/typeobj.rst:1380
+msgid ""
+"The returned object must be an iterator, i.e. :c:func:`PyIter_Check` must "
+"return ``1`` for it."
+msgstr ""
+"返されるオブジェクトはイテレータでなければなりません。\n"
+"つまりこのオブジェクトに対して :c:func:`PyIter_Check` が ``1`` を返さなければなりません。"
+
+#: ../../c-api/typeobj.rst:1383
+msgid ""
+"This slot may be set to *NULL* if an object is not an :term:`awaitable`."
+msgstr "オブジェクトが :term:`awaitable` でない場合、このスロットを *NULL* に設定します。"
+
+#: ../../c-api/typeobj.rst:1391
+msgid ""
+"Must return an :term:`awaitable` object.  See :meth:`__anext__` for details."
+msgstr ""
+":term:`awaitable` オブジェクトを返さなければなりません。\n"
+"詳しいことは :meth:`__anext__` を参照してください。"
+
+#: ../../c-api/typeobj.rst:1393
+msgid ""
+"This slot may be set to *NULL* if an object does not implement asynchronous "
+"iteration protocol."
+msgstr "オブジェクトが非同期反復処理のプロトコルを実装していない場合、このスロットを *NULL* に設定します。"
+
+#: ../../c-api/typeobj.rst:1402
+msgid ""
+"Must return an :term:`awaitable` object.  See :meth:`__anext__` for details."
+" This slot may be set to *NULL*."
+msgstr ""
+":term:`awaitable` オブジェクトを返さなければなりません。\n"
+"詳しいことは :meth:`__anext__` を参照してください。\n"
+"このスロットは *NULL* に設定されていることもあります。"
