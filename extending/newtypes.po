@@ -8,6 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.6\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-12-31 17:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Nozomu Kaneko <nozom.kaneko@gmail.com>, 2017\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
@@ -775,12 +776,9 @@ msgstr ""
 #: ../../extending/newtypes.rst:668
 msgid ""
 "In the second version of the :class:`Noddy` example, we allowed any kind of "
-"object to be stored in the :attr:`first` or :attr:`last` attributes. [#]_ "
+"object to be stored in the :attr:`first` or :attr:`last` attributes [#]_. "
 "This means that :class:`Noddy` objects can participate in cycles::"
 msgstr ""
-":class:`Noddy` クラスの 2番目の例では、 :attr:`first` 属性と :attr:`last` "
-"属性にどんなオブジェクトでも格納できるようになっていました。 [#]_ 。つまり、 :class:`Noddy` "
-"オブジェクトの参照は循環しうるのです::"
 
 #: ../../extending/newtypes.rst:677
 msgid ""
@@ -833,13 +831,10 @@ msgstr ""
 #: ../../extending/newtypes.rst:730
 msgid ""
 "We also need to provide a method for clearing any subobjects that can "
-"participate in cycles.  We implement the method and reimplement the "
-"deallocator to use it::"
+"participate in cycles."
 msgstr ""
-"また、循環した参照に含まれた内部オブジェクトを消去するためのメソッドも提供する必要があります。\n"
-"メモリ解放関数を再実装して、このメソッドに使いましょう::"
 
-#: ../../extending/newtypes.rst:757
+#: ../../extending/newtypes.rst:751
 msgid ""
 "Notice the use of a temporary variable in :c:func:`Noddy_clear`. We use the "
 "temporary variable so that we can set each member to *NULL* before "
@@ -859,7 +854,7 @@ msgstr ""
 "ハンドラが呼び出される可能性があります。メンバの参照カウントがゼロになった場合に、その値が *NULL* に設定されていないと "
 ":c:func:`Noddy_traverse` が呼ばれる機会はありません。"
 
-#: ../../extending/newtypes.rst:767
+#: ../../extending/newtypes.rst:761
 msgid ""
 "Python provides a :c:func:`Py_CLEAR` that automates the careful decrementing"
 " of reference counts.  With :c:func:`Py_CLEAR`, the :c:func:`Noddy_clear` "
@@ -868,12 +863,23 @@ msgstr ""
 "Python には、注意ぶかく参照カウントを減らすためのマクロ :c:func:`Py_CLEAR` が用意されています。 "
 ":c:func:`Py_CLEAR` を使えば、 :c:func:`Noddy_clear` は次のように簡略化できます::"
 
-#: ../../extending/newtypes.rst:779
+#: ../../extending/newtypes.rst:773
+msgid ""
+"Note that :c:func:`Noddy_dealloc` may call arbitrary functions through "
+"``__del__`` method or weakref callback. It means circular GC can be "
+"triggered inside the function.  Since GC assumes reference count is not "
+"zero, we need to untrack the object from GC by calling "
+":c:func:`PyObject_GC_UnTrack` before clearing members. Here is reimplemented"
+" deallocator which uses :c:func:`PyObject_GC_UnTrack` and "
+":c:func:`Noddy_clear`."
+msgstr ""
+
+#: ../../extending/newtypes.rst:790
 msgid ""
 "Finally, we add the :const:`Py_TPFLAGS_HAVE_GC` flag to the class flags::"
 msgstr "最後に、 :const:`Py_TPFLAGS_HAVE_GC` フラグをクラス定義のフラグに加えます::"
 
-#: ../../extending/newtypes.rst:783
+#: ../../extending/newtypes.rst:794
 msgid ""
 "That's pretty much it.  If we had written custom "
 ":c:member:`~PyTypeObject.tp_alloc` or :c:member:`~PyTypeObject.tp_free` "
@@ -884,11 +890,11 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_free` "
 "スロットが書かれていれば、それらを循環ガベージコレクションに使えるよう修正すればよいのです。ほとんどの拡張機能は自動的に提供されるバージョンを使うでしょう。"
 
-#: ../../extending/newtypes.rst:789
+#: ../../extending/newtypes.rst:800
 msgid "Subclassing other types"
 msgstr "他の型のサブクラスを作る"
 
-#: ../../extending/newtypes.rst:791
+#: ../../extending/newtypes.rst:802
 msgid ""
 "It is possible to create new extension types that are derived from existing "
 "types. It is easiest to inherit from the built in types, since an extension "
@@ -898,7 +904,7 @@ msgstr ""
 "既存の型を継承した新しい拡張型を作成することができます。組み込み型から継承するのは特に簡単です。必要な :class:`PyTypeObject` "
 "を簡単に利用できるからです。それに比べて、 :class:`PyTypeObject` 構造体を拡張モジュール間で共有するのは難しいです。"
 
-#: ../../extending/newtypes.rst:796
+#: ../../extending/newtypes.rst:807
 msgid ""
 "In this example we will create a :class:`Shoddy` type that inherits from the"
 " built-in :class:`list` type. The new type will be completely compatible "
@@ -909,14 +915,14 @@ msgstr ""
 "型を作成しています。新しい型は通常のリスト型と完全に互換性がありますが、追加で内部のカウンタを増やす :meth:`increment` "
 "メソッドを持っています。 ::"
 
-#: ../../extending/newtypes.rst:814
+#: ../../extending/newtypes.rst:825
 msgid ""
 "As you can see, the source code closely resembles the :class:`Noddy` "
 "examples in previous sections. We will break down the main differences "
 "between them. ::"
 msgstr "見てわかるように、ソースコードは前の節の :class:`Noddy` の時と非常に似ています。違う部分をそれぞれを見ていきます。 ::"
 
-#: ../../extending/newtypes.rst:822
+#: ../../extending/newtypes.rst:833
 msgid ""
 "The primary difference for derived type objects is that the base type's "
 "object structure must be the first value. The base type will already include"
@@ -925,7 +931,7 @@ msgstr ""
 "継承した型のオブジェクトの最初の違いは、親クラスのオブジェクト構造が最初に必要なことです。基底型が既に :c:func:`PyObject_HEAD` "
 "を構造体の先頭に持っています。"
 
-#: ../../extending/newtypes.rst:826
+#: ../../extending/newtypes.rst:837
 msgid ""
 "When a Python object is a :class:`Shoddy` instance, its *PyObject\\** "
 "pointer can be safely cast to both *PyListObject\\** and *Shoddy\\**. ::"
@@ -933,7 +939,7 @@ msgstr ""
 "Python オブジェクトが :class:`Shoddy` 型のインスタンスだった場合、その *PyObject\\** ポインタは "
 "*PyListObject\\** にも *Shoddy\\** にも安全にキャストできます。 ::"
 
-#: ../../extending/newtypes.rst:838
+#: ../../extending/newtypes.rst:849
 msgid ""
 "In the :attr:`__init__` method for our type, we can see how to call through "
 "to the :attr:`__init__` method of the base type."
@@ -941,7 +947,7 @@ msgstr ""
 "この新しい型の :attr:`__init__` メソッドで、基底型の :attr:`__init__` "
 "メソッドを呼び出している様子を見ることができます。"
 
-#: ../../extending/newtypes.rst:841
+#: ../../extending/newtypes.rst:852
 msgid ""
 "This pattern is important when writing a type with custom :attr:`new` and "
 ":attr:`dealloc` methods. The :attr:`new` method should not actually create "
@@ -954,7 +960,7 @@ msgstr ""
 "を使ってメモリを割り当てるべきではありません。それは基底型の :c:member:`~PyTypeObject.tp_new` "
 "を呼出たときに処理されるからです。"
 
-#: ../../extending/newtypes.rst:846
+#: ../../extending/newtypes.rst:857
 msgid ""
 "When filling out the :c:func:`PyTypeObject` for the :class:`Shoddy` type, "
 "you see a slot for :c:func:`tp_base`. Due to cross platform compiler issues,"
@@ -965,7 +971,7 @@ msgstr ""
 "スロットを見つけることができます。クロスプラットフォームのコンパイラに対応するために、直接そのスロットを :c:func:`PyList_Type` "
 "で埋めてはいけません。代わりに、後でモジュールの :c:func:`init` 関数の中で行うことができます。 ::"
 
-#: ../../extending/newtypes.rst:869
+#: ../../extending/newtypes.rst:880
 msgid ""
 "Before calling :c:func:`PyType_Ready`, the type structure must have the "
 ":c:member:`~PyTypeObject.tp_base` slot filled in. When we are deriving a new"
@@ -977,7 +983,7 @@ msgstr ""
 "スロットは埋められていなければなりません。継承している新しい型を作るとき、 :c:member:`~PyTypeObject.tp_alloc` "
 "スロットを :c:func:`PyType_GenericNew` で埋める必要はありません。 -- 基底型のアロケート関数が継承されます。"
 
-#: ../../extending/newtypes.rst:874
+#: ../../extending/newtypes.rst:885
 msgid ""
 "After that, calling :c:func:`PyType_Ready` and adding the type object to the"
 " module is the same as with the basic :class:`Noddy` examples."
@@ -985,23 +991,23 @@ msgstr ""
 "この後は、 :c:func:`PyType_Ready` 関数を呼び、タイプオブジェクトをモジュールへ追加するのは、基本的な "
 ":class:`Noddy` の例と同じです。"
 
-#: ../../extending/newtypes.rst:881
+#: ../../extending/newtypes.rst:892
 msgid "Type Methods"
 msgstr "タイプメソッド"
 
-#: ../../extending/newtypes.rst:883
+#: ../../extending/newtypes.rst:894
 msgid ""
 "This section aims to give a quick fly-by on the various type methods you can"
 " implement and what they do."
 msgstr "この節ではさまざまな実装可能なタイプメソッドと、それらが何をするものであるかについて、ざっと説明します。"
 
-#: ../../extending/newtypes.rst:886
+#: ../../extending/newtypes.rst:897
 msgid ""
 "Here is the definition of :c:type:`PyTypeObject`, with some fields only used"
 " in debug builds omitted:"
 msgstr "以下は :c:type:`PyTypeObject` の定義です。デバッグビルドでしか使われないいくつかのメンバは省いてあります:"
 
-#: ../../extending/newtypes.rst:892
+#: ../../extending/newtypes.rst:903
 msgid ""
 "Now that's a *lot* of methods.  Don't worry too much though - if you have a "
 "type you want to define, the chances are very good that you will only "
@@ -1010,7 +1016,7 @@ msgstr ""
 "*たくさんの* "
 "メソッドがありますね。でもそんなに心配する必要はありません。定義したい型があるなら、実装するのはこのうちのごくわずかですむことがほとんどです。"
 
-#: ../../extending/newtypes.rst:896
+#: ../../extending/newtypes.rst:907
 msgid ""
 "As you probably expect by now, we're going to go over this and give more "
 "information about the various handlers.  We won't go in the order they are "
@@ -1023,7 +1029,7 @@ msgstr ""
 "すでに予想されているでしょうが、これらの多様なハンドラについて、これからより詳しい情報を提供します。しかしこれらのメンバが構造体中で定義されている順番は無視します。というのは、これらのメンバの現れる順序は歴史的な遺産によるものだからです。型を初期化するさいに、これらのメンバを正しい順序で並べるよう、くれぐれも注意してください。ふつういちばん簡単なのは、必要なメンバがすべて含まれている"
 " (たとえそれらが ``0`` に初期化されていても) 例をとってきて、自分の型に合わせるよう変更をくわえることです。 ::"
 
-#: ../../extending/newtypes.rst:906
+#: ../../extending/newtypes.rst:917
 msgid ""
 "The name of the type - as mentioned in the last section, this will appear in"
 " various places, almost entirely for diagnostic purposes. Try to choose "
@@ -1032,7 +1038,7 @@ msgstr ""
 "これは型の名前です。前節で説明したように、これはいろいろな場面で現れ、ほとんどは診断用の目的で使われるものです。なので、そのような場面で役に立つであろう名前を選んでください!"
 " ::"
 
-#: ../../extending/newtypes.rst:912
+#: ../../extending/newtypes.rst:923
 msgid ""
 "These fields tell the runtime how much memory to allocate when new objects "
 "of this type are created.  Python has some built-in support for variable "
@@ -1044,7 +1050,7 @@ msgstr ""
 " (文字列やリストなどを想像してください) に対する組み込みのサポートがある程度あり、ここで "
 ":c:member:`~PyTypeObject.tp_itemsize` メンバが使われます。これらについてはあとでふれます。 ::"
 
-#: ../../extending/newtypes.rst:919
+#: ../../extending/newtypes.rst:930
 msgid ""
 "Here you can put a string (or its address) that you want returned when the "
 "Python script references ``obj.__doc__`` to retrieve the doc string."
@@ -1052,17 +1058,17 @@ msgstr ""
 "ここには Python スクリプトリファレンス ``obj.__doc__`` が doc string を返すときの文字列 (あるいはそのアドレス) "
 "を入れます。"
 
-#: ../../extending/newtypes.rst:922
+#: ../../extending/newtypes.rst:933
 msgid ""
 "Now we come to the basic type methods---the ones most extension types will "
 "implement."
 msgstr "では次に、ほとんどの拡張型が実装するであろう基本的なタイプメソッドに入っていきます。"
 
-#: ../../extending/newtypes.rst:927
+#: ../../extending/newtypes.rst:938
 msgid "Finalization and De-allocation"
 msgstr "ファイナライズとメモリ解放"
 
-#: ../../extending/newtypes.rst:939
+#: ../../extending/newtypes.rst:950
 msgid ""
 "This function is called when the reference count of the instance of your "
 "type is reduced to zero and the Python interpreter wants to reclaim it.  If "
@@ -1073,7 +1079,7 @@ msgstr ""
 "型のインスタンスの参照カウントがゼロになり、Python "
 "インタプリタがそれを潰して再利用したくなると、この関数が呼ばれます。解放すべきメモリをその型が保持していたり、それ以外にも実行すべき後処理がある場合は、それらをここに入れられます。オブジェクトそれ自体もここで解放される必要があります。この関数の例は、以下のようなものです::"
 
-#: ../../extending/newtypes.rst:956
+#: ../../extending/newtypes.rst:967
 msgid ""
 "One important requirement of the deallocator function is that it leaves any "
 "pending exceptions alone.  This is important since deallocators are "
@@ -1094,7 +1100,7 @@ msgstr ""
 "のコードを実行してしまうと、それらは例外が発生していることを検知するかもしれません。これはインタプリタが誤解させるエラーを発生させることにつながります。これを防ぐ正しい方法は、安全でない操作を実行する前に処理待ちの例外を保存しておき、終わったらそれを元に戻すことです。これは"
 " :c:func:`PyErr_Fetch` および :c:func:`PyErr_Restore` 関数を使うことによって可能になります::"
 
-#: ../../extending/newtypes.rst:995
+#: ../../extending/newtypes.rst:1006
 msgid ""
 "There are limitations to what you can safely do in a deallocator function. "
 "First, if your type supports garbage collection (using "
@@ -1112,7 +1118,7 @@ msgstr ""
 "2つ目は、 :c:member:`~PyTypeObject.tp_dealloc` の中ではオブジェクトは不安定な状態にあることです: つまり参照カウントが0であるということです。\n"
 "(上の例にあるような) 複雑なオブジェクトや API の呼び出しでは、 :c:member:`~PyTypeObject.tp_dealloc` を再度呼び出し、二重解放からクラッシュすることになるかもしれません。"
 
-#: ../../extending/newtypes.rst:1004
+#: ../../extending/newtypes.rst:1015
 msgid ""
 "Starting with Python 3.4, it is recommended not to put any complex "
 "finalization code in :c:member:`~PyTypeObject.tp_dealloc`, and instead use "
@@ -1122,15 +1128,15 @@ msgstr ""
 "に置かず、代わりに新しく導入された :c:member:`~PyTypeObject.tp_finalize` "
 "という型メソッドを使うことが推奨されています。"
 
-#: ../../extending/newtypes.rst:1009
+#: ../../extending/newtypes.rst:1020
 msgid ":pep:`442` explains the new finalization scheme."
 msgstr ":pep:`442` で新しいファイナライズの仕組みが説明されています。"
 
-#: ../../extending/newtypes.rst:1016
+#: ../../extending/newtypes.rst:1027
 msgid "Object Presentation"
 msgstr "オブジェクト表現"
 
-#: ../../extending/newtypes.rst:1018
+#: ../../extending/newtypes.rst:1029
 msgid ""
 "In Python, there are two ways to generate a textual representation of an "
 "object: the :func:`repr` function, and the :func:`str` function.  (The "
@@ -1141,7 +1147,7 @@ msgstr ""
 ":func:`str`  関数を使う方法です。 (:func:`print` 関数は単に :func:`str` を呼び出します。) "
 "これらのハンドラはどちらも省略できます。"
 
-#: ../../extending/newtypes.rst:1027
+#: ../../extending/newtypes.rst:1038
 msgid ""
 "The :c:member:`~PyTypeObject.tp_repr` handler should return a string object "
 "containing a representation of the instance for which it is called.  Here is"
@@ -1150,7 +1156,7 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_repr` "
 "ハンドラは呼び出されたインスタンスの文字列表現を格納した文字列オブジェクトを返す必要があります。簡単な例は以下のようなものです::"
 
-#: ../../extending/newtypes.rst:1038
+#: ../../extending/newtypes.rst:1049
 msgid ""
 "If no :c:member:`~PyTypeObject.tp_repr` handler is specified, the "
 "interpreter will supply a representation that uses the type's "
@@ -1160,7 +1166,7 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_repr` ハンドラが指定されていなければ、インタプリタはその型の "
 ":c:member:`~PyTypeObject.tp_name` とそのオブジェクトの一意な識別値をもちいて文字列表現を作成します。"
 
-#: ../../extending/newtypes.rst:1042
+#: ../../extending/newtypes.rst:1053
 msgid ""
 "The :c:member:`~PyTypeObject.tp_str` handler is to :func:`str` what the "
 ":c:member:`~PyTypeObject.tp_repr` handler described above is to "
@@ -1178,15 +1184,15 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_str` が指定されていない場合、かわりに "
 ":c:member:`~PyTypeObject.tp_repr` ハンドラが使われます。"
 
-#: ../../extending/newtypes.rst:1049
+#: ../../extending/newtypes.rst:1060
 msgid "Here is a simple example::"
 msgstr "以下は簡単な例です::"
 
-#: ../../extending/newtypes.rst:1061
+#: ../../extending/newtypes.rst:1072
 msgid "Attribute Management"
 msgstr "属性を管理する"
 
-#: ../../extending/newtypes.rst:1063
+#: ../../extending/newtypes.rst:1074
 msgid ""
 "For every object which can support attributes, the corresponding type must "
 "provide the functions that control how the attributes are resolved.  There "
@@ -1199,7 +1205,7 @@ msgstr ""
 " (それが定義されていれば) 取り出すものと、もうひとつは属性に (それが許可されていれば) "
 "値を設定するものです。属性を削除するのは特殊なケースで、この場合は新しい値としてハンドラに *NULL* が渡されます。"
 
-#: ../../extending/newtypes.rst:1069
+#: ../../extending/newtypes.rst:1080
 msgid ""
 "Python supports two pairs of attribute handlers; a type that supports "
 "attributes only needs to implement the functions for one pair.  The "
@@ -1212,7 +1218,7 @@ msgstr ""
 ":c:type:`char\\*` として受け取るのに対してもう一方の組は属性の名前を :c:type:`PyObject\\*` "
 "として受け取る、というものです。それぞれの型はその実装にとって都合がよい方を使えます。 ::"
 
-#: ../../extending/newtypes.rst:1081
+#: ../../extending/newtypes.rst:1092
 msgid ""
 "If accessing attributes of an object is always a simple operation (this will"
 " be explained shortly), there are generic implementations which can be used "
@@ -1226,37 +1232,37 @@ msgstr ""
 "を使って属性を管理する関数として、総称的 (generic) な実装を使えます。特定の型に特化した属性ハンドラの必要性は Python 2.2 "
 "からほとんど完全になくなりました。しかし、多くの例はまだ、この新しく使えるようになった総称的なメカニズムを使うよう更新されてはいません。"
 
-#: ../../extending/newtypes.rst:1092
+#: ../../extending/newtypes.rst:1103
 msgid "Generic Attribute Management"
 msgstr "総称的な属性を管理する"
 
-#: ../../extending/newtypes.rst:1094
+#: ../../extending/newtypes.rst:1105
 msgid ""
 "Most extension types only use *simple* attributes.  So, what makes the "
 "attributes simple?  There are only a couple of conditions that must be met:"
 msgstr "ほとんどの型は *単純な* 属性を使うだけです。では、どのような属性が単純だといえるのでしょうか? それが満たすべき条件はごくわずかです:"
 
-#: ../../extending/newtypes.rst:1097
+#: ../../extending/newtypes.rst:1108
 msgid ""
 "The name of the attributes must be known when :c:func:`PyType_Ready` is "
 "called."
 msgstr ":c:func:`PyType_Ready` が呼ばれたとき、すでに属性の名前がわかっていること。"
 
-#: ../../extending/newtypes.rst:1100
+#: ../../extending/newtypes.rst:1111
 msgid ""
 "No special processing is needed to record that an attribute was looked up or"
 " set, nor do actions need to be taken based on the value."
 msgstr ""
 "属性を参照したり設定したりするときに、特別な記録のための処理が必要でなく、また参照したり設定した値に対してどんな操作も実行する必要がないこと。"
 
-#: ../../extending/newtypes.rst:1103
+#: ../../extending/newtypes.rst:1114
 msgid ""
 "Note that this list does not place any restrictions on the values of the "
 "attributes, when the values are computed, or how relevant data is stored."
 msgstr ""
 "これらの条件は、属性の値や、値が計算されるタイミング、または格納されたデータがどの程度妥当なものであるかといったことになんら制約を課すものではないことに注意してください。"
 
-#: ../../extending/newtypes.rst:1106
+#: ../../extending/newtypes.rst:1117
 msgid ""
 "When :c:func:`PyType_Ready` is called, it uses three tables referenced by "
 "the type object to create :term:`descriptor`\\s which are placed in the "
@@ -1276,11 +1282,11 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_setattro` が *NULL* "
 "のままだった場合も、基底型にこれらの属性の操作がまかせられます。"
 
-#: ../../extending/newtypes.rst:1114
+#: ../../extending/newtypes.rst:1125
 msgid "The tables are declared as three fields of the type object::"
 msgstr "テーブルはタイプオブジェクト中の 3つのメンバとして宣言されています::"
 
-#: ../../extending/newtypes.rst:1120
+#: ../../extending/newtypes.rst:1131
 msgid ""
 "If :c:member:`~PyTypeObject.tp_methods` is not *NULL*, it must refer to an "
 "array of :c:type:`PyMethodDef` structures.  Each entry in the table is an "
@@ -1289,7 +1295,7 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_methods` が *NULL* でない場合、これは "
 ":c:type:`PyMethodDef` 構造体への配列を指している必要があります。テーブル中の各エントリは、つぎのような構造体のインスタンスです::"
 
-#: ../../extending/newtypes.rst:1131
+#: ../../extending/newtypes.rst:1142
 msgid ""
 "One entry should be defined for each method provided by the type; no entries"
 " are needed for methods inherited from a base type.  One additional entry is"
@@ -1300,7 +1306,7 @@ msgstr ""
 " (sentinel) として追加のエントリがひとつ必要です。この場合、 :attr:`ml_name` メンバが sentinel "
 "として使われ、その値は *NULL* でなければなりません。"
 
-#: ../../extending/newtypes.rst:1136
+#: ../../extending/newtypes.rst:1147
 msgid ""
 "The second table is used to define attributes which map directly to data "
 "stored in the instance.  A variety of primitive C types are supported, and "
@@ -1308,9 +1314,9 @@ msgid ""
 "defined as::"
 msgstr ""
 "2番目のテーブルは、インスタンス中に格納されるデータと直接対応づけられた属性を定義するのに使います。いくつもの C "
-"の原始的な型がサポートされており、アクセスを読み込み専用にも読み書き可能にもできます。このテーブルで使われる構造体は次のように定義されています::"
+"の原始的な型がサポートされており、アクセスを読み出し専用にも読み書き可能にもできます。このテーブルで使われる構造体は次のように定義されています::"
 
-#: ../../extending/newtypes.rst:1148
+#: ../../extending/newtypes.rst:1159
 msgid ""
 "For each entry in the table, a :term:`descriptor` will be constructed and "
 "added to the type which will be able to extract a value from the instance "
@@ -1326,54 +1332,54 @@ msgstr ""
 "における値をどのように変換しあうかを定めるものです。 :attr:`flags` "
 "メンバはこの属性がどのようにアクセスされるかを制御するフラグを格納するのに使われます。"
 
-#: ../../extending/newtypes.rst:1155
+#: ../../extending/newtypes.rst:1166
 msgid ""
 "The following flag constants are defined in :file:`structmember.h`; they may"
 " be combined using bitwise-OR."
 msgstr ""
 "以下のフラグ用定数は :file:`structmember.h` で定義されており、これらはビットごとの OR を取って組み合わせられます。"
 
-#: ../../extending/newtypes.rst:1159
+#: ../../extending/newtypes.rst:1170
 msgid "Constant"
 msgstr "定数"
 
-#: ../../extending/newtypes.rst:1159
+#: ../../extending/newtypes.rst:1170
 msgid "Meaning"
 msgstr "意味"
 
-#: ../../extending/newtypes.rst:1161
+#: ../../extending/newtypes.rst:1172
 msgid ":const:`READONLY`"
 msgstr ":const:`READONLY`"
 
-#: ../../extending/newtypes.rst:1161
+#: ../../extending/newtypes.rst:1172
 msgid "Never writable."
 msgstr "絶対に変更できない。"
 
-#: ../../extending/newtypes.rst:1163
+#: ../../extending/newtypes.rst:1174
 msgid ":const:`READ_RESTRICTED`"
 msgstr ":const:`READ_RESTRICTED`"
 
-#: ../../extending/newtypes.rst:1163
+#: ../../extending/newtypes.rst:1174
 msgid "Not readable in restricted mode."
 msgstr "制限モード (restricted mode) では参照できない。"
 
-#: ../../extending/newtypes.rst:1165
+#: ../../extending/newtypes.rst:1176
 msgid ":const:`WRITE_RESTRICTED`"
 msgstr ":const:`WRITE_RESTRICTED`"
 
-#: ../../extending/newtypes.rst:1165
+#: ../../extending/newtypes.rst:1176
 msgid "Not writable in restricted mode."
 msgstr "制限モード (restricted mode) では変更できない。"
 
-#: ../../extending/newtypes.rst:1167
+#: ../../extending/newtypes.rst:1178
 msgid ":const:`RESTRICTED`"
 msgstr ":const:`RESTRICTED`"
 
-#: ../../extending/newtypes.rst:1167
+#: ../../extending/newtypes.rst:1178
 msgid "Not readable or writable in restricted mode."
 msgstr "制限モード (restricted mode) では参照も変更もできない。"
 
-#: ../../extending/newtypes.rst:1176
+#: ../../extending/newtypes.rst:1187
 msgid ""
 "An interesting advantage of using the :c:member:`~PyTypeObject.tp_members` "
 "table to build descriptors that are used at runtime is that any attribute "
@@ -1387,7 +1393,7 @@ msgstr ""
 " doc string を関連付けられるようにすることです。アプリケーションはこのイントロスペクション用 API "
 "を使って、クラスオブジェクトからデスクリプタを取り出し、その :attr:`__doc__` 属性を使って doc string を得られます。"
 
-#: ../../extending/newtypes.rst:1182
+#: ../../extending/newtypes.rst:1193
 msgid ""
 "As with the :c:member:`~PyTypeObject.tp_methods` table, a sentinel entry "
 "with a :attr:`name` value of *NULL* is required."
@@ -1395,11 +1401,11 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_methods` テーブルと同じように、ここでも :attr:`name` メンバの値を "
 "*NULL* にした見張り用エントリが必要です。"
 
-#: ../../extending/newtypes.rst:1196
+#: ../../extending/newtypes.rst:1207
 msgid "Type-specific Attribute Management"
 msgstr "特定の型に特化した属性の管理"
 
-#: ../../extending/newtypes.rst:1198
+#: ../../extending/newtypes.rst:1209
 msgid ""
 "For simplicity, only the :c:type:`char\\*` version will be demonstrated "
 "here; the type of the name parameter is the only difference between the "
@@ -1414,7 +1420,7 @@ msgstr ""
 "を使うかの違いしかありません。この例では、上の総称的な例と同じことを効率的にやりますが、 Python 2.2 "
 "で追加された総称的な型のサポートを使わずにやります。これはハンドラの関数がどのようにして呼ばれるのかを説明します。これで、たとえその機能を拡張する必要があるとき、何をどうすればいいかわかるでしょう。"
 
-#: ../../extending/newtypes.rst:1206
+#: ../../extending/newtypes.rst:1217
 msgid ""
 "The :c:member:`~PyTypeObject.tp_getattr` handler is called when the object "
 "requires an attribute look-up.  It is called in the same situations where "
@@ -1424,11 +1430,11 @@ msgstr ""
 "ハンドラはオブジェクトが属性への参照を要求するときに呼ばれます。これは、そのクラスの :meth:`__getattr__` "
 "メソッドが呼ばれるであろう状況と同じ状況下で呼び出されます。"
 
-#: ../../extending/newtypes.rst:1210
+#: ../../extending/newtypes.rst:1221
 msgid "Here is an example::"
 msgstr "以下に例を示します。::"
 
-#: ../../extending/newtypes.rst:1226
+#: ../../extending/newtypes.rst:1237
 msgid ""
 "The :c:member:`~PyTypeObject.tp_setattr` handler is called when the "
 ":meth:`__setattr__` or :meth:`__delattr__` method of a class instance would "
@@ -1442,11 +1448,11 @@ msgstr ""
 "*NULL* になります。以下の例はたんに例外を発生させるものですが、もし本当にこれと同じことをしたいなら、 "
 ":c:member:`~PyTypeObject.tp_setattr` ハンドラを *NULL* に設定すべきです。 ::"
 
-#: ../../extending/newtypes.rst:1240
+#: ../../extending/newtypes.rst:1251
 msgid "Object Comparison"
 msgstr "オブジェクトの比較"
 
-#: ../../extending/newtypes.rst:1246
+#: ../../extending/newtypes.rst:1257
 msgid ""
 "The :c:member:`~PyTypeObject.tp_richcompare` handler is called when "
 "comparisons are needed.  It is analogous to the :ref:`rich comparison "
@@ -1456,7 +1462,7 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_richcompare` ハンドラは比較処理が要求されたときに呼び出されます。\n"
 ":meth:`__lt__` のような :ref:`拡張比較メソッド <richcmpfuncs>` に類似しており、 :c:func:`PyObject_RichCompare` と :c:func:`PyObject_RichCompareBool` からも呼び出されます。"
 
-#: ../../extending/newtypes.rst:1251
+#: ../../extending/newtypes.rst:1262
 msgid ""
 "This function is called with two Python objects and the operator as "
 "arguments, where the operator is one of ``Py_EQ``, ``Py_NE``, ``Py_LE``, "
@@ -1472,17 +1478,17 @@ msgstr ""
 "か、比較処理が実装されておらず、もう一方のオブジェクトの比較処理を試行することを示す ``Py_NotImplemented`` "
 "か、例外が設定された場合の *NULL* のいづれかを返します。"
 
-#: ../../extending/newtypes.rst:1259
+#: ../../extending/newtypes.rst:1270
 msgid ""
 "Here is a sample implementation, for a datatype that is considered equal if "
 "the size of an internal pointer is equal::"
 msgstr "これは内部ポインタのサイズが等しければ等しいと見なすデータ型のサンプル実装です::"
 
-#: ../../extending/newtypes.rst:1289
+#: ../../extending/newtypes.rst:1300
 msgid "Abstract Protocol Support"
 msgstr "抽象的なプロトコルのサポート"
 
-#: ../../extending/newtypes.rst:1291
+#: ../../extending/newtypes.rst:1302
 msgid ""
 "Python supports a variety of *abstract* 'protocols;' the specific interfaces"
 " provided to use these interfaces are documented in :ref:`abstract`."
@@ -1490,7 +1496,7 @@ msgstr ""
 "Python はいくつもの *抽象的な* “プロトコル”をサポートしています。これらを使用する特定のインターフェイスについては "
 ":ref:`abstract` で解説されています。"
 
-#: ../../extending/newtypes.rst:1295
+#: ../../extending/newtypes.rst:1306
 msgid ""
 "A number of these abstract interfaces were defined early in the development "
 "of the Python implementation.  In particular, the number, mapping, and "
@@ -1510,7 +1516,7 @@ msgstr ""
 " *NULL* "
 "であることを示しているわけではありません。フラグはスロットの存在を示すのに使えますが、そのスロットはまだ埋まっていないかもしれないのです。) ::"
 
-#: ../../extending/newtypes.rst:1310
+#: ../../extending/newtypes.rst:1321
 msgid ""
 "If you wish your object to be able to act like a number, a sequence, or a "
 "mapping object, then you place the address of a structure that implements "
@@ -1525,13 +1531,13 @@ msgstr ""
 ":c:type:`PyMappingMethods` 構造体のアドレスを入れます。これらに適切な値を入れても入れなくてもかまいません。これらを使った例は"
 " Python の配布ソースにある :file:`Objects` でみつけることができるでしょう。 ::"
 
-#: ../../extending/newtypes.rst:1319
+#: ../../extending/newtypes.rst:1330
 msgid ""
 "This function, if you choose to provide it, should return a hash number for "
 "an instance of your data type. Here is a moderately pointless example::"
 msgstr "この関数は、もし使うのならば、これはお使いの型のインスタンスのハッシュ番号を返すようにします。以下はやや的はずれな例ですが ::"
 
-#: ../../extending/newtypes.rst:1335
+#: ../../extending/newtypes.rst:1346
 msgid ""
 "This function is called when an instance of your data type is \"called\", "
 "for example, if ``obj1`` is an instance of your data type and the Python "
@@ -1542,11 +1548,11 @@ msgstr ""
 "にそのインスタンスが入っていて、Python スクリプトで ``obj1('hello')`` を実行したとすると、 "
 ":c:member:`~PyTypeObject.tp_call` ハンドラが呼ばれます。"
 
-#: ../../extending/newtypes.rst:1339
+#: ../../extending/newtypes.rst:1350
 msgid "This function takes three arguments:"
 msgstr "この関数は 3つの引数をとります:"
 
-#: ../../extending/newtypes.rst:1341
+#: ../../extending/newtypes.rst:1352
 msgid ""
 "*arg1* is the instance of the data type which is the subject of the call. If"
 " the call is ``obj1('hello')``, then *arg1* is ``obj1``."
@@ -1554,14 +1560,14 @@ msgstr ""
 "*arg1* にはその呼び出しの対象となる、そのデータ型のインスタンスが入ります。たとえば呼び出しが ``obj1('hello')`` の場合、 "
 "*arg1* は ``obj1`` になります。"
 
-#: ../../extending/newtypes.rst:1344
+#: ../../extending/newtypes.rst:1355
 msgid ""
 "*arg2* is a tuple containing the arguments to the call.  You can use "
 ":c:func:`PyArg_ParseTuple` to extract the arguments."
 msgstr ""
 "*arg2* は呼び出しの引数を格納しているタプルです。ここから引数を取り出すには :c:func:`PyArg_ParseTuple` を使います。"
 
-#: ../../extending/newtypes.rst:1347
+#: ../../extending/newtypes.rst:1358
 msgid ""
 "*arg3* is a dictionary of keyword arguments that were passed. If this is "
 "non-*NULL* and you support keyword arguments, use "
@@ -1574,12 +1580,12 @@ msgstr ""
 ":c:func:`PyArg_ParseTupleAndKeywords` をつかって引数を取り出せます。キーワード引数をサポートしていないのにこれが "
 "*NULL* 以外の場合は、キーワード引数はサポートしていない旨のメッセージとともに :exc:`TypeError` を発生させてください。"
 
-#: ../../extending/newtypes.rst:1353
+#: ../../extending/newtypes.rst:1364
 msgid ""
 "Here is a desultory example of the implementation of the call function. ::"
 msgstr "以下はこの call 関数をてきとうに使った例です。 ::"
 
-#: ../../extending/newtypes.rst:1384
+#: ../../extending/newtypes.rst:1395
 msgid ""
 "These functions provide support for the iterator protocol.  Any object which"
 " wishes to support iteration over its contents (which may be generated "
@@ -1595,7 +1601,7 @@ msgstr ""
 "の両方を実装する必要があります。どちらのハンドラも、それが呼ばれたインスタンスをひとつだけ引数としてとり、新しい参照を返します。エラーが起きた場合には例外を設定してから"
 " *NULL* を返す必要があります。"
 
-#: ../../extending/newtypes.rst:1392
+#: ../../extending/newtypes.rst:1403
 msgid ""
 "For an object which represents an iterable collection, the ``tp_iter`` "
 "handler must return an iterator object.  The iterator object is responsible "
@@ -1613,7 +1619,7 @@ msgstr ""
 "一回だけしか巡回できないオブジェクトの場合は、それ自身への参照を返すようなハンドラと、 ``tp_iternext`` "
 "ハンドラも実装する必要があります。ファイルオブジェクトはそのようなイテレータの例です。"
 
-#: ../../extending/newtypes.rst:1402
+#: ../../extending/newtypes.rst:1413
 msgid ""
 "Iterator objects should implement both handlers.  The ``tp_iter`` handler "
 "should return a new reference to the iterator (this is the same as the "
@@ -1632,11 +1638,11 @@ msgstr ""
 "を放出してもかまいません。例外を使わないほうがやや速度が上がるかもしれません。実際のエラーが起こったときには、例外を放出して *NULL* "
 "を返す必要があります。"
 
-#: ../../extending/newtypes.rst:1415
+#: ../../extending/newtypes.rst:1426
 msgid "Weak Reference Support"
 msgstr "弱参照(Weak Reference)のサポート"
 
-#: ../../extending/newtypes.rst:1417
+#: ../../extending/newtypes.rst:1428
 msgid ""
 "One of the goals of Python's weak-reference implementation is to allow any "
 "type to participate in the weak reference mechanism without incurring the "
@@ -1645,7 +1651,7 @@ msgid ""
 msgstr ""
 "Pythonの弱参照実装のひとつのゴールは、どのような（数値のような弱参照による利益を得ない）タイプでもオーバーヘッドなしで弱参照のメカニズムに組み込めるようにすることです。"
 
-#: ../../extending/newtypes.rst:1421
+#: ../../extending/newtypes.rst:1432
 msgid ""
 "For an object to be weakly referencable, the extension must include a "
 ":c:type:`PyObject\\*` field in the instance structure for the use of the "
@@ -1660,18 +1666,18 @@ msgstr ""
 "に初期化する必要があります。これは対応するタイプの :c:member:`~PyTypeObject.tp_weaklistoffset` "
 "フィールドをフィールドのオフセットに設定しなければいけません。たとえば、インスタンスタイプは以下の構造体で定義されます::"
 
-#: ../../extending/newtypes.rst:1435
+#: ../../extending/newtypes.rst:1446
 msgid ""
 "The statically-declared type object for instances is defined this way::"
 msgstr "インスタンス用に静的に宣言されたタイプオブジェクトはこのように定義されます::"
 
-#: ../../extending/newtypes.rst:1452
+#: ../../extending/newtypes.rst:1463
 msgid ""
 "The type constructor is responsible for initializing the weak reference list"
 " to *NULL*::"
 msgstr "タイプのコンストラクタは弱参照を *NULL* に初期化する責任があります::"
 
-#: ../../extending/newtypes.rst:1464
+#: ../../extending/newtypes.rst:1475
 msgid ""
 "The only further addition is that the destructor needs to call the weak "
 "reference manager to clear any weak references.  This is only required if "
@@ -1680,11 +1686,11 @@ msgstr ""
 "ほかに追記すべきことは、デストラクタは弱参照を消すために弱参照のマネージャを呼ぶ必要があることくらいです。これは弱参照リストが *NULL* "
 "でない場合にだけ必要です::"
 
-#: ../../extending/newtypes.rst:1483
+#: ../../extending/newtypes.rst:1494
 msgid "More Suggestions"
 msgstr "その他いろいろ"
 
-#: ../../extending/newtypes.rst:1485
+#: ../../extending/newtypes.rst:1496
 msgid ""
 "Remember that you can omit most of these functions, in which case you "
 "provide ``0`` as a value.  There are type definitions for each of the "
@@ -1695,7 +1701,7 @@ msgstr ""
 "を与えれば省略できることを忘れないでください。それぞれの関数で提供しなければならない型の定義があり、これらは Python の include "
 "用ディレクトリの :file:`object.h` というファイルにおさめられています。これは Python の配布ソースに含まれています。"
 
-#: ../../extending/newtypes.rst:1490
+#: ../../extending/newtypes.rst:1501
 msgid ""
 "In order to learn how to implement any specific method for your new data "
 "type, do the following: Download and unpack the Python source distribution."
@@ -1708,7 +1714,7 @@ msgstr ""
 "欲しい名前」の文字列で検索する (たとえば ``tp_print`` とか ``tp_richcompare`` "
 "のように)。こうすれば実装したい例がみつかるでしょう。"
 
-#: ../../extending/newtypes.rst:1496
+#: ../../extending/newtypes.rst:1507
 msgid ""
 "When you need to verify that an object is an instance of the type you are "
 "implementing, use the :c:func:`PyObject_TypeCheck` function. A sample of its"
@@ -1717,17 +1723,17 @@ msgstr ""
 "あるオブジェクトが、いま実装している型のインスタンスであるかどうかを確かめたい場合には、 :c:func:`PyObject_TypeCheck` "
 "関数を使ってください。使用例は以下のようなかんじです::"
 
-#: ../../extending/newtypes.rst:1506
+#: ../../extending/newtypes.rst:1517
 msgid "Footnotes"
 msgstr "脚注"
 
-#: ../../extending/newtypes.rst:1507
+#: ../../extending/newtypes.rst:1518
 msgid ""
 "This is true when we know that the object is a basic type, like a string or "
 "a float."
 msgstr "これはそのオブジェクトが文字列や実数などの基本タイプであるような時に成り立ちます。"
 
-#: ../../extending/newtypes.rst:1510
+#: ../../extending/newtypes.rst:1521
 msgid ""
 "We relied on this in the :c:member:`~PyTypeObject.tp_dealloc` handler in "
 "this example, because our type doesn't support garbage collection. Even if a"
@@ -1739,7 +1745,7 @@ msgstr ""
 ":c:member:`~PyTypeObject.tp_dealloc` "
 "ハンドラに依存しています。このハンドラはそのタイプがたとえガベージコレクションをサポートしている場合でも、そのオブジェクトの「追跡を解除する」ために呼ばれることがありますが、これは高度な話題でありここでは扱いません。"
 
-#: ../../extending/newtypes.rst:1515
+#: ../../extending/newtypes.rst:1526
 msgid ""
 "We now know that the first and last members are strings, so perhaps we could"
 " be less careful about decrementing their reference counts, however, we "
@@ -1751,7 +1757,7 @@ msgstr ""
 "first および last "
 "メンバが文字列であるということはわかっているので、いまやそれらの参照カウントを減らすときにはそれほど注意する必要はないように思えるかもしれません。しかし文字列型のサブクラスは依然として受けつけられています。通常の文字列型ならば、解放時にあなたのオブジェクトがコールバックされることはありませんが、文字列型のサブクラスがそうしないという保証はありません。"
 
-#: ../../extending/newtypes.rst:1521
+#: ../../extending/newtypes.rst:1532
 msgid ""
 "Even in the third version, we aren't guaranteed to avoid cycles.  Instances "
 "of string subclasses are allowed and string subclasses could allow cycles "
