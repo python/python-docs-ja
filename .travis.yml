@@ -1,0 +1,57 @@
+dist: trusty
+sudo: false
+language: python
+python: '3.6'
+branches:
+  only:
+  - 2.7
+before_install:
+- export TZ=Asia/Tokyo
+- openssl aes-256-cbc -K $encrypted_9796e8faf501_key -iv $encrypted_9796e8faf501_iv -in secrets.tar.enc -out secrets.tar -d
+- cd ..
+- pwd
+- ls -la
+- BASEDIR="$(pwd)"
+- cd ~
+- tar xvf "${BASEDIR}"/python-docs-ja/secrets.tar
+- chmod 600 ~/.ssh/python-docs-ja
+- echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- git config --global user.email "travisci-build-bot@example.com"
+- git config --global user.name "Autobuild bot on TravisCI"
+install:
+- pip install sphinx
+- pip install sphinx-intl
+- pip install transifex-client
+- pip install sphinx-intl
+- cd "${BASEDIR}"
+- git clone --depth 1 --branch catalog-2.7 https://github.com/python-doc-ja/cpython-doc-catalog.git cpython-doc-catalog
+- mkdir -p "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
+- cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
+- ln -s "${BASEDIR}"/python-docs-ja LC_MESSAGES
+- ls -lF LC_MESSAGES
+script:
+# upload-catalog
+- cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales
+- tx pull --force --language ja
+- cd ja/LC_MESSAGES
+- git add .
+- if [ $(git status --short | wc -l) -eq 0 ]; then echo "no .po file to upload"; else git commit --message="Update .po files"; git push --quiet "git@github.com:python/python-docs-ja.git" 2.7:2.7; fi
+# renew-catalog-template
+- cd "${BASEDIR}"/cpython-doc-catalog
+- git remote add upstream https://github.com/python/cpython.git
+- git remote -v
+- git fetch upstream
+- git merge --no-ff upstream/2.7 -m "Merge remote-tracking branch 'upstream/2.7' into catalog-2.7 by Autobuild bot on TravisCI"
+- cd Doc
+- make build ALLSPHINXOPTS="-E -b gettext -D gettext_compact=0 -d build/.doctrees . locales/pot"
+- ls -lt locales/pot
+- cd locales
+- git add pot
+- if [ $(git status -s | wc -l) -eq 0 ]; then echo "no .pot file to update"; exit 0; fi
+- rm -rf .tx
+- sphinx-intl create-txconfig
+- sphinx-intl update-txconfig-resources --transifex-project-name=python-27 --locale-dir . --pot-dir pot
+- tx push -s
+- git add .tx
+- git commit --message="Update .pot files and .tx/config"
+- git push --quiet "git@github.com:python-doc-ja/cpython-doc-catalog.git" catalog-2.7:catalog-2.7
