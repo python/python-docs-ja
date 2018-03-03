@@ -37,7 +37,7 @@ msgid ""
 "messages for running under different natural languages."
 msgstr ""
 ":mod:`gettext` モジュールは、 Python のモジュールやアプリケーションの国際化 (I18N, I-nternationalizatio-N) および地域化  (L10N, L-ocalizatio-N) サービスを提供します。\n"
-"このモジュールは GNU ``gettext`` メッセージカタログの API と、より高水準で Python ファイルに適しているクラスに基づいた API の両方をサポートしてます。\n"
+"このモジュールは GNU ``gettext`` メッセージカタログの API と、より高水準で Python ファイルに適しているクラス形式の API の両方をサポートしてます。\n"
 "以下で述べるインタフェースを使うことで、モジュールやアプリケーションのメッセージをある自然言語で記述しておき、後から提供する翻訳されたメッセージのカタログによって様々な自然言語環境で実行できます。"
 
 #: ../../library/gettext.rst:22
@@ -63,7 +63,7 @@ msgstr ""
 ":mod:`gettext` モジュールでは、以下の GNU :program:`gettext` API に非常に良く似た API を提供しています。\n"
 "この API を使う場合、アプリケーション全体の翻訳に影響します。\n"
 "アプリケーションが単一の言語しか扱わず、ユーザのロケールに従って言語が選ばれるのなら、たいていはこの API が求めているものです。\n"
-"Python モジュールを地域化していたり、アプリケーションの実行中に言語を切り替える必要がある場合は、この API ではなくおそらくクラスに基づいた API を使いたくなるでしょう。"
+"Python モジュールを地域化していたり、アプリケーションの実行中に言語を切り替える必要がある場合は、この API ではなくおそらくクラス形式の API を使いたくなるでしょう。"
 
 #: ../../library/gettext.rst:39
 msgid ""
@@ -157,8 +157,10 @@ msgid ""
 " in the preferred system encoding if no other encoding was explicitly set "
 "with :func:`bind_textdomain_codeset`."
 msgstr ""
-"それぞれに対応する先頭の ``l`` が無い関数 (:func:`.gettext`, :func:`dgettext`, :func:`ngettext`, :func:`dngettext`) と同等ですが、翻訳はバイト文字列として返されます。\n"
-"エンコーディングが :func:`bind_textdomain_codeset` を使って明示的に設定されていない場合は、バイト文字列は優先システムエンコーディングでエンコードされます。"
+"それぞれに対応する先頭の ``l`` が無い関数 (:func:`.gettext`, :func:`dgettext`, "
+":func:`ngettext`, :func:`dngettext`) と同じですが、エンコーディングが "
+":func:`bind_textdomain_codeset` "
+"を使って明示的に設定されていない場合、翻訳結果は優先システムエンコーディングでエンコードされたバイト文字列として返されます。"
 
 #: ../../library/gettext.rst:109
 msgid ""
@@ -202,6 +204,10 @@ msgid ""
 "strings. Instances of this \"translations\" class can also install "
 "themselves in the built-in namespace as the function :func:`_`."
 msgstr ""
+":mod:`gettext` モジュールのクラス形式の API は、 GNU :program:`gettext` API よりも高い柔軟性と利便性を持っています。\n"
+"Python のアプリケーションやモジュールを地域化するにはこちらを使うことをお勧めします。\n"
+":mod:`!gettext` には、GNU :file:`.mo` 形式のファイルを構文解析する処理の実装と、文字列を返すメソッドを持つ \"翻訳\" クラスが定義されています。\n"
+"この \"翻訳\" クラスのインスタンスも、自分自身を組み込み名前空間に関数  :func:`_` として配置できます。"
 
 #: ../../library/gettext.rst:146
 msgid ""
@@ -338,6 +344,9 @@ msgid ""
 "the basic interface you can use to write your own specialized translation "
 "classes.  Here are the methods of :class:`!NullTranslations`:"
 msgstr ""
+"翻訳クラスは、元のソースファイル中のメッセージ文字列から翻訳されたメッセージ文字列への変換処理が実際に実装されているクラスです。\n"
+"全ての翻訳クラスで基底クラスとして使われているクラスが :class:`NullTranslations` です; このクラスは、独自の翻訳クラスを実装するのに使える基本的なインタフェースを提供しています。\n"
+"以下に :class:`!NullTranslations` のメソッドを示します:"
 
 #: ../../library/gettext.rst:227
 msgid ""
@@ -377,6 +386,9 @@ msgid ""
 "If a fallback has been set, forward :meth:`!gettext` to the fallback. "
 "Otherwise, return *message*.  Overridden in derived classes."
 msgstr ""
+"フォールバックが設定されている場合、フォールバックの :meth:`!gettext` に処理を移譲します。\n"
+"そうでない場合、引数として受け取った *message* を返します。\n"
+"派生クラスで上書きするメソッドです。"
 
 #: ../../library/gettext.rst:256
 msgid ""
@@ -384,6 +396,9 @@ msgid ""
 "Otherwise, return *singular* if *n* is 1; return *plural* otherwise. "
 "Overridden in derived classes."
 msgstr ""
+"フォールバックが設定されている場合、フォールバックの :meth:`!ngettext` に処理を移譲します。\n"
+"そうでない場合、 *n* が 1 なら *singular* を返します; それ以外なら *plural* を返します。\n"
+"派生クラスで上書きするメソッドです。"
 
 #: ../../library/gettext.rst:264
 msgid ""
@@ -392,12 +407,16 @@ msgid ""
 "encoding was explicitly set with :meth:`set_output_charset`. Overridden in "
 "derived classes."
 msgstr ""
+":meth:`.gettext` および :meth:`.ngettext` と同じですが、エンコーディングが :meth:`set_output_charset` で明示的に設定されていない場合、翻訳結果は優先システムエンコーディングでエンコードされたバイト文字列として返されます。\n"
+"派生クラスで上書きするメソッドです。"
 
 #: ../../library/gettext.rst:271 ../../library/gettext.rst:392
 msgid ""
 "These methods should be avoided in Python 3.  See the warning for the "
 ":func:`lgettext` function."
 msgstr ""
+"これらのメソッドは Python 3 で使うのは避けるべきです。\n"
+":func:`lgettext` 関数に対する警告を参照してください。"
 
 #: ../../library/gettext.rst:277
 msgid "Return the \"protected\" :attr:`_info` variable."
@@ -405,7 +424,7 @@ msgstr "\"protected\" の :attr:`_info` 変数を返します。"
 
 #: ../../library/gettext.rst:282
 msgid "Return the encoding of the message catalog file."
-msgstr ""
+msgstr "メッセージカタログファイルのエンコーディングを返します。"
 
 #: ../../library/gettext.rst:287
 msgid ""
@@ -551,6 +570,9 @@ msgid ""
 "encoding  was explicitly set with "
 ":meth:`~NullTranslations.set_output_charset`."
 msgstr ""
+":meth:`.gettext` および :meth:`.ngettext` と同じですが、エンコーディングが "
+":meth:`~NullTranslations.set_output_charset` "
+"で明示的に設定されていない場合、翻訳結果は優先システムエンコーディングでエンコードされたバイト文字列として返されます。"
 
 #: ../../library/gettext.rst:397
 msgid "Solaris message catalog support"
@@ -732,7 +754,7 @@ msgid ""
 "``gettext`` API but instead the class-based API."
 msgstr ""
 "モジュールを地域化する場合、グローバルな変更、例えば組み込み名前空間への変更を行わないように注意しなければなりません。GNU ``gettext`` "
-"API ではなく、クラスベースの API を使うべきです。"
+"API ではなく、クラス形式の API を使うべきです。"
 
 #: ../../library/gettext.rst:504
 msgid ""
