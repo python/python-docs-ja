@@ -86,6 +86,9 @@ msgid ""
 " machinery is invoked.  These strategies can be modified and extended by "
 "using various hooks described in the sections below."
 msgstr ""
+"モジュールが初めてインポートされるとき、 Python はそのモジュールを検索し、見付かった場合、モジュールオブジェクトを作成し、初期化します "
+"[#fnmo]_ 。その名前のモジュールが見付からなかった場合、 :exc:`ModuleNotFoundError` が送出されます。 Python "
+"には、インポート機構が実行されたときに名前からモジュールを検索する様々な戦略が実装されています。これらの戦略は、これ以降の節で解説される様々なフックを使って、修正したり拡張したりできます。"
 
 #: ../../reference/import.rst:44
 msgid ""
@@ -281,6 +284,10 @@ msgid ""
 "``foo.bar.baz``. If any of the intermediate imports fail, a "
 ":exc:`ModuleNotFoundError` is raised."
 msgstr ""
+"この名前はインポート検索の様々なフェーズで使われ、これは例えば ``foo.bar.baz`` "
+"のようなドットで区切られたサブモジュールへのパスだったりします。この場合、 Python は最初に ``foo`` を、次に ``foo.bar`` "
+"、そして最後に ``foo.bar.baz`` をインポートしようとします。中間のいずれかのインポートに失敗した場合は、 "
+":exc:`ModuleNotFoundError` が送出されます。"
 
 #: ../../reference/import.rst:174
 msgid "The module cache"
@@ -308,6 +315,10 @@ msgid ""
 ":exc:`ModuleNotFoundError` is raised.  If the module name is missing, Python"
 " will continue searching for the module."
 msgstr ""
+"インポートではモジュール名は :data:`sys.modules` "
+"から探され、存在した場合は、対応する値がインポートされるべきモジュールであり、この処理は完了します。しかし値が ``None`` だった場合、 "
+":exc:`ModuleNotFoundError` が送出されます。モジュール名が見付からなかった場合は、 Python "
+"はモジュールの検索を続けます。"
 
 #: ../../reference/import.rst:192
 msgid ""
@@ -318,6 +329,11 @@ msgid ""
 " to ``None``, forcing the next import of the module to result in a "
 ":exc:`ModuleNotFoundError`."
 msgstr ""
+":data:`sys.modules` は書き込み可能です。キーの削除は対応するモジュールを破壊しない "
+"(他のモジュールがそのモジュールへの参照を持っている) "
+"かもしれませんが、指定されたモジュールのキャッシュされたエントリーを無効にし、それが次にインポートされたとき Python "
+"にそのモジュールを改めて検索させることになります。キーを ``None`` に対応付けることもできますが、次にそのモジュールがインポートされるときに "
+":exc:`ModuleNotFoundError` となってしまいます。"
 
 #: ../../reference/import.rst:199
 msgid ""
@@ -470,6 +486,10 @@ msgid ""
 "returning a spec, then a :exc:`ModuleNotFoundError` is raised.  Any other "
 "exceptions raised are simply propagated up, aborting the import process."
 msgstr ""
+"meta path finder が指定されたモジュールの扱い方を知っている場合は、ファインダは spec "
+"オブジェクトを返します。指定されたモジュールを扱えない場合は ``None`` を返します。 :data:`sys.meta_path` に対する処理が"
+" spec を返さずにリストの末尾に到達してしまった場合は、 :exc:`ModuleNotFoundError` "
+"を送出します。その他の送出された例外はそのまま呼び出し元に伝播され、インポート処理を異常終了させます。"
 
 #: ../../reference/import.rst:294
 msgid ""
@@ -484,6 +504,13 @@ msgid ""
 "existing module object that will be the target of loading later. The import "
 "system passes in a target module only during reload."
 msgstr ""
+"メタパス・ファインダーの :meth:`~importlib.abc.MetaPathFinder.find_spec()` メソッドは 2 つまたは "
+"3 つの引数を渡して呼び出します。1 つ目の引数はインポートされるモジュールの完全修飾名で、例えば ``foo.bar.baz`` などです。2 "
+"つ目の引数はモジュールの検索で使われるパスです。最上位のモジュールでは 2 つ目の引数は ``None`` "
+"にしますが、サブモジュールやサブパッケージでは 2 つ目の引数は親パッケージの ``__path__`` 属性の値です。適切な ``__path__``"
+" 属性にアクセスできなかった場合は、 :exc:`ModuleNotFoundError` が送出されます。3 "
+"つ目の引数は、あとでロードされるターゲットとなる既存のモジュールオブジェクトです。インポートシステムはリロードの間だけターゲットモジュール "
+"をセットします。"
 
 #: ../../reference/import.rst:305
 msgid ""
@@ -685,7 +712,7 @@ msgstr ""
 
 #: ../../reference/import.rst:433
 msgid "The :meth:`~importlib.abc.Loader.create_module` method of loaders."
-msgstr ""
+msgstr "ローダーの :meth:`~importlib.abc.Loader.create_module` メソッド。"
 
 #: ../../reference/import.rst:436
 msgid ""
@@ -753,12 +780,16 @@ msgid ""
 "A :exc:`DeprecationWarning` is raised when ``exec_module()`` is defined but "
 "``create_module()`` is not."
 msgstr ""
+"``exec_module()`` が定義されていて ``create_module()`` が定義されていない場合、 "
+":exc:`DeprecationWarning` が送出されるようになりました。"
 
 #: ../../reference/import.rst:469
 msgid ""
 "An :exc:`ImportError` is raised when ``exec_module()`` is defined but "
 "``create_module()`` is not."
 msgstr ""
+"``exec_module()`` が定義されていて ``create_module()`` が定義されていない場合、 "
+":exc:`ImportError` が送出されるようになりました。"
 
 #: ../../reference/import.rst:474
 msgid "Submodules"
@@ -833,6 +864,8 @@ msgid ""
 "object. See :class:`~importlib.machinery.ModuleSpec` for details on the "
 "contents of the module spec."
 msgstr ""
+"モジュール仕様は、モジュールオブジェクトの ``__spec__`` 属性として公開されます。\n"
+"モジュール仕様の内容の詳細については :class:`~importlib.machinery.ModuleSpec` を参照してください。"
 
 #: ../../reference/import.rst:531
 msgid "Import-related module attributes"
@@ -882,12 +915,14 @@ msgid ""
 "relative imports for main modules, as defined in :pep:`366`. It is expected "
 "to have the same value as ``__spec__.parent``."
 msgstr ""
+"この属性は :pep:`366` で定義されているように、メインモジュールからの明示的な相対インポートを計算するために、 ``__name__`` の代わりに使用されます。\n"
+"この属性は ``__spec__.parent`` と同じ値を持つことを要求されます。"
 
 #: ../../reference/import.rst:564
 msgid ""
 "The value of ``__package__`` is expected to be the same as "
 "``__spec__.parent``."
-msgstr ""
+msgstr "``__package__`` の値が ``__spec__.parent`` と同じ値を持つことを要求されるようになりました。"
 
 #: ../../reference/import.rst:570
 msgid ""
@@ -897,18 +932,22 @@ msgid ""
 "exception is ``__main__``, where ``__spec__`` is :ref:`set to None in some "
 "cases <main_spec>`."
 msgstr ""
+"``__spec__`` 属性はモジュールロード時に使用されたモジュールスペックに設定されなければなりません。\n"
+"``__spec__`` を適切に設定すると :ref:`インタープリタ起動中に初期化されるモジュール <programs>` にも同様に適用されます。\n"
+"例外は ``__main__`` で、``__spec__`` は :ref:`場合によっては None に設定されます <main_spec>`。"
 
 #: ../../reference/import.rst:576
 msgid ""
 "When ``__package__`` is not defined, ``__spec__.parent`` is used as a "
 "fallback."
-msgstr ""
+msgstr "``__package__`` が定義されていないときは ``__spec__.parent`` がフォールバックとして使われます。"
 
 #: ../../reference/import.rst:581
 msgid ""
 "``__spec__.parent`` is used as a fallback when ``__package__`` is not "
 "defined."
 msgstr ""
+"``__package__`` が定義されていないときに ``__spec__.parent`` がフォールバックとして使われるようになりました。"
 
 #: ../../reference/import.rst:587
 msgid ""
@@ -969,7 +1008,7 @@ msgstr "module.__path__"
 msgid ""
 "By definition, if a module has a ``__path__`` attribute, it is a package, "
 "regardless of its value."
-msgstr ""
+msgstr "定義より、モジュールに ``__path__`` 属性があれば、その値がなんであれ、そのモジュールはパッケージとなります。"
 
 #: ../../reference/import.rst:623
 msgid ""
@@ -1501,6 +1540,10 @@ msgid ""
 "``None``. The latter indicates that the meta path search should continue, "
 "while raising an exception terminates it immediately."
 msgstr ""
+"(標準のインポートシステム全体を停止するのではなく) すでにメタパスにいるフックからあるモジュールのインポートを選択的に防ぐためには、 "
+":meth:`~importlib.abc.MetaPathFinder.find_spec` から ``None`` を返す代わりに、直接 "
+":exc:`ModuleNotFoundError` を送出するだけで十分です。 ``None`` "
+"を返すのはメタパスの走査を続けるべきであることを意味しますが、例外を送出するとすぐに走査を打ち切ります。"
 
 #: ../../reference/import.rst:901
 msgid "Special considerations for __main__"
@@ -1644,6 +1687,8 @@ msgid ""
 "<https://www.python.org/doc/essays/packages/>`_ is still available to read, "
 "although some details have changed since the writing of that document."
 msgstr ""
+"Python の初期の頃からすると、インポート機構は目覚ましい発展を遂げました。\n"
+"一部細かいところがドキュメントが書かれたときから変わってはいますが、最初期の `パッケージの仕様 <https://www.python.org/doc/essays/packages/>`_ はまだ読むことができます。"
 
 #: ../../reference/import.rst:972
 msgid ""
