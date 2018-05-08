@@ -18,18 +18,19 @@ env:
 before_install:
 - export TZ=Asia/Tokyo
 - git checkout ${DOCS_BRANCH}
-- openssl aes-256-cbc -K $encrypted_9796e8faf501_key -iv $encrypted_9796e8faf501_iv -in secrets.tar.enc -out secrets.tar -d
 - cd ..
 - pwd
 - ls -la
 - BASEDIR="$(pwd)"
 - cd ~
-- tar xvf "${BASEDIR}"/python-docs-ja/secrets.tar
-- chmod 600 ~/.ssh/python-docs-ja
-- chmod 600 ~/.ssh/cpython-doc-catalog
+- openssl aes-256-cbc -K $encrypted_9796e8faf501_key -iv $encrypted_9796e8faf501_iv -in "${BASEDIR}/python-docs-ja/secrets_${DOCS_BRANCH}.tar.enc" -out ~/secrets_{DOCS_BRANCH}.tar -d
+- tar xvf ~/secrets_{DOCS_BRANCH}.tar
+- rm ~/secrets_{DOCS_BRANCH}.tar
+- chmod 600 ~/.ssh/python-docs-ja_${DOCS_BRANCH}
+- chmod 600 ~/.ssh/cpython-doc-catalog_${CATALOG_BRANCH}
 # Hack from: https://gist.github.com/jamesmcfadden/d379e04e7ae2861414886af189ec59e5
-- echo -e "Host python-docs-ja.github.com\n\tHostName github.com\n\tIdentityFile ~/.ssh/python-docs-ja\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-- echo -e "Host cpython-doc-catalog.github.com\n\tHostName github.com\n\tIdentityFile ~/.ssh/cpython-doc-catalog\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- echo -e "Host python-docs-ja.github.com\n\tHostName github.com\n\tIdentityFile ~/.ssh/python-docs-ja_${DOCS_BRANCH}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- echo -e "Host cpython-doc-catalog.github.com\n\tHostName github.com\n\tIdentityFile ~/.ssh/cpython-doc-catalog_${CATALOG_BRANCH}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - cat ~/.ssh/config
 - git config --global user.email "travisci-build-bot@example.com"
 - git config --global user.name "Autobuild bot on TravisCI"
@@ -48,7 +49,8 @@ script:
 - cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales
 - tx pull --force --language ja
 - cd ja/LC_MESSAGES
-- git add .
+- git add *.po **/*.po
+- git status
 - if [ $(git status --short | wc -l) -eq 0 ]; then echo "no .po file to upload"; else echo "I have .po file(s) to upload"; git commit --message="[skip ci] Update .po files"; git push --quiet "git@python-docs-ja.github.com:python/python-docs-ja.git" ${DOCS_BRANCH}:${DOCS_BRANCH}; fi
 - rm -rf "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
 # renew-catalog-template
