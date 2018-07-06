@@ -12,3 +12,6 @@
 
 現時点では pull request 自体を受け付けず、作成された pull request はマージせずに閉じることとしますので、悪しからず。
 (将来的に pull request を受け付けるようになる可能性はあります。)
+
+
+testtesttest
