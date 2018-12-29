@@ -6,10 +6,10 @@
 # Translators:
 # Shun Sakurai, 2017
 # Nozomu Kaneko <nozom.kaneko@gmail.com>, 2017
+# E. Kawashima, 2017
 # Masato HASHIMOTO <cabezon.hashimoto@gmail.com>, 2017
 # Naoki INADA <songofacandy@gmail.com>, 2017
 # 秘湯 <xwhhsprings@gmail.com>, 2017
-# E. Kawashima, 2017
 # Arihiro TAKASE, 2017
 # tomo, 2018
 # 
@@ -1684,7 +1684,7 @@ msgid ""
 "equality.  Such types will need to customize their comparison behavior, and "
 "in fact, a number of built-in types have done that."
 msgstr ""
-"同一でないインスタンスは常に等価でないとする等価性比較のデフォルトの振る舞いは、型が必要とするオブジェクトの値や値に基づいた等価性の実用的な定義とは対照的に思えるでしょう。\n"
+"同一でないインスタンスは常に等価でないとする等価比較のデフォルトの振る舞いは、型が必要とするオブジェクトの値や値に基づいた等価性の実用的な定義とは対照的に思えるでしょう。\n"
 "そのような型では比較の振る舞いをカスタマイズする必要が出てきて、実際にたくさんの組み込み型でそれが行われています。"
 
 #: ../../reference/expressions.rst:1411
@@ -1702,7 +1702,7 @@ msgid ""
 "involved, they compare mathematically (algorithmically) correct without loss"
 " of precision."
 msgstr ""
-"いくつかの組み込みの数値型 (:ref:`typesnumeric`) と標準ライブラリの型 :class:`fractions.Fraction` および :class:`decimal.Decimal` は、同じ型や別の型どうしで比較できますが、複素数では順序比較がサポートされていないという制限があります。\n"
+"いくつかの組み込みの数値型 (:ref:`typesnumeric`) と標準ライブラリの型 :class:`fractions.Fraction` および :class:`decimal.Decimal` は、これらの型の範囲で異なる型とも比較できますが、複素数では順序比較がサポートされていないという制限があります。\n"
 "関わる型の制限の範囲内では、精度のロス無しに数学的に (アルゴリズム的に) 正しい比較が行われます。"
 
 #: ../../reference/expressions.rst:1421
@@ -1714,6 +1714,11 @@ msgid ""
 " 3``, ``x == x``, ``x != x`` are all false.  This behavior is compliant with"
 " IEEE 754."
 msgstr ""
+"非数値である ``float('NaN')`` と ``decimal.Decimal('NaN')`` は特別です。\n"
+"数と非数値との任意の順序比較は偽です。\n"
+"直観に反する帰結として、非数値は自分自身と等価ではないことになります。\n"
+"例えば ``x = float('NaN')`` ならば、 ``3 < x``, ``x < 3``, ``x == x``, ``x != x`` は全て偽です。\n"
+"この振る舞いは IEEE 754 に従ったものです。"
 
 #: ../../reference/expressions.rst:1427
 msgid ""
@@ -1721,6 +1726,8 @@ msgid ""
 "compared within and across their types.  They compare lexicographically "
 "using the numeric values of their elements."
 msgstr ""
+"バイナリシーケンス (:class:`bytes` または :class:`bytearray` のインスタンス) は、これらの型の範囲で異なる型とも比較できます。\n"
+"比較は要素の数としての値を使った辞書式順序で行われます。"
 
 #: ../../reference/expressions.rst:1431
 msgid ""
@@ -1728,10 +1735,12 @@ msgid ""
 "numerical Unicode code points (the result of the built-in function "
 ":func:`ord`) of their characters. [#]_"
 msgstr ""
+"文字列 (:class:`str` のインスタンス) の比較は、文字の Unicode のコードポイントの数としての値 (組み込み関数 "
+":func:`ord` の返り値) を使った辞書式順序で行われます。 [#]_"
 
 #: ../../reference/expressions.rst:1435
 msgid "Strings and binary sequences cannot be directly compared."
-msgstr ""
+msgstr "文字列とバイナリシーケンスは直接には比較できません。"
 
 #: ../../reference/expressions.rst:1437
 msgid ""
@@ -1741,12 +1750,14 @@ msgid ""
 "types results in inequality, and ordering comparison across these types "
 "raises :exc:`TypeError`."
 msgstr ""
+"シーケンス (:class:`tuple`, :class:`list`, or :class:`range` のインスタンス) の比較は、同じ型どうしでしか行えず、 range は順序比較をサポートしていません。\n"
+"異なる型どうしの等価比較の結果は等価でないとなり、異なる型どうしの順序比較は :exc:`TypeError` を送出します。"
 
 #: ../../reference/expressions.rst:1443
 msgid ""
 "Sequences compare lexicographically using comparison of corresponding "
 "elements, whereby reflexivity of the elements is enforced."
-msgstr ""
+msgstr "シーケンスの比較は、要素の反射性があるものとして、対応する要素どうしの比較を使って辞書式順序で行われます。"
 
 #: ../../reference/expressions.rst:1446
 msgid ""
@@ -1760,6 +1771,10 @@ msgid ""
 "not-a-number values for example result in the following comparison behavior "
 "when used in a list::"
 msgstr ""
+"要素の反射性が強制されていると、コレクションの比較ではコレクションの要素 ``x`` に対して ``x == x`` が常に真だと仮定します。\n"
+"この仮定に基づいて、最初に要素の同一性が比較され、同一でない要素どうしに対してのみ要素の比較が行われます。\n"
+"この手法は、比較される要素が反射的な場合、厳密な要素比較と同じ結果をもたらします。\n"
+"反射的でない要素では厳密な要素比較と異なる結果になり、驚くかもしれません: 例えば、反射的でない非数値がリストで使われたとき、比較の振る舞いは次のような結果になります::"
 
 #: ../../reference/expressions.rst:1464
 msgid ""
@@ -1783,6 +1798,8 @@ msgid ""
 "shorter collection is ordered first (for example, ``[1,2] < [1,2,3]`` is "
 "true)."
 msgstr ""
+"順序比較をサポートしているコレクションの順序は、最初の等価でない要素の順序と同じになります (例えば、 ``[1,2,x] <= [1,2,y]`` は ``x <= y``と同じ値になります)。\n"
+"対応する要素が存在しない場合、短い方のコレクションの方が先の順序となります (例えば、 ``[1,2] < [1,2,3]`` は真です)。"
 
 #: ../../reference/expressions.rst:1477
 msgid ""
@@ -1791,18 +1808,19 @@ msgid ""
 "enforces reflexivity."
 msgstr ""
 "マッピング (:class:`dict` のインスタンス) の比較の結果が等価となるのは、同じ `(key, value)` を持っているときかつそのときに限ります。\n"
-"キーと値の等価性比較では反射性が強制されます。"
+"キーと値の等価比較では反射性が強制されます。"
 
 #: ../../reference/expressions.rst:1481
 msgid ""
 "Order comparisons (``<``, ``>``, ``<=``, and ``>=``) raise :exc:`TypeError`."
-msgstr ""
+msgstr "順序比較 (``<``, ``>``, ``<=``, ``>=``) は :exc:`TypeError` を送出します。"
 
 #: ../../reference/expressions.rst:1483
 msgid ""
 "Sets (instances of :class:`set` or :class:`frozenset`) can be compared "
 "within and across their types."
 msgstr ""
+"集合 (:class:`set` または :class:`frozenset` のインスタンス) の比較は、これらの型の範囲で異なる型とも行えます。"
 
 #: ../../reference/expressions.rst:1486
 msgid ""
@@ -1814,16 +1832,19 @@ msgid ""
 ":func:`max`, and :func:`sorted` produce undefined results given a list of "
 "sets as inputs)."
 msgstr ""
+"集合には、部分集合あるいは上位集合かどうかを基準とする順序比較が定義されています。\n"
+"この関係は全順序を定義しません (例えば、 ``{1,2}`` と ``{2,3}`` という2つの集合は片方がもう一方の部分集合でもなく上位集合でもありません)。\n"
+"従って、集合は全順序性に依存する関数の引数として適切ではありません (例えば、 :func:`min`, :func:`max`, :func:`sorted` は集合のリストを入力として与えると未定義な結果となります)。"
 
 #: ../../reference/expressions.rst:1494
 msgid "Comparison of sets enforces reflexivity of its elements."
-msgstr ""
+msgstr "集合の比較では、その要素の反射性が強制されます。"
 
 #: ../../reference/expressions.rst:1496
 msgid ""
 "Most other built-in types have no comparison methods implemented, so they "
 "inherit the default comparison behavior."
-msgstr ""
+msgstr "他の組み込み型のほとんどは比較メソッドが実装されておらず、デフォルトの比較の振る舞いを継承します。"
 
 #: ../../reference/expressions.rst:1499
 msgid ""
@@ -1841,14 +1862,14 @@ msgstr ""
 
 #: ../../reference/expressions.rst:1505
 msgid "``x is y`` implies ``x == y``"
-msgstr "``x is y`` は暗黙的に ``x == y``"
+msgstr "``x is y`` ならば ``x == y``"
 
 #: ../../reference/expressions.rst:1507
 msgid ""
 "Comparison should be symmetric. In other words, the following expressions "
 "should have the same result:"
 msgstr ""
-"比較は対称でなければなりません。\n"
+"比較は対称的でなければなりません。\n"
 "つまり、以下の式の結果は同じでなければなりません:"
 
 #: ../../reference/expressions.rst:1510
@@ -1877,11 +1898,11 @@ msgstr ""
 
 #: ../../reference/expressions.rst:1521
 msgid "``x > y and y > z`` implies ``x > z``"
-msgstr "``x > y and y > z`` は暗黙的に ``x > z``"
+msgstr "``x > y and y > z`` ならば ``x > z``"
 
 #: ../../reference/expressions.rst:1523
 msgid "``x < y and y <= z`` implies ``x < z``"
-msgstr "``x < y and y <= z`` は暗黙的に ``x < z``"
+msgstr "``x < y and y <= z`` ならば ``x < z``"
 
 #: ../../reference/expressions.rst:1525
 msgid ""
@@ -1909,7 +1930,7 @@ msgid ""
 "sequences, but not to sets or mappings). See also the "
 ":func:`~functools.total_ordering` decorator."
 msgstr ""
-"最後の2式は全順序の集まりに適用されます (たとえばシーケンスには適用されますがセットやマッピングには適用されません)。\n"
+"最後の2式は全順序コレクションに当てはまります (たとえばシーケンスには当てはまりますが、集合やマッピングには当てはまりません)。\n"
 ":func:`~functools.total_ordering` デコレータも参照してください。"
 
 #: ../../reference/expressions.rst:1538
@@ -1925,10 +1946,12 @@ msgid ""
 "Python does not enforce these consistency rules. In fact, the not-a-number "
 "values are an example for not following these rules."
 msgstr ""
+"Python はこの一貫性規則を強制しません。\n"
+"事実、非数値がこの規則に従わない例となります。"
 
 #: ../../reference/expressions.rst:1551
 msgid "Membership test operations"
-msgstr "帰属検査演算"
+msgstr "所属検査演算"
 
 #: ../../reference/expressions.rst:1553
 msgid ""
@@ -1940,6 +1963,11 @@ msgid ""
 "types such as list, tuple, set, frozenset, dict, or collections.deque, the "
 "expression ``x in y`` is equivalent to ``any(x is e or x == e for e in y)``."
 msgstr ""
+"演算子 :keyword:`in` および :keyword:`not in` は所属関係を調べます。\n"
+"``x in s`` の評価は、 *x* が *s* の要素であれば ``True`` となり、そうでなければ ``False`` となります。\n"
+"``x not in s`` は ``x in s`` の否定を返します。\n"
+"すべての組み込みのシーケンス型と集合型に加えて、辞書も :keyword:`!in` を辞書が与えられたキーを持っているかを調べる演算子としてサポートしています。\n"
+"リスト、タプル、集合、凍結集合、辞書、 collections.deque のようなコンテナ型において、式 ``x in y`` は ``any(x is e or x == e for e in y)`` と等価です。"
 
 #: ../../reference/expressions.rst:1561
 msgid ""
@@ -1980,6 +2008,10 @@ msgid ""
 "indices do not raise :exc:`IndexError` exception.  (If any other exception "
 "is raised, it is as if :keyword:`in` raised that exception)."
 msgstr ""
+"最終的には、旧スタイルの反復プロトコルの実行を試みます: もしクラスが :meth:`__getitem__` を定義しているならば、 ``x in "
+"y`` は ``x == y[i]`` となるような非負整数のインデックス *i* が存在するとき、かつそのときにかぎり ``True`` "
+"となります。インデックス *i* が負である場合に :exc:`IndexError` 例外が送出されることはありません。 "
+"(他の何らかの例外が送出された場合、例外は :keyword:`in` から送出されたかのようになります)。"
 
 #: ../../reference/expressions.rst:1587
 msgid ""
@@ -1998,6 +2030,9 @@ msgid ""
 "identity is determined using the :meth:`id` function.  ``x is not y`` yields"
 " the inverse truth value. [#]_"
 msgstr ""
+"演算子 :keyword:`is` および :keyword:`is not` は、オブジェクトの同一性に対するテストを行います: ``x is y`` は、 *x* と *y* が同じオブジェクトを指すとき、かつそのときに限り真になります。\n"
+"オブジェクトの同一性は :meth:`id` 関数を使って判定されます。\n"
+"``x is not y`` は :keyword:`is` の真値を反転したものになります。 [#]_"
 
 #: ../../reference/expressions.rst:1614
 msgid "Boolean operations"
@@ -2013,9 +2048,9 @@ msgid ""
 "objects can customize their truth value by providing a :meth:`__bool__` "
 "method."
 msgstr ""
-"ブール演算のコンテキストや、式が制御フロー文中で使われる際には、以下の値: ``False`` 、 ``None`` すべての型における数値の "
-"0、空の文字列、空のコンテナ (文字列、タプル、リスト、辞書、集合、凍結集合など) は偽 (false) であると解釈されます。それ以外の値は真 "
-"(true) であると解釈されます。ユーザ定義のメソッドは、 :meth:`__bool__` メソッドを与えることで、真理値をカスタマイズできます。"
+"ブール演算のコンテキストや、式が制御フローの文で使われる際には、次の値は偽だと解釈されます: ``False`` 、 ``None`` 、すべての型における数値の 0、空の文字列、空のコンテナ (文字列、タプル、リスト、辞書、集合、凍結集合など)。\n"
+"それ以外の値は真だと解釈されます。\n"
+"ユーザ定義のオブジェクトは、 :meth:`__bool__` メソッドを与えることで、真偽値をカスタマイズできます。"
 
 #: ../../reference/expressions.rst:1634
 msgid ""
@@ -2052,6 +2087,9 @@ msgid ""
 " argument (for example, ``not 'foo'`` produces ``False`` rather than "
 "``''``.)"
 msgstr ""
+"なお、 :keyword:`and` も :keyword:`or` も、返す値を ``True`` や ``False`` に制限せず、最後に評価した引数を返します。\n"
+"この仕様が便利なときもあります。例えば ``s`` が文字列で、空文字列ならデフォルトの値に置き換えたいとき、式 ``s or 'foo'`` は望んだ値を与えます。\n"
+":keyword:`not` は必ず新しい値を作成するので、引数の型に関係なくブール値を返します (例えば、 ``not 'foo'`` は ``''`` ではなく ``False`` になります)。"
 
 #: ../../reference/expressions.rst:1659
 msgid "Conditional expressions"
@@ -2087,6 +2125,9 @@ msgid ""
 " a function object.  The unnamed object behaves like a function object "
 "defined with:"
 msgstr ""
+"ラムダ式 (ラムダ形式とも呼ばれます) は無名関数を作成するのに使います。\n"
+"式 ``lambda parameters: expression`` は関数オブジェクトになります。\n"
+"この無名オブジェクトは以下に定義されている関数オブジェクト同様に動作します:"
 
 #: ../../reference/expressions.rst:1707
 msgid ""
@@ -2174,7 +2215,7 @@ msgid ""
 "the :ref:`comparisons` section."
 msgstr ""
 ":ref:`comparisons` "
-"節で述べられているように、比較、帰属、同一性のテストは全てが同じ優先順位を持っていて、左から右に連鎖するという特徴を持っていることに注意してください。"
+"節で述べられているように、比較、所属、同一性のテストは全てが同じ優先順位を持っていて、左から右に連鎖するという特徴を持っていることに注意してください。"
 
 #: ../../reference/expressions.rst:1796
 msgid "Operator"
@@ -2234,7 +2275,7 @@ msgstr ""
 
 #: ../../reference/expressions.rst:1808
 msgid "Comparisons, including membership tests and identity tests"
-msgstr "帰属や同一性のテストを含む比較"
+msgstr "所属や同一性のテストを含む比較"
 
 #: ../../reference/expressions.rst:1812
 msgid "``|``"
