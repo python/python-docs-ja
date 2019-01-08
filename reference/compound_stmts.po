@@ -105,7 +105,7 @@ msgstr "以下の節における文法規則の記述方式は、明確さのた
 
 #: ../../reference/compound_stmts.rst:82
 msgid "The :keyword:`!if` statement"
-msgstr ""
+msgstr ":keyword:`!if` 文"
 
 #: ../../reference/compound_stmts.rst:90
 msgid "The :keyword:`if` statement is used for conditional execution:"
@@ -127,7 +127,7 @@ msgstr ""
 
 #: ../../reference/compound_stmts.rst:107
 msgid "The :keyword:`!while` statement"
-msgstr ""
+msgstr ":keyword:`!while` 文"
 
 #: ../../reference/compound_stmts.rst:115
 msgid ""
@@ -142,6 +142,8 @@ msgid ""
 " the suite of the :keyword:`!else` clause, if present, is executed and the "
 "loop terminates."
 msgstr ""
+":keyword:`while` 文は式を繰り返し真偽評価し、真であれば最初のスイートを実行します。式が偽であれば "
+"(最初から偽になっていることもありえます)、 :keyword:`!else` 節がある場合にはそれを実行し、ループを終了します。"
 
 #: ../../reference/compound_stmts.rst:131
 msgid ""
@@ -150,10 +152,13 @@ msgid ""
 ":keyword:`continue` statement executed in the first suite skips the rest of "
 "the suite and goes back to testing the expression."
 msgstr ""
+"最初のスイート内で :keyword:`break` 文が実行されると、 :keyword:`!else` "
+"節のスイートを実行することなくループを終了します。 :keyword:`continue` "
+"文が最初のスイート内で実行されると、スイート内にある残りの文の実行をスキップして、式の真偽評価に戻ります。"
 
 #: ../../reference/compound_stmts.rst:140
 msgid "The :keyword:`!for` statement"
-msgstr ""
+msgstr ":keyword:`!for` 文"
 
 #: ../../reference/compound_stmts.rst:151
 msgid ""
@@ -175,6 +180,11 @@ msgid ""
 "exception), the suite in the :keyword:`!else` clause, if present, is "
 "executed, and the loop terminates."
 msgstr ""
+"式リストは一度だけ評価されます。その結果はイテラブルオブジェクトにならなければなりません。\n"
+"``expression_list`` の結果対するイテレータが生成されます。\n"
+"その後、イテレータが与えるそれぞれの要素に対して、イテレータから返された順に一度づつ、スイートが実行されます。\n"
+"それぞれの要素は標準の代入規則 (:ref:`assignment` を参照してください) で target_list に代入され、その後、スイートが実行されます。\n"
+"全ての要素を使い切ったとき (シーケンスが空であったり、イテレータが :exc:`StopIteration` 例外を送出したときは、即座に)、 :keyword:`!else` 節があればそれが実行され、ループは終了します。"
 
 #: ../../reference/compound_stmts.rst:171
 msgid ""
@@ -184,6 +194,8 @@ msgid ""
 "the suite and continues with the next item, or with the :keyword:`!else` "
 "clause if there is no next item."
 msgstr ""
+"最初のスイートの中で :keyword:`break` 文が実行されると、 :keyword:`!else` 節のスイートを実行することなくループを終了します。\n"
+":keyword:`continue` 文が最初のスイート内で実行されると、スイート内にある残りの文の実行をスキップして、次の要素の処理に移るか、これ以上次の要素が無い場合は :keyword:`!else` 節の処理に移ります。"
 
 #: ../../reference/compound_stmts.rst:177
 msgid ""
@@ -221,10 +233,18 @@ msgid ""
 " This can lead to nasty bugs that can be avoided by making a temporary copy "
 "using a slice of the whole sequence, e.g., ::"
 msgstr ""
+"ループ中でのシーケンスの変更には微妙な問題があります (これはミュータブルなシーケンスのみ、例えばリストで起こり得ます)。\n"
+"どの要素が次に使われるかを追跡するために、内部的なカウンタが使われており、このカウンタは反復のたびに加算されます。\n"
+"このカウンタがシーケンスの長さに達すると、ループは終了します。\n"
+"このことから、スイートの中でシーケンスから現在の (または以前の) 要素を除去すると、(次の要素の位置が、既に処理済みの現在の要素のインデックスになるために) 次の要素が飛ばされることになります。\n"
+"同様に、スイートの中でシーケンス中の現在の要素以前に要素を挿入すると、現在の要素がループの次の週で再度扱われることになります。\n"
+"こうした仕様は、厄介なバグにつながります。\n"
+"これは、シーケンス全体のスライスを使って一時的なコピーを作ることで避けられます。\n"
+"例えば次のようにします::"
 
 #: ../../reference/compound_stmts.rst:224
 msgid "The :keyword:`!try` statement"
-msgstr ""
+msgstr ":keyword:`!try` 文"
 
 #: ../../reference/compound_stmts.rst:234
 msgid ""
@@ -246,6 +266,13 @@ msgid ""
 "exception if it is the class or a base class of the exception object or a "
 "tuple containing an item compatible with the exception."
 msgstr ""
+":keyword:`except` 節は一つ以上の例外ハンドラを指定します。 :keyword:`try` "
+"節内で例外が起きなければ、どの例外ハンドラも実行されません。 :keyword:`!try` "
+"スイート内で例外が発生すると、例外ハンドラの検索が開始されます。この検索では、 :keyword:`except`  "
+"節を逐次、発生した例外に対応するまで調べます。式を伴わない :keyword:`except` "
+"節を使うなら、最後に書かなければならず、これは全ての例外に対応します。式を伴う :keyword:`except` "
+"節に対しては、その式が評価され、結果のオブジェクトが例外と \"互換である (compatible)\" "
+"場合にその節が対応します。ある例外に対してオブジェクトが互換であるのは、それが例外オブジェクトのクラスかベースクラスの場合、または例外と互換である要素が入ったタプルである場合です。"
 
 #: ../../reference/compound_stmts.rst:258
 msgid ""
