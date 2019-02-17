@@ -1988,6 +1988,9 @@ msgid ""
 ":const:`PyTrace_C_EXCEPTION` or :const:`PyTrace_C_RETURN` as a value for the"
 " *what* parameter."
 msgstr ""
+"トレース関数を *func* に設定します。\n"
+"この関数は :c:func:`PyEval_SetProfile` と同じですが、トレース関数は行番号イベントおよび opcode イベントを受け取り、呼び出された C 関数オブジェクトと関係する任意のイベントを受け取らないところが異なっています。\n"
+":c:func:`PyEval_SetTrace` で登録されたトレース関数は、*what* 引数の値として :const:`PyTrace_C_CALL`, :const:`PyTrace_C_EXCEPTION`, :const:`PyTrace_C_RETURN` を受け取りません。"
 
 #: ../../c-api/init.rst:1372
 msgid "Advanced Debugger Support"
@@ -2039,18 +2042,22 @@ msgid ""
 "use a thread key and functions to associate a :c:type:`void\\*` value per "
 "thread."
 msgstr ""
+"Python インタプリタは、スレッドローカルストレージ (thread-local storage, TLS) の低レベルサポートを提供していて、ネイティブの TLS 実装を内部にラップして Python レベルのスレッドローカルストレージ API (:class:`threading.local`) をサポートしています。\n"
+"CPython の C レベル API は pthreads や Windows で与えられる TLS と同様です: スレッドキーとスレッドごとに :c:type:`void\\*` 値を関係付ける関数を使います。"
 
 #: ../../c-api/init.rst:1417
 msgid ""
 "The GIL does *not* need to be held when calling these functions; they supply"
 " their own locking."
-msgstr ""
+msgstr "API で使われる関数を呼ぶときは、 GIL を取得する必要は *ありません* 。関数自身のロックがサポートされています。"
 
 #: ../../c-api/init.rst:1420
 msgid ""
 "Note that :file:`Python.h` does not include the declaration of the TLS APIs,"
 " you need to include :file:`pythread.h` to use thread-local storage."
 msgstr ""
+":file:`Python.h` は TLS API の宣言を include せず、スレッドローカルストレージを使うには "
+":file:`pythread.h` を include する必要があることに注意してください。"
 
 #: ../../c-api/init.rst:1424
 msgid ""
@@ -2060,10 +2067,13 @@ msgid ""
 ":c:type:`PyObject\\*`, these functions don't do refcount operations on them "
 "either."
 msgstr ""
+"この API 関数はどれも :c:type:`void\\*` 値の代わりにメモリ管理を行うことはしません。\n"
+"メモリの確保と解放は自前で行う必要があります。\n"
+":c:type:`void\\*` 値がたまたま :c:type:`PyObject\\*` だった場合は、 API 関数はそれぞれの値の参照カウントの操作は行いません。"
 
 #: ../../c-api/init.rst:1432
 msgid "Thread Specific Storage (TSS) API"
-msgstr ""
+msgstr "スレッド固有ストレージ (Thread Specific Storage, TSS) API"
 
 #: ../../c-api/init.rst:1434
 msgid ""
@@ -2071,10 +2081,12 @@ msgid ""
 "the CPython interpreter.  This API uses a new type :c:type:`Py_tss_t` "
 "instead of :c:type:`int` to represent thread keys."
 msgstr ""
+"TSS API は、 CPython インタプリタに含まれている既存の TLS API を置き換えるために導入されました。\n"
+"この API は、スレッドキーの表現に :c:type:`int` の代わりに新しい型 :c:type:`Py_tss_t` を使います。"
 
 #: ../../c-api/init.rst:1440
 msgid "\"A New C-API for Thread-Local Storage in CPython\" (:pep:`539`)"
-msgstr ""
+msgstr "\"CPython のスレッドローカルストレージのための新しい C API\" (:pep:`539`)"
 
 #: ../../c-api/init.rst:1445
 msgid ""
@@ -2089,6 +2101,8 @@ msgid ""
 "When :ref:`Py_LIMITED_API <stable>` is not defined, static allocation of "
 "this type by :c:macro:`Py_tss_NEEDS_INIT` is allowed."
 msgstr ""
+":ref:`Py_LIMITED_API <stable>` が定義されていないときは、この型の "
+":c:macro:`Py_tss_NEEDS_INIT` による静的メモリ確保ができます。"
 
 #: ../../c-api/init.rst:1456
 msgid ""
