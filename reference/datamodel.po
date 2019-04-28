@@ -1513,6 +1513,9 @@ msgid ""
 "``sys.exc_info()``, and as the ``__traceback__`` attribute of the caught "
 "exception."
 msgstr ""
+"暗黙的に作成されたトレースバックでは、例外ハンドラの検索が実行スタックを戻っていく際、戻ったレベル毎に、トレースバックオブジェクトが現在のトレースバックの前に挿入されます。\n"
+"例外ハンドラに入ると、スタックトレースをプログラム側で利用できるようになります。(:ref:`try` を参照。)\n"
+"トレースバックは、 ``sys.exc_info()`` が返すタプルの三番目の要素や、捕捉した例外の ``__traceback__`` 属性として得られます。"
 
 #: ../../reference/datamodel.rst:1033
 msgid ""
@@ -1521,6 +1524,8 @@ msgid ""
 "interactive, it is also made available to the user as "
 "``sys.last_traceback``."
 msgstr ""
+"プログラムに適切なハンドラがないとき、スタックトレースは (うまく書式化されて) 標準エラーストリームに書き出されます; "
+"インタプリタが対話的に実行されている場合、 ``sys.last_traceback`` として得ることもできます。"
 
 #: ../../reference/datamodel.rst:1038
 msgid ""
@@ -1528,6 +1533,8 @@ msgid ""
 "to determine how the ``tb_next`` attributes should be linked to form a full "
 "stack trace."
 msgstr ""
+"明示的に作成されたトレースバックでは、 ``tb_next`` "
+"属性がリンクされスタックトレース全体を形成する方法の決定は、トレースバックの作成者に任されます。"
 
 #: ../../reference/datamodel.rst:1048
 msgid ""
@@ -1549,12 +1556,16 @@ msgid ""
 "trace (towards the frame where the exception occurred), or ``None`` if there"
 " is no next level."
 msgstr ""
+"書き込み可能な特殊属性: :attr:`tb_next` はスタックトレースの次のレベル (例外が発生したフレームの方向) "
+"か、あるいは次のレベルが無い場合は ``None`` です。"
 
 #: ../../reference/datamodel.rst:1064
 msgid ""
 "Traceback objects can now be explicitly instantiated from Python code, and "
 "the ``tb_next`` attribute of existing instances can be updated."
 msgstr ""
+"トレースバックオブジェクトは Python コードから明示的にインスタンス化できるようになり、既存のインスタンスの ``tb_next`` "
+"属性は更新できるようになりました。"
 
 #: ../../reference/datamodel.rst:1092
 msgid "Slice objects"
@@ -1823,6 +1834,8 @@ msgid ""
 "may already be taken by the code that gets interrupted to execute "
 ":meth:`__del__`."
 msgstr ""
+":meth:`__del__` は、任意のコードが実行されているときに、任意のスレッドから呼び出せます。\n"
+":meth:`__del__` で、ロックを取ったり、ブロックするリソースを呼び出したりする必要がある場合、 :meth:`__del__` の実行により中断されたコードにより、そのリソースが既に取得されていて、デッドロックが起きるかもしれません。"
 
 #: ../../reference/datamodel.rst:1250
 msgid ""
@@ -1936,6 +1949,8 @@ msgid ""
 "``object.__format__(x, '')`` is now equivalent to ``str(x)`` rather than "
 "``format(str(self), '')``."
 msgstr ""
+"``object.__format__(x, '')`` は ``format(str(self), '')`` ではなく ``str(x)`` "
+"と等価になりました。"
 
 #: ../../reference/datamodel.rst:1349
 msgid ""
@@ -2168,6 +2183,8 @@ msgid ""
 ":exc:`AttributeError`).  This method should either return the (computed) "
 "attribute value or raise an :exc:`AttributeError` exception."
 msgstr ""
+"デフォルトの属性アクセスが :exc:`AttributeError` で失敗したとき (*name* がインスタンスの属性または ``self`` のクラスツリーの属性でないために :meth:`__getattribute__` が :exc:`AttributeError` を送出したか、 *name* プロパティの :meth:`__get__` が :exc:`AttributeError` を送出したとき) に呼び出されます。\n"
+"このメソッドは (計算された) 属性値を返すか、 :exc:`AttributeError` 例外を送出しなければなりません。"
 
 #: ../../reference/datamodel.rst:1497
 msgid ""
@@ -2267,6 +2284,10 @@ msgid ""
 "module ``__dict__`` before raising an :exc:`AttributeError`. If found, it is"
 " called with the attribute name and the result is returned."
 msgstr ""
+"特殊な名前の ``__getattr__`` と ``__dir__`` も、モジュール属性へのアクセスをカスタマイズするのに使えます。\n"
+"モジュールレベルの ``__getattr__`` 関数は属性名である 1 引数を受け取り、計算した値を返すか :exc:`AttributeError` を送出します。\n"
+"属性がモジュールオブジェクトから、通常の検索、つまり :meth:`object.__getattribute__` で見付からなかった場合は、 :exc:`AttributeError` を送出する前に、モジュールの ``__dict__`` から ``__getattr__`` が検索されます。\n"
+"見付かった場合は、その属性名で呼び出され、結果が返されます。"
 
 #: ../../reference/datamodel.rst:1566
 msgid ""
@@ -2274,6 +2295,8 @@ msgid ""
 "strings that represents the names accessible on module. If present, this "
 "function overrides the standard :func:`dir` search on a module."
 msgstr ""
+"``__dir__`` 関数は引数を受け取らず、モジュールのアクセス可能な名前を表す文字列のリストを返さなければなりません。\n"
+"存在する場合は、この関数はモジュールの標準の :func:`dir` 検索を上書きします。"
 
 #: ../../reference/datamodel.rst:1570
 msgid ""
@@ -2336,8 +2359,8 @@ msgid ""
 "*owner*.  This method should return the (computed) attribute value or raise "
 "an :exc:`AttributeError` exception."
 msgstr ""
-"オーナクラスの属性を取得する (クラス属性へのアクセス) 際や、オーナクラスのインスタンスの属性を取得する (インスタンス属性へのアクセス) "
-"場合に呼び出されます。 *owner* は常にオーナクラスです。一方、 *instance* は属性へのアクセスを仲介するインスタンスか属性が "
+"オーナークラスの属性を取得する (クラス属性へのアクセス) 際や、オーナークラスのインスタンスの属性を取得する (インスタンス属性へのアクセス) "
+"場合に呼び出されます。 *owner* は常にオーナークラスです。一方、 *instance* は属性へのアクセスを仲介するインスタンスか属性が "
 "*owner* を介してアクセスされる場合は ``None`` になります。このメソッドは (計算された) 属性値を返すか、 "
 ":exc:`AttributeError` 例外を送出しなければなりません。"
 
@@ -2345,18 +2368,20 @@ msgstr ""
 msgid ""
 "Called to set the attribute on an instance *instance* of the owner class to "
 "a new value, *value*."
-msgstr "オーナクラスのインスタンス *instance* 上の属性を新たな値 *value* に設定する際に呼び出されます。"
+msgstr "オーナークラスのインスタンス *instance* 上の属性を新たな値 *value* に設定する際に呼び出されます。"
 
 #: ../../reference/datamodel.rst:1636
 msgid ""
 "Called to delete the attribute on an instance *instance* of the owner class."
-msgstr "オーナクラスのインスタンス *instance* 上の属性を削除する際に呼び出されます。"
+msgstr "オーナークラスのインスタンス *instance* 上の属性を削除する際に呼び出されます。"
 
 #: ../../reference/datamodel.rst:1641
 msgid ""
 "Called at the time the owning class *owner* is created. The descriptor has "
 "been assigned to *name*."
 msgstr ""
+"オーナーとなるクラス *owner* が作成された時点で呼び出されます。\n"
+"ディスクリプタは *name* に割り当てられます。"
 
 #: ../../reference/datamodel.rst:1647
 msgid ""
@@ -2519,12 +2544,16 @@ msgid ""
 "and deny the creation of *__dict__* and *__weakref__* (unless explicitly "
 "declared in *__slots__* or available in a parent.)"
 msgstr ""
+"*__slots__* を使うと、(プロパティのように) データメンバを明示的に宣言し、 (明示的に *__slots__* "
+"で宣言しているか親クラスに存在しているかでない限り) *__dict__* や *__weakref__* を作成しないようにできます。"
 
 #: ../../reference/datamodel.rst:1727
 msgid ""
 "The space saved over using *__dict__* can be significant. Attribute lookup "
 "speed can be significantly improved as well."
 msgstr ""
+"*__dict__* を使うのに比べて、節約できるメモリ空間はかなり大きいです。\n"
+"属性探索のスピードもかなり向上できます。"
 
 #: ../../reference/datamodel.rst:1732
 msgid ""
@@ -2546,6 +2575,8 @@ msgid ""
 "When inheriting from a class without *__slots__*, the *__dict__* and "
 "*__weakref__* attribute of the instances will always be accessible."
 msgstr ""
+"*__slots__* を持たないクラスから継承するとき、インスタンスの *__dict__* 属性と *__weakref__* "
+"属性は常に利用可能です。"
 
 #: ../../reference/datamodel.rst:1744
 msgid ""
@@ -2591,6 +2622,9 @@ msgid ""
 "unless they also define *__slots__* (which should only contain names of any "
 "*additional* slots)."
 msgstr ""
+"*__slots__* の宣言の作用は、それが定義されたクラスだけには留まりません。\n"
+"親クラスで宣言された *__slots__* は子クラスでも利用可能です。\n"
+"ただし、子クラスは、自身も *__slots__* (ここには *追加の* スロットの名前のみ含めるべき) を定義しない限り*__dict__* や *__weakref__* を持ちます。"
 
 #: ../../reference/datamodel.rst:1767
 msgid ""
