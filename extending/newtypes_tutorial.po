@@ -7,8 +7,8 @@
 # Arihiro TAKASE, 2018
 # Nozomu Kaneko <nozom.kaneko@gmail.com>, 2018
 # 秘湯 <xwhhsprings@gmail.com>, 2018
-# Osamu NAKAMURA, 2018
 # tomo, 2018
+# Osamu NAKAMURA, 2019
 # 
 #, fuzzy
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-04-23 11:14+0900\n"
 "PO-Revision-Date: 2018-04-08 04:04+0000\n"
-"Last-Translator: tomo, 2018\n"
+"Last-Translator: Osamu NAKAMURA, 2019\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -311,6 +311,8 @@ msgid ""
 "to that directory and fire up Python --- you should be able to ``import "
 "custom`` and play around with Custom objects."
 msgstr ""
+"すると :file:`custom.so` ファイルがサブディレクトリに生成されます。そのディレクトリに移動して、Pythonを起動します -- これで"
+" ``import custom`` して、Custom オブジェクトで遊べるようになっているはずです。"
 
 #: ../../extending/newtypes_tutorial.rst:211
 msgid "That wasn't so hard, was it?"
@@ -321,6 +323,7 @@ msgid ""
 "Of course, the current Custom type is pretty uninteresting. It has no data "
 "and doesn't do anything. It can't even be subclassed."
 msgstr ""
+"もちろん、現在の Custom 型は面白みに欠けています。何もデータを持っていないし、何もできません。継承してサブクラスを作ることさえできないのです。"
 
 #: ../../extending/newtypes_tutorial.rst:217
 msgid ""
@@ -331,6 +334,11 @@ msgid ""
 "Packaging User's Guide <https://packaging.python.org/tutorials/distributing-"
 "packages/>`_."
 msgstr ""
+"この文書では、標準の :mod:`distutils` モジュールを使って C "
+"拡張をビルドしていますが、現実のユースケースでは、より新しく、保守されている ``setuptools`` "
+"ライブラリを利用することを推奨します。これを行う方法を文書化することはこのドキュメントの範囲外ですので、 `Python Packaging "
+"User's Guide <https://packaging.python.org/tutorials/distributing-"
+"packages/>`_ を参照してください。"
 
 #: ../../extending/newtypes_tutorial.rst:225
 msgid "Adding data and methods to the Basic example"
@@ -342,6 +350,8 @@ msgid ""
 "make the type usable as a base class. We'll create a new module, "
 ":mod:`custom2` that adds these capabilities:"
 msgstr ""
+"この基本のサンプルにデータとメソッドを追加してみましょう。ついでに、この型を基底クラスとしても利用できるようにします。ここでは新しいモジュール "
+":mod:`custom2` をつくり、これらの機能を追加します:"
 
 #: ../../extending/newtypes_tutorial.rst:234
 msgid "This version of the module has a number of changes."
@@ -364,6 +374,9 @@ msgid ""
 "strings containing first and last names.  The *number* attribute is a C "
 "integer."
 msgstr ""
+":class:`Custom` 型は そのC構造体に 3つのデータ属性 *first* 、 *last* 、および *number* "
+"をもつようになりました。 *first* と *last* 属性はファーストネームとラストネームを格納した Python 文字列で、 *number* "
+"属性は C言語での整数の値です。"
 
 #: ../../extending/newtypes_tutorial.rst:247
 msgid "The object structure is updated accordingly::"
@@ -390,6 +403,11 @@ msgid ""
 " might not be :class:`CustomType`, because the object may be an instance of "
 "a subclass."
 msgstr ""
+"このメソッドは、まず二つのPython 属性の参照カウントをクリアします。 :c:func:`Py_XDECREF` は引数が *NULL* "
+"のケースを正しく扱えます( これは、``tp_new`` が途中で失敗した場合に起こりえます)。つぎにオブジェクトの型 "
+"(``Py_TYPE(self)`` で算出します)のメンバ :c:member:`~PyTypeObject.tp_free` "
+"を呼び出し、オブジェクトのメモリを開放します。オブジェクトはサブクラスのインスタンスかもしれず、その場合オブジェクトの型が "
+":class:`CustomType` とは限らない点に注意してください。"
 
 #: ../../extending/newtypes_tutorial.rst:280
 msgid ""
@@ -404,7 +422,7 @@ msgstr ""
 msgid ""
 "We want to make sure that the first and last names are initialized to empty "
 "strings, so we provide a ``tp_new`` implementation::"
-msgstr ""
+msgstr "ファーストネームとラストネームを空文字列に初期化しておきたいので、``tp_new`` の実装を追加することにしましょう::"
 
 #: ../../extending/newtypes_tutorial.rst:310
 msgid "and install it in the :c:member:`~PyTypeObject.tp_new` member::"
@@ -435,19 +453,22 @@ msgstr ""
 msgid ""
 "``tp_new`` shouldn't call ``tp_init`` explicitly, as the interpreter will do"
 " it itself."
-msgstr ""
+msgstr "``tp_new`` は明示的に ``tp_init`` を呼び出してはいけません、これはインタープリタが自分で行うためです。"
 
 #: ../../extending/newtypes_tutorial.rst:333
 msgid ""
 "The ``tp_new`` implementation calls the :c:member:`~PyTypeObject.tp_alloc` "
 "slot to allocate memory::"
 msgstr ""
+"この ``tp_new`` の実装は、:c:member:`~PyTypeObject.tp_alloc` スロットを呼び出してメモリを割り当てます::"
 
 #: ../../extending/newtypes_tutorial.rst:338
 msgid ""
 "Since memory allocation may fail, we must check the "
 ":c:member:`~PyTypeObject.tp_alloc` result against *NULL* before proceeding."
 msgstr ""
+"メモリ割り当ては失敗するかもしれないので、先に進む前に :c:member:`~PyTypeObject.tp_alloc` "
+"の結果がNULLでないかチェックしなければなりません。"
 
 #: ../../extending/newtypes_tutorial.rst:342
 msgid ""
@@ -525,7 +546,7 @@ msgstr ""
 
 #: ../../extending/newtypes_tutorial.rst:421
 msgid "when we absolutely know that the reference count is greater than 1;"
-msgstr ""
+msgstr "その参照カウントが 1 より大きいと確信できる場合"
 
 #: ../../extending/newtypes_tutorial.rst:423
 msgid ""
@@ -579,6 +600,8 @@ msgid ""
 "We define a single method, :meth:`Custom.name()`, that outputs the objects "
 "name as the concatenation of the first and last names. ::"
 msgstr ""
+"ここでは :meth:`Custom.name()` と呼ばれるメソッドを定義しましょう。これはファーストネーム first とラストネーム last "
+"を連結した文字列をそのオブジェクトの名前として返します。 ::"
 
 #: ../../extending/newtypes_tutorial.rst:474
 msgid ""
@@ -589,6 +612,9 @@ msgid ""
 " to accept a positional argument tuple or keyword argument dictionary. This "
 "method is equivalent to the Python method:"
 msgstr ""
+"このメソッドは C 関数として実装され、 :class:`Custom` (あるいは   :class:`Custom` のサブクラス) "
+"のインスタンスを第一引数として受けとります。メソッドはつねにそのインスタンスを最初の引数として受けとらなければなりません。しばしば位置引数とキーワード引数も受けとりますが、今回はなにも必要ないので、固定引数のタプルもキーワード引数の辞書も取らないことにします。このメソッドは"
+" Python の以下のメソッドと等価です:"
 
 #: ../../extending/newtypes_tutorial.rst:486
 msgid ""
