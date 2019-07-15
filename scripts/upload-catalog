@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# clone an additional repository
+cd "${BASEDIR}"
+git clone --depth 50 --branch ${CATALOG_BRANCH} https://github.com/python-doc-ja/cpython-doc-catalog.git cpython-doc-catalog
+mkdir -p "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
+cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
+ln -s "${BASEDIR}"/python-docs-ja LC_MESSAGES
+ls -lF LC_MESSAGES
+
+# upload catalogs to python-docs-ja
+cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales
+tx pull --force --language ja
+cd ja/LC_MESSAGES
+git add *.po **/*.po
+git status
+if [ $(git status --short | wc -l) -eq 0 ]; then
+  echo "no .po file to upload"
+else
+  echo "I have .po file(s) to upload"
+  git commit --message="[skip ci] Update .po files"
+  git push --quiet "git@python-docs-ja.github.com:python/python-docs-ja.git" ${DOCS_BRANCH}:${DOCS_BRANCH}
+fi
+rm -rf "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja

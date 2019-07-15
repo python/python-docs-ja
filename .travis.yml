@@ -1,6 +1,6 @@
-dist: trusty
+dist: xenial
 language: python
-python: '3.6'
+python: '3.7'
 branches:
   only:
   - 3.7
@@ -14,61 +14,17 @@ env:
     - CATALOG_BRANCH=catalog-3.7
     # Transifex project name
     - TRANSIFEX_PROJECT=python-newest
+    # Directory where repositories are cloned
+    - BASEDIR="$(dirname ${TRAVIS_BUILD_DIR})"
 before_install:
-- export TZ=Asia/Tokyo
-- git checkout ${DOCS_BRANCH}
-- cd ..
-- pwd
-- ls -la
-- BASEDIR="$(pwd)"
-- cd ~
-- openssl aes-256-cbc -K ${encryption_37_K} -iv ${encryption_37_iv} -in "${BASEDIR}/python-docs-ja/secrets_${DOCS_BRANCH}.tar.enc" -out ~/secrets_${DOCS_BRANCH}.tar -d
-- tar xvf ~/secrets_${DOCS_BRANCH}.tar
-- rm ~/secrets_${DOCS_BRANCH}.tar
-- chmod 600 ~/.ssh/python-docs-ja_${DOCS_BRANCH}
-- chmod 600 ~/.ssh/cpython-doc-catalog_${CATALOG_BRANCH}
-# Hack from: https://gist.github.com/jamesmcfadden/d379e04e7ae2861414886af189ec59e5
-- echo -e "Host python-docs-ja.github.com\n\tHostName github.com\n\tIdentityFile ~/.ssh/python-docs-ja_${DOCS_BRANCH}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-- echo -e "Host cpython-doc-catalog.github.com\n\tHostName github.com\n\tIdentityFile ~/.ssh/cpython-doc-catalog_${CATALOG_BRANCH}\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-- cat ~/.ssh/config
-- git config --global user.email "travisci-build-bot@example.com"
-- git config --global user.name "Autobuild bot on TravisCI"
+- bash ./scripts/before_install_3.7
 install:
 - pip install sphinx
 - pip install blurb
 - pip install transifex-client
 - pip install sphinx-intl
-- cd "${BASEDIR}"
-- git clone --depth 50 --branch ${CATALOG_BRANCH} https://github.com/python-doc-ja/cpython-doc-catalog.git cpython-doc-catalog
-- mkdir -p "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
-- cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
-- ln -s "${BASEDIR}"/python-docs-ja LC_MESSAGES
-- ls -lF LC_MESSAGES
 script:
 # upload-catalog
-- cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales
-- tx pull --force --language ja
-- cd ja/LC_MESSAGES
-- git add *.po **/*.po
-- git status
-- if [ $(git status --short | wc -l) -eq 0 ]; then echo "no .po file to upload"; else echo "I have .po file(s) to upload"; git commit --message="[skip ci] Update .po files"; git push --quiet "git@python-docs-ja.github.com:python/python-docs-ja.git" ${DOCS_BRANCH}:${DOCS_BRANCH}; fi
-- rm -rf "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
+- bash ./scripts/upload-catalog
 # renew-catalog-template
-- cd "${BASEDIR}"/cpython-doc-catalog
-- git remote add upstream https://github.com/python/cpython.git
-- git remote -v
-- git fetch --quiet upstream
-- git merge --no-ff upstream/${CPYTHON_BRANCH} -m "Merge remote-tracking branch 'upstream/${CPYTHON_BRANCH}' into ${CATALOG_BRANCH} by Autobuild bot on TravisCI"
-- cd Doc
-- make build ALLSPHINXOPTS="-E -b gettext -D gettext_compact=0 -d build/.doctrees . locales/pot"
-- ls -lt locales/pot
-- cd locales
-- git add pot
-- if [ $(git status -s | wc -l) -eq 0 ]; then echo "no .pot file to update"; exit 0; else echo "I have .pot file(s) to upload"; fi
-- rm -rf .tx
-- sphinx-intl create-txconfig
-- sphinx-intl update-txconfig-resources --transifex-project-name=${TRANSIFEX_PROJECT} --locale-dir . --pot-dir pot
-- tx push -s
-- git add .tx
-- git commit --message="[skip ci] Update .pot files and .tx/config"
-- git push --quiet "git@cpython-doc-catalog.github.com:python-doc-ja/cpython-doc-catalog.git" ${CATALOG_BRANCH}:${CATALOG_BRANCH}
+- bash ./scripts/renew-catalog-template
