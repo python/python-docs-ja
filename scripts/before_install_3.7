@@ -1,0 +1,31 @@
+#!/bin/bash
+set -eux
+
+ls -la ${BASEDIR}
+git config --global user.email "travisci-build-bot@example.com"
+git config --global user.name "Autobuild bot on TravisCI"
+git checkout ${DOCS_BRANCH}
+
+# extract secrets
+cd ~
+openssl aes-256-cbc -K ${encryption_37_K} -iv ${encryption_37_iv} -in "${BASEDIR}/python-docs-ja/secrets_${DOCS_BRANCH}.tar.enc" -out ~/secrets_${DOCS_BRANCH}.tar -d
+tar xvf ~/secrets_${DOCS_BRANCH}.tar
+rm ~/secrets_${DOCS_BRANCH}.tar
+chmod 600 ~/.ssh/python-docs-ja_${DOCS_BRANCH}
+chmod 600 ~/.ssh/cpython-doc-catalog_${CATALOG_BRANCH}
+
+# enable using plural deploy keys for repositories
+# Hack from: https://gist.github.com/jamesmcfadden/d379e04e7ae2861414886af189ec59e5
+cat <<EOF >> ~/.ssh/config
+Host python-docs-ja.github.com
+  HostName github.com
+  IdentityFile ~/.ssh/python-docs-ja_${DOCS_BRANCH}
+  StrictHostKeyChecking no
+
+Host cpython-doc-catalog.github.com
+  HostName github.com
+  IdentityFile ~/.ssh/cpython-doc-catalog_${CATALOG_BRANCH}
+  StrictHostKeyChecking no
+EOF
+
+cat ~/.ssh/config
