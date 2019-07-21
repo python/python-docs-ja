@@ -16,15 +16,16 @@ env:
     - TRANSIFEX_PROJECT=python-newest
     # Directory where repositories are cloned
     - BASEDIR="$(dirname ${TRAVIS_BUILD_DIR})"
-before_install:
-- bash ${TRAVIS_BUILD_DIR}/scripts/before_install_3.7
+    # Number of parent commits
+    - NUM_PARENTS=$(git log --pretty=%P -n 1 HEAD | awk '{ print NF }')
 install:
-- pip install sphinx
-- pip install blurb
-- pip install transifex-client
-- pip install sphinx-intl
+  - pip install sphinx
+  - pip install blurb
+  - pip install transifex-client
+  - pip install sphinx-intl
+before_script:
+  - build_type=$(bash ${TRAVIS_BUILD_DIR}/scripts/determine-build-type)
 script:
-# upload-catalog
-- bash ${TRAVIS_BUILD_DIR}/scripts/upload-catalog
-# renew-catalog-template
-- bash ${TRAVIS_BUILD_DIR}/scripts/renew-catalog-template
+  - bash ${TRAVIS_BUILD_DIR}/scripts/${build_type}/prepare-build_3.7
+  - bash ${TRAVIS_BUILD_DIR}/scripts/${build_type}/upload-catalog
+  - bash ${TRAVIS_BUILD_DIR}/scripts/${build_type}/renew-catalog-template
