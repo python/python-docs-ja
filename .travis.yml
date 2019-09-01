@@ -1,0 +1,30 @@
+dist: xenial
+language: python
+python: '3.7'
+branches:
+  only:
+  - 3.7
+env:
+  global:
+    # branch name of python-docs-ja repository
+    - DOCS_BRANCH=3.7
+    # branch name of cpython repository
+    - CPYTHON_BRANCH=3.7
+    # branch name of cpython-doc-catalog repository
+    - CATALOG_BRANCH=catalog-3.7
+    # Transifex project name
+    - TRANSIFEX_PROJECT=python-37
+    # Directory where repositories are cloned
+    - BASEDIR="$(dirname ${TRAVIS_BUILD_DIR})"
+    # Number of parent commits
+    - NUM_PARENTS=$(git log --pretty=%P -n 1 HEAD | awk '{ print NF }')
+install:
+  - pip install sphinx
+  - pip install blurb
+  - pip install transifex-client
+  - pip install sphinx-intl
+before_script:
+  - build_type=$(bash ${TRAVIS_BUILD_DIR}/scripts/determine-build-type)
+  - export build_type
+script:
+  - bash ${TRAVIS_BUILD_DIR}/scripts/${build_type}/main.sh
