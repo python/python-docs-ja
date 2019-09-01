@@ -1,0 +1,1006 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2001-2019, Python Software Foundation
+# This file is distributed under the same license as the Python package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Arihiro TAKASE, 2018
+# Nozomu Kaneko <nozom.kaneko@gmail.com>, 2018
+# 秘湯 <xwhhsprings@gmail.com>, 2018
+# Osamu NAKAMURA, 2019
+# tomo, 2019
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Python 3.8\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-09-01 14:24+0000\n"
+"PO-Revision-Date: 2018-04-08 04:04+0000\n"
+"Last-Translator: tomo, 2019\n"
+"Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../../extending/newtypes_tutorial.rst:7
+msgid "Defining Extension Types: Tutorial"
+msgstr "拡張の型の定義: チュートリアル"
+
+#: ../../extending/newtypes_tutorial.rst:14
+msgid ""
+"Python allows the writer of a C extension module to define new types that "
+"can be manipulated from Python code, much like the built-in :class:`str` and"
+" :class:`list` types.  The code for all extension types follows a pattern, "
+"but there are some details that you need to understand before you can get "
+"started.  This document is a gentle introduction to the topic."
+msgstr ""
+"Python では、組み込みの :class:`str` 型や :class:`list` 型のような Python コードから走査できる新しい型を C 拡張モジュールの作者が定義できます。\n"
+"全ての拡張の型のコードはあるパターンに従うのですが、書き始める前に理解しておくべき細かいことがあります。\n"
+"このドキュメントはその話題についてのやさしい入門です。"
+
+#: ../../extending/newtypes_tutorial.rst:24
+msgid "The Basics"
+msgstr "基本的なこと"
+
+#: ../../extending/newtypes_tutorial.rst:26
+msgid ""
+"The :term:`CPython` runtime sees all Python objects as variables of type "
+":c:type:`PyObject\\*`, which serves as a \"base type\" for all Python "
+"objects. The :c:type:`PyObject` structure itself only contains the object's "
+":term:`reference count` and a pointer to the object's \"type object\". This "
+"is where the action is; the type object determines which (C) functions get "
+"called by the interpreter when, for instance, an attribute gets looked up on"
+" an object, a method called, or it is multiplied by another object.  These C"
+" functions are called \"type methods\"."
+msgstr ""
+":term:`CPython` ランタイムは Python の全てのオブジェクトを :c:type:`PyObject\\*` 型の変数と見なします。\n"
+":c:type:`PyObject\\*` は Python の全てのオブジェクトの \"基底型 (base type)\" となっています。\n"
+":c:type:`PyObject` 構造体自身は :term:`参照カウント <reference count>` と、オブジェクトの \"型オブジェクト (type object)\" へのポインタのみを持ちます。\n"
+"ここには動作が定義されています; 型オブジェクトは、例えば、ある属性があるオブジェクトから検索されたり、メソッドが呼ばれたり、他のオブジェクトによって操作されたりしたときに、どの (C) 関数がインタプリタから呼ばれるのかを決定します。\n"
+"これらの C 関数は \"タイプメソッド (type method)\" と呼ばれます。"
+
+#: ../../extending/newtypes_tutorial.rst:35
+msgid ""
+"So, if you want to define a new extension type, you need to create a new "
+"type object."
+msgstr "それなので、新しい拡張の型を定義したいときは、新しい型オブジェクトを作成すればよいわけです。"
+
+#: ../../extending/newtypes_tutorial.rst:38
+msgid ""
+"This sort of thing can only be explained by example, so here's a minimal, "
+"but complete, module that defines a new type named :class:`Custom` inside a "
+"C extension module :mod:`custom`:"
+msgstr ""
+"この手のことは例を見たほうが早いでしょうから、以下に C 拡張モジュール :mod:`custom` にある :class:`Custom` "
+"という名前の新しい型を定義する、最小限ながら完全なモジュールをあげておきます:"
+
+#: ../../extending/newtypes_tutorial.rst:43
+msgid ""
+"What we're showing here is the traditional way of defining *static* "
+"extension types.  It should be adequate for most uses.  The C API also "
+"allows defining heap-allocated extension types using the "
+":c:func:`PyType_FromSpec` function, which isn't covered in this tutorial."
+msgstr ""
+"ここで紹介している例は、 *静的な* 拡張の型を定義する伝統的な実装方法です。\n"
+"これはほとんどの場面で十分なものなのです。\n"
+"C API では、 :c:func:`PyType_FromSpec` 関数を使い、ヒープ上に配置された拡張の型も定義できますが、これについてはこのチュートリアルでは扱いません。"
+
+#: ../../extending/newtypes_tutorial.rst:50
+msgid ""
+"Now that's quite a bit to take in at once, but hopefully bits will seem "
+"familiar from the previous chapter.  This file defines three things:"
+msgstr ""
+"一度に把握するにはちょっと量が多いですが、前の章よりはとっつきやすくなっていることと重います。このファイルでは、3つの要素が定義されています:"
+
+#: ../../extending/newtypes_tutorial.rst:53
+msgid ""
+"What a :class:`Custom` **object** contains: this is the ``CustomObject`` "
+"struct, which is allocated once for each :class:`Custom` instance."
+msgstr ""
+":class:`Custom` **オブジェクト** が何を含んでいるか: これが ``CustomObject`` 構造体で、 "
+":class:`Custom` インスタンスごとに1回だけメモリ確保が行われます。"
+
+#: ../../extending/newtypes_tutorial.rst:55
+msgid ""
+"How the :class:`Custom` **type** behaves: this is the ``CustomType`` struct,"
+" which defines a set of flags and function pointers that the interpreter "
+"inspects when specific operations are requested."
+msgstr ""
+":class:`Custom` **型** がどのように振る舞うか: これが ``CustomType`` "
+"構造体で、フラグと関数ポインタの集まりを定義しています。特定の操作が要求されたときに、この関数ポインタをインタプリタが見に行きます。"
+
+#: ../../extending/newtypes_tutorial.rst:58
+msgid ""
+"How to initialize the :mod:`custom` module: this is the ``PyInit_custom`` "
+"function and the associated ``custommodule`` struct."
+msgstr ""
+":mod:`custom` モジュールをどう初期化するか: これが ``PyInit_custom`` 関数とそれに関係する "
+"``custommodule`` 構造体です。"
+
+#: ../../extending/newtypes_tutorial.rst:61
+msgid "The first bit is::"
+msgstr "まず最初はこれです::"
+
+#: ../../extending/newtypes_tutorial.rst:67
+msgid ""
+"This is what a Custom object will contain.  ``PyObject_HEAD`` is mandatory "
+"at the start of each object struct and defines a field called ``ob_base`` of"
+" type :c:type:`PyObject`, containing a pointer to a type object and a "
+"reference count (these can be accessed using the macros :c:macro:`Py_REFCNT`"
+" and :c:macro:`Py_TYPE` respectively).  The reason for the macro is to "
+"abstract away the layout and to enable additional fields in debug builds."
+msgstr ""
+"これが Custom オブジェクトの内容です。\n"
+"``PyObject_HEAD`` はそれぞれのオブジェクト構造体の先頭に必須なもので、 :c:type:`PyObject` 型の ``ob_base`` という名前のフィールドを定義します。 :c:type:`PyObject` 型には (それぞれ :c:macro:`Py_REFCNT` マクロおよび :c:macro:`Py_TYPE` マクロからアクセスできる) 型オブジェクトへのポインタと参照カウントが格納されています。\n"
+"このマクロが用意されている理由は、構造体のレイアウトを抽象化し、デバッグビルドでフィールドを追加できるようにするためです。"
+
+#: ../../extending/newtypes_tutorial.rst:75
+msgid ""
+"There is no semicolon above after the :c:macro:`PyObject_HEAD` macro. Be "
+"wary of adding one by accident: some compilers will complain."
+msgstr ""
+"上の例では :c:macro:`PyObject_HEAD` マクロの後にセミコロンはありません。\n"
+"うっかりセミコロンを追加しないように気を付けてください: これを警告するコンパイラもあります。"
+
+#: ../../extending/newtypes_tutorial.rst:78
+msgid ""
+"Of course, objects generally store additional data besides the standard "
+"``PyObject_HEAD`` boilerplate; for example, here is the definition for "
+"standard Python floats::"
+msgstr ""
+"もちろん、一般的にはオブジェクトは標準的な ``PyObject_HEAD`` ボイラープレートの他にもデータを保持しています; 例えば、これは "
+"Python 標準の浮動小数点数の定義です::"
+
+#: ../../extending/newtypes_tutorial.rst:87
+msgid "The second bit is the definition of the type object. ::"
+msgstr "2つ目は型オブジェクトの定義です。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:100
+msgid ""
+"We recommend using C99-style designated initializers as above, to avoid "
+"listing all the :c:type:`PyTypeObject` fields that you don't care about and "
+"also to avoid caring about the fields' declaration order."
+msgstr ""
+"上にあるように C99 スタイルの指示付き初期化子を使って、 :c:type:`PyTypeObject` "
+"の特に関心の無いフィールドまで全て並べたり、フィールドを宣言する順序に気を使ったりせずに済ませるのをお薦めします。"
+
+#: ../../extending/newtypes_tutorial.rst:104
+msgid ""
+"The actual definition of :c:type:`PyTypeObject` in :file:`object.h` has many"
+" more :ref:`fields <type-structs>` than the definition above.  The remaining"
+" fields will be filled with zeros by the C compiler, and it's common "
+"practice to not specify them explicitly unless you need them."
+msgstr ""
+":file:`object.h` にある実際の :c:type:`PyTypeObject` の定義には上の定義にあるよりももっと多くの :ref:`フィールド <type-structs>` があります。\n"
+"ここに出てきていないフィールドは C コンパイラによってゼロで埋められるので、必要でない限り明示的には値の指定をしないのが一般的な作法になっています。"
+
+#: ../../extending/newtypes_tutorial.rst:109
+msgid "We're going to pick it apart, one field at a time::"
+msgstr "一度に1つずつフィールドを取り上げていきましょう::"
+
+#: ../../extending/newtypes_tutorial.rst:113
+msgid ""
+"This line is mandatory boilerplate to initialize the ``ob_base`` field "
+"mentioned above. ::"
+msgstr "この行は、上で触れた ``ob_base`` フィールドの初期化に必須のボイラープレートです。"
+
+#: ../../extending/newtypes_tutorial.rst:118
+msgid ""
+"The name of our type.  This will appear in the default textual "
+"representation of our objects and in some error messages, for example:"
+msgstr ""
+"実装している型の名前です。\n"
+"これは、オブジェクトのデフォルトの文字列表現やエラーメッセージに現れます。例えば次の通りです:"
+
+#: ../../extending/newtypes_tutorial.rst:128
+msgid ""
+"Note that the name is a dotted name that includes both the module name and "
+"the name of the type within the module. The module in this case is "
+":mod:`custom` and the type is :class:`Custom`, so we set the type name to "
+":class:`custom.Custom`. Using the real dotted import path is important to "
+"make your type compatible with the :mod:`pydoc` and :mod:`pickle` modules. "
+"::"
+msgstr ""
+"型の名前が、モジュール名とモジュールにおける型の名前の両方をドットでつないだ名前になっていることに注意してください。\n"
+"この場合は、モジュールは :mod:`custom` で型は :class:`Custom` なので、型の名前を :class:`custom.Custom` に設定しました。\n"
+"実際のドット付きのインポートパスを使うのは、 :mod:`pydoc` モジュールや :mod:`pickle` モジュールと互換性を持たせるために重要なのです。"
+
+#: ../../extending/newtypes_tutorial.rst:137
+msgid ""
+"This is so that Python knows how much memory to allocate when creating new "
+":class:`Custom` instances.  :c:member:`~PyTypeObject.tp_itemsize` is only "
+"used for variable-sized objects and should otherwise be zero."
+msgstr ""
+":c:member:`~PyTypeObject.tp_basicsize` は、新しい :class:`Custom` インスタンスを作るとき Python が割り当てるべきメモリがどのくらいなのかを知るためのものです。\n"
+":c:member:`~PyTypeObject.tp_itemsize` は可変サイズのオブジェクトでのみ使うものなので、サイズが可変でないオブジェクトでは 0 にすべきです。"
+
+#: ../../extending/newtypes_tutorial.rst:143
+msgid ""
+"If you want your type to be subclassable from Python, and your type has the "
+"same :c:member:`~PyTypeObject.tp_basicsize` as its base type, you may have "
+"problems with multiple inheritance.  A Python subclass of your type will "
+"have to list your type first in its :attr:`~class.__bases__`, or else it "
+"will not be able to call your type's :meth:`__new__` method without getting "
+"an error.  You can avoid this problem by ensuring that your type has a "
+"larger value for :c:member:`~PyTypeObject.tp_basicsize` than its base type "
+"does.  Most of the time, this will be true anyway, because either your base "
+"type will be :class:`object`, or else you will be adding data members to "
+"your base type, and therefore increasing its size."
+msgstr ""
+"あなたのタイプを Python でサブクラス化可能にしたい場合、そのタイプが基底タイプと同じ "
+":c:member:`~PyTypeObject.tp_basicsize` をもっていると多重継承のときに問題が生じることがあります。そのタイプを "
+"Python のサブクラスにしたとき、その :attr:`~class.__bases__` "
+"リストにはあなたのタイプが最初にくるようにしなければなりません。さもないとエラーの発生なしにあなたのタイプの :meth:`__new__` "
+"メソッドを呼び出すことはできなくなります。この問題を回避するには、つねにあなたのタイプの "
+":c:member:`~PyTypeObject.tp_basicsize` "
+"をその基底タイプよりも大きくしておくことです。ほとんどの場合、あなたのタイプは :class:`object` "
+"か、そうでなければ基底タイプにデータ用のメンバを追加したものでしょうから、したがって大きさはつねに増加するためこの条件は満たされています。"
+
+#: ../../extending/newtypes_tutorial.rst:153
+msgid "We set the class flags to :const:`Py_TPFLAGS_DEFAULT`. ::"
+msgstr ":const:`Py_TPFLAGS_DEFAULT` にクラスフラグを設定します。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:157
+msgid ""
+"All types should include this constant in their flags.  It enables all of "
+"the members defined until at least Python 3.3.  If you need further members,"
+" you will need to OR the corresponding flags."
+msgstr ""
+"すべての型はフラグにこの定数を含めておく必要があります。これは最低でも Python 3.3 "
+"までに定義されているすべてのメンバを許可します。それ以上のメンバが必要なら、対応するフラグの OR をとる必要があります。"
+
+#: ../../extending/newtypes_tutorial.rst:161
+msgid ""
+"We provide a doc string for the type in :c:member:`~PyTypeObject.tp_doc`. ::"
+msgstr "この型の docstring は :c:member:`~PyTypeObject.tp_doc` に入れます。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:165
+msgid ""
+"To enable object creation, we have to provide a "
+":c:member:`~PyTypeObject.tp_new` handler.  This is the equivalent of the "
+"Python method :meth:`__new__`, but has to be specified explicitly.  In this "
+"case, we can just use the default implementation provided by the API "
+"function :c:func:`PyType_GenericNew`. ::"
+msgstr ""
+"オブジェクトが生成できるように、 :c:member:`~PyTypeObject.tp_new` ハンドラを提供する必要があります。\n"
+"これは Python のメソッド :meth:`__new__` と同等のものですが、明示的に与える必要があります。\n"
+"今の場合では、 API 関数の :c:func:`PyType_GenericNew` として提供されるデフォルトをそのまま使えます。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:172
+msgid ""
+"Everything else in the file should be familiar, except for some code in "
+":c:func:`PyInit_custom`::"
+msgstr ""
+"ファイルの残りの部分はきっと馴染みやすいものだと思いますが、 :c:func:`PyInit_custom` の一部のコードはそうではないでしょう::"
+
+#: ../../extending/newtypes_tutorial.rst:178
+msgid ""
+"This initializes the :class:`Custom` type, filling in a number of members to"
+" the appropriate default values, including :attr:`ob_type` that we initially"
+" set to *NULL*. ::"
+msgstr ""
+"これは、 *NULL* に初期化された :attr:`ob_type` も含めて、いくつかのメンバーを適切なデフォルト値で埋めて、 "
+":class:`Custom` 型を初期化します。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:184
+msgid ""
+"This adds the type to the module dictionary.  This allows us to create "
+":class:`Custom` instances by calling the :class:`Custom` class:"
+msgstr ""
+"これは型をモジュールの辞書に追加します。\n"
+"こうすることで :class:`Custom` クラスの呼び出しで :class:`Custom` インスタンスが作成できるようになります:"
+
+#: ../../extending/newtypes_tutorial.rst:192
+msgid ""
+"That's it!  All that remains is to build it; put the above code in a file "
+"called :file:`custom.c` and:"
+msgstr ""
+"以上です!\n"
+"残りの作業はビルドだけです; :file:`custom.c` という名前のファイルにここまでのコードを書き込み、次の内容を持つ setup.py を用意します:"
+
+#: ../../extending/newtypes_tutorial.rst:201
+msgid "in a file called :file:`setup.py`; then typing"
+msgstr "そして、シェルから以下のように入力します"
+
+#: ../../extending/newtypes_tutorial.rst:207
+msgid ""
+"at a shell should produce a file :file:`custom.so` in a subdirectory; move "
+"to that directory and fire up Python --- you should be able to ``import "
+"custom`` and play around with Custom objects."
+msgstr ""
+"すると :file:`custom.so` ファイルがサブディレクトリに生成されます。そのディレクトリに移動して、Pythonを起動します -- これで"
+" ``import custom`` して、Custom オブジェクトで遊べるようになっているはずです。"
+
+#: ../../extending/newtypes_tutorial.rst:211
+msgid "That wasn't so hard, was it?"
+msgstr "そんなにむずかしくありません、よね?"
+
+#: ../../extending/newtypes_tutorial.rst:213
+msgid ""
+"Of course, the current Custom type is pretty uninteresting. It has no data "
+"and doesn't do anything. It can't even be subclassed."
+msgstr ""
+"もちろん、現在の Custom 型は面白みに欠けています。何もデータを持っていないし、何もできません。継承してサブクラスを作ることさえできないのです。"
+
+#: ../../extending/newtypes_tutorial.rst:217
+msgid ""
+"While this documentation showcases the standard :mod:`distutils` module for "
+"building C extensions, it is recommended in real-world use cases to use the "
+"newer and better-maintained ``setuptools`` library.  Documentation on how to"
+" do this is out of scope for this document and can be found in the `Python "
+"Packaging User's Guide <https://packaging.python.org/tutorials/distributing-"
+"packages/>`_."
+msgstr ""
+"この文書では、標準の :mod:`distutils` モジュールを使って C "
+"拡張をビルドしていますが、現実のユースケースでは、より新しく、保守されている ``setuptools`` "
+"ライブラリを利用することを推奨します。これを行う方法を文書化することはこのドキュメントの範囲外ですので、 `Python Packaging "
+"User's Guide <https://packaging.python.org/tutorials/distributing-"
+"packages/>`_ を参照してください。"
+
+#: ../../extending/newtypes_tutorial.rst:225
+msgid "Adding data and methods to the Basic example"
+msgstr "基本のサンプルにデータとメソッドを追加する"
+
+#: ../../extending/newtypes_tutorial.rst:227
+msgid ""
+"Let's extend the basic example to add some data and methods.  Let's also "
+"make the type usable as a base class. We'll create a new module, "
+":mod:`custom2` that adds these capabilities:"
+msgstr ""
+"この基本のサンプルにデータとメソッドを追加してみましょう。ついでに、この型を基底クラスとしても利用できるようにします。ここでは新しいモジュール "
+":mod:`custom2` をつくり、これらの機能を追加します:"
+
+#: ../../extending/newtypes_tutorial.rst:234
+msgid "This version of the module has a number of changes."
+msgstr "このバージョンでは、いくつもの変更をおこないます。"
+
+#: ../../extending/newtypes_tutorial.rst:236
+msgid "We've added an extra include::"
+msgstr "以下の include を追加します::"
+
+#: ../../extending/newtypes_tutorial.rst:240
+msgid ""
+"This include provides declarations that we use to handle attributes, as "
+"described a bit later."
+msgstr "すこしあとでふれますが、この include には属性を扱うための宣言が入っています。"
+
+#: ../../extending/newtypes_tutorial.rst:243
+msgid ""
+"The  :class:`Custom` type now has three data attributes in its C struct, "
+"*first*, *last*, and *number*.  The *first* and *last* variables are Python "
+"strings containing first and last names.  The *number* attribute is a C "
+"integer."
+msgstr ""
+":class:`Custom` 型は そのC構造体に 3つのデータ属性 *first* 、 *last* 、および *number* "
+"をもつようになりました。 *first* と *last* 属性はファーストネームとラストネームを格納した Python 文字列で、 *number* "
+"属性は C言語での整数の値です。"
+
+#: ../../extending/newtypes_tutorial.rst:247
+msgid "The object structure is updated accordingly::"
+msgstr "これにしたがうと、オブジェクトの構造体は次のようになります::"
+
+#: ../../extending/newtypes_tutorial.rst:256
+msgid ""
+"Because we now have data to manage, we have to be more careful about object "
+"allocation and deallocation.  At a minimum, we need a deallocation method::"
+msgstr ""
+"いまや管理すべきデータができたので、オブジェクトの割り当てと解放に際してはより慎重になる必要があります。最低限、オブジェクトの解放メソッドが必要です::"
+
+#: ../../extending/newtypes_tutorial.rst:267
+msgid "which is assigned to the :c:member:`~PyTypeObject.tp_dealloc` member::"
+msgstr "この関数は :c:member:`~PyTypeObject.tp_dealloc` メンバに代入されます。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:271
+msgid ""
+"This method first clears the reference counts of the two Python attributes. "
+":c:func:`Py_XDECREF` correctly handles the case where its argument is *NULL*"
+" (which might happen here if ``tp_new`` failed midway).  It then calls the "
+":c:member:`~PyTypeObject.tp_free` member of the object's type (computed by "
+"``Py_TYPE(self)``) to free the object's memory.  Note that the object's type"
+" might not be :class:`CustomType`, because the object may be an instance of "
+"a subclass."
+msgstr ""
+"このメソッドは、まず二つのPython 属性の参照カウントをクリアします。 :c:func:`Py_XDECREF` は引数が *NULL* "
+"のケースを正しく扱えます( これは、``tp_new`` が途中で失敗した場合に起こりえます)。つぎにオブジェクトの型 "
+"(``Py_TYPE(self)`` で算出します)のメンバ :c:member:`~PyTypeObject.tp_free` "
+"を呼び出し、オブジェクトのメモリを開放します。オブジェクトはサブクラスのインスタンスかもしれず、その場合オブジェクトの型が "
+":class:`CustomType` とは限らない点に注意してください。"
+
+#: ../../extending/newtypes_tutorial.rst:280
+msgid ""
+"The explicit cast to ``destructor`` above is needed because we defined "
+"``Custom_dealloc`` to take a ``CustomObject *`` argument, but the "
+"``tp_dealloc`` function pointer expects to receive a ``PyObject *`` "
+"argument.  Otherwise, the compiler will emit a warning.  This is object-"
+"oriented polymorphism, in C!"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:286
+msgid ""
+"We want to make sure that the first and last names are initialized to empty "
+"strings, so we provide a ``tp_new`` implementation::"
+msgstr "ファーストネームとラストネームを空文字列に初期化しておきたいので、``tp_new`` の実装を追加することにしましょう::"
+
+#: ../../extending/newtypes_tutorial.rst:310
+msgid "and install it in the :c:member:`~PyTypeObject.tp_new` member::"
+msgstr "そしてこれを :c:member:`~PyTypeObject.tp_new` メンバとしてインストールします::"
+
+#: ../../extending/newtypes_tutorial.rst:314
+msgid ""
+"The ``tp_new`` handler is responsible for creating (as opposed to "
+"initializing) objects of the type.  It is exposed in Python as the "
+":meth:`__new__` method. It is not required to define a ``tp_new`` member, "
+"and indeed many extension types will simply reuse "
+":c:func:`PyType_GenericNew` as done in the first version of the ``Custom`` "
+"type above.  In this case, we use the ``tp_new`` handler to initialize the "
+"``first`` and ``last`` attributes to non-*NULL* default values."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:322
+msgid ""
+"``tp_new`` is passed the type being instantiated (not necessarily "
+"``CustomType``, if a subclass is instantiated) and any arguments passed when"
+" the type was called, and is expected to return the instance created.  "
+"``tp_new`` handlers always accept positional and keyword arguments, but they"
+" often ignore the arguments, leaving the argument handling to initializer "
+"(a.k.a. ``tp_init`` in C or ``__init__`` in Python) methods."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:330
+msgid ""
+"``tp_new`` shouldn't call ``tp_init`` explicitly, as the interpreter will do"
+" it itself."
+msgstr "``tp_new`` は明示的に ``tp_init`` を呼び出してはいけません、これはインタープリタが自分で行うためです。"
+
+#: ../../extending/newtypes_tutorial.rst:333
+msgid ""
+"The ``tp_new`` implementation calls the :c:member:`~PyTypeObject.tp_alloc` "
+"slot to allocate memory::"
+msgstr ""
+"この ``tp_new`` の実装は、:c:member:`~PyTypeObject.tp_alloc` スロットを呼び出してメモリを割り当てます::"
+
+#: ../../extending/newtypes_tutorial.rst:338
+msgid ""
+"Since memory allocation may fail, we must check the "
+":c:member:`~PyTypeObject.tp_alloc` result against *NULL* before proceeding."
+msgstr ""
+"メモリ割り当ては失敗するかもしれないので、先に進む前に :c:member:`~PyTypeObject.tp_alloc` "
+"の結果がNULLでないかチェックしなければなりません。"
+
+#: ../../extending/newtypes_tutorial.rst:342
+msgid ""
+"We didn't fill the :c:member:`~PyTypeObject.tp_alloc` slot ourselves. Rather"
+" :c:func:`PyType_Ready` fills it for us by inheriting it from our base "
+"class, which is :class:`object` by default.  Most types use the default "
+"allocation strategy."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:348
+msgid ""
+"If you are creating a co-operative :c:member:`~PyTypeObject.tp_new` (one "
+"that calls a base type's :c:member:`~PyTypeObject.tp_new` or "
+":meth:`__new__`), you must *not* try to determine what method to call using "
+"method resolution order at runtime.  Always statically determine what type "
+"you are going to call, and call its :c:member:`~PyTypeObject.tp_new` "
+"directly, or via ``type->tp_base->tp_new``.  If you do not do this, Python "
+"subclasses of your type that also inherit from other Python-defined classes "
+"may not work correctly. (Specifically, you may not be able to create "
+"instances of such subclasses without getting a :exc:`TypeError`.)"
+msgstr ""
+"もし協力的な :c:member:`~PyTypeObject.tp_new` (基底タイプの "
+":c:member:`~PyTypeObject.tp_new` または :meth:`__new__` を呼んでいるもの) "
+"を作りたいのならば、実行時のメソッド解決順序をつかってどのメソッドを呼びだすかを決定しようとしては *いけません* "
+"。つねに呼び出す型を静的に決めておき、直接その :c:member:`~PyTypeObject.tp_new` を呼び出すか、あるいは "
+"``type->tp_base->tp_new`` を経由してください。こうしないと、あなたが作成したタイプの Python サブクラスが他の "
+"Python で定義されたクラスも継承している場合にうまく動かない場合があります。 (とりわけ、そのようなサブクラスのインスタンスを "
+":exc:`TypeError` を出さずに作ることが不可能になります。)"
+
+#: ../../extending/newtypes_tutorial.rst:358
+msgid ""
+"We also define an initialization function which accepts arguments to provide"
+" initial values for our instance::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:387
+msgid "by filling the :c:member:`~PyTypeObject.tp_init` slot. ::"
+msgstr "これは :c:member:`~PyTypeObject.tp_init` メンバに代入されます。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:391
+msgid ""
+"The :c:member:`~PyTypeObject.tp_init` slot is exposed in Python as the "
+":meth:`__init__` method.  It is used to initialize an object after it's "
+"created.  Initializers always accept positional and keyword arguments, and "
+"they should return either ``0`` on success or ``-1`` on error."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:396
+msgid ""
+"Unlike the ``tp_new`` handler, there is no guarantee that ``tp_init`` is "
+"called at all (for example, the :mod:`pickle` module by default doesn't call"
+" :meth:`__init__` on unpickled instances).  It can also be called multiple "
+"times.  Anyone can call the :meth:`__init__` method on our objects.  For "
+"this reason, we have to be extra careful when assigning the new attribute "
+"values.  We might be tempted, for example to assign the ``first`` member "
+"like this::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:410
+msgid ""
+"But this would be risky.  Our type doesn't restrict the type of the "
+"``first`` member, so it could be any kind of object.  It could have a "
+"destructor that causes code to be executed that tries to access the "
+"``first`` member; or that destructor could release the :term:`Global "
+"interpreter Lock` and let arbitrary code run in other threads that accesses "
+"and modifies our object."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:417
+msgid ""
+"To be paranoid and protect ourselves against this possibility, we almost "
+"always reassign members before decrementing their reference counts.  When "
+"don't we have to do this?"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:421
+msgid "when we absolutely know that the reference count is greater than 1;"
+msgstr "その参照カウントが 1 より大きいと確信できる場合"
+
+#: ../../extending/newtypes_tutorial.rst:423
+msgid ""
+"when we know that deallocation of the object [#]_ will neither release the "
+":term:`GIL` nor cause any calls back into our type's code;"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:426
+msgid ""
+"when decrementing a reference count in a "
+":c:member:`~PyTypeObject.tp_dealloc` handler on a type which doesn't support"
+" cyclic garbage collection [#]_."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:429
+msgid ""
+"We want to expose our instance variables as attributes. There are a number "
+"of ways to do that. The simplest way is to define member definitions::"
+msgstr ""
+"ここではインスタンス変数を属性として見えるようにしたいのですが、これにはいくつもの方法があります。もっとも簡単な方法は、メンバの定義を与えることです::"
+
+#: ../../extending/newtypes_tutorial.rst:442
+msgid ""
+"and put the definitions in the :c:member:`~PyTypeObject.tp_members` slot::"
+msgstr "そして、この定義を :c:member:`~PyTypeObject.tp_members` スロットに入れましょう::"
+
+#: ../../extending/newtypes_tutorial.rst:446
+msgid ""
+"Each member definition has a member name, type, offset, access flags and "
+"documentation string.  See the :ref:`Generic-Attribute-Management` section "
+"below for details."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:450
+msgid ""
+"A disadvantage of this approach is that it doesn't provide a way to restrict"
+" the types of objects that can be assigned to the Python attributes.  We "
+"expect the first and last names to be strings, but any Python objects can be"
+" assigned. Further, the attributes can be deleted, setting the C pointers to"
+" *NULL*.  Even though we can make sure the members are initialized to "
+"non-*NULL* values, the members can be set to *NULL* if the attributes are "
+"deleted."
+msgstr ""
+"この方法の欠点は、Python 属性に代入できるオブジェクトの型を制限する方法がないことです。ここではファーストネーム first とラストネーム "
+"last に、ともに文字列が入るよう期待していますが、今のやり方ではどんな Python オブジェクトも代入できてしまいます。加えてこの属性は削除 "
+"(del) できてしまい、その場合、 C のポインタには *NULL* が設定されます。たとえもしメンバが *NULL* "
+"以外の値に初期化されるようにしてあったとしても、属性が削除されればメンバは *NULL* になってしまいます。"
+
+#: ../../extending/newtypes_tutorial.rst:457
+msgid ""
+"We define a single method, :meth:`Custom.name()`, that outputs the objects "
+"name as the concatenation of the first and last names. ::"
+msgstr ""
+"ここでは :meth:`Custom.name()` と呼ばれるメソッドを定義しましょう。これはファーストネーム first とラストネーム last "
+"を連結した文字列をそのオブジェクトの名前として返します。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:474
+msgid ""
+"The method is implemented as a C function that takes a :class:`Custom` (or "
+":class:`Custom` subclass) instance as the first argument.  Methods always "
+"take an instance as the first argument. Methods often take positional and "
+"keyword arguments as well, but in this case we don't take any and don't need"
+" to accept a positional argument tuple or keyword argument dictionary. This "
+"method is equivalent to the Python method:"
+msgstr ""
+"このメソッドは C 関数として実装され、 :class:`Custom` (あるいは   :class:`Custom` のサブクラス) "
+"のインスタンスを第一引数として受けとります。メソッドはつねにそのインスタンスを最初の引数として受けとらなければなりません。しばしば位置引数とキーワード引数も受けとりますが、今回はなにも必要ないので、固定引数のタプルもキーワード引数の辞書も取らないことにします。このメソッドは"
+" Python の以下のメソッドと等価です:"
+
+#: ../../extending/newtypes_tutorial.rst:486
+msgid ""
+"Note that we have to check for the possibility that our :attr:`first` and "
+":attr:`last` members are *NULL*.  This is because they can be deleted, in "
+"which case they are set to *NULL*.  It would be better to prevent deletion "
+"of these attributes and to restrict the attribute values to be strings.  "
+"We'll see how to do that in the next section."
+msgstr ""
+":attr:`first` メンバと :attr:`last` メンバがそれぞれ *NULL* "
+"かどうかチェックしなければならないことに注意してください。これらは削除される可能性があり、その場合値は *NULL* "
+"にセットされます。この属性の削除を禁止して、そこに入れられる値を文字列に限定できればなおいいでしょう。次の節ではこれについて扱います。"
+
+#: ../../extending/newtypes_tutorial.rst:492
+msgid ""
+"Now that we've defined the method, we need to create an array of method "
+"definitions::"
+msgstr "さて、メソッドを定義したので、ここでメソッド定義用の配列を作成する必要があります::"
+
+#: ../../extending/newtypes_tutorial.rst:502
+msgid ""
+"(note that we used the :const:`METH_NOARGS` flag to indicate that the method"
+" is expecting no arguments other than *self*)"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:505
+msgid "and assign it to the :c:member:`~PyTypeObject.tp_methods` slot::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:509
+msgid ""
+"Finally, we'll make our type usable as a base class for subclassing.  We've "
+"written our methods carefully so far so that they don't make any assumptions"
+" about the type of the object being created or used, so all we need to do is"
+" to add the :const:`Py_TPFLAGS_BASETYPE` to our class flag definition::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:516
+msgid ""
+"We rename :c:func:`PyInit_custom` to :c:func:`PyInit_custom2`, update the "
+"module name in the :c:type:`PyModuleDef` struct, and update the full class "
+"name in the :c:type:`PyTypeObject` struct."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:520
+msgid "Finally, we update our :file:`setup.py` file to build the new module:"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:533
+msgid "Providing finer control over data attributes"
+msgstr "データ属性をこまかく制御する"
+
+#: ../../extending/newtypes_tutorial.rst:535
+msgid ""
+"In this section, we'll provide finer control over how the :attr:`first` and "
+":attr:`last` attributes are set in the :class:`Custom` example. In the "
+"previous version of our module, the instance variables :attr:`first` and "
+":attr:`last` could be set to non-string values or even deleted. We want to "
+"make sure that these attributes always contain strings."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:544
+msgid ""
+"To provide greater control, over the :attr:`first` and :attr:`last` "
+"attributes, we'll use custom getter and setter functions.  Here are the "
+"functions for getting and setting the :attr:`first` attribute::"
+msgstr ""
+":attr:`first` 属性と :attr:`last` 属性をよりこまかく制御するためには、カスタムメイドの getter 関数と setter "
+"関数を使います。以下は :attr:`first` 属性から値を取得する関数 (getter) と、この属性に値を格納する関数 (setter) "
+"です::"
+
+#: ../../extending/newtypes_tutorial.rst:575
+msgid ""
+"The getter function is passed a :class:`Custom` object and a \"closure\", "
+"which is a void pointer.  In this case, the closure is ignored.  (The "
+"closure supports an advanced usage in which definition data is passed to the"
+" getter and setter. This could, for example, be used to allow a single set "
+"of getter and setter functions that decide the attribute to get or set based"
+" on data in the closure.)"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:581
+msgid ""
+"The setter function is passed the :class:`Custom` object, the new value, and"
+" the closure.  The new value may be *NULL*, in which case the attribute is "
+"being deleted.  In our setter, we raise an error if the attribute is deleted"
+" or if its new value is not a string."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:586
+msgid "We create an array of :c:type:`PyGetSetDef` structures::"
+msgstr "ここでは :c:type:`PyGetSetDef` 構造体の配列をつくります::"
+
+#: ../../extending/newtypes_tutorial.rst:596
+msgid "and register it in the :c:member:`~PyTypeObject.tp_getset` slot::"
+msgstr "そしてこれを :c:member:`~PyTypeObject.tp_getset` スロットに登録します::"
+
+#: ../../extending/newtypes_tutorial.rst:600
+msgid ""
+"The last item in a :c:type:`PyGetSetDef` structure is the \"closure\" "
+"mentioned above.  In this case, we aren't using a closure, so we just pass "
+"*NULL*."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:603
+msgid "We also remove the member definitions for these attributes::"
+msgstr "また、メンバ定義からはこれらの属性を除いておきましょう::"
+
+#: ../../extending/newtypes_tutorial.rst:611
+msgid ""
+"We also need to update the :c:member:`~PyTypeObject.tp_init` handler to only"
+" allow strings [#]_ to be passed::"
+msgstr ""
+"また、ここでは :c:member:`~PyTypeObject.tp_init` "
+"ハンドラも渡されるものとして文字列のみを許可するように修正する必要があります [#]_::"
+
+#: ../../extending/newtypes_tutorial.rst:640
+msgid ""
+"With these changes, we can assure that the ``first`` and ``last`` members "
+"are never *NULL* so we can remove checks for *NULL* values in almost all "
+"cases. This means that most of the :c:func:`Py_XDECREF` calls can be "
+"converted to :c:func:`Py_DECREF` calls.  The only place we can't change "
+"these calls is in the ``tp_dealloc`` implementation, where there is the "
+"possibility that the initialization of these members failed in ``tp_new``."
+msgstr ""
+"これらの変更によって、``first`` メンバと ``last`` メンバが決して *NULL* "
+"にならないと保証できました。これでほとんどすべてのケースから *NULL* 値のチェックを除けます。これは多くの "
+":c:func:`Py_XDECREF` 呼び出しを :c:func:`Py_DECREF` "
+"呼び出しに変えられることを意味します。唯一これを変えられないのは ``tp_dealloc`` の実装中で、なぜならそこでは ``tp_new`` "
+"でのメンバ初期化が失敗している可能性があるからです。"
+
+#: ../../extending/newtypes_tutorial.rst:647
+msgid ""
+"We also rename the module initialization function and module name in the "
+"initialization function, as we did before, and we add an extra definition to"
+" the :file:`setup.py` file."
+msgstr ""
+"さて、先ほどもしたように、このモジュール初期化関数と初期化関数内にあるモジュール名を変更しましょう。そして :file:`setup.py` "
+"ファイルに追加の定義をくわえます。"
+
+#: ../../extending/newtypes_tutorial.rst:653
+msgid "Supporting cyclic garbage collection"
+msgstr "循環ガベージコレクションをサポートする"
+
+#: ../../extending/newtypes_tutorial.rst:655
+msgid ""
+"Python has a :term:`cyclic garbage collector (GC) <garbage collection>` that"
+" can identify unneeded objects even when their reference counts are not "
+"zero. This can happen when objects are involved in cycles.  For example, "
+"consider:"
+msgstr ""
+"Python は:term:`循環ガベージコレクタ(GC)機能<garbage collection> "
+"`をもっており、これは不要なオブジェクトを、たとえ参照カウントがゼロでなくても発見することができます。そのような状況はオブジェクトの参照が循環しているときに起こりえます。たとえば以下の例を考えてください:"
+
+#: ../../extending/newtypes_tutorial.rst:665
+msgid ""
+"In this example, we create a list that contains itself. When we delete it, "
+"it still has a reference from itself. Its reference count doesn't drop to "
+"zero. Fortunately, Python's cyclic garbage collector will eventually figure "
+"out that the list is garbage and free it."
+msgstr ""
+"この例では、自分自身をふくむリストを作りました。たとえこのリストを "
+"削除しても、それは自分自身への参照をまだ持ちつづけますから、参照カウントはゼロにはなりません。嬉しいことに Python "
+"には循環ガベージコレクタは最終的にはこのリストが不要であることを検出し、解放できます。"
+
+#: ../../extending/newtypes_tutorial.rst:670
+msgid ""
+"In the second version of the :class:`Custom` example, we allowed any kind of"
+" object to be stored in the :attr:`first` or :attr:`last` attributes [#]_. "
+"Besides, in the second and third versions, we allowed subclassing "
+":class:`Custom`, and subclasses may add arbitrary attributes.  For any of "
+"those two reasons, :class:`Custom` objects can participate in cycles:"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:684
+msgid ""
+"To allow a :class:`Custom` instance participating in a reference cycle to be"
+" properly detected and collected by the cyclic GC, our :class:`Custom` type "
+"needs to fill two additional slots and to enable a flag that enables these "
+"slots:"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:691
+msgid ""
+"First, the traversal method lets the cyclic GC know about subobjects that "
+"could participate in cycles::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:711
+msgid ""
+"For each subobject that can participate in cycles, we need to call the "
+":c:func:`visit` function, which is passed to the traversal method. The "
+":c:func:`visit` function takes as arguments the subobject and the extra "
+"argument *arg* passed to the traversal method.  It returns an integer value "
+"that must be returned if it is non-zero."
+msgstr ""
+"循環した参照に含まれるかもしれない各内部オブジェクトに対して、 traversal メソッドに渡された :c:func:`visit` 関数を呼びます。"
+" :c:func:`visit` 関数は内部オブジェクトと、traversal メソッドに渡された追加の引数 *arg* "
+"を引数としてとります。この関数はこの値が非負の場合に返される整数の値を返します。"
+
+#: ../../extending/newtypes_tutorial.rst:717
+msgid ""
+"Python provides a :c:func:`Py_VISIT` macro that automates calling visit "
+"functions.  With :c:func:`Py_VISIT`, we can minimize the amount of "
+"boilerplate in ``Custom_traverse``::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:730
+msgid ""
+"The :c:member:`~PyTypeObject.tp_traverse` implementation must name its "
+"arguments exactly *visit* and *arg* in order to use :c:func:`Py_VISIT`."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:733
+msgid ""
+"Second, we need to provide a method for clearing any subobjects that can "
+"participate in cycles::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:744
+msgid ""
+"Notice the use of the :c:func:`Py_CLEAR` macro.  It is the recommended and "
+"safe way to clear data attributes of arbitrary types while decrementing "
+"their reference counts.  If you were to call :c:func:`Py_XDECREF` instead on"
+" the attribute before setting it to *NULL*, there is a possibility that the "
+"attribute's destructor would call back into code that reads the attribute "
+"again (*especially* if there is a reference cycle)."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:752
+msgid "You could emulate :c:func:`Py_CLEAR` by writing::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:759
+msgid ""
+"Nevertheless, it is much easier and less error-prone to always use "
+":c:func:`Py_CLEAR` when deleting an attribute.  Don't try to micro-optimize "
+"at the expense of robustness!"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:763
+msgid ""
+"The deallocator ``Custom_dealloc`` may call arbitrary code when clearing "
+"attributes.  It means the circular GC can be triggered inside the function. "
+"Since the GC assumes reference count is not zero, we need to untrack the "
+"object from the GC by calling :c:func:`PyObject_GC_UnTrack` before clearing "
+"members. Here is our reimplemented deallocator using "
+":c:func:`PyObject_GC_UnTrack` and ``Custom_clear``::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:778
+msgid ""
+"Finally, we add the :const:`Py_TPFLAGS_HAVE_GC` flag to the class flags::"
+msgstr "最後に、 :const:`Py_TPFLAGS_HAVE_GC` フラグをクラス定義のフラグに加えます::"
+
+#: ../../extending/newtypes_tutorial.rst:782
+msgid ""
+"That's pretty much it.  If we had written custom "
+":c:member:`~PyTypeObject.tp_alloc` or :c:member:`~PyTypeObject.tp_free` "
+"handlers, we'd need to modify them for cyclic garbage collection.  Most "
+"extensions will use the versions automatically provided."
+msgstr ""
+"これで完了です。 :c:member:`~PyTypeObject.tp_alloc` スロットまたは "
+":c:member:`~PyTypeObject.tp_free` "
+"ハンドラが書かれていれば、それらを循環ガベージコレクションに使えるよう修正すればよいのです。ほとんどの拡張機能は自動的に提供されるバージョンを使うでしょう。"
+
+#: ../../extending/newtypes_tutorial.rst:788
+msgid "Subclassing other types"
+msgstr "他の型のサブクラスを作る"
+
+#: ../../extending/newtypes_tutorial.rst:790
+msgid ""
+"It is possible to create new extension types that are derived from existing "
+"types. It is easiest to inherit from the built in types, since an extension "
+"can easily use the :c:type:`PyTypeObject` it needs. It can be difficult to "
+"share these :c:type:`PyTypeObject` structures between extension modules."
+msgstr ""
+"既存の型を継承した新しい拡張型を作成することができます。組み込み型から継承するのは特に簡単です。必要な :c:type:`PyTypeObject` "
+"を簡単に利用できるからです。それに比べて、 :c:type:`PyTypeObject` 構造体を拡張モジュール間で共有するのは難しいです。"
+
+#: ../../extending/newtypes_tutorial.rst:795
+msgid ""
+"In this example we will create a :class:`SubList` type that inherits from "
+"the built-in :class:`list` type. The new type will be completely compatible "
+"with regular lists, but will have an additional :meth:`increment` method "
+"that increases an internal counter:"
+msgstr ""
+"次の例では、ビルトインの :class:`list` 型を継承した :class:`SubList` "
+"型を作成しています。新しい型は通常のリスト型と完全に互換性がありますが、追加で内部のカウンタを増やす :meth:`increment` "
+"メソッドを持っています:"
+
+#: ../../extending/newtypes_tutorial.rst:815
+msgid ""
+"As you can see, the source code closely resembles the :class:`Custom` "
+"examples in previous sections. We will break down the main differences "
+"between them. ::"
+msgstr "見てわかるように、ソースコードは前の節の :class:`Custom` の時と非常に似ています。違う部分をそれぞれを見ていきます。 ::"
+
+#: ../../extending/newtypes_tutorial.rst:823
+msgid ""
+"The primary difference for derived type objects is that the base type's "
+"object structure must be the first value.  The base type will already "
+"include the :c:func:`PyObject_HEAD` at the beginning of its structure."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:827
+msgid ""
+"When a Python object is a :class:`SubList` instance, its ``PyObject *`` "
+"pointer can be safely cast to both ``PyListObject *`` and ``SubListObject "
+"*``::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:839
+msgid ""
+"We see above how to call through to the :attr:`__init__` method of the base "
+"type."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:842
+msgid ""
+"This pattern is important when writing a type with custom "
+":c:member:`~PyTypeObject.tp_new` and :c:member:`~PyTypeObject.tp_dealloc` "
+"members.  The :c:member:`~PyTypeObject.tp_new` handler should not actually "
+"create the memory for the object with its "
+":c:member:`~PyTypeObject.tp_alloc`, but let the base class handle it by "
+"calling its own :c:member:`~PyTypeObject.tp_new`."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:848
+msgid ""
+"The :c:type:`PyTypeObject` struct supports a "
+":c:member:`~PyTypeObject.tp_base` specifying the type's concrete base class."
+"  Due to cross-platform compiler issues, you can't fill that field directly "
+"with a reference to :c:type:`PyList_Type`; it should be done later in the "
+"module initialization function::"
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:871
+msgid ""
+"Before calling :c:func:`PyType_Ready`, the type structure must have the "
+":c:member:`~PyTypeObject.tp_base` slot filled in.  When we are deriving an "
+"existing type, it is not necessary to fill out the "
+":c:member:`~PyTypeObject.tp_alloc` slot with :c:func:`PyType_GenericNew` -- "
+"the allocation function from the base type will be inherited."
+msgstr ""
+":c:func:`PyType_Read` を呼ぶ前に、型の構造体の :c:member:`~PyTypeObject.tp_base` "
+"スロットは埋められていなければなりません。既存の型を継承する際には、 :c:member:`~PyTypeObject.tp_alloc` スロットを "
+":c:func:`PyType_GenericNew` で埋める必要はありません。 -- 基底型のアロケーション関数が継承されます。"
+
+#: ../../extending/newtypes_tutorial.rst:877
+msgid ""
+"After that, calling :c:func:`PyType_Ready` and adding the type object to the"
+" module is the same as with the basic :class:`Custom` examples."
+msgstr ""
+"この後は、 :c:func:`PyType_Ready` 関数を呼び、タイプオブジェクトをモジュールへ追加するのは、基本的な "
+":class:`Custom` の例と同じです。"
+
+#: ../../extending/newtypes_tutorial.rst:882
+msgid "Footnotes"
+msgstr "脚注"
+
+#: ../../extending/newtypes_tutorial.rst:883
+msgid ""
+"This is true when we know that the object is a basic type, like a string or "
+"a float."
+msgstr "これはそのオブジェクトが文字列や実数などの基本タイプであるような時に成り立ちます。"
+
+#: ../../extending/newtypes_tutorial.rst:886
+msgid ""
+"We relied on this in the :c:member:`~PyTypeObject.tp_dealloc` handler in "
+"this example, because our type doesn't support garbage collection."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:889
+msgid ""
+"We now know that the first and last members are strings, so perhaps we could"
+" be less careful about decrementing their reference counts, however, we "
+"accept instances of string subclasses.  Even though deallocating normal "
+"strings won't call back into our objects, we can't guarantee that "
+"deallocating an instance of a string subclass won't call back into our "
+"objects."
+msgstr ""
+
+#: ../../extending/newtypes_tutorial.rst:895
+msgid ""
+"Also, even with our attributes restricted to strings instances, the user "
+"could pass arbitrary :class:`str` subclasses and therefore still create "
+"reference cycles."
+msgstr ""
