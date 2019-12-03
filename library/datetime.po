@@ -1469,6 +1469,7 @@ msgid ""
 "Return a :class:`.datetime` corresponding to *date_string*, parsed according"
 " to *format*."
 msgstr ""
+"*date_string* に対応した :class:`.datetime` を返します。 *format* にしたがって構文解析されます。"
 
 #: ../../library/datetime.rst:1034
 msgid "This is equivalent to::"
@@ -1481,6 +1482,9 @@ msgid ""
 "For a complete list of formatting directives, see :ref:`strftime-strptime-"
 "behavior`."
 msgstr ""
+"date_stringとformatが :func:`time.strptime` で構文解析できない場合や、この関数が時刻タプルを返してこない場合には"
+" :exc:`ValueError` を送出します。完全な書式化ディレクティブのリストについては :ref:`strftime-strptime-"
+"behavior` を参照してください。"
 
 #: ../../library/datetime.rst:1049
 msgid ""
@@ -1575,6 +1579,10 @@ msgid ""
 "larger than :const:`MAXYEAR`. Note that no time zone adjustments are done "
 "even if the input is an aware object."
 msgstr ""
+"datetime2 は datetime1 から時間 timedelta 移動したもので、 ``timedelta.days`` > 0 の場合未来へ、 ``timedelta.days`` < 0 の場合過去へ移動します。\n"
+"結果は入力の datetime と同じ :attr:`~.datetime.tzinfo` 属性を持ち、演算後には datetime2 - datetime1 == timedelta となります。\n"
+"datetime2.year が :const:`MINYEAR` よりも小さいか、 :const:`MAXYEAR` より大きい場合には :exc:`OverflowError` が送出されます。\n"
+"入力が aware なオブジェクトの場合でもタイムゾーン修正は全く行われません。"
 
 #: ../../library/datetime.rst:1143
 msgid ""
@@ -1594,6 +1602,8 @@ msgid ""
 "only if both operands are naive, or if both are aware. If one is aware and "
 "the other is naive, :exc:`TypeError` is raised."
 msgstr ""
+":class:`.datetime` から :class:`.datetime` の減算は両方の被演算子が naive であるか、両方とも aware "
+"である場合にのみ定義されています。片方が aware でもう一方が naive の場合、 :exc:`TypeError` が送出されます。"
 
 #: ../../library/datetime.rst:1152
 msgid ""
@@ -1603,6 +1613,8 @@ msgid ""
 "such that ``datetime2 + t == datetime1``. No time zone adjustments are done "
 "in this case."
 msgstr ""
+"両方とも naive か、両方とも aware で同じ :attr:`~.datetime.tzinfo` 属性を持つ場合、 :attr:`~.datetime.tzinfo` 属性は無視され、結果は ``datetime2 + t == datetime1`` であるような :class:`timedelta` オブジェクト *t* となります。\n"
+"この場合タイムゾーン修正は全く行われません。"
 
 #: ../../library/datetime.rst:1157
 msgid ""
@@ -1612,6 +1624,8 @@ msgid ""
 "(b.replace(tzinfo=None) - b.utcoffset())`` except that the implementation "
 "never overflows."
 msgstr ""
+"両方が aware で異なる :attr:`~.datetime.tzinfo` 属性を持つ場合、 ``a-b`` は *a* および *b* をまず naive な UTC datetime オブジェクトに変換したかのようにして行います。\n"
+"演算結果は決してオーバフローを起こさないことを除き、 ``(a.replace(tzinfo=None) - a.utcoffset()) - (b.replace(tzinfo=None) - b.utcoffset())`` と同じになります。"
 
 #: ../../library/datetime.rst:1163
 msgid ""
@@ -1627,6 +1641,8 @@ msgid ""
 " if an order comparison is attempted. For equality comparisons, naive "
 "instances are never equal to aware instances."
 msgstr ""
+"比較の一方が naive であり、もう一方が aware の場合に、順序比較が行われると :exc:`TypeError` "
+"が送出されます。等価比較では、 naive インスタンスと aware インスタンスは等価になることはありません。"
 
 #: ../../library/datetime.rst:1170
 msgid ""
@@ -1637,12 +1653,16 @@ msgid ""
 "adjusted by subtracting their UTC offsets (obtained from "
 "``self.utcoffset()``)."
 msgstr ""
+"比較対象が両方とも aware で、同じ :attr:`~.datetime.tzinfo` 属性を持つ場合、 :attr:`~.datetime.tzinfo` は無視され datetime だけで比較が行われます。\n"
+"比較対象が両方とも aware であり、異なる :attr:`~.datetime.tzinfo` 属性を持つ場合、まず最初に (``self.utcoffset()`` で取得できる) それぞれの UTC オフセットを引いて調整します。"
 
 #: ../../library/datetime.rst:1176
 msgid ""
 "Equality comparisons between aware and naive :class:`.datetime` instances "
 "don't raise :exc:`TypeError`."
 msgstr ""
+"aware な :class:`datetime` インスタンスと naive な :class:`datetime` インスタンスの等価比較では "
+":exc:`TypeError` は送出されません。"
 
 #: ../../library/datetime.rst:1182
 msgid ""
@@ -1656,6 +1676,12 @@ msgid ""
 ":exc:`TypeError` is raised unless the comparison is ``==`` or ``!=``. The "
 "latter cases return :const:`False` or :const:`True`, respectively."
 msgstr ""
+"型混合の比較がデフォルトのオブジェクトアドレス比較となってしまうのを抑止するために、被演算子のもう一方が :class:`.datetime` "
+"オブジェクトと異なる型のオブジェクトの場合には :exc:`TypeError` が送出されます。しかしながら、被比較演算子のもう一方が "
+":meth:`timetuple` 属性を持つ場合には ``NotImplemented`` "
+"が返されます。このフックにより、他種の日付オブジェクトに型混合比較を実装するチャンスを与えています。そうでない場合, "
+":class:`.datetime` オブジェクトと異なる型のオブジェクトが比較されると、比較演算子が ``==`` または ``!=`` でないかぎり"
+" :exc:`TypeError` が送出されます。後者の場合、それぞれ :const:`False` または :const:`True` を返します。"
 
 #: ../../library/datetime.rst:1196
 msgid "Return :class:`date` object with same year, month and day."
