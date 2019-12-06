@@ -1246,6 +1246,9 @@ msgid ""
 "from going through a :func:`time.time` timestamp (for example, this may be "
 "possible on platforms supplying the C :c:func:`gettimeofday` function)."
 msgstr ""
+"オプションの引数 *tz* が ``None`` であるか指定されていない場合、このメソッドは :meth:`today` と同様ですが、可能ならば "
+":func:`time.time` タイムスタンプを通じて得ることができる、より高い精度で時刻を提供します (例えば、プラットフォームが C  関数 "
+":c:func:`gettimeofday` をサポートする場合には可能なことがあります)。"
 
 #: ../../library/datetime.rst:865
 msgid ""
@@ -1803,6 +1806,8 @@ msgid ""
 "doesn't return ``None`` or a :class:`timedelta` object with magnitude less "
 "than one day."
 msgstr ""
+":attr:`.tzinfo` が ``None`` の場合、 ``None`` を返し、そうでない場合には ``self.tzinfo.utcoffset(self)`` を返します。\n"
+"後者の式が ``None`` あるいは 1 日以下の大きさを持つ :class:`timedelta` オブジェクトのいずれかを返さない場合には例外を送出します。"
 
 #: ../../library/datetime.rst:1282 ../../library/datetime.rst:1865
 #: ../../library/datetime.rst:1971 ../../library/datetime.rst:2217
@@ -1817,6 +1822,8 @@ msgid ""
 "return ``None`` or a :class:`timedelta` object with magnitude less than one "
 "day."
 msgstr ""
+":attr:`.tzinfo` が ``None`` の場合 ``None`` を返し、そうでない場合には ``self.tzinfo.dst(self)`` を返します。\n"
+"後者の式が ``None`` もしくは、1 日未満の大きさを持つ :class:`timedelta` オブジェクトのいずれかを返さない場合には例外を送出します。"
 
 #: ../../library/datetime.rst:1292 ../../library/datetime.rst:1875
 #: ../../library/datetime.rst:2025
@@ -1842,6 +1849,8 @@ msgid ""
 "value, :attr:`tm_isdst` is set to ``1``; else :attr:`tm_isdst` is set to "
 "``0``."
 msgstr ""
+"ここで ``yday = d.toordinal() - date(d.year, 1, 1).toordinal() + 1`` はその年の1月1日を ``1`` としたときのその日の位置です。\n"
+"返されるタプルの :attr:`tm_isdst` フラグは :meth:`dst` メソッドに従って設定されます: :attr:`.tzinfo` が ``None`` か :meth:`dst` が ``None`` を返す場合、 :attr:`tm_isdst` は ``-1`` に設定されます; そうでない場合、 :meth:`dst` がゼロでない値を返すと :attr:`tm_isdst` は ``1`` となります; それ以外の場合には :attr:`tm_isdst` は ``0`` に設定されます。"
 
 #: ../../library/datetime.rst:1324
 msgid ""
@@ -1849,6 +1858,9 @@ msgid ""
 "``d.timetuple()`` except that :attr:`tm_isdst` is forced to 0 regardless of "
 "what ``d.dst()`` returns. DST is never in effect for a UTC time."
 msgstr ""
+":class:`.datetime` インスタンス *d* が naive の場合、このメソッドは ``d.timetuple()`` と同じであり、 "
+"``d.dst()`` の返す内容にかかわらず :attr:`tm_isdst` が 0 に強制される点だけが異なります。 DST が UTC "
+"時刻に影響を及ぼすことは決してありません。"
 
 #: ../../library/datetime.rst:1328
 msgid ""
@@ -1858,6 +1870,10 @@ msgid ""
 ":exc:`OverflowError` may be raised if *d*.year was ``MINYEAR`` or "
 "``MAXYEAR`` and UTC adjustment spills over a year boundary."
 msgstr ""
+"*d* が aware だった場合、 *d* は ``d.utcoffset()`` を引いて UTC 時刻に正規化され、その時刻が "
+":class:`time.struct_time` として返されます。 :attr:`tm_isdst` は 0 に強制されます。 *d*.year が"
+" ``MINYEAR`` もしくは ``MAXYEAR`` であり、 UTC 時刻への調整により適切な年の範囲を越えた場合、 "
+":exc:`OverflowError` が送出される可能性があることに注意してください。"
 
 #: ../../library/datetime.rst:1337
 msgid ""
@@ -1873,7 +1889,7 @@ msgstr ""
 msgid ""
 "Return the proleptic Gregorian ordinal of the date. The same as "
 "``self.date().toordinal()``."
-msgstr ""
+msgstr "先発グレゴリオ暦における日付序数を返します。``self.date().toordinal()`` と同じです。"
 
 #: ../../library/datetime.rst:1351
 msgid ""
@@ -1881,6 +1897,8 @@ msgid ""
 " return value is a :class:`float` similar to that returned by "
 ":func:`time.time`."
 msgstr ""
+":class:`.datetime` インスタンスに対応する POSIX タイムスタンプを返します。\n"
+"返り値は :func:`time.time` で返される値に近い :class:`float` です。"
 
 #: ../../library/datetime.rst:1355
 msgid ""
@@ -1890,6 +1908,8 @@ msgid ""
 " :c:func:`mktime` on many platforms, this method may raise "
 ":exc:`OverflowError` for times far in the past or far in the future."
 msgstr ""
+"このメソッドでは naive な :class:`.datetime` インスタンスはローカル時刻とし、プラットフォームの C 関数 :c:func:`mktime` に頼って変換を行います。\n"
+":class:`.datetime` は多くのプラットフォームの :c:func:`mktime` より広い範囲の値をサポートしているので、遥か過去の時刻や遥か未来の時刻に対し、このメソッドは :exc:`OverflowError` を送出するかもしれません。"
 
 #: ../../library/datetime.rst:1362
 msgid ""
@@ -1909,6 +1929,8 @@ msgid ""
 "this convention and your system timezone is not set to UTC, you can obtain "
 "the POSIX timestamp by supplying ``tzinfo=timezone.utc``::"
 msgstr ""
+"UTC 時刻を表す naive な :class:`.datetime` インスタンスから直接 POSIX タイムスタンプを取得するメソッドはありません。\n"
+"アプリケーションがその変換を使っており、システムのタイムゾーンが UTC に設定されていなかった場合、 ``tzinfo=timezone.utc`` を引数に与えることで POSIX タイムスタンプを取得できます::"
 
 #: ../../library/datetime.rst:1383
 msgid "or by calculating the timestamp directly::"
@@ -1936,18 +1958,19 @@ msgid ""
 "Return a 3-tuple, (ISO year, ISO week number, ISO weekday). The same as "
 "``self.date().isocalendar()``."
 msgstr ""
+"3 要素のタプル (ISO 年、ISO 週番号、ISO 曜日) を返します。``self.date().isocalendar()`` と等価です。"
 
 #: ../../library/datetime.rst:1408
 msgid "Return a string representing the date and time in ISO 8601 format:"
-msgstr ""
+msgstr "日時を ISO 8601 形式で表した文字列で返します::"
 
 #: ../../library/datetime.rst:1410
 msgid "``YYYY-MM-DDTHH:MM:SS.ffffff``, if :attr:`microsecond` is not 0"
-msgstr ""
+msgstr ":attr:`microsecond` が 0 でない場合は ``YYYY-MM-DDTHH:MM:SS.ffffff``"
 
 #: ../../library/datetime.rst:1411
 msgid "``YYYY-MM-DDTHH:MM:SS``, if :attr:`microsecond` is 0"
-msgstr ""
+msgstr ":attr:`microsecond` が 0 の場合は ``YYYY-MM-DDTHH:MM:SS``"
 
 #: ../../library/datetime.rst:1413
 msgid ""
@@ -1960,17 +1983,22 @@ msgid ""
 "``YYYY-MM-DDTHH:MM:SS.ffffff+HH:MM[:SS[.ffffff]]``, if :attr:`microsecond` "
 "is not 0"
 msgstr ""
+":attr:`microsecond` が 0 でない場合は ``YYYY-MM-"
+"DDTHH:MM:SS.ffffff+HH:MM[:SS[.ffffff]]``"
 
 #: ../../library/datetime.rst:1418
 msgid ""
 "``YYYY-MM-DDTHH:MM:SS+HH:MM[:SS[.ffffff]]``,  if :attr:`microsecond` is 0"
 msgstr ""
+":attr:`microsecond` が 0 の場合は ``YYYY-MM-DDTHH:MM:SS+HH:MM[:SS[.ffffff]]``"
 
 #: ../../library/datetime.rst:1428
 msgid ""
 "The optional argument *sep* (default ``'T'``) is a one-character separator, "
 "placed between the date and time portions of the result. For example::"
 msgstr ""
+"オプションの引数 *sep* (デフォルトでは ``'T'`` です)  は 1 "
+"文字のセパレータで、結果の文字列の日付と時刻の間に置かれます。例えば::"
 
 #: ../../library/datetime.rst:1442 ../../library/datetime.rst:1803
 msgid ""
@@ -1991,18 +2019,20 @@ msgstr ""
 
 #: ../../library/datetime.rst:1448 ../../library/datetime.rst:1809
 msgid "``'hours'``: Include the :attr:`hour` in the two-digit ``HH`` format."
-msgstr ""
+msgstr "``'hours'``:  :attr:`hour` を2桁の ``HH`` 書式で含めます。"
 
 #: ../../library/datetime.rst:1449 ../../library/datetime.rst:1810
 msgid ""
 "``'minutes'``: Include :attr:`hour` and :attr:`minute` in ``HH:MM`` format."
-msgstr ""
+msgstr "``'minutes'``: :attr:`hour` および :attr:`minute` を ``HH:MM`` の書式で含めます。"
 
 #: ../../library/datetime.rst:1450 ../../library/datetime.rst:1811
 msgid ""
 "``'seconds'``: Include :attr:`hour`, :attr:`minute`, and :attr:`second` in "
 "``HH:MM:SS`` format."
 msgstr ""
+"``'seconds'``: :attr:`hour` 、 :attr:`minute` 、 :attr:`second`  を "
+"``HH:MM:SS`` の書式で含めます。"
 
 #: ../../library/datetime.rst:1452 ../../library/datetime.rst:1813
 msgid ""
