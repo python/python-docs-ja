@@ -2409,6 +2409,9 @@ msgid ""
 "can be pickled but possibly not unpickled again. This is a technical "
 "requirement that may be relaxed in the future."
 msgstr ""
+"pickle 化についての特殊な要求事項: :class:`tzinfo` のサブクラスは引数なしで呼び出すことのできる "
+":meth:`__init__` メソッドを持たなければなりません。そうでなければ、 pickle 化することはできますがおそらく unpickle "
+"化することはできないでしょう。これは技術的な側面からの要求であり、将来緩和されるかもしれません。"
 
 #: ../../library/datetime.rst:1944
 msgid ""
@@ -2425,6 +2428,7 @@ msgid ""
 " positive east of UTC. If local time is west of UTC, this should be "
 "negative."
 msgstr ""
+"ローカル時間の UTC からのオフセットを、 UTC から東向きを正とした分で返します。ローカル時間が UTC の西側にある場合、この値は負になります。"
 
 #: ../../library/datetime.rst:1954
 msgid ""
@@ -2436,6 +2440,10 @@ msgid ""
 "magnitude of the offset must be less than one day). Most implementations of "
 ":meth:`utcoffset` will probably look like one of these two::"
 msgstr ""
+"このメソッドは UTC からのオフセットの *総計* を表しています。例えば、 :class:`tzinfo` オブジェクトがタイムゾーンと DST 修正の両方を表現する場合、 :meth:`utcoffset` はそれらの合計を返さなければなりません。\n"
+"UTC オフセットが未知である場合、 ``None`` を返します。\n"
+"そうでない場合には、返される値は ``-timedelta(hours=24)`` から ``timedelta(hours=24)`` までの :class:`timedelta` 境界を含まないオブジェクトでなければなりません (オフセットの大きさは 1 日より短くなければなりません)。\n"
+"ほとんどの :meth:`utcoffset` 実装は、おそらく以下の二つのうちの一つに似たものになるでしょう::"
 
 #: ../../library/datetime.rst:1965
 msgid ""
@@ -2641,6 +2649,8 @@ msgid ""
 "<../includes/tzinfo_examples.py>` file there are some examples of "
 ":class:`tzinfo` classes:"
 msgstr ""
+"次の :download:`tzinfo_examples.py <../includes/tzinfo_examples.py>` ファイルには、 "
+":class:`tzinfo` クラスの例がいくつか載っています:"
 
 #: ../../library/datetime.rst:2108
 msgid ""
@@ -2651,6 +2661,9 @@ msgid ""
 " March, and ends the minute after 1:59 (EDT) on the first Sunday in "
 "November::"
 msgstr ""
+"標準時および夏時間の両方を記述している :class:`tzinfo` のサブクラスでは、夏時間の移行のときに、回避不能の難解な問題が年に 2 度あるので注意してください。\n"
+"具体的な例として、東部アメリカ時刻 (US Eastern, UTC -0500) を考えます。\n"
+"EDT は 3 月の第二日曜日の 1:59 (EST) の 1 分後に開始し、11 月の最初の日曜日の (EDTの) 1:59 に終了します::"
 
 #: ../../library/datetime.rst:2122
 msgid ""
@@ -2660,6 +2673,9 @@ msgid ""
 " day DST begins. For example, at the Spring forward transition of 2016, we "
 "get::"
 msgstr ""
+"DSTの開始 (\"start\" ライン) で、ローカルの実時間は 1:59 から 3:00 に飛びます。\n"
+"この日には、 2:MM という形式の実時間は意味をなさないので、 DST が始まった日に ``astimezone(Eastern)`` は ``hour == 2``となる結果を返すことはありません。\n"
+"例として、 2016 年の春方向の移行では、次のような結果になります::"
 
 #: ../../library/datetime.rst:2141
 msgid ""
@@ -2675,6 +2691,12 @@ msgid ""
 " to 0 and the later times have it set to 1. For example, at the Fall back "
 "transition of 2016, we get::"
 msgstr ""
+"DST が終了 (\"end\" ライン) で、更なる問題が潜んでいます: ローカルの実時間で、曖昧さ無しに時を綴れない 1 時間が存在します: それは夏時間の最後の 1 時間です。\n"
+"東部では、夏時間が終了する日の UTC での 5:MM 形式の時間がそれです。\n"
+"ローカルの実時間は (夏時間の) 1:59 から (標準時の) 1:00 に再び巻き戻されます。\n"
+"ローカルの時刻における 1:MM は曖昧です。\n"
+"そして :meth:`astimezone` は 2 つの隣り合う UTC 時間を同じローカルの時間に対応付けて、ローカルの時計の振る舞いを真似ます。\n"
+"東部の例では、 5:MM および 6:MM という形式の UTC 時刻は両方とも東部時刻に変換された際に 1:MM に対応付けられますが、それ以前の時間は :attr:`~datetime.fold` 属性を 0 にし、以降の時間では 1 にします。例えば、 2016 年での秋方向の移行では、次のような結果になります::"
 
 #: ../../library/datetime.rst:2163
 msgid ""
@@ -2706,12 +2728,16 @@ msgid ""
 " arbitrary fixed offsets from UTC) and its :attr:`timezone.utc` attribute (a"
 " UTC timezone instance)."
 msgstr ""
+":mod:`datetime` モジュールには (UTC からの任意の固定オフセットを扱う) 基本的な :class:`timezone` "
+"クラスと、(UTC タイムゾーンのインスタンスである) :attr:`timezone.utc` 属性があります。"
 
 #: ../../library/datetime.rst:2179
 msgid ""
 "*dateutil.tz* library brings the *IANA timezone database* (also known as the"
 " Olson database) to Python, and its usage is recommended."
 msgstr ""
+"*dateutil.tz* ライブラリは Python に *IANA タイムゾーンデータベース* (オルソンデータベースとしても知られています) "
+"を導入するもので、これを使うことが推奨されています。"
 
 #: ../../library/datetime.rst:2187
 msgid "`IANA timezone database <https://www.iana.org/time-zones>`_"
@@ -2738,6 +2764,8 @@ msgid ""
 "The :class:`timezone` class is a subclass of :class:`tzinfo`, each instance "
 "of which represents a timezone defined by a fixed offset from UTC."
 msgstr ""
+":class:`timezone` クラスは :class:`tzinfo` のサブクラスで、各インスタンスは UTC "
+"からの固定されたオフセットで定義されたタイムゾーンを表しています。"
 
 #: ../../library/datetime.rst:2200
 msgid ""
@@ -2745,6 +2773,8 @@ msgid ""
 "the locations where different offsets are used in different days of the year"
 " or where historical changes have been made to civil time."
 msgstr ""
+"このクラスのオブジェクトは、一年のうち異なる日に異なるオフセットが使われていたり、常用時 (civil time) "
+"に歴史的な変化が起きた場所のタイムゾーン情報を表すのには使えないので注意してください。"
 
 #: ../../library/datetime.rst:2207
 msgid ""
@@ -2753,24 +2783,31 @@ msgid ""
 "strictly between ``-timedelta(hours=24)`` and ``timedelta(hours=24)``, "
 "otherwise :exc:`ValueError` is raised."
 msgstr ""
+"ローカル時刻と UTC の差分を表す :class:`timedelta` オブジェクトを *offset* 引数に指定しなくてはいけません。これは "
+"``-timedelta(hours=24)`` から ``timedelta(hours=24)`` "
+"までの両端を含まない範囲に収まっていなくてはなりません。そうでない場合 :exc:`ValueError` が送出されます。"
 
 #: ../../library/datetime.rst:2212
 msgid ""
 "The *name* argument is optional. If specified it must be a string that will "
 "be used as the value returned by the :meth:`datetime.tzname` method."
 msgstr ""
+" *name* 引数は必須ではありません。\n"
+"もし指定された場合、その値は :meth:`datetime.tzname` メソッドの返り値として使われる文字列でなければなりません。"
 
 #: ../../library/datetime.rst:2223 ../../library/datetime.rst:2234
 msgid ""
 "Return the fixed value specified when the :class:`timezone` instance is "
 "constructed."
-msgstr ""
+msgstr ":class:`timezone` インスタンスが構築されたときに指定された固定値を返します。"
 
 #: ../../library/datetime.rst:2226
 msgid ""
 "The *dt* argument is ignored. The return value is a :class:`timedelta` "
 "instance equal to the difference between the local time and UTC."
 msgstr ""
+"*dt* 引数は無視されます。\n"
+"返り値は、ローカル時刻と UTC の差分に等しい :class:`timedelta` インスタンスです。"
 
 #: ../../library/datetime.rst:2237
 msgid ""
@@ -2780,12 +2817,17 @@ msgid ""
 "in the format ``UTC±HH:MM``, where ± is the sign of ``offset``, HH and MM "
 "are two digits of ``offset.hours`` and ``offset.minutes`` respectively."
 msgstr ""
+"*name* が構築時に与えられなかった場合、 ``tzname(dt)`` によって返される name は以下の様に ``offset`` の値から生成されます。\n"
+"*offset* が ``timedelta(0)`` であった場合、 name は \"UTC\"になります。\n"
+"それ以外の場合、 'UTC±HH:MM' という形式の文字列になり、± は ``offset`` を、HH と MM はそれぞれ二桁の ``offset.hours`` と ``offset.minutes`` を表現します。"
 
 #: ../../library/datetime.rst:2243
 msgid ""
 "Name generated from ``offset=timedelta(0)`` is now plain `'UTC'`, not "
 "``'UTC+00:00'``."
 msgstr ""
+"``offset=timedelta(0)`` によって生成される名前はプレーンな `'UTC'` であり ``'UTC+00:00'`` "
+"ではありません。"
 
 #: ../../library/datetime.rst:2250
 msgid "Always returns ``None``."
@@ -2796,6 +2838,8 @@ msgid ""
 "Return ``dt + offset``. The *dt* argument must be an aware "
 ":class:`.datetime` instance, with ``tzinfo`` set to ``self``."
 msgstr ""
+"``dt + offset`` を返します。 *dt* 引数は ``tzinfo`` が ``self`` になっている aware な "
+":class:`.datetime` インスタンスでなければなりません。"
 
 #: ../../library/datetime.rst:2261
 msgid "The UTC timezone, ``timezone(timedelta(0))``."
