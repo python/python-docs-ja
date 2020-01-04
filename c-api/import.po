@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# tomo, 2019
+# tomo, 2020
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-01 04:28+0000\n"
 "PO-Revision-Date: 2019-09-01 03:41+0000\n"
-"Last-Translator: tomo, 2019\n"
+"Last-Translator: tomo, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -39,6 +39,11 @@ msgid ""
 "module, or ``NULL`` with an exception set on failure.  A failing import of a"
 " module doesn't leave the module in :data:`sys.modules`."
 msgstr ""
+"この関数は下で述べる :c:func:`PyImport_ImportModuleEx` を単純化したインタフェースで、 *globals* および *locals*  引数を ``NULL`` のままにし、 *level* を 0 にしたものです。\n"
+"*name* 引数にドットが含まれる場合 (あるパッケージのサブモジュールを指定している場合)、 *fromlist* 引数がリスト ``['*']`` に追加され、戻り値がモジュールを含むトップレベルパッケージではなく名前つきモジュール (named module) になるようにします。\n"
+"(残念ながらこのやり方には、 *name* が実際にはサブモジュールでなくサブパッケージを指定している場合、パッケージの  ``__all__``   変数に指定されているサブモジュールがロードされてしまうという副作用があります。)\n"
+"インポートされたモジュールへの新たな参照を返します。\n"
+"失敗した場合には例外をセットし、 ``NULL`` を返します。インポートに失敗したモジュールは :data:`sys.modules` に残りません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:28
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:89
@@ -77,6 +82,8 @@ msgid ""
 "requested is normally the top-level package, unless a non-empty *fromlist* "
 "was given."
 msgstr ""
+"戻り値は、インポートされたモジュールかトップレベルパッケージへの新しい参照か、失敗した場合は例外を設定して ``NULL`` を返します。\n"
+":func:`__import__` と同じように、パッケージのサブモジュールが要求されたときは、空でない *fromlist* を渡された時以外は、トップレベルのパッケージを返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:55
 msgid ""
@@ -123,6 +130,8 @@ msgid ""
 "Reload a module.  Return a new reference to the reloaded module, or ``NULL``"
 " with an exception set on failure (the module still exists in this case)."
 msgstr ""
+"モジュールを再ロード (reload) します。戻り値は再ロードしたモジュールかトップレベルパッケージへの新たな参照になります。\n"
+"失敗した場合には例外をセットし、``NULL`` を返します (その場合でも、モジュールは生成されている場合があります)。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:100
 msgid ""
@@ -131,6 +140,9 @@ msgid ""
 "dictionary if there's one there, and if not, create a new one and insert it "
 "in the modules dictionary. Return ``NULL`` with an exception set on failure."
 msgstr ""
+"モジュール名に対応するモジュールオブジェクトを返します。*name* 引数は ``package.module`` の形式でもかまいません。\n"
+"まずモジュール辞書に該当するモジュールがあるかどうか調べ、なければ新たなモジュールを生成してモジュール辞書に挿入します。\n"
+"失敗した場合には例外をセットして ``NULL`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:107
 msgid ""
@@ -165,6 +177,10 @@ msgid ""
 " to know that the module object is an unknown (and probably damaged with "
 "respect to the module author's intents) state."
 msgstr ""
+"モジュール名 (``package.module`` 形式でも構いません) および Python のバイトコードファイルや組み込み関数 :func:`compile`  で得られたコードオブジェクトを元にモジュールをロードします。\n"
+"モジュールオブジェクトへの新たな参照を返します。\n"
+"失敗した場合には例外をセットし、 ``NULL`` を返します。たとえ :c:func:`PyImport_ExecCodeModule` の処理に入った時に *name* が :attr:`sys.modules` に入っていたとしても、インポートに失敗したモジュールは :attr:`sys.modules` に残りません。\n"
+"初期化の不完全なモジュールを :attr:`sys.modules` に残すのは危険であり、そのようなモジュールをインポートするコードにとっては、モジュールの状態がわからない (モジュール作者の意図から外れた壊れた状態かもしれない) からです。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:135
 msgid ""
@@ -287,6 +303,9 @@ msgid ""
 "not been imported yet then returns ``NULL`` but does not set an error.  "
 "Returns ``NULL`` and sets an error if the lookup failed."
 msgstr ""
+"与えられた名前の既にインポート済みのモジュールを返します。\n"
+"モジュールがインポートされていなかった場合は、 ``NULL`` を返しますが、エラーはセットしません。\n"
+"モジュールの検索に失敗した場合は、 ``NULL`` を返し、エラーをセットします。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:217
 msgid ""
@@ -360,6 +379,9 @@ msgid ""
 "could play tricks with this to provide a dynamically created collection of "
 "frozen modules."
 msgstr ""
+"このポインタは :c:type:`struct _frozen` のレコードからなり、終端の要素のメンバが ``NULL`` かゼロになっているような配列を指すよう初期化されます。\n"
+"フリーズされたモジュールをインポートするとき、このテーブルを検索します。\n"
+"サードパーティ製のコードからこのポインタに仕掛けを講じて、動的に生成されたフリーズ化モジュールの集合を提供するようにできます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/import.rst:287
 msgid ""
@@ -398,3 +420,8 @@ msgid ""
 "no modules are added to the internal table.  This should be called before "
 ":c:func:`Py_Initialize`."
 msgstr ""
+"組み込みモジュールのテーブルに一群のモジュールを追加します。\n"
+"配列 *newtab* は :attr:`name` フィールドが ``NULL`` になっているセンチネル (sentinel) エントリで終端されていなければなりません。センチネル値を与えられなかった場合にはメモリ違反になるかもしれません。\n"
+"成功すると ``0`` を、内部テーブルを拡張するのに十分なメモリを確保できなかった場合には ``-1`` を返します。\n"
+"操作が失敗した場合、モジュールは一切内部テーブルに追加されません。\n"
+":c:func:`Py_Initialize` よりも前に呼び出さなければなりません。"
