@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# tomo, 2019
+# tomo, 2020
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-01 04:28+0000\n"
 "PO-Revision-Date: 2019-09-01 03:39+0000\n"
-"Last-Translator: tomo, 2019\n"
+"Last-Translator: tomo, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -38,6 +38,12 @@ msgid ""
 ":c:func:`PyArg_\\*` functions return ``1`` for success and ``0`` for "
 "failure)."
 msgstr ""
+"この章で説明する関数を使うと、 Python の例外の処理や例外の送出ができるようになります。 Python "
+"の例外処理の基本をいくらか理解することが大切です。例外は POSIX :c:data:`errno` 変数にやや似た機能を果たします: "
+"発生した中で最も新しいエラーの (スレッド毎の) グローバルなインジケータがあります。実行に成功した場合にはほとんどの C API "
+"関数がこれをクリアしませんが、失敗したときにはエラーの原因を示すために設定します。ほとんどの C API "
+"関数はエラーインジケータも返し、通常は関数がポインタを返すことになっている場合は ``NULL`` であり、関数が整数を返す場合は ``-1`` "
+"です。(例外: :c:func:`PyArg_\\*` 関数は実行に成功したときに ``1`` を返し、失敗したときに ``0`` を返します)."
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:20
 msgid ""
@@ -181,6 +187,9 @@ msgid ""
 "help format the error message; they have the same meaning and values as in "
 ":c:func:`PyUnicode_FromFormat`. *format* is an ASCII-encoded string."
 msgstr ""
+"この関数はエラーインジケータを設定し ``NULL`` を返します。 *exception* はPython例外クラスであるべきです。 *format*"
+" と以降の引数はエラーメッセージを作るためのもので, :c:func:`PyUnicode_FromFormat` の引数と同じ意味を持っています。 "
+"*format* は ASCII エンコードされた文字列です。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:120
 msgid ""
@@ -207,6 +216,9 @@ msgid ""
 "``NULL`` so an object allocation function can write ``return "
 "PyErr_NoMemory();`` when it runs out of memory."
 msgstr ""
+"これは ``PyErr_SetNone(PyExc_MemoryError)`` を省略したもので、``NULL`` "
+"を返します。したがって、メモリ不足になったとき、オブジェクト割り当て関数は ``return PyErr_NoMemory();`` "
+"と書くことができます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:149
 msgid ""
@@ -221,6 +233,14 @@ msgid ""
 "returns ``NULL``, so a wrapper function around a system call can write "
 "``return PyErr_SetFromErrno(type);`` when the system call returns an error."
 msgstr ""
+"Cライブラリ関数がエラーを返してC変数 :c:data:`errno` を設定したときに、これは例外を発生させるために便利な関数です。第一要素が整数 "
+":c:data:`errno` 値で、第二要素が (:c:func:`strerror` "
+"から得られる)対応するエラーメッセージであるタプルオブジェクトを構成します。それから、 ``PyErr_SetObject(type, "
+"object)`` を呼び出します。 Unixでは、 :c:data:`errno` 値が :const:`EINTR` "
+"であるとき、すなわち割り込まれたシステムコールを表しているとき、これは :c:func:`PyErr_CheckSignals` "
+"を呼び出し、それがエラーインジケータを設定した場合は設定されたままにしておきます。関数は常に ``NULL`` "
+"を返します。したがって、システムコールがエラーを返したとき、システムコールのラッパー関数は ``return "
+"PyErr_SetFromErrno(type);`` と書くことができます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:163
 msgid ""
@@ -229,6 +249,8 @@ msgid ""
 "*type* as a third parameter.  In the case of :exc:`OSError` exception, this "
 "is used to define the :attr:`filename` attribute of the exception instance."
 msgstr ""
+":c:func:`PyErr_SetFromErrno` に似ていますが、 *filenameObject* が ``NULL`` でない場合に、 *type* のコンストラクタに第三引数として渡すというふるまいが追加されています。\n"
+":exc:`OSError` 例外の場合では、 *filenameObject* が例外インスタンスの :attr:`filename` 属性を定義するのに使われます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:172
 msgid ""
@@ -260,6 +282,13 @@ msgid ""
 "calls ``PyErr_SetObject(PyExc_WindowsError, object)``. This function always "
 "returns ``NULL``."
 msgstr ""
+"これは :exc:`WindowsError` を発生させるために便利な関数です。 :c:data:`0` の *ierr* とともに呼び出された場合、"
+" :c:func:`GetLastError` が返すエラーコードが代りに使われます。 *ierr* あるいは "
+":c:func:`GetLastError` によって与えられるエラーコードのWindows用の説明を取り出すために、Win32関数 "
+":c:func:`FormatMessage` を呼び出します。それから、第一要素が *ierr* "
+"値で第二要素が(:c:func:`FormatMessage` から得られる) 対応するエラーメッセージであるタプルオブジェクトを構成します。そして、 "
+"``PyErr_SetObject(PyExc_WindowsError, object)`` を呼び出します。この関数は常に ``NULL`` "
+"を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:197
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:205
@@ -390,6 +419,10 @@ msgid ""
 "stack frame.  A *stack_level* of 1 is the function calling "
 ":c:func:`PyErr_WarnEx`, 2 is  the function above that, and so forth."
 msgstr ""
+"警告メッセージを発行します。 *category* 引数は警告カテゴリ(以下を参照) かまたは ``NULL`` で、 *message* 引数は "
+"UTF-8 エンコードされた文字列です。 *stacklevel* はスタックフレームの数を示す正の整数です; "
+"警告はそのスタックフレームの中の実行している行から発行されます。 *stacklevel* が 1 だと :c:func:`PyErr_WarnEx` "
+"を呼び出している関数が、2 だとその上の関数が Warning の発行元になります。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:310
 msgid ""
@@ -428,6 +461,9 @@ msgid ""
 "*module* and *registry* arguments may be set to ``NULL`` to get the default "
 "effect described there."
 msgstr ""
+"すべての警告の属性を明示的に制御した警告メッセージを出します。これは Python 関数 :func:`warnings.warn_explicit` "
+"の直接的なラッパで、さらに情報を得るにはそちらを参照してください。そこに説明されているデフォルトの効果を得るために、 *module* と "
+"*registry* 引数は ``NULL`` に設定することができます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:341
 msgid ""
@@ -468,6 +504,9 @@ msgid ""
 "set, return ``NULL``.  You do not own a reference to the return value, so "
 "you do not need to :c:func:`Py_DECREF` it."
 msgstr ""
+"エラーインジケータが設定されているかテストします。設定されている場合は、例外の *型* (:c:func:`PyErr_Set\\*` "
+"関数の一つあるいは :c:func:`PyErr_Restore` への最も新しい呼び出しに対する第一引数)を返します。設定されていない場合は "
+"``NULL`` を返します。あなたは戻り値への参照を持っていませんので、それに :c:func:`Py_DECREF` する必要はありません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:376
 msgid ""
@@ -508,6 +547,9 @@ msgid ""
 "object retrieved.  The value and traceback object may be ``NULL`` even when "
 "the type object is not."
 msgstr ""
+"エラーインジケータをアドレスを渡す三つの変数の中へ取り出します。エラーインジケータが設定されていない場合は、三つすべての変数を ``NULL`` "
+"に設定します。エラーインジケータが設定されている場合はクリアされ、あなたは取り出されたそれぞれのオブジェクトへの参照を持つことになります。型オブジェクトが"
+" ``NULL`` でないときでさえ、その値とトレースバックオブジェクトは ``NULL`` かもしれません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:406
 msgid ""
@@ -528,6 +570,11 @@ msgid ""
 "own these references.  (If you don't understand this, don't use this "
 "function.  I warned you.)"
 msgstr ""
+"三つのオブジェクトからエラーインジケータを設定します。エラーインジケータがすでに設定されている場合は、最初にクリアされます。オブジェクトが "
+"``NULL`` ならば、エラーインジケータがクリアされます。``NULL`` のtypeと非 ``NULL`` のvalueあるいは "
+"tracebackを渡してはいけません。例外の型(type)はクラスであるべきです。無効な例外の型(type)あるいは値(value)を渡してはいけません。(これらの規則を破ると後で気付きにくい問題の原因となるでしょう。)"
+" この呼び出しはそれぞれのオブジェクトへの参照を取り除きます: "
+"あなたは呼び出しの前にそれぞれのオブジェクトへの参照を持たなければならないのであり、また呼び出しの後にはもはやこれらの参照を持っていません。(これを理解していない場合は、この関数を使ってはいけません。注意しておきます。)"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:433
 msgid ""
@@ -567,6 +614,9 @@ msgid ""
 "freshly raised.  Returns new references for the three objects, any of which "
 "may be ``NULL``.  Does not modify the exception info state."
 msgstr ""
+"``sys.exc_info()`` で得られる例外情報を取得します。\n"
+"これは *既に捕まえた* 例外を参照するもので、新たに送出された例外への参照は持っていません。\n"
+"新しい3つのオブジェクトへの参照を返しますが、その中には ``NULL`` があるかもしれません。この関数は例外情報の状態を変更しません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:466
 msgid ""
@@ -586,6 +636,11 @@ msgid ""
 "exception state, pass ``NULL`` for all three arguments. For general rules "
 "about the three arguments, see :c:func:`PyErr_Restore`."
 msgstr ""
+"``sys.exc_info()`` で得られる例外情報を設定します。\n"
+"これは *既に捕まえた* 例外を参照するもので、新たに送出された例外への参照は持っていません。\n"
+"この関数は引数への参照を盗みます。\n"
+"例外の状態をクリアしたい場合は、3 つ全ての引数に ``NULL`` を渡してください。\n"
+"3 つの引数についての一般的な規則は、 :c:func:`PyErr_Restore` を参照してください。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:484
 msgid ""
@@ -674,6 +729,10 @@ msgid ""
 "``NULL``. This creates a class object derived from :exc:`Exception` "
 "(accessible in C as :c:data:`PyExc_Exception`)."
 msgstr ""
+"このユーティリティ関数は新しい例外クラスを作成して返します。 *name* 引数は新しい例外の名前、 ``module.classname`` 形式の "
+"C文字列でなければならない。 *base* と *dict* 引数は通常 ``NULL`` です。これはすべての例外のためのルート、組み込み名 "
+":exc:`Exception` (Cでは :c:data:`PyExc_Exception` "
+"としてアクセス可能)をルートとして派生したクラスオブジェクトを作成します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:553
 msgid ""
@@ -695,6 +754,8 @@ msgid ""
 "can easily be given a docstring: If *doc* is non-``NULL``, it will be used "
 "as the docstring for the exception class."
 msgstr ""
+":c:func:`PyErr_NewException` とほぼ同じですが、新しい例外クラスに簡単に docstring を設定できます。 *doc* "
+"が ``NULL`` で無い場合、それが例外クラスの docstring になります。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:570
 msgid "Exception Objects"
@@ -706,6 +767,8 @@ msgid ""
 "accessible from Python through :attr:`__traceback__`.  If there is no "
 "traceback associated, this returns ``NULL``."
 msgstr ""
+"Python で :attr:`__traceback__` 属性からアクセスできるものと同じ、例外に関する traceback "
+"の新しい参照を返します。関係する traceback が無い場合は、 ``NULL`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:581
 msgid ""
@@ -720,6 +783,8 @@ msgid ""
 "from Python through :attr:`__context__`.  If there is no context associated,"
 " this returns ``NULL``."
 msgstr ""
+"Python で :attr:`__context__` 属性からアクセスできるものと同じ、例外に関するコンテキスト (*ex* "
+"が送出されたときに処理していた別の例外インスタンス) の新しい参照を返します。関係するコンテキストが無い場合は、 ``NULL`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:595
 msgid ""
@@ -727,6 +792,8 @@ msgid ""
 "clear it.  There is no type check to make sure that *ctx* is an exception "
 "instance. This steals a reference to *ctx*."
 msgstr ""
+"例外に関するコンテキストに *ctx* をセットします。クリアするには ``NULL`` を使用してください。*ctx* "
+"が例外インスタンスかどうかを確かめる型チェックは行われません。これは *ctx* への参照を盗みます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:602
 msgid ""
@@ -743,6 +810,10 @@ msgid ""
 "clear it.  There is no type check to make sure that *cause* is either an "
 "exception instance or :const:`None`.  This steals a reference to *cause*."
 msgstr ""
+"例外に関係する原因に *cause* をセットします。\n"
+"クリアするには ``NULL`` を使用してください。\n"
+"*cause* が例外インスタンスか :const:`None` のどちらかであることを確かめる型チェックは行われません。\n"
+"これは *cause* への参照を盗みます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:613
 msgid ""
@@ -801,6 +872,8 @@ msgid ""
 "*\\*start*.  *start* must not be ``NULL``.  Return ``0`` on success, ``-1`` "
 "on failure."
 msgstr ""
+"渡された例外オブジェクトから *start* 属性を取得して *\\*start* に格納します。*start* は ``NULL`` "
+"であってはなりません。成功したら ``0`` を、失敗したら ``-1`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:663
 msgid ""
@@ -815,6 +888,8 @@ msgid ""
 "*\\*end*.  *end* must not be ``NULL``.  Return ``0`` on success, ``-1`` on "
 "failure."
 msgstr ""
+"渡された例外オブジェクトから *end* 属性を取得して *\\*end* に格納します。*end* は ``NULL`` "
+"であってはなりません。成功したら ``0`` を、失敗したら ``-1`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/exceptions.rst:678
 msgid ""

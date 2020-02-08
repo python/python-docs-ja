@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# tomo, 2019
+# tomo, 2020
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-01 04:28+0000\n"
 "PO-Revision-Date: 2019-09-01 03:40+0000\n"
-"Last-Translator: tomo, 2019\n"
+"Last-Translator: tomo, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -246,6 +246,8 @@ msgid ""
 "Like ``getenv(s)``, but returns ``NULL`` if :option:`-E` was passed on the "
 "command line (i.e. if ``Py_IgnoreEnvironmentFlag`` is set)."
 msgstr ""
+"``getenv(s)`` に似ていますが、コマンドラインで :option:`-E` が渡された場合 (つまり "
+"``Py_IgnoreEnvironmentFlag`` が設定された場合) ``NULL`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/intro.rst:160
 msgid ""
@@ -607,6 +609,12 @@ msgid ""
 "for errors with :c:func:`PyErr_Occurred`.  These exceptions are always "
 "explicitly documented."
 msgstr ""
+"ところが、 C プログラマの場合、エラーチェックは常に明示的に行わねばなりません。 Python/C API "
+"の全ての関数は、関数のドキュメントで明確に説明がない限り例外を発行する可能性があります。一般的な話として、ある関数が何らかのエラーに遭遇すると、関数は例外を設定して、関数内における参照の所有権を全て放棄し、エラー値"
+" (error indicator) を返します。ドキュメントに書かれてない場合、このエラー値は関数の戻り値の型によって、 ``NULL`` か "
+"``-1`` "
+"のどちらかになります。いくつかの関数ではブール型で真/偽を返し、偽はエラーを示します。きわめて少数の関数では明確なエラー指標を返さなかったり、あいまいな戻り値を返したりするので、"
+" :c:func:`PyErr_Occurred` で明示的にエラーテストを行う必要があります。これらの例外は常に明示的にドキュメント化されます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/intro.rst:476
 msgid ""
@@ -620,6 +628,12 @@ msgid ""
 "not the most general) function to set the exception state, and "
 ":c:func:`PyErr_Clear` clears the exception state."
 msgstr ""
+"例外時の状態情報 (exception state)は、スレッド単位に用意された記憶領域 (per-thread storage) 内で管理されます "
+"(この記憶領域は、スレッドを使わないアプリケーションではグローバルな記憶領域と同じです)。一つのスレッドは二つの状態のどちらか: "
+"例外が発生したか、まだ発生していないか、をとります。関数 :c:func:`PyErr_Occurred` を使うと、この状態を調べられます: "
+"この関数は例外が発生した際にはその例外型オブジェクトに対する借用参照 (borrowed reference) を返し、そうでないときには "
+"``NULL`` を返します。例外状態を設定する関数は数多くあります: :c:func:`PyErr_SetString` はもっともよく知られている "
+"(が、もっとも汎用性のない) 例外を設定するための関数で、 :c:func:`PyErr_Clear` は例外状態情報を消し去る関数です。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/intro.rst:486
 msgid ""
@@ -633,6 +647,12 @@ msgid ""
 "the Python bytecode interpreter's  main loop, which takes care of "
 "transferring it to ``sys.exc_info()`` and friends."
 msgstr ""
+"完全な例外状態情報は、3 つのオブジェクト: 例外の型、例外の値、そしてトレースバック、からなります  (どのオブジェクトも ``NULL`` "
+"を取り得ます)。これらの情報は、 Python の ``sys.exc_info()`` の結果と同じ意味を持ちます; とはいえ、 C と Python"
+" の例外状態情報は全く同じではありません: Python における例外オブジェクトは、Python の :keyword:`try` ...  "
+":keyword:`except` 文で最近処理したオブジェクトを表す一方、 C レベルの例外状態情報が存続するのは、渡された例外情報を "
+"``sys.exc_info()`` その他に転送するよう取り計らう Python "
+"のバイトコードインタプリタのメインループに到達するまで、例外が関数の間で受け渡しされている間だけです。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/intro.rst:498
 msgid ""
@@ -696,6 +716,14 @@ msgid ""
 "likewise, the proposed return value is initialized to ``-1`` (failure) and "
 "only set to success after the final call made is successful."
 msgstr ""
+"なんとこの例は C で ``goto`` 文を使うお勧めの方法まで示していますね! この例では、特定の例外を処理するために "
+":c:func:`PyErr_ExceptionMatches`  および :c:func:`PyErr_Clear` "
+"をどう使うかを示しています。また、所有権を持っている参照で、値が ``NULL`` になるかもしれないものを捨てるために  "
+":c:func:`Py_XDECREF` をどう使うかも示しています (関数名に ``'X'`` が付いていることに注意してください; "
+":c:func:`Py_DECREF` は ``NULL`` "
+"参照に出くわすとクラッシュします)。正しく動作させるためには、所有権を持つ参照を保持するための変数を ``NULL`` で初期化することが重要です; "
+"同様に、あらかじめ戻り値を定義する際には値を ``-1`` (失敗) で初期化しておいて、最後の関数呼び出しまでうまくいった場合にのみ ``0`` "
+"(成功) に設定します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/intro.rst:599
 msgid "Embedding Python"
