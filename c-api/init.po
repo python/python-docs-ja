@@ -8,7 +8,7 @@
 # Nozomu Kaneko <nozom.kaneko@gmail.com>, 2017
 # Arihiro TAKASE, 2017
 # Osamu NAKAMURA, 2017
-# tomo, 2019
+# tomo, 2020
 # 
 #, fuzzy
 msgid ""
@@ -17,7 +17,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-10 12:22+0000\n"
 "PO-Revision-Date: 2017-02-16 17:36+0000\n"
-"Last-Translator: tomo, 2019\n"
+"Last-Translator: tomo, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1281,6 +1281,8 @@ msgid ""
 "When the current thread state is ``NULL``, this issues a fatal error (so "
 "that the caller needn't check for ``NULL``)."
 msgstr ""
+"現在のスレッド状態を返します。GIL を保持していなければなりません。現在のスレッド状態が ``NULL`` なら、(呼び出し側が ``NULL`` "
+"チェックをしなくてすむように) この関数は致命的エラーを起こすようになっています。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:903
 msgid ""
@@ -1288,6 +1290,8 @@ msgid ""
 "*tstate*, which may be ``NULL``.  The global interpreter lock must be held "
 "and is not released."
 msgstr ""
+"現在のスレッド状態を *tstate* に指定したスレッド状態と入れ変えます。*tstate* は ``NULL`` の場合があります。GIL "
+"を保持していなければならず、解放しません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:908
 msgid ""
@@ -1531,6 +1535,8 @@ msgid ""
 "state is available. If this function returns ``NULL``, no exception has been"
 " raised and the caller should assume no current thread state is available."
 msgstr ""
+"拡張モジュールがスレッド固有の状態情報を保存できるような辞書を返します。各々の拡張モジュールが辞書に状態情報を保存するためには唯一のキーを使わなければなりません。現在のスレッド状態がない時にこの関数を呼び出してもかまいません。この関数が"
+" ``NULL`` を返す場合、例外はまったく送出されず、呼び出し側は現在のスレッド状態が利用できないと考えなければなりません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1090
 msgid ""
@@ -1561,6 +1567,8 @@ msgid ""
 "*tstate*, which should not be ``NULL``.  The lock must have been created "
 "earlier. If this thread already has the lock, deadlock ensues."
 msgstr ""
+"GIL を獲得し、現在のスレッド状態を *tstate* に設定します。 *tstate* は ``NULL`` "
+"であってはなりません。ロックはあらかじめ作成されていなければなりません。この関数を呼び出したスレッドがすでにロックを獲得している場合、デッドロックに陥ります。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1115
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1153
@@ -1585,6 +1593,10 @@ msgid ""
 "is only used to check that it represents the current thread state --- if it "
 "isn't, a fatal error is reported."
 msgstr ""
+"現在のスレッド状態をリセットして ``NULL`` にし、GIL "
+"を解放します。ロックはあらかじめ作成されていなければならず、かつ現在のスレッドが保持していなければなりません。*tstate* は ``NULL`` "
+"であってはなりませんが、その値が現在のスレッド状態を表現しているかどうかを調べるためにだけ使われます --- "
+"もしそうでなければ、致命的エラーが報告されます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1132
 msgid ""
@@ -1689,6 +1701,13 @@ msgid ""
 "most other Python/C API functions, there needn't be a current thread state "
 "on entry.)"
 msgstr ""
+"戻り値は、新たなサブインタプリタが生成したスレッド状態 (thread state) "
+"オブジェクトのうち、最初のものを指しています。このスレッド状態が現在のスレッド状態 (current thread state) "
+"になります。実際のスレッドが生成されるわけではないので注意してください; "
+"下記のスレッド状態に関する議論を参照してください。新たなインタプリタの生成に失敗すると、``NULL`` を返します; "
+"例外状態はセットされませんが、これは例外状態が現在のスレッド状態に保存されることになっていて、現在のスレッド状態なるものが存在しないことがあるからです。(他の"
+" Python/C API 関数のように、この関数を呼び出す前にはGILが保持されていなければならず、関数が処理を戻した際にも保持されたままになります;"
+" しかし、他の Python/C API 関数とは違い、関数から戻ったときの現在のスレッド状態が関数に入るときと同じとは限らないので注意してください。)"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1225
 msgid "Extension modules are shared between (sub-)interpreters as follows:"
@@ -1735,6 +1754,11 @@ msgid ""
 " is still held when it returns.)  :c:func:`Py_FinalizeEx` will destroy all "
 "sub-interpreters that haven't been explicitly destroyed at that point."
 msgstr ""
+"指定されたスレッド状態 *tstate* で表現される (サブ) インタプリタを抹消します。 *tstate* "
+"は現在のスレッド状態でなければなりません。下記のスレッド状態に関する議論を参照してください。関数呼び出しが戻ったとき、現在のスレッド状態は "
+"``NULL`` になっています。このインタプリタに関連付けられた全てのスレッド状態は抹消されます。 "
+"(この関数を呼び出す前にはGILを保持しておかなければならず、ロックは関数が戻ったときも保持されています。) "
+":c:func:`Py_FinalizeEx` は、その時点で明示的に抹消されていない全てのサブインタプリタを抹消します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1268
 msgid "Bugs and caveats"
@@ -1939,7 +1963,7 @@ msgstr ":const:`PyTrace_RETURN`"
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1379
 msgid ""
 "Value being returned to the caller, or ``NULL`` if caused by an exception."
-msgstr ""
+msgstr "呼び出し側に返される予定の値か、例外によって関数を抜ける場合は ``NULL`` です。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1382
 msgid ":const:`PyTrace_C_CALL`"
@@ -2046,6 +2070,10 @@ msgid ""
 ":const:`PyTrace_LINE` :const:`PyTrace_OPCODE` and "
 ":const:`PyTrace_EXCEPTION`."
 msgstr ""
+"プロファイル関数を *func* に設定します。\n"
+"*obj* パラメタは関数の第一引数として渡されるもので、何らかの Python オブジェクトあるいは ``NULL`` です。\n"
+"プロファイル関数がスレッド状態を維持する必要があるなら、各々のスレッドに異なる *obj* を使うことで、状態を記憶しておく便利でスレッドセーフな場所を提供できます。\n"
+"プロファイル関数は、モニタされているイベントのうち、 :const:`PyTrace_LINE` :const:`PyTrace_OPCODE`, :const:`PyTrace_EXCEPTION` を除く全てのイベントに対して呼び出されます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/init.rst:1462
 msgid ""

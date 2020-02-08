@@ -9,7 +9,7 @@
 # Osamu NAKAMURA, 2017
 # Arihiro TAKASE, 2017
 # 秘湯 <xwhhsprings@gmail.com>, 2019
-# tomo, 2019
+# tomo, 2020
 # 
 #, fuzzy
 msgid ""
@@ -18,7 +18,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-01 12:19+0000\n"
 "PO-Revision-Date: 2017-02-16 17:39+0000\n"
-"Last-Translator: tomo, 2019\n"
+"Last-Translator: tomo, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1365,6 +1365,12 @@ msgid ""
 "currently the only use is to print the objects that are still alive at the "
 "end of a run when the environment variable :envvar:`PYTHONDUMPREFS` is set."
 msgstr ""
+"これらのフィールドはマクロ ``Py_TRACE_REFS`` が定義されている場合のみ存在します。 ``PyObject_HEAD_INIT`` "
+"マクロを使うと、フィールドを ``NULL`` に初期化します。静的にメモリ確保されているオブジェクトでは、これらのフィールドは常に ``NULL`` "
+"のままです。動的にメモリ確保されるオブジェクトの場合、これら二つのフィールドは、ヒープ上の *全ての* "
+"存続中のオブジェクトからなる二重リンクリストでオブジェクトをリンクする際に使われます。このことは様々なデバッグ目的に利用できます; 現状では、環境変数 "
+":envvar:`PYTHONDUMPREFS` "
+"が設定されているときに、プログラムの実行終了時点で存続しているオブジェクトを出力するのが唯一の用例です。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:502
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:515
@@ -1459,6 +1465,11 @@ msgid ""
 "explicitly at the start of the module's initialization function, before "
 "doing anything else.  This is typically done like this::"
 msgstr ""
+"型自体の型、別の言い方をするとメタタイプです。 ``PyObject_HEAD_INIT`` マクロで初期化され、通常は "
+"``&PyType_Type`` になります。しかし、(少なくとも) Windows "
+"で利用できる動的ロード可能な拡張モジュールでは、コンパイラは有効な初期化ではないと文句をつけます。そこで、ならわしとして、 "
+"``PyObject_HEAD_INIT`` には ``NULL`` "
+"を渡して初期化しておき、他の操作を行う前にモジュールの初期化関数で明示的にこのフィールドを初期化することになっています。この操作は以下のように行います::"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:533
 msgid ""
@@ -1467,6 +1478,9 @@ msgid ""
 "initializes it to the :attr:`ob_type` field of the base class. "
 ":c:func:`PyType_Ready` will not change this field if it is non-zero."
 msgstr ""
+"上の操作は、該当する型のいかなるインスタンス生成よりも前にしておかなければなりません。 :c:func:`PyType_Ready` は "
+":attr:`ob_type` が ``NULL`` かどうか調べ、 ``NULL`` の場合には基底クラスの :attr:`ob_type` "
+"フィールドで初期化します。 ob_type フィールドがゼロでない場合、 :c:func:`PyType_Ready` はこのフィールドを変更しません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:540
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:684
@@ -1797,6 +1811,11 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_getattr` and "
 ":c:member:`~PyTypeObject.tp_getattro` are both ``NULL``."
 msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_getattro` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_getattr` および "
+":c:member:`~PyTypeObject.tp_getattro` が共に ``NULL`` の場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_getattr` と :c:member:`~PyTypeObject.tp_getattro`"
+" を両方とも継承します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:768
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:964
@@ -1996,6 +2015,11 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_richcompare` and "
 ":c:member:`~PyTypeObject.tp_hash` are both ``NULL``."
 msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_richcompare` と共にサブタイプに継承されます: "
+"すなわち、サブタイプの :c:member:`~PyTypeObject.tp_richcompare` および "
+":c:member:`~PyTypeObject.tp_hash` が両方とも ``NULL`` のとき、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_richcompare` と :c:member:`~PyTypeObject.tp_hash`"
+" を両方とも継承します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:902
 msgid ""
@@ -2059,6 +2083,11 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_getattr` and "
 ":c:member:`~PyTypeObject.tp_getattro` are both ``NULL``."
 msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_getattr` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_getattr` および "
+":c:member:`~PyTypeObject.tp_getattro` が共に ``NULL`` の場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_getattr` と :c:member:`~PyTypeObject.tp_getattro`"
+" を両方とも継承します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:959
 msgid ":c:type:`PyBaseObject_Type` uses :c:func:`PyObject_GenericGetAttr`."
@@ -2085,6 +2114,11 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_setattr` and "
 ":c:member:`~PyTypeObject.tp_setattro` are both ``NULL``."
 msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_setattr` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_setattr` および "
+":c:member:`~PyTypeObject.tp_setattro` が共に ``NULL`` の場合、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_setattr` と :c:member:`~PyTypeObject.tp_setattro`"
+" を両方とも継承します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:985
 msgid ":c:type:`PyBaseObject_Type` uses :c:func:`PyObject_GenericSetAttr`."
@@ -2120,6 +2154,14 @@ msgid ""
 "must not be accessed and must be considered to have a zero or ``NULL`` value"
 " instead."
 msgstr ""
+"このフィールドは様々なフラグからなるビットマスクです。いくつかのフラグは、特定の状況において変則的なセマンティクスが適用されることを示します; "
+"その他のフラグは、型オブジェクト (あるいは :c:member:`~PyTypeObject.tp_as_number` 、 "
+":c:member:`~PyTypeObject.tp_as_sequence` 、 "
+":c:member:`~PyTypeObject.tp_as_mapping` 、 および "
+":c:member:`~PyTypeObject.tp_as_buffer` が参照している拡張機能構造体) "
+"の特定のフィールドのうち、過去から現在までずっと存在していたわけではないものが有効になっていることを示すために使われます; "
+"フラグビットがクリアされていれば、フラグが保護しているフィールドにはアクセスしない代わりに、その値はゼロか ``NULL`` "
+"になっているとみなさなければなりません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1012
 msgid ""
@@ -2135,6 +2177,12 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_traverse` and :c:member:`~PyTypeObject.tp_clear`"
 " fields in the subtype exist and have ``NULL`` values."
 msgstr ""
+"このフィールドの継承は込み入っています。ほとんどのフラグは個別に継承されます。すなわち、基底タイプのフラグビットが設定されていたら、サブタイプのフラグビットもそれを引き継ぎます。拡張機能構造体が継承される場合は、拡張機能構造体に関係するフラグビットは厳密に継承されます。すなわち、基底タイプのフラグビットの値は、拡張機能構造体へのポインタと共に、サブタイプにコピーされます。"
+" :const:`Py_TPFLAGS_HAVE_GC` フラグビットは :c:member:`~PyTypeObject.tp_traverse` "
+"フィールドと :c:member:`~PyTypeObject.tp_clear` フィールドと共に継承されます。すなわち、サブタイプにおいて、 "
+":const:`Py_TPFLAGS_HAVE_GC` フラグビットがクリアされていて、 "
+":c:member:`~PyTypeObject.tp_traverse` フィールドと "
+":c:member:`~PyTypeObject.tp_clear` フィールドが存在し ``NULL`` になっている場合に継承されます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1027
 msgid ""
@@ -2376,6 +2424,8 @@ msgid ""
 "member, it can only be ``NULL`` or a Python string and therefore cannot be "
 "part of a reference cycle."
 msgstr ""
+":c:func:`Py_VISIT` が循環参照になる恐れのあるメンバにだけ呼び出されていることに注目してください。 ``self->key`` "
+"メンバもありますが、それは ``NULL`` か Python文字列なので、循環参照の一部になることはありません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1237
 msgid ""
@@ -2449,6 +2499,8 @@ msgid ""
 "and set its pointers to those members to ``NULL``, as in the following "
 "example::"
 msgstr ""
+"次の例にあるように、 :c:member:`~PyTypeObject.tp_clear` の実装は、インスタンスから Python "
+"オブジェクトだと思われるメンバへの参照を外し、それらのメンバへのポインタに ``NULL`` をセットすべきです::"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1286
 msgid ""
@@ -2464,6 +2516,12 @@ msgid ""
 "can no longer be used.  The :c:func:`Py_CLEAR` macro performs the operations"
 " in a safe order."
 msgstr ""
+"参照のクリアはデリケートなので、 :c:func:`Py_CLEAR` マクロを使うべきです: ポインタを ``NULL`` "
+"にセットするまで、そのオブジェクトの参照カウントをデクリメントしてはいけません。参照カウントのデクリメントすると、そのオブジェクトが破棄されるかもしれず、"
+" (そのオブジェクトに関連付けられたファイナライザ、弱参照のコールバックにより) "
+"任意のPythonコードの実行を含む後片付け処理が実行されるかもしれないからです。もしそういったコードが再び *self* "
+"を参照することがあれば、すでに持っていたオブジェクトへのポインタは ``NULL`` になっているので、 *self* "
+"は所有していたオブジェクトをもう利用できないことを認識できます。 :c:func:`Py_CLEAR` マクロはその手続きを安全な順番で実行します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1297
 msgid ""
@@ -2610,6 +2668,11 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_richcompare` and "
 ":c:member:`~PyTypeObject.tp_hash` are both ``NULL``."
 msgstr ""
+"このフィールドは :c:member:`~PyTypeObject.tp_hash` と共にサブタイプに継承されます: すなわち、サブタイプの "
+":c:member:`~PyTypeObject.tp_richcompare` および "
+":c:member:`~PyTypeObject.tp_hash` が両方とも ``NULL`` のとき、サブタイプは基底タイプから "
+":c:member:`~PyTypeObject.tp_richcompare` と :c:member:`~PyTypeObject.tp_hash`"
+" を両方とも継承します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1376
 msgid ""
@@ -2628,6 +2691,10 @@ msgid ""
 "functions.  The instance structure needs to include a field of type "
 ":c:type:`PyObject\\*` which is initialized to ``NULL``."
 msgstr ""
+"型のインスタンスが弱参照可能な場合、このフィールドはゼロよりも大きな数になり、インスタンス構造体における弱参照リストの先頭を示すオフセットが入ります "
+"(GC ヘッダがある場合には無視します); このオフセット値は :c:func:`PyObject_ClearWeakRefs` および "
+":c:func:`PyWeakref_\\*` 関数が利用します。インスタンス構造体には、 ``NULL`` に初期化された "
+":c:type:`PyObject\\*` 型のフィールドが入っていなければなりません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1392
 msgid ""
@@ -2726,6 +2793,8 @@ msgid ""
 "An optional pointer to a static ``NULL``-terminated array of "
 ":c:type:`PyMethodDef` structures, declaring regular methods of this type."
 msgstr ""
+"オプションのポインタで、この型の正規 (regular) のメソッドを宣言している :c:type:`PyMethodDef` 構造体からなる、 "
+"``NULL`` で終端された静的な配列を指します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1460
 msgid ""
@@ -2747,6 +2816,8 @@ msgid ""
 ":c:type:`PyMemberDef` structures, declaring regular data members (fields or "
 "slots) of instances of this type."
 msgstr ""
+"オプションのポインタで、型の正規 (regular) のデータメンバ (フィールドおよびスロット) を宣言している "
+":c:type:`PyMemberDef` 構造体からなる、 ``NULL`` で終端された静的な配列を指します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1475
 msgid ""
@@ -2768,6 +2839,8 @@ msgid ""
 ":c:type:`PyGetSetDef` structures, declaring computed attributes of instances"
 " of this type."
 msgstr ""
+"オプションのポインタで、インスタンスの算出属性 (computed attribute) を宣言している :c:type:`PyGetSetDef` "
+"構造体からなる、 ``NULL`` で終端された静的な配列を指します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1489
 msgid ""
@@ -2836,6 +2909,10 @@ msgid ""
 "type, extra attributes for the type may be added to this dictionary only if "
 "they don't correspond to overloaded operations (like :meth:`__add__`)."
 msgstr ""
+"このフィールドは通常、 :c:func:`PyType_Ready` を呼び出す前に ``NULL`` に初期化しておかなければなりません; "
+"あるいは、型の初期属性の入った辞書で初期化しておいてもかまいません。 :c:func:`PyType_Ready` "
+"が型をひとたび初期化すると、型の新たな属性をこの辞書に追加できるのは、属性が (:meth:`__add__` のような) "
+"オーバロード用演算でないときだけです。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1544
 msgid ""
@@ -3027,6 +3104,12 @@ msgid ""
 ":c:member:`~PyTypeObject.tp_new` returns an instance of a subtype of the "
 "original type, the subtype's :c:member:`~PyTypeObject.tp_init` is called."
 msgstr ""
+":c:member:`~PyTypeObject.tp_init` 関数のフィールドが ``NULL`` "
+"でない場合、通常の型を呼び出す方法のインスタンス生成において、型の :c:member:`~PyTypeObject.tp_new` "
+"関数がインスタンスを返した後に呼び出されます。 :c:member:`~PyTypeObject.tp_new` "
+"が元の型のサブタイプでない別の型を返す場合、 :c:member:`~PyTypeObject.tp_init` は全く呼び出されません; "
+":c:member:`~PyTypeObject.tp_new` が元の型のサブタイプのインスタンスを返す場合、サブタイプの "
+":c:member:`~PyTypeObject.tp_init` が呼び出されます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1675
 msgid "Returns ``0`` on success, ``-1`` and sets an exception on error."
@@ -3099,6 +3182,8 @@ msgid ""
 "types whose :c:member:`~PyTypeObject.tp_base` is ``NULL`` or "
 "``&PyBaseObject_Type``."
 msgstr ""
+"サブタイプはこのフィールドを継承します。例外として、  :c:member:`~PyTypeObject.tp_base` が ``NULL`` か "
+"``&PyBaseObject_Type`` になっている静的な型では継承しません。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1739
 msgid ""
@@ -3177,6 +3262,8 @@ msgid ""
 "This is set for types created by a class statement.  It should be ``NULL`` "
 "for statically defined types."
 msgstr ""
+":keyword:`class` 文で生成されたクラスの場合このフィールドがセットされます。静的に定義されている型の場合には、このフィールドは "
+"``NULL`` になります。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1804
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:1825
@@ -3492,6 +3579,9 @@ msgid ""
 "index which is passed to :attr:`sq_item`.  If :attr:`sq_length` is ``NULL``,"
 " the index is passed as is to the function."
 msgstr ""
+"負のインデックスは次のように処理されます: :attr:`sq_length` "
+"スロットが埋められていれば、それを呼び出してシーケンスの長さから正のインデックスを計算し、 :attr:`sq_item` に渡します。 "
+":attr:`sq_length` が ``NULL`` の場合は、インデックスはそのままこの関数に渡されます。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2168
 msgid ""
@@ -3566,6 +3656,8 @@ msgid ""
 "Check if the request can be met. If not, raise :c:data:`PyExc_BufferError`, "
 "set :c:data:`view->obj` to ``NULL`` and return ``-1``."
 msgstr ""
+"リクエストが合致するか確認します。\n"
+"合致しない場合は、 :c:data:`PyExc_BufferError` を送出し、 :c:data:`view->obj` に ``NULL`` を設定し ``-1`` を返します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2229
 msgid "Fill in the requested fields."
@@ -3653,6 +3745,9 @@ msgid ""
 "``NULL``. Otherwise, a standard implementation of this function will take "
 "these optional steps:"
 msgstr ""
+"バッファのリソースを開放する要求を処理します。もし開放する必要のあるリソースがない場合、 "
+":c:member:`PyBufferProcs.bf_releasebuffer` は ``NULL`` "
+"にしても構いません。そうでない場合は、この関数の標準的な実装は、以下の任意の処理手順 (optional step) を行います:"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2276
 msgid "Decrement an internal counter for the number of exports."
@@ -3711,7 +3806,7 @@ msgstr ""
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2327
 msgid ""
 "This slot may be set to ``NULL`` if an object is not an :term:`awaitable`."
-msgstr ""
+msgstr "オブジェクトが :term:`awaitable` でない場合、このスロットを ``NULL`` に設定します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2335
 msgid ""
@@ -3724,13 +3819,16 @@ msgstr ""
 msgid ""
 "This slot may be set to ``NULL`` if an object does not implement "
 "asynchronous iteration protocol."
-msgstr ""
+msgstr "オブジェクトが非同期反復処理のプロトコルを実装していない場合、このスロットを ``NULL`` に設定します。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2346
 msgid ""
 "Must return an :term:`awaitable` object.  See :meth:`__anext__` for details."
 " This slot may be set to ``NULL``."
 msgstr ""
+":term:`awaitable` オブジェクトを返さなければなりません。\n"
+"詳しいことは :meth:`__anext__` を参照してください。\n"
+"このスロットは ``NULL`` に設定されていることもあります。"
 
 #: /home/travis/build/python/cpython-doc-catalog/Doc/c-api/typeobj.rst:2353
 msgid "Slot Type typedefs"
