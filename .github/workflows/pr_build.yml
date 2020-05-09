@@ -1,0 +1,56 @@
+name: PR build for ver 3.8
+
+on:
+  pull_request:
+    branches: [ "3.8" ]
+    types:
+      - opened      # open PR
+      - synchronize # update the branch which pulled from
+      - reopened    # re-open PR
+
+jobs:
+  pr_build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout cpython repository
+      uses: actions/checkout@v2
+      with:
+        repository: python-doc-ja/cpython-doc-catalog
+        ref: catalog-3.8
+        path: cpython
+
+
+    - name: Checkout PR branch
+      uses: actions/checkout@v2
+      with: 
+        ref: ${{ github.ref }}
+        path: cpython/locales/ja/LC_MESSAGES
+
+    - name: debug
+      run: |
+        echo github.workspace
+        echo ${{ github.workspace }}
+        pwd
+        ls -l
+        ls -l ../*
+
+    - name: Checkout GitHub Pages
+      uses: actions/checkout@v2
+      with:
+        ref: gh-pages
+        path: build
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends python3-venv
+        python3 -m venv build_root/venv/
+        build_root/venv/bin/python -m pip install -r requirements.txt
+        
+    - name: Publish PR build
+      run: |
+        pip freeze
+        pwd
+        ls -l ../*
+        echo ${{ github.workspace }}
