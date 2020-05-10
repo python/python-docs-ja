@@ -1,0 +1,34 @@
+name: PR build for ver 3.8
+
+on:
+  pull_request:
+    branches: [ "3.8" ]
+    types:
+      - opened      # open PR
+      - synchronize # update the branch which pulled from
+      - reopened    # re-open PR
+
+jobs:
+  pr_build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v2
+      with: 
+        ref: ${{ GITHUB_REF }}
+
+    - name: Get building tool
+      uses: actions/checkout@v2
+      with:
+        repository: python/docsbuild-scripts
+        
+    - name: Install dependencies
+      run: |
+        python3 -m venv build_root/venv/
+        build_root/venv/bin/python -m pip install -r requirements.txt
+        
+    - name: Publish PR build
+      run: |
+        pip freeze
+        ls -l
