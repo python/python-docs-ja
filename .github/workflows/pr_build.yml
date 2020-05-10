@@ -31,7 +31,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: gh-pages
-        path: build
+        path: build/html
 
     - name: debug
       run: |
@@ -46,7 +46,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends python3-venv
-        
+
+    - name: Build doc
+      run: |
+        cd cpython/Doc
+        make venv
+        make build ALLSPHINXOPTS="-b html -D language=ja -D gettext_compact=0 -E -d build/doctrees . ${GITHUB_WORKSPACE}/build/html/${{ github.base_ref }}/${{ github.head_ref }}"
+
     - name: Publish PR build
       run: |
         pip freeze
