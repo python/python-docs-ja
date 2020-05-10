@@ -2,4 +2,4 @@
 set -eux
 
 # not yet implemented
-exec 0
+exit 0
