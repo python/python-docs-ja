@@ -1,0 +1,532 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>拡張と埋め込み FAQ &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="Windows 上の Python FAQ" href="windows.html" />
+    <link rel="prev" title="ライブラリと拡張 FAQ" href="library.html" />
+    <link rel="canonical" href="https://docs.python.org/3/faq/extending.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="windows.html" title="Windows 上の Python FAQ"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="library.html" title="ライブラリと拡張 FAQ"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python よくある質問</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="extending-embedding-faq">
+<h1><a class="toc-backref" href="#id3">拡張と埋め込み FAQ</a><a class="headerlink" href="#extending-embedding-faq" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="contents topic" id="id1">
+<p class="topic-title">目次</p>
+<ul class="simple">
+<li><a class="reference internal" href="#extending-embedding-faq" id="id3">拡張と埋め込み FAQ</a><ul>
+<li><a class="reference internal" href="#can-i-create-my-own-functions-in-c" id="id4">C で独自の関数を作ることはできますか？</a></li>
+<li><a class="reference internal" href="#id2" id="id5">C++ で独自の関数を作ることはできますか？</a></li>
+<li><a class="reference internal" href="#writing-c-is-hard-are-there-any-alternatives" id="id6">C を書くのは大変です。他の方法はありませんか？</a></li>
+<li><a class="reference internal" href="#how-can-i-execute-arbitrary-python-statements-from-c" id="id7">C から任意の Python 文を実行するにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-can-i-evaluate-an-arbitrary-python-expression-from-c" id="id8">C から任意の Python 式を評価するにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-extract-c-values-from-a-python-object" id="id9">Python オブジェクトから C の値を取り出すにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-use-py-buildvalue-to-create-a-tuple-of-arbitrary-length" id="id10">Py_BuildValue() で任意長のタプルを作るにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-call-an-object-s-method-from-c" id="id11">C からオブジェクトのメソッドを呼び出すにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-catch-the-output-from-pyerr-print-or-anything-that-prints-to-stdout-stderr" id="id12">PyErr_Print() (その他 stdout/stderr に印字するもの) からの出力を受け取るにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-access-a-module-written-in-python-from-c" id="id13">C から Python で書かれたモジュールにアクセスするにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-interface-to-c-objects-from-python" id="id14">Python から C++ へインタフェースするにはどうしますか？</a></li>
+<li><a class="reference internal" href="#i-added-a-module-using-the-setup-file-and-the-make-fails-why" id="id15">セットアップファイルでモジュールを追加しようとしたらメイクに失敗しました。なぜですか？</a></li>
+<li><a class="reference internal" href="#how-do-i-debug-an-extension" id="id16">拡張をデバッグするにはどうしますか？</a></li>
+<li><a class="reference internal" href="#i-want-to-compile-a-python-module-on-my-linux-system-but-some-files-are-missing-why" id="id17">Linux システムで Python モジュールをコンパイルしたいのですが、見つからないファイルがあります。なぜですか？</a></li>
+<li><a class="reference internal" href="#how-do-i-tell-incomplete-input-from-invalid-input" id="id18">&quot;不完全 (incomplete) な入力&quot; を &quot;不適切 (invalid) な入力&quot; から区別するにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-find-undefined-g-symbols-builtin-new-or-pure-virtual" id="id19">未定義の g++ シンボル __builtin_new や __pure_virtual を見つけるにはどうしますか？</a></li>
+<li><a class="reference internal" href="#can-i-create-an-object-class-with-some-methods-implemented-in-c-and-others-in-python-e-g-through-inheritance" id="id20">メソッドのいくつかは C で、その他は Python で実装されたオブジェクトクラスを (継承などで) 作ることはできますか？</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="can-i-create-my-own-functions-in-c">
+<h2><a class="toc-backref" href="#id4">C で独自の関数を作ることはできますか？</a><a class="headerlink" href="#can-i-create-my-own-functions-in-c" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>はい。関数、変数、例外、そして新しいタイプまで含んだビルトインモジュールを C で作れます。これはドキュメント <a class="reference internal" href="../extending/index.html#extending-index"><span class="std std-ref">Python インタプリタの拡張と埋め込み</span></a> で説明されています。</p>
+<p>ほとんどの中級から上級の Python 本もこの話題を扱っています。</p>
+</div>
+<div class="section" id="id2">
+<h2><a class="toc-backref" href="#id5">C++ で独自の関数を作ることはできますか？</a><a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>はい。C++ 内にある C 互換機能を使ってできます。 <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span> <span class="pre">{</span> <span class="pre">...</span> <span class="pre">}</span></code> で Python のインクルードファイルを囲み、 <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span></code> を Python インタプリタから呼ぶ各関数の前に置いてください。グローバルや静的な C++ オブジェクトの構造体を持つものは良くないでしょう。</p>
+</div>
+<div class="section" id="writing-c-is-hard-are-there-any-alternatives">
+<span id="c-wrapper-software"></span><h2><a class="toc-backref" href="#id6">C を書くのは大変です。他の方法はありませんか？</a><a class="headerlink" href="#writing-c-is-hard-are-there-any-alternatives" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>独自の C 拡張を書くための別のやり方は、目的によっていくつかあります。</p>
+<p><a class="reference external" href="http://cython.org">Cython</a> とその親戚 <a class="reference external" href="https://www.cosc.canterbury.ac.nz/greg.ewing/python/Pyrex/">Pyrex</a> は、わずかに変形した Python を受け取り、対応する C コードを生成します。Cython や Pyrex を使えば Python の C API を習得することなく拡張を書けます。</p>
+<p>今のところ Python 拡張が存在しないような C や C++ ライブラリへのインターフェイスが必要な場合、<a class="reference external" href="http://www.swig.org">SWIG</a> のようなツールで、そのライブラリのデータ型のラッピングを図れます。
+<a class="reference external" href="https://riverbankcomputing.com/software/sip/intro">SIP</a>、<a class="reference external" href="http://cxx.sourceforge.net/">CXX</a>、<a class="reference external" href="http://www.boost.org/libs/python/doc/index.html">Boost</a>、<a class="reference external" href="https://github.com/scipy/weave">Weave</a> でも C++ ライブラリをラッピングできます。</p>
+</div>
+<div class="section" id="how-can-i-execute-arbitrary-python-statements-from-c">
+<h2><a class="toc-backref" href="#id7">C から任意の Python 文を実行するにはどうしますか？</a><a class="headerlink" href="#how-can-i-execute-arbitrary-python-statements-from-c" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>これを行う最高水準の関数は <a class="reference internal" href="../c-api/veryhigh.html#c.PyRun_SimpleString" title="PyRun_SimpleString"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyRun_SimpleString()</span></code></a> で、一つの文字列引数を取り、モジュール <code class="docutils literal notranslate"><span class="pre">__main__</span></code> のコンテキストでそれを実行し、成功なら <code class="docutils literal notranslate"><span class="pre">0</span></code>、例外 (<a class="reference internal" href="../library/exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> を含む) が発生したら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。更に制御したければ、 <a class="reference internal" href="../c-api/veryhigh.html#c.PyRun_String" title="PyRun_String"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyRun_String()</span></code></a>  を使ってください。ソースは <code class="docutils literal notranslate"><span class="pre">Python/pythonrun.c</span></code> の '<a class="reference internal" href="../c-api/veryhigh.html#c.PyRun_SimpleString" title="PyRun_SimpleString"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyRun_SimpleString()</span></code></a> を参照してください。</p>
+</div>
+<div class="section" id="how-can-i-evaluate-an-arbitrary-python-expression-from-c">
+<h2><a class="toc-backref" href="#id8">C から任意の Python 式を評価するにはどうしますか？</a><a class="headerlink" href="#how-can-i-evaluate-an-arbitrary-python-expression-from-c" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>先の質問の <a class="reference internal" href="../c-api/veryhigh.html#c.PyRun_String" title="PyRun_String"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyRun_String()</span></code></a> を、スタートシンボル <a class="reference internal" href="../c-api/veryhigh.html#c.Py_eval_input" title="Py_eval_input"><code class="xref c c-data docutils literal notranslate"><span class="pre">Py_eval_input</span></code></a> を渡して呼び出してください。これは式を解析し、評価してその値を返します。</p>
+</div>
+<div class="section" id="how-do-i-extract-c-values-from-a-python-object">
+<h2><a class="toc-backref" href="#id9">Python オブジェクトから C の値を取り出すにはどうしますか？</a><a class="headerlink" href="#how-do-i-extract-c-values-from-a-python-object" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>オブジェクトの型に依ります。タプルなら、 <a class="reference internal" href="../c-api/tuple.html#c.PyTuple_Size" title="PyTuple_Size"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_Size()</span></code></a> が長さを返し、 <a class="reference internal" href="../c-api/tuple.html#c.PyTuple_GetItem" title="PyTuple_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_GetItem()</span></code></a> が指定されたインデックスの要素を返します。リストにも同様の関数 <a class="reference internal" href="../c-api/list.html#c.PyList_Size" title="PyList_Size"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_Size()</span></code></a> と <a class="reference internal" href="../c-api/list.html#c.PyList_GetItem" title="PyList_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_GetItem()</span></code></a> があります。</p>
+<p>bytes では、 <a class="reference internal" href="../c-api/bytes.html#c.PyBytes_Size" title="PyBytes_Size"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyBytes_Size()</span></code></a> がその長さを返し、 <a class="reference internal" href="../c-api/bytes.html#c.PyBytes_AsStringAndSize" title="PyBytes_AsStringAndSize"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyBytes_AsStringAndSize()</span></code></a> がその値へのポインタと長さを提供します。 Python の bytes オブジェクトは null を含むこともできるので、 C の <code class="xref c c-func docutils literal notranslate"><span class="pre">strlen()</span></code> を使うべきではないことに注意してください。</p>
+<p>オブジェクトの型を検査するには、まず最初にそれが <code class="docutils literal notranslate"><span class="pre">NULL</span></code> でないことを確かめた上で、 <a class="reference internal" href="../c-api/bytes.html#c.PyBytes_Check" title="PyBytes_Check"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyBytes_Check()</span></code></a> 、 <a class="reference internal" href="../c-api/tuple.html#c.PyTuple_Check" title="PyTuple_Check"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_Check()</span></code></a> 、 <a class="reference internal" href="../c-api/list.html#c.PyList_Check" title="PyList_Check"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_Check()</span></code></a> などを使います。</p>
+<p>いわゆる 'abstract' インターフェースから提供される、 Python オブジェクトに対する高レベル API もあります -- より詳しいことは <code class="docutils literal notranslate"><span class="pre">Include/abstract.h</span></code> を読んでください。これを使うと、数値型プロトコル (<a class="reference internal" href="../c-api/number.html#c.PyNumber_Index" title="PyNumber_Index"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyNumber_Index()</span></code></a> など) や PyMapping API のマップ型プロトコルなどの役に立つプロトコルに加え、 <a class="reference internal" href="../c-api/sequence.html#c.PySequence_Length" title="PySequence_Length"><code class="xref c c-func docutils literal notranslate"><span class="pre">PySequence_Length()</span></code></a> や <a class="reference internal" href="../c-api/sequence.html#c.PySequence_GetItem" title="PySequence_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PySequence_GetItem()</span></code></a> などの任意の種類の Python シーケンスへのインターフェースにアクセスできます。</p>
+</div>
+<div class="section" id="how-do-i-use-py-buildvalue-to-create-a-tuple-of-arbitrary-length">
+<h2><a class="toc-backref" href="#id10">Py_BuildValue() で任意長のタプルを作るにはどうしますか？</a><a class="headerlink" href="#how-do-i-use-py-buildvalue-to-create-a-tuple-of-arbitrary-length" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>できません。代わりに <a class="reference internal" href="../c-api/tuple.html#c.PyTuple_Pack" title="PyTuple_Pack"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_Pack()</span></code></a> を使ってください。</p>
+</div>
+<div class="section" id="how-do-i-call-an-object-s-method-from-c">
+<h2><a class="toc-backref" href="#id11">C からオブジェクトのメソッドを呼び出すにはどうしますか？</a><a class="headerlink" href="#how-do-i-call-an-object-s-method-from-c" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="../c-api/object.html#c.PyObject_CallMethod" title="PyObject_CallMethod"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyObject_CallMethod()</span></code></a> 関数でオブジェクトの任意のメソッドを呼び出せます。パラメタは、オブジェクト、呼び出すメソッドの名前、 <a class="reference internal" href="../c-api/arg.html#c.Py_BuildValue" title="Py_BuildValue"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_BuildValue()</span></code></a> で使われるようなフォーマット文字列、そして引数です:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyObject</span> <span class="o">*</span>
+<span class="nf">PyObject_CallMethod</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">method_name</span><span class="p">,</span>
+                    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">arg_format</span><span class="p">,</span> <span class="p">...);</span>
+</pre></div>
+</div>
+<p>これはメソッドを持ついかなるオブジェクトにも有効で、組み込みかユーザ定義かは関係ありません。返り値に対して <a class="reference internal" href="../c-api/refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> する必要があることもあります。</p>
+<p>例えば、あるファイルオブジェクトの &quot;seek&quot; メソッドを 10, 0 を引数として呼ぶとき (ファイルオブジェクトのポインタを &quot;f&quot; とします):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">PyObject_CallMethod</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">&quot;seek&quot;</span><span class="p">,</span> <span class="s">&quot;(ii)&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">res</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">...</span> <span class="n">an</span> <span class="n">exception</span> <span class="n">occurred</span> <span class="p">...</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+        <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>なお、 <a class="reference internal" href="../c-api/object.html#c.PyObject_CallObject" title="PyObject_CallObject"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyObject_CallObject()</span></code></a> の引数リストには <em>常に</em> タプルが必要です。関数を引数なしで呼び出すには、フォーマットに &quot;()&quot; を渡し、関数を一つの引数で呼び出すには、関数を括弧でくくって例えば &quot;(i)&quot; としてください。</p>
+</div>
+<div class="section" id="how-do-i-catch-the-output-from-pyerr-print-or-anything-that-prints-to-stdout-stderr">
+<h2><a class="toc-backref" href="#id12">PyErr_Print() (その他 stdout/stderr に印字するもの) からの出力を受け取るにはどうしますか？</a><a class="headerlink" href="#how-do-i-catch-the-output-from-pyerr-print-or-anything-that-prints-to-stdout-stderr" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python コード内で、 <code class="docutils literal notranslate"><span class="pre">write()</span></code> メソッドをサポートするオブジェクトを定義してください。そのオブジェクトを <a class="reference internal" href="../library/sys.html#sys.stdout" title="sys.stdout"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stdout</span></code></a> と <a class="reference internal" href="../library/sys.html#sys.stderr" title="sys.stderr"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a> に代入してください。print_error を呼び出すか、単に標準のトレースバック機構を作動させてください。そうすれば、出力は <code class="docutils literal notranslate"><span class="pre">write()</span></code> が送る任意の所に行きます。</p>
+<p>最も簡単な方法は、 <a class="reference internal" href="../library/io.html#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">io.StringIO</span></code></a> クラスを使うことです:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;hello world!&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+<span class="go">foo</span>
+<span class="go">hello world!</span>
+</pre></div>
+</div>
+<p>これと同じことをするカスタムオブジェクトは次のようになるでしょう:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">io</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">StdoutCatcher</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">TextIOBase</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stuff</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">StdoutCatcher</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;hello world!&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+<span class="go">foo</span>
+<span class="go">hello world!</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-do-i-access-a-module-written-in-python-from-c">
+<h2><a class="toc-backref" href="#id13">C から Python で書かれたモジュールにアクセスするにはどうしますか？</a><a class="headerlink" href="#how-do-i-access-a-module-written-in-python-from-c" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下のようにモジュールオブジェクトへのポインタを得られます:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="o">=</span> <span class="n">PyImport_ImportModule</span><span class="p">(</span><span class="s">&quot;&lt;modulename&gt;&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>そのモジュールがまだインポートされていない (つまり、まだ <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に現れていない) なら、これはモジュールを初期化します。そうでなければ、単純に <code class="docutils literal notranslate"><span class="pre">sys.modules[&quot;&lt;modulename&gt;&quot;]</span></code> の値を返します。なお、これはモジュールをいかなる名前空間にも代入しません。これはモジュールが初期化されて '<a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に保管されていることを保証するだけです。</p>
+<p>これで、モジュールの属性 (つまり、モジュールで定義された任意の名前) に以下のようにアクセスできるようになります:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">attr</span> <span class="o">=</span> <span class="n">PyObject_GetAttrString</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s">&quot;&lt;attrname&gt;&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../c-api/object.html#c.PyObject_SetAttrString" title="PyObject_SetAttrString"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyObject_SetAttrString()</span></code></a> を呼んでモジュールの変数に代入することもできます。</p>
+</div>
+<div class="section" id="how-do-i-interface-to-c-objects-from-python">
+<h2><a class="toc-backref" href="#id14">Python から C++ へインタフェースするにはどうしますか？</a><a class="headerlink" href="#how-do-i-interface-to-c-objects-from-python" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>やりたいことに応じて、いろいろな方法があります。手動でやるなら、 <a class="reference internal" href="../extending/index.html#extending-index"><span class="std std-ref">&quot;拡張と埋め込み&quot; ドキュメント</span></a> を読むことから始めてください。なお、Python ランタイムシステムにとっては、 C と C++ はあまり変わりません。だから、C 構造体 (ポインタ)型に基づいて新しい Python の型を構築する方針は C++ オブジェクトに対しても有効です。</p>
+<p>C++ ライブラリに関しては、 <a class="reference internal" href="#c-wrapper-software"><span class="std std-ref">C を書くのは大変です。他の方法はありませんか？</span></a> を参照してください。</p>
+</div>
+<div class="section" id="i-added-a-module-using-the-setup-file-and-the-make-fails-why">
+<h2><a class="toc-backref" href="#id15">セットアップファイルでモジュールを追加しようとしたらメイクに失敗しました。なぜですか？</a><a class="headerlink" href="#i-added-a-module-using-the-setup-file-and-the-make-fails-why" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>セットアップは改行で終わらなければならなくて、改行がないと、ビルド工程は失敗します。(これを直すには、ある種の醜いシェルスクリプトハックが必要ですが、このバグは小さいものですから努力に見合う価値はないでしょう。)</p>
+</div>
+<div class="section" id="how-do-i-debug-an-extension">
+<h2><a class="toc-backref" href="#id16">拡張をデバッグするにはどうしますか？</a><a class="headerlink" href="#how-do-i-debug-an-extension" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>動的にロードされた拡張に GDB を使うとき、拡張がロードされるまでブレークポイントを設定してはいけません。</p>
+<p><code class="docutils literal notranslate"><span class="pre">.gdbinit</span></code> ファイルに(または対話的に)、このコマンドを加えてください:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>br _PyImport_LoadDynamicModule
+</pre></div>
+</div>
+<p>そして、GDB を起動するときに:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> gdb /local/bin/python
+<span class="go">gdb) run myscript.py</span>
+<span class="go">gdb) continue # repeat until your extension is loaded</span>
+<span class="go">gdb) finish   # so that your extension is loaded</span>
+<span class="go">gdb) br myfunction.c:50</span>
+<span class="go">gdb) continue</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="i-want-to-compile-a-python-module-on-my-linux-system-but-some-files-are-missing-why">
+<h2><a class="toc-backref" href="#id17">Linux システムで Python モジュールをコンパイルしたいのですが、見つからないファイルがあります。なぜですか？</a><a class="headerlink" href="#i-want-to-compile-a-python-module-on-my-linux-system-but-some-files-are-missing-why" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python の多くのパッケージバージョンには、Python 拡張をコンパイルするのに必要な様々なファイルを含む <code class="file docutils literal notranslate"><span class="pre">/usr/lib/python2.</span><em><span class="pre">x</span></em><span class="pre">/config/</span></code> ディレクトリが含まれていません。</p>
+<p>Red Hat では、Python RPM をインストールして必要なファイルを得てください。</p>
+<p>Debian では、 <code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">python-dev</span></code> を実行してください。</p>
+</div>
+<div class="section" id="how-do-i-tell-incomplete-input-from-invalid-input">
+<h2><a class="toc-backref" href="#id18">&quot;不完全 (incomplete) な入力&quot; を &quot;不適切 (invalid) な入力&quot; から区別するにはどうしますか？</a><a class="headerlink" href="#how-do-i-tell-incomplete-input-from-invalid-input" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python インタラクティブインタプリタでは、入力が不完全なとき (例えば、 &quot;if&quot; 文の始まりをタイプした時や、カッコや三重文字列引用符を閉じていない時など) には継続プロンプトを与えられますが、入力が不適切であるときには即座に構文エラーメッセージが与えられます。このようなふるまいを模倣したいことがあります。</p>
+<p>Python では構文解析器のふるまいに十分に近い <a class="reference internal" href="../library/codeop.html#module-codeop" title="codeop: Compile (possibly incomplete) Python code."><code class="xref py py-mod docutils literal notranslate"><span class="pre">codeop</span></code></a> モジュールが使えます。例えば IDLE がこれを使っています。</p>
+<p>これを C で行う最も簡単な方法は、 <a class="reference internal" href="../c-api/veryhigh.html#c.PyRun_InteractiveLoop" title="PyRun_InteractiveLoop"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyRun_InteractiveLoop()</span></code></a> を (必要ならば別のスレッドで) 呼び出し、Python インタプリタにあなたの入力を扱わせることです。独自の入力関数を指定するのに <a class="reference internal" href="../c-api/veryhigh.html#c.PyOS_ReadlineFunctionPointer" title="PyOS_ReadlineFunctionPointer"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyOS_ReadlineFunctionPointer()</span></code></a> を設定することもできます。詳しいヒントは、 <code class="docutils literal notranslate"><span class="pre">Modules/readline.c</span></code> や <code class="docutils literal notranslate"><span class="pre">Parser/myreadline.c</span></code> を参照してください。</p>
+<p>しかし、組み込みの Python インタープリタを他のアプリケーションと同じスレッドで実行することが必要で、 <a class="reference internal" href="../c-api/veryhigh.html#c.PyRun_InteractiveLoop" title="PyRun_InteractiveLoop"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyRun_InteractiveLoop()</span></code></a> でユーザの入力を待っている間止められないこともあります。このような場合の解決策の一つは、 <code class="xref c c-func docutils literal notranslate"><span class="pre">PyParser_ParseString()</span></code> を呼んで <code class="docutils literal notranslate"><span class="pre">e.error</span></code> と <code class="docutils literal notranslate"><span class="pre">E_EOF</span></code> が等しいこと、つまり入力が不完全であることを確かめることです。これは、Alex Farber のコードを参考にした、未テストのサンプルコード片です:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define PY_SSIZE_T_CLEAN</span>
+<span class="cp">#include</span> <span class="cpf">&lt;Python.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;node.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;errcode.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;grammar.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;parsetok.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;compile.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">testcomplete</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">code</span><span class="p">)</span>
+  <span class="cm">/* code should end in \n */</span>
+  <span class="cm">/* return -1 for error, 0 for incomplete, 1 for complete */</span>
+<span class="p">{</span>
+  <span class="n">node</span> <span class="o">*</span><span class="n">n</span><span class="p">;</span>
+  <span class="n">perrdetail</span> <span class="n">e</span><span class="p">;</span>
+
+  <span class="n">n</span> <span class="o">=</span> <span class="n">PyParser_ParseString</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_PyParser_Grammar</span><span class="p">,</span>
+                           <span class="n">Py_file_input</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">E_EOF</span><span class="p">)</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="n">PyNode_Free</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+  <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>別の解決策は、受け取られた文字列を <a class="reference internal" href="../c-api/veryhigh.html#c.Py_CompileString" title="Py_CompileString"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_CompileString()</span></code></a> でコンパイルすることを試みることです。エラー無くコンパイルされたら、返されたコードオブジェクトを <a class="reference internal" href="../c-api/veryhigh.html#c.PyEval_EvalCode" title="PyEval_EvalCode"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyEval_EvalCode()</span></code></a> を呼んで実行することを試みてください。そうでなければ、入力を後のために保存してください。コンパイルが失敗したなら、それがエラーなのか入力の続きが求められているだけなのか調べてください。そのためには、例外タプルからメッセージ文字列を展開し、それを文字列 &quot;unexpected EOF while parsing&quot; と比較します。ここに GNU readline library を使った完全な例があります (readline() を読んでいる間は <strong>SIGINT</strong> を無視したいかもしれません):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;readline.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#define PY_SSIZE_T_CLEAN</span>
+<span class="cp">#include</span> <span class="cpf">&lt;Python.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;object.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;compile.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;eval.h&gt;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+  <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">done</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                          <span class="cm">/* lengths of line, code */</span>
+  <span class="kt">char</span> <span class="n">ps1</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;&gt;&gt;&gt; &quot;</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="n">ps2</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;... &quot;</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">ps1</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="o">*</span><span class="n">line</span><span class="p">,</span> <span class="o">*</span><span class="n">code</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+  <span class="n">PyObject</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="o">*</span><span class="n">glb</span><span class="p">,</span> <span class="o">*</span><span class="n">loc</span><span class="p">;</span>
+  <span class="n">PyObject</span> <span class="o">*</span><span class="n">exc</span><span class="p">,</span> <span class="o">*</span><span class="n">val</span><span class="p">,</span> <span class="o">*</span><span class="n">trb</span><span class="p">,</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">dum</span><span class="p">;</span>
+
+  <span class="n">Py_Initialize</span> <span class="p">();</span>
+  <span class="n">loc</span> <span class="o">=</span> <span class="n">PyDict_New</span> <span class="p">();</span>
+  <span class="n">glb</span> <span class="o">=</span> <span class="n">PyDict_New</span> <span class="p">();</span>
+  <span class="n">PyDict_SetItemString</span> <span class="p">(</span><span class="n">glb</span><span class="p">,</span> <span class="s">&quot;__builtins__&quot;</span><span class="p">,</span> <span class="n">PyEval_GetBuiltins</span> <span class="p">());</span>
+
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">done</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">readline</span> <span class="p">(</span><span class="n">prompt</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">==</span> <span class="n">line</span><span class="p">)</span>                          <span class="cm">/* Ctrl-D pressed */</span>
+    <span class="p">{</span>
+      <span class="n">done</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+    <span class="p">{</span>
+      <span class="n">i</span> <span class="o">=</span> <span class="n">strlen</span> <span class="p">(</span><span class="n">line</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">add_history</span> <span class="p">(</span><span class="n">line</span><span class="p">);</span>                    <span class="cm">/* save non-empty lines */</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">==</span> <span class="n">code</span><span class="p">)</span>                        <span class="cm">/* nothing in code yet */</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">else</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">strlen</span> <span class="p">(</span><span class="n">code</span><span class="p">);</span>
+
+      <span class="n">code</span> <span class="o">=</span> <span class="n">realloc</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">==</span> <span class="n">code</span><span class="p">)</span>                        <span class="cm">/* out of memory */</span>
+        <span class="n">exit</span> <span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">==</span> <span class="n">j</span><span class="p">)</span>                              <span class="cm">/* code was empty, so */</span>
+        <span class="n">code</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>                        <span class="cm">/* keep strncat happy */</span>
+
+      <span class="n">strncat</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>                 <span class="cm">/* append line to code */</span>
+      <span class="n">code</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>                      <span class="cm">/* append &#39;\n&#39; to code */</span>
+      <span class="n">code</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+
+      <span class="n">src</span> <span class="o">=</span> <span class="n">Py_CompileString</span> <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="s">&quot;&lt;stdin&gt;&quot;</span><span class="p">,</span> <span class="n">Py_single_input</span><span class="p">);</span>
+
+      <span class="k">if</span> <span class="p">(</span><span class="nb">NULL</span> <span class="o">!=</span> <span class="n">src</span><span class="p">)</span>                         <span class="cm">/* compiled just fine - */</span>
+      <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ps1</span>  <span class="o">==</span> <span class="n">prompt</span> <span class="o">||</span>                  <span class="cm">/* &quot;&gt;&gt;&gt; &quot; or */</span>
+            <span class="sc">&#39;\n&#39;</span> <span class="o">==</span> <span class="n">code</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>           <span class="cm">/* &quot;... &quot; and double &#39;\n&#39; */</span>
+        <span class="p">{</span>                                               <span class="cm">/* so execute it */</span>
+          <span class="n">dum</span> <span class="o">=</span> <span class="n">PyEval_EvalCode</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">glb</span><span class="p">,</span> <span class="n">loc</span><span class="p">);</span>
+          <span class="n">Py_XDECREF</span> <span class="p">(</span><span class="n">dum</span><span class="p">);</span>
+          <span class="n">Py_XDECREF</span> <span class="p">(</span><span class="n">src</span><span class="p">);</span>
+          <span class="n">free</span> <span class="p">(</span><span class="n">code</span><span class="p">);</span>
+          <span class="n">code</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">PyErr_Occurred</span> <span class="p">())</span>
+            <span class="n">PyErr_Print</span> <span class="p">();</span>
+          <span class="n">prompt</span> <span class="o">=</span> <span class="n">ps1</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>                                        <span class="cm">/* syntax error or E_EOF? */</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">PyErr_ExceptionMatches</span> <span class="p">(</span><span class="n">PyExc_SyntaxError</span><span class="p">))</span>
+      <span class="p">{</span>
+        <span class="n">PyErr_Fetch</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">exc</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">val</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">trb</span><span class="p">);</span>        <span class="cm">/* clears exception! */</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">PyArg_ParseTuple</span> <span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="s">&quot;sO&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">obj</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+            <span class="o">!</span><span class="n">strcmp</span> <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="s">&quot;unexpected EOF while parsing&quot;</span><span class="p">))</span> <span class="cm">/* E_EOF */</span>
+        <span class="p">{</span>
+          <span class="n">Py_XDECREF</span> <span class="p">(</span><span class="n">exc</span><span class="p">);</span>
+          <span class="n">Py_XDECREF</span> <span class="p">(</span><span class="n">val</span><span class="p">);</span>
+          <span class="n">Py_XDECREF</span> <span class="p">(</span><span class="n">trb</span><span class="p">);</span>
+          <span class="n">prompt</span> <span class="o">=</span> <span class="n">ps2</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>                                   <span class="cm">/* some other syntax error */</span>
+        <span class="p">{</span>
+          <span class="n">PyErr_Restore</span> <span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">trb</span><span class="p">);</span>
+          <span class="n">PyErr_Print</span> <span class="p">();</span>
+          <span class="n">free</span> <span class="p">(</span><span class="n">code</span><span class="p">);</span>
+          <span class="n">code</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+          <span class="n">prompt</span> <span class="o">=</span> <span class="n">ps1</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span>                                     <span class="cm">/* some non-syntax error */</span>
+      <span class="p">{</span>
+        <span class="n">PyErr_Print</span> <span class="p">();</span>
+        <span class="n">free</span> <span class="p">(</span><span class="n">code</span><span class="p">);</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+        <span class="n">prompt</span> <span class="o">=</span> <span class="n">ps1</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">free</span> <span class="p">(</span><span class="n">line</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">Py_XDECREF</span><span class="p">(</span><span class="n">glb</span><span class="p">);</span>
+  <span class="n">Py_XDECREF</span><span class="p">(</span><span class="n">loc</span><span class="p">);</span>
+  <span class="n">Py_Finalize</span><span class="p">();</span>
+  <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-do-i-find-undefined-g-symbols-builtin-new-or-pure-virtual">
+<h2><a class="toc-backref" href="#id19">未定義の g++ シンボル __builtin_new や __pure_virtual を見つけるにはどうしますか？</a><a class="headerlink" href="#how-do-i-find-undefined-g-symbols-builtin-new-or-pure-virtual" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>g++ モジュールを動的にロードするには、Python を再コンパイルし、それを g++ で再リンク (Python Modules Makefile 内の LINKCC を変更) し、拡張を g++ でリンク (例えば <code class="docutils literal notranslate"><span class="pre">g++</span> <span class="pre">-shared</span> <span class="pre">-o</span> <span class="pre">mymodule.so</span> <span class="pre">mymodule.o</span></code>) しなければなりません。</p>
+</div>
+<div class="section" id="can-i-create-an-object-class-with-some-methods-implemented-in-c-and-others-in-python-e-g-through-inheritance">
+<h2><a class="toc-backref" href="#id20">メソッドのいくつかは C で、その他は Python で実装されたオブジェクトクラスを (継承などで) 作ることはできますか？</a><a class="headerlink" href="#can-i-create-an-object-class-with-some-methods-implemented-in-c-and-others-in-python-e-g-through-inheritance" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>はい、 <a class="reference internal" href="../library/functions.html#int" title="int"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> 、 <a class="reference internal" href="../library/stdtypes.html#list" title="list"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> 、 <a class="reference internal" href="../library/stdtypes.html#dict" title="dict"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> などのビルトインクラスから継承できます。</p>
+<p>The Boost Python Library (BPL, <a class="reference external" href="http://www.boost.org/libs/python/doc/index.html">http://www.boost.org/libs/python/doc/index.html</a>) を使えば、これを C++ からできます。 (すなわち、BPL を使って C++ で書かれた拡張クラスを継承できます).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">拡張と埋め込み FAQ</a><ul>
+<li><a class="reference internal" href="#can-i-create-my-own-functions-in-c">C で独自の関数を作ることはできますか？</a></li>
+<li><a class="reference internal" href="#id2">C++ で独自の関数を作ることはできますか？</a></li>
+<li><a class="reference internal" href="#writing-c-is-hard-are-there-any-alternatives">C を書くのは大変です。他の方法はありませんか？</a></li>
+<li><a class="reference internal" href="#how-can-i-execute-arbitrary-python-statements-from-c">C から任意の Python 文を実行するにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-can-i-evaluate-an-arbitrary-python-expression-from-c">C から任意の Python 式を評価するにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-extract-c-values-from-a-python-object">Python オブジェクトから C の値を取り出すにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-use-py-buildvalue-to-create-a-tuple-of-arbitrary-length">Py_BuildValue() で任意長のタプルを作るにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-call-an-object-s-method-from-c">C からオブジェクトのメソッドを呼び出すにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-catch-the-output-from-pyerr-print-or-anything-that-prints-to-stdout-stderr">PyErr_Print() (その他 stdout/stderr に印字するもの) からの出力を受け取るにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-access-a-module-written-in-python-from-c">C から Python で書かれたモジュールにアクセスするにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-interface-to-c-objects-from-python">Python から C++ へインタフェースするにはどうしますか？</a></li>
+<li><a class="reference internal" href="#i-added-a-module-using-the-setup-file-and-the-make-fails-why">セットアップファイルでモジュールを追加しようとしたらメイクに失敗しました。なぜですか？</a></li>
+<li><a class="reference internal" href="#how-do-i-debug-an-extension">拡張をデバッグするにはどうしますか？</a></li>
+<li><a class="reference internal" href="#i-want-to-compile-a-python-module-on-my-linux-system-but-some-files-are-missing-why">Linux システムで Python モジュールをコンパイルしたいのですが、見つからないファイルがあります。なぜですか？</a></li>
+<li><a class="reference internal" href="#how-do-i-tell-incomplete-input-from-invalid-input">&quot;不完全 (incomplete) な入力&quot; を &quot;不適切 (invalid) な入力&quot; から区別するにはどうしますか？</a></li>
+<li><a class="reference internal" href="#how-do-i-find-undefined-g-symbols-builtin-new-or-pure-virtual">未定義の g++ シンボル __builtin_new や __pure_virtual を見つけるにはどうしますか？</a></li>
+<li><a class="reference internal" href="#can-i-create-an-object-class-with-some-methods-implemented-in-c-and-others-in-python-e-g-through-inheritance">メソッドのいくつかは C で、その他は Python で実装されたオブジェクトクラスを (継承などで) 作ることはできますか？</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="library.html"
+                        title="前の章へ">ライブラリと拡張 FAQ</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="windows.html"
+                        title="次の章へ">Windows 上の Python FAQ</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/faq/extending.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="windows.html" title="Windows 上の Python FAQ"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="library.html" title="ライブラリと拡張 FAQ"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python よくある質問</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,853 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>select --- I/O 処理の完了を待機する &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="selectors --- 高水準の I/O 多重化" href="selectors.html" />
+    <link rel="prev" title="ssl --- ソケットオブジェクトに対する TLS/SSL ラッパー" href="ssl.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/select.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="selectors.html" title="selectors --- 高水準の I/O 多重化"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="ssl.html" title="ssl --- ソケットオブジェクトに対する TLS/SSL ラッパー"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="ipc.html" accesskey="U">ネットワーク通信とプロセス間通信</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-select">
+<span id="select-waiting-for-i-o-completion"></span><h1><a class="reference internal" href="#module-select" title="select: Wait for I/O completion on multiple streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">select</span></code></a> --- I/O 処理の完了を待機する<a class="headerlink" href="#module-select" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<hr class="docutils" />
+<p>このモジュールでは、ほとんどのオペレーティングシステムで利用可能な <code class="xref c c-func docutils literal notranslate"><span class="pre">select()</span></code> および <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> 関数、Solaris やその派生で利用可能な <code class="xref c c-func docutils literal notranslate"><span class="pre">devpoll()</span></code> 、Linux 2.5+ で利用可能な <code class="xref c c-func docutils literal notranslate"><span class="pre">epoll()</span></code> 、多くのBSDで利用可能な <code class="xref c c-func docutils literal notranslate"><span class="pre">kqueue()</span></code> 関数に対するアクセスを提供しています。 Windows 上ではソケットに対してしか動作しないので注意してください; その他のオペレーティングシステムでは、他のファイル形式でも (特に Unixではパイプにも) 動作します。通常のファイルに対して適用し、最後にファイルを読み出した時から内容が増えているかを決定するために使うことはできません。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last"><a class="reference internal" href="selectors.html#module-selectors" title="selectors: High-level I/O multiplexing."><code class="xref py py-mod docutils literal notranslate"><span class="pre">selectors</span></code></a> モジュールにより、<a class="reference internal" href="#module-select" title="select: Wait for I/O completion on multiple streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">select</span></code></a> モジュールプリミティブに基づく高水準かつ効率的な I/O の多重化が行うことが出来ます。
+OS レベルプリミティブを使用した正確な制御を求めない限り、このモジュールの使用が推奨されます。</p>
+</div>
+<p>このモジュールは以下を定義します:</p>
+<dl class="exception">
+<dt id="select.error">
+<em class="property">exception </em><code class="descclassname">select.</code><code class="descname">error</code><a class="headerlink" href="#select.error" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> の非推奨のエイリアスです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><span class="target" id="index-14"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3151"><strong>PEP 3151</strong></a> に基づき、このクラスは <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> のエイリアスになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="select.devpoll">
+<code class="descclassname">select.</code><code class="descname">devpoll</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(Solaris およびその派生でのみサポートされています)
+<code class="docutils literal notranslate"><span class="pre">/dev/poll</span></code> ポーリングオブジェクトを返します。
+ポーリングオブジェクトが提供しているメソッドについては <a class="reference internal" href="#poll-objects"><span class="std std-ref">ポーリングオブジェクト</span></a> 節を参照してください。</p>
+<p><code class="xref c c-func docutils literal notranslate"><span class="pre">devpoll()</span></code> オブジェクトはインスタンス化時に許されるファイル記述子の数にリンクされます。
+プログラムがこの値を減らす場合 <code class="xref c c-func docutils literal notranslate"><span class="pre">devpoll()</span></code> は失敗します。
+プログラムがこの値を増やす場合 <code class="xref c c-func docutils literal notranslate"><span class="pre">devpoll()</span></code> は有効なファイル記述子の不完全なリストを返すことがあります。</p>
+<p>新しいファイル記述子は <a class="reference internal" href="os.html#fd-inheritance"><span class="std std-ref">継承不可</span></a> です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>新しいファイル記述子が継承不可になりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="select.epoll">
+<code class="descclassname">select.</code><code class="descname">epoll</code><span class="sig-paren">(</span><em>sizehint=-1</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(Only supported on Linux 2.5.44 and newer.) Return an edge polling object,
+which can be used as Edge or Level Triggered interface for I/O
+events.</p>
+<p><em>sizehint</em> informs epoll about the expected number of events to be
+registered.  It must be positive, or <cite>-1</cite> to use the default. It is only
+used on older systems where <code class="xref c c-func docutils literal notranslate"><span class="pre">epoll_create1()</span></code> is not available;
+otherwise it has no effect (though its value is still checked).</p>
+<p><em>flags</em> is deprecated and completely ignored.  However, when supplied, its
+value must be <code class="docutils literal notranslate"><span class="pre">0</span></code> or <code class="docutils literal notranslate"><span class="pre">select.EPOLL_CLOEXEC</span></code>, otherwise <code class="docutils literal notranslate"><span class="pre">OSError</span></code> is
+raised.</p>
+<p>エッジポーリングオブジェクトが提供しているメソッドについては <a class="reference internal" href="#epoll-objects"><span class="std std-ref">エッジおよびレベルトリガポーリング (epoll) オブジェクト</span></a> 節を参照してください。</p>
+<p><code class="docutils literal notranslate"><span class="pre">epoll</span></code> オブジェクトはコンテキストマネジメントプロトコルをサポートしています。
+<a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> 文内で使用された場合、新たなファイル記述子はブロックの最後で自動的に閉じられます。</p>
+<p>新しいファイル記述子は <a class="reference internal" href="os.html#fd-inheritance"><span class="std std-ref">継承不可</span></a> です。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><em>flags</em> 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> 文のサポートが追加されました。新しいファイル記述子が継承不可になりました。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span><em>flags</em> パラメータ。
+現在ではデフォルトで <code class="docutils literal notranslate"><span class="pre">select.EPOLL_CLOEXEC</span></code> が使われます。
+ファイルディスクリプタを継承可能にするには <a class="reference internal" href="os.html#os.set_inheritable" title="os.set_inheritable"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.set_inheritable()</span></code></a> を使ってください。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="select.poll">
+<code class="descclassname">select.</code><code class="descname">poll</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.poll" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(全てのオペレーティングシステムでサポートされているわけではありません) ポーリングオブジェクトを返します。このオブジェクトはファイル記述子を登録したり登録解除したりすることができ、ファイル記述子に対する I/O イベント発生をポーリングすることができます; ポーリングオブジェクトが提供しているメソッドについては <a class="reference internal" href="#poll-objects"><span class="std std-ref">ポーリングオブジェクト</span></a> 節を参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="select.kqueue">
+<code class="descclassname">select.</code><code class="descname">kqueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.kqueue" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(BSD でのみサポート) カーネルキュー(kernel queue)オブジェクトを返します。カーネルキューオブジェクトが提供しているメソッドについては、 <a class="reference internal" href="#kqueue-objects"><span class="std std-ref">kqueue オブジェクト</span></a> 節を参照してください。</p>
+<p>新しいファイル記述子は <a class="reference internal" href="os.html#fd-inheritance"><span class="std std-ref">継承不可</span></a> です。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>新しいファイル記述子が継承不可になりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="select.kevent">
+<code class="descclassname">select.</code><code class="descname">kevent</code><span class="sig-paren">(</span><em>ident</em>, <em>filter=KQ_FILTER_READ</em>, <em>flags=KQ_EV_ADD</em>, <em>fflags=0</em>, <em>data=0</em>, <em>udata=0</em><span class="sig-paren">)</span><a class="headerlink" href="#select.kevent" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(BSD でのみサポート) カーネルイベント(kernel event)オブジェクトを返します。カーネルイベントオブジェクトが提供しているメソッドについては、 <a class="reference internal" href="#kevent-objects"><span class="std std-ref">kevent オブジェクト</span></a> 節を参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="select.select">
+<code class="descclassname">select.</code><code class="descname">select</code><span class="sig-paren">(</span><em>rlist</em>, <em>wlist</em>, <em>xlist</em><span class="optional">[</span>, <em>timeout</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.select" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Unix の <code class="xref c c-func docutils literal notranslate"><span class="pre">select()</span></code> システムコールに対する直接的なインタフェースです。最初の 3 つの引数は '待機可能オブジェクト' からなるシーケンスです: 待機可能オブジェクトとは、ファイル記述子を表す整数値か、そのような整数を返す引数なしメソッド <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> を持つオブジェクトです。</p>
+<ul class="simple">
+<li><em>rlist</em>: 読み込み可能になるまで待機</li>
+<li><em>wlist</em>: 書き込み可能になるまで待機</li>
+<li><em>xlist</em>: &quot;例外状態 (exceptional condition)&quot; になるまで待機 (&quot;例外状態&quot; については、システムのマニュアルページを参照してください)</li>
+</ul>
+<p>引数に空のシーケンスを指定してもかまいませんが、3 つの引数全てを空のシーケンスにしてもよいかどうかはプラットフォームに依存します (Unix では動作し、Windows では動作しないことが知られています)。オプションの <em>timeout</em> 引数にはタイムアウトまでの秒数を浮動小数点数で指定します。<em>timeout</em> 引数が省略された場合、関数は少なくとも一つのファイル記述子が何らかの準備完了状態になるまでブロックします。<em>timeout</em> に 0 を指定した場合は、ポーリングを行いブロックしないことを示します。</p>
+<p>戻り値は準備完了状態のオブジェクトからなる 3 つのリストです: したがってこのリストはそれぞれ関数の最初の 3 つの引数のサブセットになります。ファイル記述子のいずれも準備完了にならないままタイムアウトした場合、3 つの空のリストが返されます。</p>
+<p id="index-1">シーケンスの中に含めることのできるオブジェクトは Python <a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">ファイルオブジェクト</span></a> (例えば <code class="docutils literal notranslate"><span class="pre">sys.stdin</span></code> や、 <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> または <a class="reference internal" href="os.html#os.popen" title="os.popen"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.popen()</span></code></a> が返すオブジェクト)、 <a class="reference internal" href="socket.html#socket.socket" title="socket.socket"><code class="xref py py-func docutils literal notranslate"><span class="pre">socket.socket()</span></code></a> が返すソケットオブジェクトです。 <em class="dfn">ラッパー &lt;wrapper&gt;</em> クラスを自分で定義することもできます。この場合、適切な (まったくデタラメな数ではなく本物のファイル記述子を返す) <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> メソッドを持つ必要があります。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last" id="index-2"><a class="reference internal" href="#module-select" title="select: Wait for I/O completion on multiple streams."><code class="xref py py-func docutils literal notranslate"><span class="pre">select()</span></code></a> は Windows のファイルオブジェクトを受理しませんが、ソケットは受理します。 Windows では、背後の <code class="xref c c-func docutils literal notranslate"><span class="pre">select()</span></code> 関数は WinSock ライブラリで提供されており、 WinSock によって生成されたものではないファイル記述子を扱うことができないのです。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>この関数は、シグナルによって中断された時に、 <a class="reference internal" href="exceptions.html#InterruptedError" title="InterruptedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InterruptedError</span></code></a> を上げる代わりに再計算されたタイムアウトによってリトライするようになりました。ただし、シグナルハンドラが例外を起こした場合を除きます (この論理的根拠については <span class="target" id="index-15"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0475"><strong>PEP 475</strong></a> を見てください)。</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.PIPE_BUF">
+<code class="descclassname">select.</code><code class="descname">PIPE_BUF</code><a class="headerlink" href="#select.PIPE_BUF" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#select.select" title="select.select"><code class="xref py py-func docutils literal notranslate"><span class="pre">select()</span></code></a>, <a class="reference internal" href="#select.poll" title="select.poll"><code class="xref py py-func docutils literal notranslate"><span class="pre">poll()</span></code></a> またはこのモジュールの別のインタフェースによってパイプが書き込む準備ができていると報告された時に、ブロックせずにパイプに書き込むことのできる最小のバイト数。これはソケットなどの他の種類の file-like オブジェクトには適用されません。</p>
+<p>This value is guaranteed by POSIX to be at least 512.</p>
+<p class="availability"><a class="reference internal" href="intro.html#availability"><span class="std std-ref">Availability</span></a>: Unix</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<div class="section" id="dev-poll-polling-objects">
+<span id="devpoll-objects"></span><h2><code class="docutils literal notranslate"><span class="pre">/dev/poll</span></code> ポーリングオブジェクト<a class="headerlink" href="#dev-poll-polling-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Solaris とその派生は、<code class="docutils literal notranslate"><span class="pre">/dev/poll</span></code> を持っています。 <code class="xref c c-func docutils literal notranslate"><span class="pre">select()</span></code> が O(最大のファイル記述子) 、 <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> が O(ファイル記述子の数) である一方、 <code class="docutils literal notranslate"><span class="pre">/dev/poll</span></code> は O(アクティブなファイル記述子) です。</p>
+<p><code class="docutils literal notranslate"><span class="pre">/dev/poll</span></code> の挙動は標準的な <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> オブジェクトに非常に近いです。</p>
+<dl class="method">
+<dt id="select.devpoll.close">
+<code class="descclassname">devpoll.</code><code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll.close" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ポーリングオブジェクトのファイル記述子を閉じます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.devpoll.closed">
+<code class="descclassname">devpoll.</code><code class="descname">closed</code><a class="headerlink" href="#select.devpoll.closed" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ポーリングオブジェクトが閉じている場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.devpoll.fileno">
+<code class="descclassname">devpoll.</code><code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ポーリングオブジェクトのファイル記述子番号を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.devpoll.register">
+<code class="descclassname">devpoll.</code><code class="descname">register</code><span class="sig-paren">(</span><em>fd</em><span class="optional">[</span>, <em>eventmask</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll.register" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル記述子をポーリングオブジェクトに登録します。これ以降の <a class="reference internal" href="#select.poll" title="select.poll"><code class="xref py py-meth docutils literal notranslate"><span class="pre">poll()</span></code></a> メソッド呼び出しでは、そのファイル記述子に処理待ち中の I/O イベントがあるかどうかを監視します。 <em>fd</em> は整数か、整数値を返す <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> メソッドを持つオブジェクトを取ります。ファイルオブジェクトも <code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code> を実装しているので、引数として使うことができます。</p>
+<p><em>eventmask</em> はオプションのビットマスクで、どの種類の I/O イベントを監視したいかを記述します。 <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> オブジェクトと同じ定数が使われます。デフォルト値は定数 <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLIN</span></code> 、 <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLPRI</span></code> 、および <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLOUT</span></code> の組み合わせです。</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">登録済みのファイル記述子を登録してもエラーにはなりませんが、結果は未定義です。適切なアクションは、最初に unregister するか modify することです。これは <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> と比較した場合の重要な違いです。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.devpoll.modify">
+<code class="descclassname">devpoll.</code><code class="descname">modify</code><span class="sig-paren">(</span><em>fd</em><span class="optional">[</span>, <em>eventmask</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll.modify" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このメソッドは <a class="reference internal" href="#select.devpoll.unregister" title="select.devpoll.unregister"><code class="xref py py-meth docutils literal notranslate"><span class="pre">unregister()</span></code></a> に続いて <a class="reference internal" href="#select.devpoll.register" title="select.devpoll.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> を行います。
+同じことを明示的に行うよりも (少し) 効率的です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.devpoll.unregister">
+<code class="descclassname">devpoll.</code><code class="descname">unregister</code><span class="sig-paren">(</span><em>fd</em><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll.unregister" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ポーリングオブジェクトによって追跡中のファイル記述子を登録解除します。 <a class="reference internal" href="#select.devpoll.register" title="select.devpoll.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> メソッドと同様に、 <em>fd</em> は整数か、整数値を返す <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> メソッドを持つオブジェクトを取ります。</p>
+<p>登録されていないファイル記述子の削除を試みるのは安全に無視されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.devpoll.poll">
+<code class="descclassname">devpoll.</code><code class="descname">poll</code><span class="sig-paren">(</span><span class="optional">[</span><em>timeout</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.devpoll.poll" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたファイル記述子に対してポーリングを行い、報告すべき I/O イベントまたはエラーの発生したファイル記述子毎に 2 要素のタプル <code class="docutils literal notranslate"><span class="pre">(fd,</span> <span class="pre">event)</span></code> からなるリストを返します。リストは空になることもあります。 <em>fd</em> はファイル記述子で、 <em>event</em> は該当するファイル記述子について報告されたイベントを表すビットマスクです --- 例えば <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLIN</span></code> は入力待ちを示し、 <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLOUT</span></code> はファイル記述子に対する書き込みが可能を示す、などです。空のリストは呼び出しがタイムアウトしたか、報告すべきイベントがどのファイル記述子でも発生しなかったことを示します。 <em>timeout</em> が与えられた場合、処理を戻すまで待機する時間の長さをミリ秒単位で指定します。 <em>timeout</em> が省略されたり、 -1 であったり、あるいは <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> の場合、そのポーリングオブジェクトが監視している何らかのイベントが発生するまでブロックします。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>この関数は、シグナルによって中断された時に、 <a class="reference internal" href="exceptions.html#InterruptedError" title="InterruptedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InterruptedError</span></code></a> を上げる代わりに再計算されたタイムアウトによってリトライするようになりました。ただし、シグナルハンドラが例外を起こした場合を除きます (この論理的根拠については <span class="target" id="index-16"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0475"><strong>PEP 475</strong></a> を見てください)。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="edge-and-level-trigger-polling-epoll-objects">
+<span id="epoll-objects"></span><h2>エッジおよびレベルトリガポーリング (epoll) オブジェクト<a class="headerlink" href="#edge-and-level-trigger-polling-epoll-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<blockquote>
+<div><p><a class="reference external" href="https://linux.die.net/man/4/epoll">https://linux.die.net/man/4/epoll</a></p>
+<p><em>eventmask</em></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLIN</span></code></td>
+<td>読み込み可能</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLOUT</span></code></td>
+<td>書き込み可能</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLPRI</span></code></td>
+<td>緊急の読み出しデータ</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLERR</span></code></td>
+<td>設定された fd にエラー状態が発生した</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLHUP</span></code></td>
+<td>設定された fd がハングアップした</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLET</span></code></td>
+<td>エッジトリガ動作に設定する。デフォルトではレベルトリガ動作</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLONESHOT</span></code></td>
+<td>1ショット動作に設定する。1回イベントが取り出されたら、その fd が内部で無効になる</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLEXCLUSIVE</span></code></td>
+<td>関連づけられた fd にイベントがある場合、1 つの epoll オブジェクトのみを起こします。デフォルトでは (このフラグが設定されていない場合には)、fd に対してポーリングするすべての epoll オブジェクトを起こします。</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLRDHUP</span></code></td>
+<td>ストリームソケットの他端が接続を切断したか、接続の書き込み側のシャットダウンを行った。</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLRDNORM</span></code></td>
+<td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLIN</span></code> と同じ</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLRDBAND</span></code></td>
+<td>優先データバンドを読み込める。</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLWRNORM</span></code></td>
+<td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLOUT</span></code> と同じ</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLWRBAND</span></code></td>
+<td>優先データに書き込みできる。</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLMSG</span></code></td>
+<td>無視される。</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加: </span><code class="xref py py-const docutils literal notranslate"><span class="pre">EPOLLEXCLUSIVE</span></code> was added.  It's only supported by Linux Kernel 4.5
+or later.</p>
+</div>
+</div></blockquote>
+<dl class="method">
+<dt id="select.epoll.close">
+<code class="descclassname">epoll.</code><code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.close" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>epoll オブジェクトの制御用ファイル記述子を閉じます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.epoll.closed">
+<code class="descclassname">epoll.</code><code class="descname">closed</code><a class="headerlink" href="#select.epoll.closed" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>epoll オブジェクトが閉じている場合 True です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.epoll.fileno">
+<code class="descclassname">epoll.</code><code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>制御用ファイル記述子の番号を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.epoll.fromfd">
+<code class="descclassname">epoll.</code><code class="descname">fromfd</code><span class="sig-paren">(</span><em>fd</em><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.fromfd" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>fd</em> から epoll オブジェクトを作成します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.epoll.register">
+<code class="descclassname">epoll.</code><code class="descname">register</code><span class="sig-paren">(</span><em>fd</em><span class="optional">[</span>, <em>eventmask</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.register" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>epoll オブジェクトにファイル記述子 <em>fd</em> を登録します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.epoll.modify">
+<code class="descclassname">epoll.</code><code class="descname">modify</code><span class="sig-paren">(</span><em>fd</em>, <em>eventmask</em><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.modify" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたファイル記述子変更します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.epoll.unregister">
+<code class="descclassname">epoll.</code><code class="descname">unregister</code><span class="sig-paren">(</span><em>fd</em><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.unregister" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>epoll オブジェクトから登録されたファイル記述子 <em>fd</em> を削除します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.epoll.poll">
+<code class="descclassname">epoll.</code><code class="descname">poll</code><span class="sig-paren">(</span><em>timeout=None</em>, <em>maxevents=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#select.epoll.poll" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>イベントを待機します。<em>timeout</em> はタイムアウト時間で、単位は秒 (float型) です。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>この関数は、シグナルによって中断された時に、 <a class="reference internal" href="exceptions.html#InterruptedError" title="InterruptedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InterruptedError</span></code></a> を上げる代わりに再計算されたタイムアウトによってリトライするようになりました。ただし、シグナルハンドラが例外を起こした場合を除きます (この論理的根拠については <span class="target" id="index-17"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0475"><strong>PEP 475</strong></a> を見てください)。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="polling-objects">
+<span id="poll-objects"></span><h2>ポーリングオブジェクト<a class="headerlink" href="#polling-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> システムコールはほとんどの Unix システムでサポートされており、非常に多数のクライアントに同時にサービスを提供するようなネットワークサーバが高いスケーラビリティを持てるようにしています。 <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> は対象のファイル記述子を列挙するだけでよいため、良くスケールします。一方、 <code class="xref c c-func docutils literal notranslate"><span class="pre">select()</span></code> はビット対応表を構築し、対象ファイルの記述子に対応するビットを立て、その後全ての対応表の全てのビットを線形探索します。 <code class="xref c c-func docutils literal notranslate"><span class="pre">select()</span></code> は O(最大のファイル記述子番号) なのに対し、 <code class="xref c c-func docutils literal notranslate"><span class="pre">poll()</span></code> は O(対象とするファイル記述子の数) で済みます。</p>
+<dl class="method">
+<dt id="select.poll.register">
+<code class="descclassname">poll.</code><code class="descname">register</code><span class="sig-paren">(</span><em>fd</em><span class="optional">[</span>, <em>eventmask</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.poll.register" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル記述子をポーリングオブジェクトに登録します。これ以降の <a class="reference internal" href="#select.poll" title="select.poll"><code class="xref py py-meth docutils literal notranslate"><span class="pre">poll()</span></code></a> メソッド呼び出しでは、そのファイル記述子に処理待ち中の I/O イベントがあるかどうかを監視します。 <em>fd</em> は整数か、整数値を返す <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> メソッドを持つオブジェクトを取ります。ファイルオブジェクトも <code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code> を実装しているので、引数として使うことができます。</p>
+<p><em>eventmask</em> はオプションのビットマスクで、どの種類の I/O イベントを監視したいかを記述します。この値は以下の表で述べる定数 <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLIN</span></code> 、 <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLPRI</span></code> 、および <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLOUT</span></code> の組み合わせにすることができます。ビットマスクを指定しない場合、標準の値が使われ、 3 種類のイベント全てに対して監視が行われます。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLIN</span></code></td>
+<td>読み出し可能なデータが存在する</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLPRI</span></code></td>
+<td>緊急の読み出し可能なデータが存在する</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLOUT</span></code></td>
+<td>書き出しの準備ができている: 書き出し処理がブロックしない</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLERR</span></code></td>
+<td>何らかのエラー状態</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLHUP</span></code></td>
+<td>ハングアップ</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLRDHUP</span></code></td>
+<td>ストリームソケットの他端が接続を切断したか、接続の書き込み側のシャットダウンを行った。</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">POLLNVAL</span></code></td>
+<td>無効な要求: 記述子が開かれていない</td>
+</tr>
+</tbody>
+</table>
+<p>登録済みのファイル記述子を登録してもエラーにはならず、一度だけ登録した場合と同じ効果になります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.poll.modify">
+<code class="descclassname">poll.</code><code class="descname">modify</code><span class="sig-paren">(</span><em>fd</em>, <em>eventmask</em><span class="sig-paren">)</span><a class="headerlink" href="#select.poll.modify" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されているファイル記述子 <em>fd</em> を変更する。これは、 <code class="docutils literal notranslate"><span class="pre">register(fd,</span> <span class="pre">eventmask)</span></code> と同じ効果を持ちます。登録されていないファイル記述子に対してこのメソッドを呼び出すと、 errno <code class="xref py py-const docutils literal notranslate"><span class="pre">ENOENT</span></code> で <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> 例外が発生します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.poll.unregister">
+<code class="descclassname">poll.</code><code class="descname">unregister</code><span class="sig-paren">(</span><em>fd</em><span class="sig-paren">)</span><a class="headerlink" href="#select.poll.unregister" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ポーリングオブジェクトによって追跡中のファイル記述子を登録解除します。 <a class="reference internal" href="#select.poll.register" title="select.poll.register"><code class="xref py py-meth docutils literal notranslate"><span class="pre">register()</span></code></a> メソッドと同様に、 <em>fd</em> は整数か、整数値を返す <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> メソッドを持つオブジェクトを取ります。</p>
+<p>登録されていないファイル記述子を登録解除しようとすると <a class="reference internal" href="exceptions.html#KeyError" title="KeyError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a> 例外が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.poll.poll">
+<code class="descclassname">poll.</code><code class="descname">poll</code><span class="sig-paren">(</span><span class="optional">[</span><em>timeout</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#select.poll.poll" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたファイル記述子に対してポーリングを行い、報告すべき I/O イベントまたはエラーの発生したファイル記述子毎に 2 要素のタプル <code class="docutils literal notranslate"><span class="pre">(fd,</span> <span class="pre">event)</span></code> からなるリストを返します。リストは空になることもあります。 <em>fd</em> はファイル記述子で、 <em>event</em> は該当するファイル記述子について報告されたイベントを表すビットマスクです --- 例えば <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLIN</span></code> は入力待ちを示し、 <code class="xref py py-const docutils literal notranslate"><span class="pre">POLLOUT</span></code> はファイル記述子に対する書き込みが可能を示す、などです。空のリストは呼び出しがタイムアウトしたか、報告すべきイベントがどのファイル記述子でも発生しなかったことを示します。 <em>timeout</em> が与えられた場合、処理を戻すまで待機する時間の長さをミリ秒単位で指定します。 <em>timeout</em> が省略されたり、負の値であったり、あるいは <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> の場合、そのポーリングオブジェクトが監視している何らかのイベントが発生するまでブロックします。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>この関数は、シグナルによって中断された時に、 <a class="reference internal" href="exceptions.html#InterruptedError" title="InterruptedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InterruptedError</span></code></a> を上げる代わりに再計算されたタイムアウトによってリトライするようになりました。ただし、シグナルハンドラが例外を起こした場合を除きます (この論理的根拠については <span class="target" id="index-18"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0475"><strong>PEP 475</strong></a> を見てください)。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="kqueue-objects">
+<span id="id1"></span><h2>kqueue オブジェクト<a class="headerlink" href="#kqueue-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="method">
+<dt id="select.kqueue.close">
+<code class="descclassname">kqueue.</code><code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.kqueue.close" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>kqueue オブジェクトの制御用ファイル記述子を閉じる。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.kqueue.closed">
+<code class="descclassname">kqueue.</code><code class="descname">closed</code><a class="headerlink" href="#select.kqueue.closed" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>kqueue オブジェクトが閉じている場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.kqueue.fileno">
+<code class="descclassname">kqueue.</code><code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#select.kqueue.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>制御用ファイル記述子の番号を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.kqueue.fromfd">
+<code class="descclassname">kqueue.</code><code class="descname">fromfd</code><span class="sig-paren">(</span><em>fd</em><span class="sig-paren">)</span><a class="headerlink" href="#select.kqueue.fromfd" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられたファイル記述子から、kqueue オブジェクトを作成する。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="select.kqueue.control">
+<code class="descclassname">kqueue.</code><code class="descname">control</code><span class="sig-paren">(</span><em>changelist</em>, <em>max_events</em><span class="optional">[</span>, <em>timeout</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; eventlist<a class="headerlink" href="#select.kqueue.control" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>kevent に対する低水準のインタフェース</p>
+<ul class="simple">
+<li>changelist must be an iterable of kevent objects or <code class="docutils literal notranslate"><span class="pre">None</span></code></li>
+<li><em>max_events</em> は 0 または正の整数</li>
+<li>timeout in seconds (floats possible); the default is <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+to wait forever</li>
+</ul>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>この関数は、シグナルによって中断された時に、 <a class="reference internal" href="exceptions.html#InterruptedError" title="InterruptedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InterruptedError</span></code></a> を上げる代わりに再計算されたタイムアウトによってリトライするようになりました。ただし、シグナルハンドラが例外を起こした場合を除きます (この論理的根拠については <span class="target" id="index-19"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0475"><strong>PEP 475</strong></a> を見てください)。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="kevent-objects">
+<span id="id2"></span><h2>kevent オブジェクト<a class="headerlink" href="#kevent-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.freebsd.org/cgi/man.cgi?query=kqueue&amp;sektion=2">https://www.freebsd.org/cgi/man.cgi?query=kqueue&amp;sektion=2</a></p>
+<dl class="attribute">
+<dt id="select.kevent.ident">
+<code class="descclassname">kevent.</code><code class="descname">ident</code><a class="headerlink" href="#select.kevent.ident" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>イベントを特定するための値。この値は、フィルタにもよりますが、大抵の場合はファイル記述子です。コンストラクタでは、 ident として、整数値か <a class="reference internal" href="io.html#io.IOBase.fileno" title="io.IOBase.fileno"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code></a> メソッドを持ったオブジェクトを渡せます。 kevent は内部で整数値を保存します。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.kevent.filter">
+<code class="descclassname">kevent.</code><code class="descname">filter</code><a class="headerlink" href="#select.kevent.filter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>カーネルフィルタの名前。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_READ</span></code></td>
+<td>記述子を受け取り、読み込めるデータが存在する時に戻る</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_WRITE</span></code></td>
+<td>記述子を受け取り、書き込み可能な時に戻る</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_AIO</span></code></td>
+<td>AIO リクエスト</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_VNODE</span></code></td>
+<td><em>fflag</em> で監視されたイベントが1つ以上発生したときに戻る</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_PROC</span></code></td>
+<td>プロセスID上のイベントを監視する</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_NETDEV</span></code></td>
+<td>ネットワークデバイス上のイベントを監視する (Mac OS X では利用不可)</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_SIGNAL</span></code></td>
+<td>監視しているシグナルがプロセスに届いたときに戻る</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_TIMER</span></code></td>
+<td>任意のタイマを設定する</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.kevent.flags">
+<code class="descclassname">kevent.</code><code class="descname">flags</code><a class="headerlink" href="#select.kevent.flags" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フィルタアクション。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_ADD</span></code></td>
+<td>イベントを追加または修正する</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_DELETE</span></code></td>
+<td>キューからイベントを取り除く</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_ENABLE</span></code></td>
+<td>control() がイベントを返すのを許可する</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_DISABLE</span></code></td>
+<td>イベントを無効にする</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_ONESHOT</span></code></td>
+<td>イベントを最初の発生後無効にする</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_CLEAR</span></code></td>
+<td>イベントを受け取った後で状態をリセットする</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_SYSFLAGS</span></code></td>
+<td>内部イベント</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_FLAG1</span></code></td>
+<td>内部イベント</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_EOF</span></code></td>
+<td>フィルタ依存のEOF状態</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_EV_ERROR</span></code></td>
+<td>戻り値を参照</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.kevent.fflags">
+<code class="descclassname">kevent.</code><code class="descname">fflags</code><a class="headerlink" href="#select.kevent.fflags" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フィルタ依存のフラグ。</p>
+<p><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_READ</span></code> と <code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_WRITE</span></code> フィルタのフラグ:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_LOWAT</span></code></td>
+<td>ソケットバッファの最低基準値</td>
+</tr>
+</tbody>
+</table>
+<p><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_VNODE</span></code> フィルタのフラグ:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_DELETE</span></code></td>
+<td><em>unlink()</em> が呼ばれた</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_WRITE</span></code></td>
+<td>書き込みが発生した</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_EXTEND</span></code></td>
+<td>ファイルのサイズが拡張された</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_ATTRIB</span></code></td>
+<td>属性が変更された</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_LINK</span></code></td>
+<td>リンクカウントが変更された</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_RENAME</span></code></td>
+<td>ファイル名が変更された</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_REVOKE</span></code></td>
+<td>ファイルアクセスが破棄された</td>
+</tr>
+</tbody>
+</table>
+<p><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_PROC</span></code> フィルタフラグ:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_EXIT</span></code></td>
+<td>プロセスが終了した</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_FORK</span></code></td>
+<td>プロセスが <em>fork()</em> を呼び出した</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_EXEC</span></code></td>
+<td>プロセスが新しいプロセスを実行した</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_PCTRLMASK</span></code></td>
+<td>内部フィルタフラグ</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_PDATAMASK</span></code></td>
+<td>内部フィルタフラグ</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_TRACK</span></code></td>
+<td><em>fork()</em> の呼び出しを超えてプロセスを監視する</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_CHILD</span></code></td>
+<td><em>NOTE_TRACK</em> に対して子プロセスに渡される</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_TRACKERR</span></code></td>
+<td>子プロセスにアタッチできなかった</td>
+</tr>
+</tbody>
+</table>
+<p><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_FILTER_NETDEV</span></code> フィルタフラグ (Mac OS X では利用不可):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_LINKUP</span></code></td>
+<td>リンクアップしている</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_LINKDOWN</span></code></td>
+<td>リンクダウンしている</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">KQ_NOTE_LINKINV</span></code></td>
+<td>リンク状態が不正</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.kevent.data">
+<code class="descclassname">kevent.</code><code class="descname">data</code><a class="headerlink" href="#select.kevent.data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フィルタ固有のデータ。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="select.kevent.udata">
+<code class="descclassname">kevent.</code><code class="descname">udata</code><a class="headerlink" href="#select.kevent.udata" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ユーザー定義値。</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">select</span></code> --- I/O 処理の完了を待機する</a><ul>
+<li><a class="reference internal" href="#dev-poll-polling-objects"><code class="docutils literal notranslate"><span class="pre">/dev/poll</span></code> ポーリングオブジェクト</a></li>
+<li><a class="reference internal" href="#edge-and-level-trigger-polling-epoll-objects">エッジおよびレベルトリガポーリング (epoll) オブジェクト</a></li>
+<li><a class="reference internal" href="#polling-objects">ポーリングオブジェクト</a></li>
+<li><a class="reference internal" href="#kqueue-objects">kqueue オブジェクト</a></li>
+<li><a class="reference internal" href="#kevent-objects">kevent オブジェクト</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="ssl.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">ssl</span></code> --- ソケットオブジェクトに対する TLS/SSL ラッパー</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="selectors.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">selectors</span></code> --- 高水準の I/O 多重化</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/select.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="selectors.html" title="selectors --- 高水準の I/O 多重化"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="ssl.html" title="ssl --- ソケットオブジェクトに対する TLS/SSL ラッパー"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="ipc.html" >ネットワーク通信とプロセス間通信</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

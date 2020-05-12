@@ -1,0 +1,547 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pprint --- データ出力の整然化 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="reprlib --- もう一つの repr() の実装" href="reprlib.html" />
+    <link rel="prev" title="copy --- 浅いコピーおよび深いコピー操作" href="copy.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/pprint.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="reprlib.html" title="reprlib --- もう一つの repr() の実装"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="copy.html" title="copy --- 浅いコピーおよび深いコピー操作"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="datatypes.html" accesskey="U">データ型</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-pprint">
+<span id="pprint-data-pretty-printer"></span><h1><a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pprint</span></code></a> --- データ出力の整然化<a class="headerlink" href="#module-pprint" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/pprint.py">Lib/pprint.py</a></p>
+<hr class="docutils" />
+<p><a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pprint</span></code></a> モジュールを使うと、Pythonの任意のデータ構造をインタープリタへの入力で使われる形式にして &quot;pretty-print&quot; できます。書式化された構造の中にPythonの基本的なタイプではないオブジェクトがあるなら、表示できないかもしれません。表示できないのは、ファイル、ソケット、あるいはクラスのようなオブジェクトや、 その他Pythonのリテラルとして表現できない様々なオブジェクトが含まれていた場合です。</p>
+<p>可能であればオブジェクトを1行で整形しますが、与えられた幅に合わないなら複数行に分けて整形します。
+出力幅を指定したい場合は、 <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> オブジェクトを作成して明示してください。</p>
+<p>辞書は表示される前にキーの順でソートされます。</p>
+<p><a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pprint</span></code></a> モジュールには1つのクラスが定義されています:</p>
+<span class="target" id="index-0"></span><dl class="class">
+<dt id="pprint.PrettyPrinter">
+<em class="property">class </em><code class="descclassname">pprint.</code><code class="descname">PrettyPrinter</code><span class="sig-paren">(</span><em>indent=1</em>, <em>width=80</em>, <em>depth=None</em>, <em>stream=None</em>, <em>*</em>, <em>compact=False</em>, <em>sort_dicts=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.PrettyPrinter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Construct a <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> instance.  This constructor understands
+several keyword parameters.  An output stream may be set using the <em>stream</em>
+keyword; the only method used on the stream object is the file protocol's
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code> method.  If not specified, the <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> adopts
+<code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code>.  The
+amount of indentation added for each recursive level is specified by <em>indent</em>;
+the default is one.  Other values can cause output to look a little odd, but can
+make nesting easier to spot.  The number of levels which may be printed is
+controlled by <em>depth</em>; if the data structure being printed is too deep, the next
+contained level is replaced by <code class="docutils literal notranslate"><span class="pre">...</span></code>.  By default, there is no constraint on
+the depth of the objects being formatted.  The desired output width is
+constrained using the <em>width</em> parameter; the default is 80 characters.  If a
+structure cannot be formatted within the constrained width, a best effort will
+be made.  If <em>compact</em> is false (the default) each item of a long sequence
+will be formatted on a separate line.  If <em>compact</em> is true, as many items
+as will fit within the <em>width</em> will be formatted on each output line. If
+<em>sort_dicts</em> is true (the default), dictionaries will be formatted with their
+keys sorted, otherwise they will display in insertion order.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><em>compact</em> 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Added the <em>sort_dicts</em> parameter.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stuff</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;spam&#39;</span><span class="p">,</span> <span class="s1">&#39;eggs&#39;</span><span class="p">,</span> <span class="s1">&#39;lumberjack&#39;</span><span class="p">,</span> <span class="s1">&#39;knights&#39;</span><span class="p">,</span> <span class="s1">&#39;ni&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stuff</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stuff</span><span class="p">[:])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+<span class="go">[   [&#39;spam&#39;, &#39;eggs&#39;, &#39;lumberjack&#39;, &#39;knights&#39;, &#39;ni&#39;],</span>
+<span class="go">    &#39;spam&#39;,</span>
+<span class="go">    &#39;eggs&#39;,</span>
+<span class="go">    &#39;lumberjack&#39;,</span>
+<span class="go">    &#39;knights&#39;,</span>
+<span class="go">    &#39;ni&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">41</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+<span class="go">[[&#39;spam&#39;, &#39;eggs&#39;, &#39;lumberjack&#39;,</span>
+<span class="go">  &#39;knights&#39;, &#39;ni&#39;],</span>
+<span class="go"> &#39;spam&#39;, &#39;eggs&#39;, &#39;lumberjack&#39;, &#39;knights&#39;,</span>
+<span class="go"> &#39;ni&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tup</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;spam&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;eggs&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;lumberjack&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;knights&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;ni&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;dead&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">(</span><span class="s1">&#39;parrot&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;fresh fruit&#39;</span><span class="p">,))))))))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">tup</span><span class="p">)</span>
+<span class="go">(&#39;spam&#39;, (&#39;eggs&#39;, (&#39;lumberjack&#39;, (&#39;knights&#39;, (&#39;ni&#39;, (&#39;dead&#39;, (...)))))))</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<p><a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pprint</span></code></a> モジュールは幾つかのショートカット関数も提供しています:</p>
+<dl class="function">
+<dt id="pprint.pformat">
+<code class="descclassname">pprint.</code><code class="descname">pformat</code><span class="sig-paren">(</span><em>object</em>, <em>indent=1</em>, <em>width=80</em>, <em>depth=None</em>, <em>*</em>, <em>compact=False</em>, <em>sort_dicts=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.pformat" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return the formatted representation of <em>object</em> as a string.  <em>indent</em>,
+<em>width</em>, <em>depth</em>, <em>compact</em> and <em>sort_dicts</em> will be passed to the
+<a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> constructor as formatting parameters.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><em>compact</em> 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Added the <em>sort_dicts</em> parameter.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pprint.pp">
+<code class="descclassname">pprint.</code><code class="descname">pp</code><span class="sig-paren">(</span><em>object</em>, <em>*args</em>, <em>sort_dicts=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.pp" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Prints the formatted representation of <em>object</em> followed by a newline.
+If <em>sort_dicts</em> is false (the default), dictionaries will be displayed with
+their keys in insertion order, otherwise the dict keys will be sorted.
+<em>args</em> and <em>kwargs</em> will be passed to <a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-func docutils literal notranslate"><span class="pre">pprint()</span></code></a> as formatting
+parameters.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.8 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pprint.pprint">
+<code class="descclassname">pprint.</code><code class="descname">pprint</code><span class="sig-paren">(</span><em>object</em>, <em>stream=None</em>, <em>indent=1</em>, <em>width=80</em>, <em>depth=None</em>, <em>*</em>, <em>compact=False</em>, <em>sort_dicts=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.pprint" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Prints the formatted representation of <em>object</em> on <em>stream</em>, followed by a
+newline.  If <em>stream</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> is used.  This may be used
+in the interactive interpreter instead of the <a class="reference internal" href="functions.html#print" title="print"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> function for
+inspecting values (you can even reassign <code class="docutils literal notranslate"><span class="pre">print</span> <span class="pre">=</span> <span class="pre">pprint.pprint</span></code> for use
+within a scope).  <em>indent</em>, <em>width</em>, <em>depth</em>, <em>compact</em> and <em>sort_dicts</em> will
+be passed to the <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> constructor as formatting parameters.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><em>compact</em> 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Added the <em>sort_dicts</em> parameter.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stuff</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;spam&#39;</span><span class="p">,</span> <span class="s1">&#39;eggs&#39;</span><span class="p">,</span> <span class="s1">&#39;lumberjack&#39;</span><span class="p">,</span> <span class="s1">&#39;knights&#39;</span><span class="p">,</span> <span class="s1">&#39;ni&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stuff</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">stuff</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+<span class="go">[&lt;Recursion on list with id=...&gt;,</span>
+<span class="go"> &#39;spam&#39;,</span>
+<span class="go"> &#39;eggs&#39;,</span>
+<span class="go"> &#39;lumberjack&#39;,</span>
+<span class="go"> &#39;knights&#39;,</span>
+<span class="go"> &#39;ni&#39;]</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pprint.isreadable">
+<code class="descclassname">pprint.</code><code class="descname">isreadable</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.isreadable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-1">Determine if the formatted representation of <em>object</em> is &quot;readable&quot;, or can be
+used to reconstruct the value using <a class="reference internal" href="functions.html#eval" title="eval"><code class="xref py py-func docutils literal notranslate"><span class="pre">eval()</span></code></a>.  This always returns <code class="docutils literal notranslate"><span class="pre">False</span></code>
+for recursive objects.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">isreadable</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pprint.isrecursive">
+<code class="descclassname">pprint.</code><code class="descname">isrecursive</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.isrecursive" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>object</em> が再帰的な表現かどうかを返します。</p>
+</dd></dl>
+
+<p>さらにもう1つ、関数が定義されています:</p>
+<dl class="function">
+<dt id="pprint.saferepr">
+<code class="descclassname">pprint.</code><code class="descname">saferepr</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.saferepr" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>object</em> の文字列表現を、再帰的なデータ構造から保護した形式で返します。もし <em>object</em> の文字列表現が再帰的な要素を持っているなら、再帰的な参照は <code class="docutils literal notranslate"><span class="pre">&lt;Recursion</span> <span class="pre">on</span> <span class="pre">typename</span> <span class="pre">with</span> <span class="pre">id=number&gt;</span></code> で表示されます。出力は他と違って書式化されません。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">saferepr</span><span class="p">(</span><span class="n">stuff</span><span class="p">)</span>
+<span class="go">&quot;[&lt;Recursion on list with id=...&gt;, &#39;spam&#39;, &#39;eggs&#39;, &#39;lumberjack&#39;, &#39;knights&#39;, &#39;ni&#39;]&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="prettyprinter-objects">
+<span id="id1"></span><h2>PrettyPrinter オブジェクト<a class="headerlink" href="#prettyprinter-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> インスタンスには以下のメソッドがあります:</p>
+<dl class="method">
+<dt id="pprint.PrettyPrinter.pformat">
+<code class="descclassname">PrettyPrinter.</code><code class="descname">pformat</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.PrettyPrinter.pformat" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>object</em> の書式化した表現を返します。これは <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> のコンストラクタに渡されたオプションを考慮して書式化されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pprint.PrettyPrinter.pprint">
+<code class="descclassname">PrettyPrinter.</code><code class="descname">pprint</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.PrettyPrinter.pprint" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>object</em> の書式化した表現を指定したストリームに出力し、最後に改行します。</p>
+</dd></dl>
+
+<p>以下のメソッドは、対応する同じ名前の関数と同じ機能を持っています。以下のメソッドをインスタンスに対して使うと、新たに <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> オブジェクトを作る必要がないのでちょっぴり効果的です。</p>
+<dl class="method">
+<dt id="pprint.PrettyPrinter.isreadable">
+<code class="descclassname">PrettyPrinter.</code><code class="descname">isreadable</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.PrettyPrinter.isreadable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-2"><em>object</em> を書式化して出力できる（&quot;readable&quot;）か、あるいは <a class="reference internal" href="functions.html#eval" title="eval"><code class="xref py py-func docutils literal notranslate"><span class="pre">eval()</span></code></a> を使って値を再構成できるかを返します。これは再帰的なオブジェクトに対して <code class="docutils literal notranslate"><span class="pre">False</span></code> を返すことに注意して下さい。もし <a class="reference internal" href="#pprint.PrettyPrinter" title="pprint.PrettyPrinter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrettyPrinter</span></code></a> の <em>depth</em> 引数が設定されていて、オブジェクトのレベルが設定よりも深かったら、 <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pprint.PrettyPrinter.isrecursive">
+<code class="descclassname">PrettyPrinter.</code><code class="descname">isrecursive</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.PrettyPrinter.isrecursive" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトが再帰的な表現かどうかを返します。</p>
+</dd></dl>
+
+<p>このメソッドをフックとして、サブクラスがオブジェクトを文字列に変換する方法を修正するのが可能になっています。デフォルトの実装では、内部で <a class="reference internal" href="#pprint.saferepr" title="pprint.saferepr"><code class="xref py py-func docutils literal notranslate"><span class="pre">saferepr()</span></code></a> を呼び出しています。</p>
+<dl class="method">
+<dt id="pprint.PrettyPrinter.format">
+<code class="descclassname">PrettyPrinter.</code><code class="descname">format</code><span class="sig-paren">(</span><em>object</em>, <em>context</em>, <em>maxlevels</em>, <em>level</em><span class="sig-paren">)</span><a class="headerlink" href="#pprint.PrettyPrinter.format" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>次の3つの値を返します。<em>object</em> をフォーマット化して文字列にしたもの、その結果が読み込み可能かどうかを示すフラグ、再帰が含まれているかどうかを示すフラグ。最初の引数は表示するオブジェクトです。 2つめの引数はオブジェクトの <a class="reference internal" href="functions.html#id" title="id"><code class="xref py py-func docutils literal notranslate"><span class="pre">id()</span></code></a> をキーとして含むディクショナリで、オブジェクトを含んでいる現在の（直接、間接に <em>object</em> のコンテナとして表示に影響を与える）環境です。ディクショナリ <em>context</em> の中でどのオブジェクトが表示されたか表示する必要があるなら、3つめの返り値は <code class="docutils literal notranslate"><span class="pre">True</span></code> になります。 <a class="reference internal" href="#pprint.PrettyPrinter.format" title="pprint.PrettyPrinter.format"><code class="xref py py-meth docutils literal notranslate"><span class="pre">format()</span></code></a> メソッドの再帰呼び出しではこのディクショナリのコンテナに対してさらにエントリを加えます。 3つめの引数 <em>maxlevels</em> で再帰呼び出しのレベルを制限します。制限しない場合、 <code class="docutils literal notranslate"><span class="pre">0</span></code> になります。この引数は再帰呼び出しでそのまま渡されます。 4つめの引数 <em>level</em> で現在のレベルを設定します。再帰呼び出しでは、現在の呼び出しより小さい値が渡されます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="example">
+<span id="pprint-example"></span><h2>使用例<a class="headerlink" href="#example" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-func docutils literal notranslate"><span class="pre">pprint()</span></code></a> 関数のいくつかの用途とそのパラメータを実証するために、<a class="reference external" href="https://pypi.org">PyPI</a> からプロジェクトに関する情報を取って来ましょう:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">urlopen</span><span class="p">(</span><span class="s1">&#39;https://pypi.org/pypi/sampleproject/json&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">project_info</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">resp</span><span class="p">)[</span><span class="s1">&#39;info&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>その基本形式では、 <a class="reference internal" href="#module-pprint" title="pprint: Data pretty printer."><code class="xref py py-func docutils literal notranslate"><span class="pre">pprint()</span></code></a> はオブジェクト全体を表示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">project_info</span><span class="p">)</span>
+<span class="go">{&#39;author&#39;: &#39;The Python Packaging Authority&#39;,</span>
+<span class="go"> &#39;author_email&#39;: &#39;pypa-dev@googlegroups.com&#39;,</span>
+<span class="go"> &#39;bugtrack_url&#39;: None,</span>
+<span class="go"> &#39;classifiers&#39;: [&#39;Development Status :: 3 - Alpha&#39;,</span>
+<span class="go">                 &#39;Intended Audience :: Developers&#39;,</span>
+<span class="go">                 &#39;License :: OSI Approved :: MIT License&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 2&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 2.6&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 2.7&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 3&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 3.2&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 3.3&#39;,</span>
+<span class="go">                 &#39;Programming Language :: Python :: 3.4&#39;,</span>
+<span class="go">                 &#39;Topic :: Software Development :: Build Tools&#39;],</span>
+<span class="go"> &#39;description&#39;: &#39;A sample Python project\n&#39;</span>
+<span class="go">                &#39;=======================\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;This is the description file for the project.\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;The file should use UTF-8 encoding and be written using &#39;</span>
+<span class="go">                &#39;ReStructured Text. It\n&#39;</span>
+<span class="go">                &#39;will be used to generate the project webpage on PyPI, and &#39;</span>
+<span class="go">                &#39;should be written for\n&#39;</span>
+<span class="go">                &#39;that purpose.\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;Typical contents for this file would include an overview of &#39;</span>
+<span class="go">                &#39;the project, basic\n&#39;</span>
+<span class="go">                &#39;usage examples, etc. Generally, including the project &#39;</span>
+<span class="go">                &#39;changelog in here is not\n&#39;</span>
+<span class="go">                &#39;a good idea, although a simple &quot;What\&#39;s New&quot; section for the &#39;</span>
+<span class="go">                &#39;most recent version\n&#39;</span>
+<span class="go">                &#39;may be appropriate.&#39;,</span>
+<span class="go"> &#39;description_content_type&#39;: None,</span>
+<span class="go"> &#39;docs_url&#39;: None,</span>
+<span class="go"> &#39;download_url&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go"> &#39;downloads&#39;: {&#39;last_day&#39;: -1, &#39;last_month&#39;: -1, &#39;last_week&#39;: -1},</span>
+<span class="go"> &#39;home_page&#39;: &#39;https://github.com/pypa/sampleproject&#39;,</span>
+<span class="go"> &#39;keywords&#39;: &#39;sample setuptools development&#39;,</span>
+<span class="go"> &#39;license&#39;: &#39;MIT&#39;,</span>
+<span class="go"> &#39;maintainer&#39;: None,</span>
+<span class="go"> &#39;maintainer_email&#39;: None,</span>
+<span class="go"> &#39;name&#39;: &#39;sampleproject&#39;,</span>
+<span class="go"> &#39;package_url&#39;: &#39;https://pypi.org/project/sampleproject/&#39;,</span>
+<span class="go"> &#39;platform&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go"> &#39;project_url&#39;: &#39;https://pypi.org/project/sampleproject/&#39;,</span>
+<span class="go"> &#39;project_urls&#39;: {&#39;Download&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go">                  &#39;Homepage&#39;: &#39;https://github.com/pypa/sampleproject&#39;},</span>
+<span class="go"> &#39;release_url&#39;: &#39;https://pypi.org/project/sampleproject/1.2.0/&#39;,</span>
+<span class="go"> &#39;requires_dist&#39;: None,</span>
+<span class="go"> &#39;requires_python&#39;: None,</span>
+<span class="go"> &#39;summary&#39;: &#39;A sample Python project&#39;,</span>
+<span class="go"> &#39;version&#39;: &#39;1.2.0&#39;}</span>
+</pre></div>
+</div>
+<p>結果をある深さ <em>depth</em> に制限することができます (より深い内容には省略記号が使用されます):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">project_info</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">{&#39;author&#39;: &#39;The Python Packaging Authority&#39;,</span>
+<span class="go"> &#39;author_email&#39;: &#39;pypa-dev@googlegroups.com&#39;,</span>
+<span class="go"> &#39;bugtrack_url&#39;: None,</span>
+<span class="go"> &#39;classifiers&#39;: [...],</span>
+<span class="go"> &#39;description&#39;: &#39;A sample Python project\n&#39;</span>
+<span class="go">                &#39;=======================\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;This is the description file for the project.\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;The file should use UTF-8 encoding and be written using &#39;</span>
+<span class="go">                &#39;ReStructured Text. It\n&#39;</span>
+<span class="go">                &#39;will be used to generate the project webpage on PyPI, and &#39;</span>
+<span class="go">                &#39;should be written for\n&#39;</span>
+<span class="go">                &#39;that purpose.\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;Typical contents for this file would include an overview of &#39;</span>
+<span class="go">                &#39;the project, basic\n&#39;</span>
+<span class="go">                &#39;usage examples, etc. Generally, including the project &#39;</span>
+<span class="go">                &#39;changelog in here is not\n&#39;</span>
+<span class="go">                &#39;a good idea, although a simple &quot;What\&#39;s New&quot; section for the &#39;</span>
+<span class="go">                &#39;most recent version\n&#39;</span>
+<span class="go">                &#39;may be appropriate.&#39;,</span>
+<span class="go"> &#39;description_content_type&#39;: None,</span>
+<span class="go"> &#39;docs_url&#39;: None,</span>
+<span class="go"> &#39;download_url&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go"> &#39;downloads&#39;: {...},</span>
+<span class="go"> &#39;home_page&#39;: &#39;https://github.com/pypa/sampleproject&#39;,</span>
+<span class="go"> &#39;keywords&#39;: &#39;sample setuptools development&#39;,</span>
+<span class="go"> &#39;license&#39;: &#39;MIT&#39;,</span>
+<span class="go"> &#39;maintainer&#39;: None,</span>
+<span class="go"> &#39;maintainer_email&#39;: None,</span>
+<span class="go"> &#39;name&#39;: &#39;sampleproject&#39;,</span>
+<span class="go"> &#39;package_url&#39;: &#39;https://pypi.org/project/sampleproject/&#39;,</span>
+<span class="go"> &#39;platform&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go"> &#39;project_url&#39;: &#39;https://pypi.org/project/sampleproject/&#39;,</span>
+<span class="go"> &#39;project_urls&#39;: {...},</span>
+<span class="go"> &#39;release_url&#39;: &#39;https://pypi.org/project/sampleproject/1.2.0/&#39;,</span>
+<span class="go"> &#39;requires_dist&#39;: None,</span>
+<span class="go"> &#39;requires_python&#39;: None,</span>
+<span class="go"> &#39;summary&#39;: &#39;A sample Python project&#39;,</span>
+<span class="go"> &#39;version&#39;: &#39;1.2.0&#39;}</span>
+</pre></div>
+</div>
+<p>それに加えて、最大の文字幅 <em>width</em> を指示することもできます。長いオブジェクトを分離することができなければ、指定された幅を超過します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">project_info</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="go">{&#39;author&#39;: &#39;The Python Packaging Authority&#39;,</span>
+<span class="go"> &#39;author_email&#39;: &#39;pypa-dev@googlegroups.com&#39;,</span>
+<span class="go"> &#39;bugtrack_url&#39;: None,</span>
+<span class="go"> &#39;classifiers&#39;: [...],</span>
+<span class="go"> &#39;description&#39;: &#39;A sample Python project\n&#39;</span>
+<span class="go">                &#39;=======================\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;This is the description file for the &#39;</span>
+<span class="go">                &#39;project.\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;The file should use UTF-8 encoding and be &#39;</span>
+<span class="go">                &#39;written using ReStructured Text. It\n&#39;</span>
+<span class="go">                &#39;will be used to generate the project &#39;</span>
+<span class="go">                &#39;webpage on PyPI, and should be written &#39;</span>
+<span class="go">                &#39;for\n&#39;</span>
+<span class="go">                &#39;that purpose.\n&#39;</span>
+<span class="go">                &#39;\n&#39;</span>
+<span class="go">                &#39;Typical contents for this file would &#39;</span>
+<span class="go">                &#39;include an overview of the project, &#39;</span>
+<span class="go">                &#39;basic\n&#39;</span>
+<span class="go">                &#39;usage examples, etc. Generally, including &#39;</span>
+<span class="go">                &#39;the project changelog in here is not\n&#39;</span>
+<span class="go">                &#39;a good idea, although a simple &quot;What\&#39;s &#39;</span>
+<span class="go">                &#39;New&quot; section for the most recent version\n&#39;</span>
+<span class="go">                &#39;may be appropriate.&#39;,</span>
+<span class="go"> &#39;description_content_type&#39;: None,</span>
+<span class="go"> &#39;docs_url&#39;: None,</span>
+<span class="go"> &#39;download_url&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go"> &#39;downloads&#39;: {...},</span>
+<span class="go"> &#39;home_page&#39;: &#39;https://github.com/pypa/sampleproject&#39;,</span>
+<span class="go"> &#39;keywords&#39;: &#39;sample setuptools development&#39;,</span>
+<span class="go"> &#39;license&#39;: &#39;MIT&#39;,</span>
+<span class="go"> &#39;maintainer&#39;: None,</span>
+<span class="go"> &#39;maintainer_email&#39;: None,</span>
+<span class="go"> &#39;name&#39;: &#39;sampleproject&#39;,</span>
+<span class="go"> &#39;package_url&#39;: &#39;https://pypi.org/project/sampleproject/&#39;,</span>
+<span class="go"> &#39;platform&#39;: &#39;UNKNOWN&#39;,</span>
+<span class="go"> &#39;project_url&#39;: &#39;https://pypi.org/project/sampleproject/&#39;,</span>
+<span class="go"> &#39;project_urls&#39;: {...},</span>
+<span class="go"> &#39;release_url&#39;: &#39;https://pypi.org/project/sampleproject/1.2.0/&#39;,</span>
+<span class="go"> &#39;requires_dist&#39;: None,</span>
+<span class="go"> &#39;requires_python&#39;: None,</span>
+<span class="go"> &#39;summary&#39;: &#39;A sample Python project&#39;,</span>
+<span class="go"> &#39;version&#39;: &#39;1.2.0&#39;}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">pprint</span></code> --- データ出力の整然化</a><ul>
+<li><a class="reference internal" href="#prettyprinter-objects">PrettyPrinter オブジェクト</a></li>
+<li><a class="reference internal" href="#example">使用例</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="copy.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">copy</span></code> --- 浅いコピーおよび深いコピー操作</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="reprlib.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">reprlib</span></code> --- もう一つの <code class="docutils literal notranslate"><span class="pre">repr()</span></code> の実装</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/pprint.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="reprlib.html" title="reprlib --- もう一つの repr() の実装"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="copy.html" title="copy --- 浅いコピーおよび深いコピー操作"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="datatypes.html" >データ型</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

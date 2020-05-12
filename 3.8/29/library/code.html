@@ -1,0 +1,315 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>code --- インタプリタ基底クラス &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="codeop --- Pythonコードをコンパイルする" href="codeop.html" />
+    <link rel="prev" title="カスタム Python インタプリタ" href="custominterp.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/code.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="codeop.html" title="codeop --- Pythonコードをコンパイルする"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="custominterp.html" title="カスタム Python インタプリタ"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="custominterp.html" accesskey="U">カスタム Python インタプリタ</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-code">
+<span id="code-interpreter-base-classes"></span><h1><a class="reference internal" href="#module-code" title="code: Facilities to implement read-eval-print loops."><code class="xref py py-mod docutils literal notranslate"><span class="pre">code</span></code></a> --- インタプリタ基底クラス<a class="headerlink" href="#module-code" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/code.py">Lib/code.py</a></p>
+<hr class="docutils" />
+<p><code class="docutils literal notranslate"><span class="pre">code</span></code> モジュールはread-eval-print (読み込み-評価-表示)ループをPythonで実装するための機能を提供します。対話的なインタプリタプロンプトを提供するアプリケーションを作るために使える二つのクラスと便利な関数が含まれています。</p>
+<dl class="class">
+<dt id="code.InteractiveInterpreter">
+<em class="property">class </em><code class="descclassname">code.</code><code class="descname">InteractiveInterpreter</code><span class="sig-paren">(</span><em>locals=None</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveInterpreter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このクラスは構文解析とインタプリタ状態(ユーザの名前空間)を取り扱います。入力バッファリングやプロンプト出力、または入力ファイル指定を扱いません(ファイル名は常に明示的に渡されます)。オプションの <em>locals</em> 引数はその中でコードが実行される辞書を指定します。その初期値は、キー <code class="docutils literal notranslate"><span class="pre">'__name__'</span></code> が <code class="docutils literal notranslate"><span class="pre">'__console__'</span></code> に設定され、キー <code class="docutils literal notranslate"><span class="pre">'__doc__'</span></code> が <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定された新しく作られた辞書です。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="code.InteractiveConsole">
+<em class="property">class </em><code class="descclassname">code.</code><code class="descname">InteractiveConsole</code><span class="sig-paren">(</span><em>locals=None</em>, <em>filename=&quot;&lt;console&gt;&quot;</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveConsole" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>対話的なPythonインタプリタの振る舞いを厳密にエミュレートします。このクラスは <a class="reference internal" href="#code.InteractiveInterpreter" title="code.InteractiveInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveInterpreter</span></code></a> を元に作られていて、通常の <code class="docutils literal notranslate"><span class="pre">sys.ps1</span></code> と <code class="docutils literal notranslate"><span class="pre">sys.ps2</span></code> をつかったプロンプト出力と入力バッファリングが追加されています。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="code.interact">
+<code class="descclassname">code.</code><code class="descname">interact</code><span class="sig-paren">(</span><em>banner=None</em>, <em>readfunc=None</em>, <em>local=None</em>, <em>exitmsg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#code.interact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>read-eval-print ループを実行するための便利な関数。これは <a class="reference internal" href="#code.InteractiveConsole" title="code.InteractiveConsole"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveConsole</span></code></a> の新しいインスタンスを作り、 <em>readfunc</em> が与えられた場合は <a class="reference internal" href="#code.InteractiveConsole.raw_input" title="code.InteractiveConsole.raw_input"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InteractiveConsole.raw_input()</span></code></a> メソッドとして使われるように設定します。 <em>local</em> が与えられた場合は、インタプリタループのデフォルト名前空間として使うために <a class="reference internal" href="#code.InteractiveConsole" title="code.InteractiveConsole"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveConsole</span></code></a> コンストラクタへ渡されます。そして、インスタンスの <a class="reference internal" href="#code.interact" title="code.interact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">interact()</span></code></a> メソッドは（もし提供されていれば）見出しと終了メッセージして使うために <em>banner</em> と <em>exitmsg</em> を受け取り実行されます。コンソールオブジェクトは使われた後捨てられます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><em>exitmsg</em> 引数が追加されました.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="code.compile_command">
+<code class="descclassname">code.</code><code class="descname">compile_command</code><span class="sig-paren">(</span><em>source</em>, <em>filename=&quot;&lt;input&gt;&quot;</em>, <em>symbol=&quot;single&quot;</em><span class="sig-paren">)</span><a class="headerlink" href="#code.compile_command" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この関数はPythonのインタプリタメインループ(別名、read-eval-printループ)をエミュレートしようとするプログラムにとって役に立ちます。扱いにくい部分は、ユーザが(完全なコマンドや構文エラーではなく)さらにテキストを入力すれば完全になりうる不完全なコマンドを入力したときを決定することです。この関数は <em>ほとんど</em> の場合に実際のインタプリタメインループと同じ決定を行います。</p>
+<p><em>source</em> はソース文字列です。<em>filename</em> はオプションのソースが読み出されたファイル名で、デフォルトで <code class="docutils literal notranslate"><span class="pre">'&lt;input&gt;'</span></code> です。<em>symbol</em> はオプションの文法の開始記号で、<code class="docutils literal notranslate"><span class="pre">'single'</span></code> (デフォルト)または <code class="docutils literal notranslate"><span class="pre">'eval'</span></code> のどちらかにすべきです。</p>
+<p>コマンドが完全で有効ならば、コードオブジェクトを返します(<code class="docutils literal notranslate"><span class="pre">compile(source,</span> <span class="pre">filename,</span> <span class="pre">symbol)</span></code> と同じ)。コマンドが完全でないならば、 <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。コマンドが完全で構文エラーを含む場合は、 <a class="reference internal" href="exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> を発生させます。または、コマンドが無効なリテラルを含む場合は、 <a class="reference internal" href="exceptions.html#OverflowError" title="OverflowError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OverflowError</span></code></a> もしくは <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を発生させます。</p>
+</dd></dl>
+
+<div class="section" id="interactive-interpreter-objects">
+<span id="interpreter-objects"></span><h2>対話的なインタプリタオブジェクト<a class="headerlink" href="#interactive-interpreter-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="method">
+<dt id="code.InteractiveInterpreter.runsource">
+<code class="descclassname">InteractiveInterpreter.</code><code class="descname">runsource</code><span class="sig-paren">(</span><em>source</em>, <em>filename=&quot;&lt;input&gt;&quot;</em>, <em>symbol=&quot;single&quot;</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveInterpreter.runsource" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>インタプリタ内のあるソースをコンパイルし実行します。引数は <a class="reference internal" href="#code.compile_command" title="code.compile_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile_command()</span></code></a> のものと同じです。 <em>filename</em> のデフォルトは <code class="docutils literal notranslate"><span class="pre">'&lt;input&gt;'</span></code> で、 <em>symbol</em> は <code class="docutils literal notranslate"><span class="pre">'single'</span></code> です。あるいくつかのことが起きる可能性があります:</p>
+<ul class="simple">
+<li>入力が不正。 <a class="reference internal" href="#code.compile_command" title="code.compile_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile_command()</span></code></a> が例外(<a class="reference internal" href="exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> か <a class="reference internal" href="exceptions.html#OverflowError" title="OverflowError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OverflowError</span></code></a>)を起こした場合。 <a class="reference internal" href="#code.InteractiveInterpreter.showsyntaxerror" title="code.InteractiveInterpreter.showsyntaxerror"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showsyntaxerror()</span></code></a> メソッドの呼び出によって、構文トレースバックが表示されるでしょう。 <a class="reference internal" href="#code.InteractiveInterpreter.runsource" title="code.InteractiveInterpreter.runsource"><code class="xref py py-meth docutils literal notranslate"><span class="pre">runsource()</span></code></a> は <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</li>
+<li>入力が完全でなく、さらに入力が必要。 <a class="reference internal" href="#code.compile_command" title="code.compile_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile_command()</span></code></a> が <code class="docutils literal notranslate"><span class="pre">None</span></code> を返した場合。 <a class="reference internal" href="#code.InteractiveInterpreter.runsource" title="code.InteractiveInterpreter.runsource"><code class="xref py py-meth docutils literal notranslate"><span class="pre">runsource()</span></code></a> は <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。</li>
+<li>入力が完全。 <a class="reference internal" href="#code.compile_command" title="code.compile_command"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile_command()</span></code></a> がコードオブジェクトを返した場合。 (<a class="reference internal" href="exceptions.html#SystemExit" title="SystemExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SystemExit</span></code></a> を除く実行時例外も処理する) <a class="reference internal" href="#code.InteractiveInterpreter.runcode" title="code.InteractiveInterpreter.runcode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">runcode()</span></code></a> を呼び出すことによって、コードは実行されます。 <a class="reference internal" href="#code.InteractiveInterpreter.runsource" title="code.InteractiveInterpreter.runsource"><code class="xref py py-meth docutils literal notranslate"><span class="pre">runsource()</span></code></a> は <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</li>
+</ul>
+<p>戻り値は、次の行のプロンプトに <code class="docutils literal notranslate"><span class="pre">sys.ps1</span></code> か <code class="docutils literal notranslate"><span class="pre">sys.ps2</span></code> のどちらを使うのか判断するために使えます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveInterpreter.runcode">
+<code class="descclassname">InteractiveInterpreter.</code><code class="descname">runcode</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveInterpreter.runcode" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>コードオブジェクトを実行します。例外が生じたときは、トレースバックを表示するために <a class="reference internal" href="#code.InteractiveInterpreter.showtraceback" title="code.InteractiveInterpreter.showtraceback"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showtraceback()</span></code></a> が呼び出されます。伝搬することが許されている <a class="reference internal" href="exceptions.html#SystemExit" title="SystemExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SystemExit</span></code></a> を除くすべての例外が捉えられます。</p>
+<p><a class="reference internal" href="exceptions.html#KeyboardInterrupt" title="KeyboardInterrupt"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code></a> についての注意。このコードの他の場所でこの例外が生じる可能性がありますし、常に捕らえることができるとは限りません。呼び出し側はそれを処理するために準備しておくべきです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveInterpreter.showsyntaxerror">
+<code class="descclassname">InteractiveInterpreter.</code><code class="descname">showsyntaxerror</code><span class="sig-paren">(</span><em>filename=None</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveInterpreter.showsyntaxerror" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>起きたばかりの構文エラーを表示します。複数の構文エラーに対して一つあるのではないため、これはスタックトレースを表示しません。 <em>filename</em> が与えられた場合は、Pythonのパーサが与えるデフォルトのファイル名の代わりに例外の中へ入れられます。なぜなら、文字列から読み込んでいるときはパーサは常に <code class="docutils literal notranslate"><span class="pre">'&lt;string&gt;'</span></code> を使うからです。出力は <a class="reference internal" href="#code.InteractiveInterpreter.write" title="code.InteractiveInterpreter.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code></a> メソッドによって書き込まれます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveInterpreter.showtraceback">
+<code class="descclassname">InteractiveInterpreter.</code><code class="descname">showtraceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveInterpreter.showtraceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>起きたばかりの例外を表示します。スタックの最初の項目を取り除きます。なぜなら、それはインタプリタオブジェクトの実装の内部にあるからです。出力は <a class="reference internal" href="#code.InteractiveInterpreter.write" title="code.InteractiveInterpreter.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code></a> メソッドによって書き込まれます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>最初のトレースバックではなく、完全なトレースバックの連鎖が表示されます。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveInterpreter.write">
+<code class="descclassname">InteractiveInterpreter.</code><code class="descname">write</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveInterpreter.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字列を標準エラーストリーム(<code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code>)へ書き込みます。必要に応じて適切な出力処理を提供するために、派生クラスはこれをオーバーライドすべきです。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="interactive-console-objects">
+<span id="console-objects"></span><h2>対話的なコンソールオブジェクト<a class="headerlink" href="#interactive-console-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#code.InteractiveConsole" title="code.InteractiveConsole"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveConsole</span></code></a> クラスは <a class="reference internal" href="#code.InteractiveInterpreter" title="code.InteractiveInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveInterpreter</span></code></a> のサブクラスです。以下の追加メソッドだけでなく、インタプリタオブジェクトのすべてのメソッドも提供します。</p>
+<dl class="method">
+<dt id="code.InteractiveConsole.interact">
+<code class="descclassname">InteractiveConsole.</code><code class="descname">interact</code><span class="sig-paren">(</span><em>banner=None</em>, <em>exitmsg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveConsole.interact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>対話的な Python コンソールをそっくりにエミュレートします。オプションの <em>banner</em> 引数は最初のやりとりの前に表示するバナーを指定します。デフォルトでは、標準 Python インタプリタが表示するものと同じようなバナーを表示します。それに続けて、実際のインタプリタと混乱しないように (とても似ているから!) 括弧の中にコンソールオブジェクトのクラス名を表示します。</p>
+<p>オプション引数の <em>exitmsg</em> は、終了時に出力される終了メッセージを指定します。空文字列を渡すと、出力メッセージを抑止します。もし、 <em>exitmsg</em> が与えられないか、<code class="docutils literal notranslate"><span class="pre">None</span></code> の場合は、デフォルトのメッセージが出力されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>バナーの表示を抑制するには、空の文字列を渡してください。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>終了時に、終了メッセージを表示します。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveConsole.push">
+<code class="descclassname">InteractiveConsole.</code><code class="descname">push</code><span class="sig-paren">(</span><em>line</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveConsole.push" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ソーステキストの一行をインタプリタへ送ります。その行の末尾に改行がついていてはいけません。内部に改行を持っているかもしれません。その行はバッファへ追加され、ソースとして連結された内容が渡されインタプリタの <code class="xref py py-meth docutils literal notranslate"><span class="pre">runsource()</span></code> メソッドが呼び出されます。コマンドが実行されたか、有効であることをこれが示している場合は、バッファはリセットされます。そうでなければ、コマンドが不完全で、その行が付加された後のままバッファは残されます。さらに入力が必要ならば、戻り値は <code class="docutils literal notranslate"><span class="pre">True</span></code> です。その行がある方法で処理されたならば、 <code class="docutils literal notranslate"><span class="pre">False</span></code> です(これは <code class="xref py py-meth docutils literal notranslate"><span class="pre">runsource()</span></code> と同じです)。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveConsole.resetbuffer">
+<code class="descclassname">InteractiveConsole.</code><code class="descname">resetbuffer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveConsole.resetbuffer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>入力バッファから処理されていないソーステキストを取り除きます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="code.InteractiveConsole.raw_input">
+<code class="descclassname">InteractiveConsole.</code><code class="descname">raw_input</code><span class="sig-paren">(</span><em>prompt=&quot;&quot;</em><span class="sig-paren">)</span><a class="headerlink" href="#code.InteractiveConsole.raw_input" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>プロンプトを書き込み、一行を読み込みます。返る行は末尾に改行を含みません。ユーザがEOFキーシーケンスを入力したときは、 <a class="reference internal" href="exceptions.html#EOFError" title="EOFError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">EOFError</span></code></a> を発生させます。基本実装では、 <code class="docutils literal notranslate"><span class="pre">sys.stdin</span></code> から読み込みます。サブクラスはこれを異なる実装と置き換えるかもしれません。</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">code</span></code> --- インタプリタ基底クラス</a><ul>
+<li><a class="reference internal" href="#interactive-interpreter-objects">対話的なインタプリタオブジェクト</a></li>
+<li><a class="reference internal" href="#interactive-console-objects">対話的なコンソールオブジェクト</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="custominterp.html"
+                        title="前の章へ">カスタム Python インタプリタ</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="codeop.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">codeop</span></code> --- Pythonコードをコンパイルする</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/code.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="codeop.html" title="codeop --- Pythonコードをコンパイルする"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="custominterp.html" title="カスタム Python インタプリタ"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="custominterp.html" >カスタム Python インタプリタ</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

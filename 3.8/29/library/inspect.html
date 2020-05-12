@@ -1,0 +1,1705 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>inspect --- 活動中のオブジェクトの情報を取得する &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="site --- サイト固有の設定フック" href="site.html" />
+    <link rel="prev" title="gc --- ガベージコレクタインターフェース" href="gc.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/inspect.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="site.html" title="site --- サイト固有の設定フック"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="gc.html" title="gc --- ガベージコレクタインターフェース"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" accesskey="U">Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-inspect">
+<span id="inspect-inspect-live-objects"></span><h1><a class="reference internal" href="#module-inspect" title="inspect: Extract information and source code from live objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">inspect</span></code></a> --- 活動中のオブジェクトの情報を取得する<a class="headerlink" href="#module-inspect" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/inspect.py">Lib/inspect.py</a></p>
+<hr class="docutils" />
+<p><a class="reference internal" href="#module-inspect" title="inspect: Extract information and source code from live objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">inspect</span></code></a> は、活動中のオブジェクト (モジュール、クラス、メソッド、関数、トレースバック、フレームオブジェクト、コードオブジェクトなど) から情報を取得する関数を定義しており、クラスの内容を調べたり、メソッドのソースコードを取得したり、関数の引数リストを取り出して整形したり、詳細なトレースバックを表示するのに必要な情報を取得したりするために利用できます。</p>
+<p>このモジュールの機能は4種類に分類することができます。型チェック、ソースコードの情報取得、クラスや関数からの情報取得、インタープリタのスタック情報の調査です。</p>
+<div class="section" id="types-and-members">
+<span id="inspect-types"></span><h2>型とメンバー<a class="headerlink" href="#types-and-members" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#inspect.getmembers" title="inspect.getmembers"><code class="xref py py-func docutils literal notranslate"><span class="pre">getmembers()</span></code></a> は、クラスやモジュールなどのオブジェクトからメンバーを取得します。名前が &quot;is&quot; で始まる関数は、主に <a class="reference internal" href="#inspect.getmembers" title="inspect.getmembers"><code class="xref py py-func docutils literal notranslate"><span class="pre">getmembers()</span></code></a> の第2引数として利用するために提供されています。以下のような特殊属性を参照できるかどうか調べる時にも使えるでしょう:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="33%" />
+<col width="47%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">型</th>
+<th class="head">属性</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>モジュール</td>
+<td>__doc__</td>
+<td>ドキュメント文字列</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__file__</td>
+<td>ファイル名 (組み込みモジュールには存在しません)</td>
+</tr>
+<tr class="row-even"><td>クラス</td>
+<td>__doc__</td>
+<td>ドキュメント文字列</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__name__</td>
+<td>クラスの定義名</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__qualname__</td>
+<td>qualified name</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__module__</td>
+<td>クラスを定義しているモジュールの名前</td>
+</tr>
+<tr class="row-even"><td>メソッド</td>
+<td>__doc__</td>
+<td>ドキュメント文字列</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__name__</td>
+<td>メソッドの定義名</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__qualname__</td>
+<td>qualified name</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__func__</td>
+<td>メソッドを実装している関数オブジェクト</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__self__</td>
+<td>メソッドに結合しているインスタンス、または <code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__module__</td>
+<td>name of module in which
+this method was defined</td>
+</tr>
+<tr class="row-even"><td>関数</td>
+<td>__doc__</td>
+<td>ドキュメント文字列</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__name__</td>
+<td>関数の定義名</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__qualname__</td>
+<td>qualified name</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__code__</td>
+<td>関数をコンパイルした <a class="reference internal" href="../glossary.html#term-bytecode"><span class="xref std std-term">バイトコード</span></a> を格納するコードオブジェクト</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__defaults__</td>
+<td>位置またはキーワード引数の全ての既定値のタプル</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__kwdefaults__</td>
+<td>キーワード専用引数の全ての既定値のマッピング</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__globals__</td>
+<td>関数が定義されたグローバル名前空間</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__annotations__</td>
+<td>仮引数名からアノテーションへのマッピング; <code class="docutils literal notranslate"><span class="pre">&quot;return&quot;</span></code> キーは return アノテーションに予約されています</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__module__</td>
+<td>name of module in which
+this function was defined</td>
+</tr>
+<tr class="row-odd"><td>traceback</td>
+<td>tb_frame</td>
+<td>このレベルのフレームオブジェクト</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>tb_lasti</td>
+<td>最後に実行しようとしたバイトコード中のインストラクションを示すインデックス</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>tb_lineno</td>
+<td>現在の Python ソースコードの行番号</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>tb_next</td>
+<td>このオブジェクトの内側 (このレベルから呼び出された) のトレースバックオブジェクト</td>
+</tr>
+<tr class="row-odd"><td>フレーム</td>
+<td>f_back</td>
+<td>外側 (このフレームを呼び出した) のフレームオブジェクト</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>f_builtins</td>
+<td>このフレームで参照している組み込み名前空間</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>f_code</td>
+<td>このフレームで実行しているコードオブジェクト</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>f_globals</td>
+<td>このフレームで参照しているグローバル名前空間</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>f_lasti</td>
+<td>最後に実行しようとしたバイトコード中のインストラクションを示すインデックス</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>f_lineno</td>
+<td>現在の Python ソースコードの行番号</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>f_locals</td>
+<td>このフレームで参照しているローカル名前空間</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>f_trace</td>
+<td>このフレームのトレース関数、または <code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+<tr class="row-odd"><td>コード</td>
+<td>co_argcount</td>
+<td>number of arguments (not
+including keyword only
+arguments, * or **
+args)</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_code</td>
+<td>コンパイルされたバイトコードそのままの文字列</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_cellvars</td>
+<td>tuple of names of cell
+variables (referenced by
+containing scopes)</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_consts</td>
+<td>バイトコード中で使用している定数のタプル</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_filename</td>
+<td>コードオブジェクトを生成したファイルのファイル名</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_firstlineno</td>
+<td>Python ソースコードの先頭行</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_flags</td>
+<td>bitmap of <code class="docutils literal notranslate"><span class="pre">CO_*</span></code> flags,
+read more <a class="reference internal" href="#inspect-module-co-flags"><span class="std std-ref">here</span></a></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_lnotab</td>
+<td>行番号からバイトコードインデックスへの変換表を文字列にエンコードしたもの</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_freevars</td>
+<td>tuple of names of free
+variables (referenced via
+a function's closure)</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_posonlyargcount</td>
+<td>number of positional only
+arguments</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_kwonlyargcount</td>
+<td>number of keyword only
+arguments (not including
+** arg)</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_name</td>
+<td>コードオブジェクトが定義されたときの名前</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_names</td>
+<td>ローカル変数名のタプル</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_nlocals</td>
+<td>ローカル変数の数</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>co_stacksize</td>
+<td>必要とされる仮想マシンのスタックスペース</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>co_varnames</td>
+<td>引数名とローカル変数名のタプル</td>
+</tr>
+<tr class="row-odd"><td>ジェネレータ</td>
+<td>__name__</td>
+<td>名前</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__qualname__</td>
+<td>qualified name</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>gi_frame</td>
+<td>フレーム</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>gi_running</td>
+<td>ジェネレータが実行中かどうか</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>gi_code</td>
+<td>コード</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>gi_yieldfrom</td>
+<td><code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">from</span></code> でイテレートされているオブジェクト、または <code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+<tr class="row-odd"><td>コルーチン</td>
+<td>__name__</td>
+<td>名前</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__qualname__</td>
+<td>qualified name</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>cr_await</td>
+<td>待機されているオブジェクト、または <code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>cr_frame</td>
+<td>フレーム</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>cr_running</td>
+<td>コルーチンが実行中かどうか</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>cr_code</td>
+<td>コード</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>cr_origin</td>
+<td>where coroutine was
+created, or <code class="docutils literal notranslate"><span class="pre">None</span></code>. See
+<a class="reference internal" href="sys.html#sys.set_coroutine_origin_tracking_depth" title="sys.set_coroutine_origin_tracking_depth"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.set_coroutine_origin_tracking_depth()</span></code></a></td>
+</tr>
+<tr class="row-even"><td>組み込み</td>
+<td>__doc__</td>
+<td>ドキュメント文字列</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__name__</td>
+<td>関数、メソッドの元々の名前</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>__qualname__</td>
+<td>qualified name</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>__self__</td>
+<td>メソッドが結合しているインスタンス、または <code class="docutils literal notranslate"><span class="pre">None</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>ジェネレータに <code class="docutils literal notranslate"><span class="pre">__qualname__</span></code> と <code class="docutils literal notranslate"><span class="pre">gi_yieldfrom</span></code> 属性が追加されました。</p>
+<p>ジェネレータの <code class="docutils literal notranslate"><span class="pre">__name__</span></code> 属性がコード名ではなく関数名から設定されるようになり、変更できるようになりました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Add <code class="docutils literal notranslate"><span class="pre">cr_origin</span></code> attribute to coroutines.</p>
+</div>
+<dl class="function">
+<dt id="inspect.getmembers">
+<code class="descclassname">inspect.</code><code class="descname">getmembers</code><span class="sig-paren">(</span><em>object</em><span class="optional">[</span>, <em>predicate</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getmembers" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return all the members of an object in a list of <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">value)</span></code>
+pairs sorted by name. If the optional <em>predicate</em> argument—which will be
+called with the <code class="docutils literal notranslate"><span class="pre">value</span></code> object of each member—is supplied, only members
+for which the predicate returns a true value are included.</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">引数がクラスで属性がメタクラスのカスタム <a class="reference internal" href="../reference/datamodel.html#object.__dir__" title="object.__dir__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__dir__()</span></code></a> に列挙されている場合、<a class="reference internal" href="#inspect.getmembers" title="inspect.getmembers"><code class="xref py py-func docutils literal notranslate"><span class="pre">getmembers()</span></code></a> はメタクラスで定義されたクラス属性のみを返します。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getmodulename">
+<code class="descclassname">inspect.</code><code class="descname">getmodulename</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getmodulename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return the name of the module named by the file <em>path</em>, without including the
+names of enclosing packages. The file extension is checked against all of
+the entries in <a class="reference internal" href="importlib.html#importlib.machinery.all_suffixes" title="importlib.machinery.all_suffixes"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.machinery.all_suffixes()</span></code></a>. If it matches,
+the final path component is returned with the extension removed.
+Otherwise, <code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+<p>Note that this function <em>only</em> returns a meaningful name for actual
+Python modules - paths that potentially refer to Python packages will
+still return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>The function is based directly on <a class="reference internal" href="importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.ismodule">
+<code class="descclassname">inspect.</code><code class="descname">ismodule</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.ismodule" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a module.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isclass">
+<code class="descclassname">inspect.</code><code class="descname">isclass</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isclass" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a class, whether built-in or created in Python
+code.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.ismethod">
+<code class="descclassname">inspect.</code><code class="descname">ismethod</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.ismethod" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a bound method written in Python.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isfunction">
+<code class="descclassname">inspect.</code><code class="descname">isfunction</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isfunction" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a Python function, which includes functions
+created by a <a class="reference internal" href="../glossary.html#term-lambda"><span class="xref std std-term">lambda</span></a> expression.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isgeneratorfunction">
+<code class="descclassname">inspect.</code><code class="descname">isgeneratorfunction</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isgeneratorfunction" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a Python generator function.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Functions wrapped in <a class="reference internal" href="functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.partial()</span></code></a> now return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the
+wrapped function is a Python generator function.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isgenerator">
+<code class="descclassname">inspect.</code><code class="descname">isgenerator</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isgenerator" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a generator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.iscoroutinefunction">
+<code class="descclassname">inspect.</code><code class="descname">iscoroutinefunction</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.iscoroutinefunction" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a <a class="reference internal" href="../glossary.html#term-coroutine-function"><span class="xref std std-term">coroutine function</span></a>
+(a function defined with an <a class="reference internal" href="../reference/compound_stmts.html#async-def"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code></a> syntax).</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Functions wrapped in <a class="reference internal" href="functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.partial()</span></code></a> now return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the
+wrapped function is a <a class="reference internal" href="../glossary.html#term-coroutine-function"><span class="xref std std-term">coroutine function</span></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.iscoroutine">
+<code class="descclassname">inspect.</code><code class="descname">iscoroutine</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.iscoroutine" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a <a class="reference internal" href="../glossary.html#term-coroutine"><span class="xref std std-term">coroutine</span></a> created by an
+<a class="reference internal" href="../reference/compound_stmts.html#async-def"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code></a> function.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isawaitable">
+<code class="descclassname">inspect.</code><code class="descname">isawaitable</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isawaitable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object can be used in <a class="reference internal" href="../reference/expressions.html#await"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">await</span></code></a> expression.</p>
+<p>ジェネレータベースのコルーチンと通常のジェネレータを区別するのに使うこともできます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">gen</span><span class="p">():</span>
+    <span class="k">yield</span>
+<span class="nd">@types</span><span class="o">.</span><span class="n">coroutine</span>
+<span class="k">def</span> <span class="nf">gen_coro</span><span class="p">():</span>
+    <span class="k">yield</span>
+
+<span class="k">assert</span> <span class="ow">not</span> <span class="n">isawaitable</span><span class="p">(</span><span class="n">gen</span><span class="p">())</span>
+<span class="k">assert</span> <span class="n">isawaitable</span><span class="p">(</span><span class="n">gen_coro</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isasyncgenfunction">
+<code class="descclassname">inspect.</code><code class="descname">isasyncgenfunction</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isasyncgenfunction" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is an <a class="reference internal" href="../glossary.html#term-asynchronous-generator"><span class="xref std std-term">asynchronous generator</span></a> function,
+for example:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">async</span> <span class="k">def</span> <span class="nf">agen</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">yield</span> <span class="mi">1</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">inspect</span><span class="o">.</span><span class="n">isasyncgenfunction</span><span class="p">(</span><span class="n">agen</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Functions wrapped in <a class="reference internal" href="functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.partial()</span></code></a> now return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the
+wrapped function is a <a class="reference internal" href="../glossary.html#term-asynchronous-generator"><span class="xref std std-term">asynchronous generator</span></a> function.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isasyncgen">
+<code class="descclassname">inspect.</code><code class="descname">isasyncgen</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isasyncgen" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is an <a class="reference internal" href="../glossary.html#term-asynchronous-generator-iterator"><span class="xref std std-term">asynchronous generator iterator</span></a>
+created by an <a class="reference internal" href="../glossary.html#term-asynchronous-generator"><span class="xref std std-term">asynchronous generator</span></a> function.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.istraceback">
+<code class="descclassname">inspect.</code><code class="descname">istraceback</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.istraceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a traceback.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isframe">
+<code class="descclassname">inspect.</code><code class="descname">isframe</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isframe" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a frame.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.iscode">
+<code class="descclassname">inspect.</code><code class="descname">iscode</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.iscode" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a code.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isbuiltin">
+<code class="descclassname">inspect.</code><code class="descname">isbuiltin</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isbuiltin" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a built-in function or a bound built-in method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isroutine">
+<code class="descclassname">inspect.</code><code class="descname">isroutine</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isroutine" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a user-defined or built-in function or method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isabstract">
+<code class="descclassname">inspect.</code><code class="descname">isabstract</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isabstract" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is an abstract base class.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.ismethoddescriptor">
+<code class="descclassname">inspect.</code><code class="descname">ismethoddescriptor</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.ismethoddescriptor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a method descriptor, but not if
+<a class="reference internal" href="#inspect.ismethod" title="inspect.ismethod"><code class="xref py py-func docutils literal notranslate"><span class="pre">ismethod()</span></code></a>, <a class="reference internal" href="#inspect.isclass" title="inspect.isclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">isclass()</span></code></a>, <a class="reference internal" href="#inspect.isfunction" title="inspect.isfunction"><code class="xref py py-func docutils literal notranslate"><span class="pre">isfunction()</span></code></a> or <a class="reference internal" href="#inspect.isbuiltin" title="inspect.isbuiltin"><code class="xref py py-func docutils literal notranslate"><span class="pre">isbuiltin()</span></code></a>
+are true.</p>
+<p>This, for example, is true of <code class="docutils literal notranslate"><span class="pre">int.__add__</span></code>.  An object passing this test
+has a <a class="reference internal" href="../reference/datamodel.html#object.__get__" title="object.__get__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__get__()</span></code></a> method but not a <a class="reference internal" href="../reference/datamodel.html#object.__set__" title="object.__set__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__set__()</span></code></a>
+method, but beyond that the set of attributes varies.  A
+<a class="reference internal" href="stdtypes.html#definition.__name__" title="definition.__name__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__name__</span></code></a> attribute is usually
+sensible, and <code class="xref py py-attr docutils literal notranslate"><span class="pre">__doc__</span></code> often is.</p>
+<p>Methods implemented via descriptors that also pass one of the other tests
+return <code class="docutils literal notranslate"><span class="pre">False</span></code> from the <a class="reference internal" href="#inspect.ismethoddescriptor" title="inspect.ismethoddescriptor"><code class="xref py py-func docutils literal notranslate"><span class="pre">ismethoddescriptor()</span></code></a> test, simply because the
+other tests promise more -- you can, e.g., count on having the
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">__func__</span></code> attribute (etc) when an object passes <a class="reference internal" href="#inspect.ismethod" title="inspect.ismethod"><code class="xref py py-func docutils literal notranslate"><span class="pre">ismethod()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isdatadescriptor">
+<code class="descclassname">inspect.</code><code class="descname">isdatadescriptor</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isdatadescriptor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a data descriptor.</p>
+<p>Data descriptors have a <a class="reference internal" href="../reference/datamodel.html#object.__set__" title="object.__set__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__set__</span></code></a> or a <a class="reference internal" href="../reference/datamodel.html#object.__delete__" title="object.__delete__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__delete__</span></code></a> method.
+Examples are properties (defined in Python), getsets, and members.  The
+latter two are defined in C and there are more specific tests available for
+those types, which is robust across Python implementations.  Typically, data
+descriptors will also have <a class="reference internal" href="stdtypes.html#definition.__name__" title="definition.__name__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__name__</span></code></a> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">__doc__</span></code> attributes
+(properties, getsets, and members have both of these attributes), but this is
+not guaranteed.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.isgetsetdescriptor">
+<code class="descclassname">inspect.</code><code class="descname">isgetsetdescriptor</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.isgetsetdescriptor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a getset descriptor.</p>
+<div class="impl-detail compound">
+<p><strong>CPython implementation detail:</strong> getset とは、拡張モジュールで <a class="reference internal" href="../c-api/structures.html#c.PyGetSetDef" title="PyGetSetDef"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyGetSetDef</span></code></a> 構造体を用いて定義された属性のことです。そのような型を持たない Python 実装の場合は、このメソッドは常に <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.ismemberdescriptor">
+<code class="descclassname">inspect.</code><code class="descname">ismemberdescriptor</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.ismemberdescriptor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the object is a member descriptor.</p>
+<div class="impl-detail compound">
+<p><strong>CPython implementation detail:</strong> メンバーデスクリプタとは、拡張モジュールで <a class="reference internal" href="../c-api/structures.html#c.PyMemberDef" title="PyMemberDef"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyMemberDef</span></code></a> 構造体を用いて定義された属性のことです。そのような型を持たない Python 実装の場合は、このメソッドは常に <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="retrieving-source-code">
+<span id="inspect-source"></span><h2>ソースコードの情報取得<a class="headerlink" href="#retrieving-source-code" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="inspect.getdoc">
+<code class="descclassname">inspect.</code><code class="descname">getdoc</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getdoc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get the documentation string for an object, cleaned up with <a class="reference internal" href="#inspect.cleandoc" title="inspect.cleandoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">cleandoc()</span></code></a>.
+If the documentation string for an object is not provided and the object is
+a class, a method, a property or a descriptor, retrieve the documentation
+string from the inheritance hierarchy.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>ドキュメンテーション文字列がオーバーライドされていない場合は継承されるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getcomments">
+<code class="descclassname">inspect.</code><code class="descname">getcomments</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getcomments" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return in a single string any lines of comments immediately preceding the
+object's source code (for a class, function, or method), or at the top of the
+Python source file (if the object is a module).  If the object's source code
+is unavailable, return <code class="docutils literal notranslate"><span class="pre">None</span></code>.  This could happen if the object has been
+defined in C or the interactive shell.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getfile">
+<code class="descclassname">inspect.</code><code class="descname">getfile</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getfile" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトを定義している (テキストまたはバイナリの) ファイルの名前を返します。オブジェクトが組み込みモジュール、クラス、関数の場合は <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> 例外が発生します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getmodule">
+<code class="descclassname">inspect.</code><code class="descname">getmodule</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getmodule" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトを定義しているモジュールを推測します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getsourcefile">
+<code class="descclassname">inspect.</code><code class="descname">getsourcefile</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getsourcefile" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトを定義している Python ソースファイルの名前を返します。オブジェクトが組み込みのモジュール、クラス、関数の場合には、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> 例外が発生します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getsourcelines">
+<code class="descclassname">inspect.</code><code class="descname">getsourcelines</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getsourcelines" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトのソース行のリストと開始行番号を返します。引数にはモジュール、クラス、メソッド、関数、トレースバック、フレーム、コードオブジェクトを指定することができます。戻り値は指定したオブジェクトに対応するソースコードのソース行リストと元のソースファイル上での開始行となります。ソースコードを取得できない場合は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> が発生します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><a class="reference internal" href="exceptions.html#IOError" title="IOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IOError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出します。前者は後者のエイリアスです。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getsource">
+<code class="descclassname">inspect.</code><code class="descname">getsource</code><span class="sig-paren">(</span><em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getsource" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトのソースコードを返します。引数にはモジュール、クラス、メソッド、関数、トレースバック、フレーム、コードオブジェクトを指定することができます。ソースコードは単一の文字列で返します。ソースコードを取得できない場合は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> が発生します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><a class="reference internal" href="exceptions.html#IOError" title="IOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IOError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出します。前者は後者のエイリアスです。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.cleandoc">
+<code class="descclassname">inspect.</code><code class="descname">cleandoc</code><span class="sig-paren">(</span><em>doc</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.cleandoc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>コードブロックと位置を合わせるためのインデントを docstring から削除します。</p>
+<p>先頭行の行頭の空白文字は全て削除されます。
+2行目以降では全行で同じ数の行頭の空白文字が、削除できるだけ削除されます。
+その後、先頭と末尾の空白行が削除され、全てのタブが空白に展開されます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="introspecting-callables-with-the-signature-object">
+<span id="inspect-signature-object"></span><h2>Signature オブジェクトで呼び出し可能オブジェクトを内省する<a class="headerlink" href="#introspecting-callables-with-the-signature-object" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<p>The Signature object represents the call signature of a callable object and its
+return annotation.  To retrieve a Signature object, use the <a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a>
+function.</p>
+<dl class="function">
+<dt id="inspect.signature">
+<code class="descclassname">inspect.</code><code class="descname">signature</code><span class="sig-paren">(</span><em>callable</em>, <em>*</em>, <em>follow_wrapped=True</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.signature" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられた <code class="docutils literal notranslate"><span class="pre">callable</span></code> の <a class="reference internal" href="#inspect.Signature" title="inspect.Signature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Signature</span></code></a> オブジェクトを返します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">signature</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sig</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+<span class="go">&#39;(a, *, b:int, **kwargs)&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">])</span>
+<span class="go">&#39;b:int&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">annotation</span>
+<span class="go">&lt;class &#39;int&#39;&gt;</span>
+</pre></div>
+</div>
+<p>Accepts a wide range of Python callables, from plain functions and classes to
+<a class="reference internal" href="functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.partial()</span></code></a> objects.</p>
+<p>シグネチャが提供できない場合は、 <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を
+送出し、オブジェクトの型がサポートされない場合は、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。</p>
+<p>A slash(/) in the signature of a function denotes that the parameters prior
+to it are positional-only. For more info, see
+<a class="reference internal" href="../faq/programming.html#faq-positional-only-arguments"><span class="std std-ref">the FAQ entry on positional-only parameters</span></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加: </span><code class="docutils literal notranslate"><span class="pre">follow_wrapped</span></code> parameter. Pass <code class="docutils literal notranslate"><span class="pre">False</span></code> to get a signature of
+<code class="docutils literal notranslate"><span class="pre">callable</span></code> specifically (<code class="docutils literal notranslate"><span class="pre">callable.__wrapped__</span></code> will not be used to
+unwrap decorated callables.)</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">Some callables may not be introspectable in certain implementations of
+Python.  For example, in CPython, some built-in functions defined in
+C provide no metadata about their arguments.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="inspect.Signature">
+<em class="property">class </em><code class="descclassname">inspect.</code><code class="descname">Signature</code><span class="sig-paren">(</span><em>parameters=None</em>, <em>*</em>, <em>return_annotation=Signature.empty</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Signature" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>A Signature object represents the call signature of a function and its return
+annotation.  For each parameter accepted by the function it stores a
+<a class="reference internal" href="#inspect.Parameter" title="inspect.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> object in its <a class="reference internal" href="#inspect.Signature.parameters" title="inspect.Signature.parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">parameters</span></code></a> collection.</p>
+<p>The optional <em>parameters</em> argument is a sequence of <a class="reference internal" href="#inspect.Parameter" title="inspect.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>
+objects, which is validated to check that there are no parameters with
+duplicate names, and that the parameters are in the right order, i.e.
+positional-only first, then positional-or-keyword, and that parameters with
+defaults follow parameters without defaults.</p>
+<p>The optional <em>return_annotation</em> argument, can be an arbitrary Python object,
+is the &quot;return&quot; annotation of the callable.</p>
+<p>Signature オブジェクトは <em>イミュータブル</em> です。変更されたコピーを作成するには <a class="reference internal" href="#inspect.Signature.replace" title="inspect.Signature.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.replace()</span></code></a> を使用してください。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>Signature オブジェクトがピックル並びにハッシュ可能になりました。</p>
+</div>
+<dl class="attribute">
+<dt id="inspect.Signature.empty">
+<code class="descname">empty</code><a class="headerlink" href="#inspect.Signature.empty" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>return アノテーションがないことを指すクラスレベルの特殊マーカです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Signature.parameters">
+<code class="descname">parameters</code><a class="headerlink" href="#inspect.Signature.parameters" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>An ordered mapping of parameters' names to the corresponding
+<a class="reference internal" href="#inspect.Parameter" title="inspect.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> objects.  Parameters appear in strict definition
+order, including keyword-only parameters.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Python only explicitly guaranteed that it preserved the declaration
+order of keyword-only parameters as of version 3.7, although in practice
+this order had always been preserved in Python 3.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Signature.return_annotation">
+<code class="descname">return_annotation</code><a class="headerlink" href="#inspect.Signature.return_annotation" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出し可能オブジェクトの &quot;return&quot; アノテーションです。呼び出し可能オブジェクトに &quot;return&quot; アノテーションがない場合、この属性は <a class="reference internal" href="#inspect.Signature.empty" title="inspect.Signature.empty"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Signature.empty</span></code></a> に設定されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="inspect.Signature.bind">
+<code class="descname">bind</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Signature.bind" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Create a mapping from positional and keyword arguments to parameters.
+Returns <a class="reference internal" href="#inspect.BoundArguments" title="inspect.BoundArguments"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundArguments</span></code></a> if <code class="docutils literal notranslate"><span class="pre">*args</span></code> and <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> match the
+signature, or raises a <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="inspect.Signature.bind_partial">
+<code class="descname">bind_partial</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Signature.bind_partial" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Works the same way as <a class="reference internal" href="#inspect.Signature.bind" title="inspect.Signature.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind()</span></code></a>, but allows the omission of
+some required arguments (mimics <a class="reference internal" href="functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.partial()</span></code></a> behavior.)
+Returns <a class="reference internal" href="#inspect.BoundArguments" title="inspect.BoundArguments"><code class="xref py py-class docutils literal notranslate"><span class="pre">BoundArguments</span></code></a>, or raises a <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> if the
+passed arguments do not match the signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="inspect.Signature.replace">
+<code class="descname">replace</code><span class="sig-paren">(</span><em>*[, parameters][, return_annotation]</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Signature.replace" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Create a new Signature instance based on the instance replace was invoked
+on.  It is possible to pass different <code class="docutils literal notranslate"><span class="pre">parameters</span></code> and/or
+<code class="docutils literal notranslate"><span class="pre">return_annotation</span></code> to override the corresponding properties of the base
+signature.  To remove return_annotation from the copied Signature, pass in
+<a class="reference internal" href="#inspect.Signature.empty" title="inspect.Signature.empty"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Signature.empty</span></code></a>.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sig</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_sig</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">return_annotation</span><span class="o">=</span><span class="s2">&quot;new return anno&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">new_sig</span><span class="p">)</span>
+<span class="go">&quot;(a, b) -&gt; &#39;new return anno&#39;&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="inspect.Signature.from_callable">
+<em class="property">classmethod </em><code class="descname">from_callable</code><span class="sig-paren">(</span><em>obj</em>, <em>*</em>, <em>follow_wrapped=True</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Signature.from_callable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#inspect.Signature" title="inspect.Signature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Signature</span></code></a> (or its subclass) object for a given callable
+<code class="docutils literal notranslate"><span class="pre">obj</span></code>.  Pass <code class="docutils literal notranslate"><span class="pre">follow_wrapped=False</span></code> to get a signature of <code class="docutils literal notranslate"><span class="pre">obj</span></code>
+without unwrapping its <code class="docutils literal notranslate"><span class="pre">__wrapped__</span></code> chain.</p>
+<p>このメソッドは <a class="reference internal" href="#inspect.Signature" title="inspect.Signature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Signature</span></code></a> のサブクラス化を単純化します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MySignature</span><span class="p">(</span><span class="n">Signature</span><span class="p">):</span>
+    <span class="k">pass</span>
+<span class="n">sig</span> <span class="o">=</span> <span class="n">MySignature</span><span class="o">.</span><span class="n">from_callable</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">MySignature</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="inspect.Parameter">
+<em class="property">class </em><code class="descclassname">inspect.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>kind</em>, <em>*</em>, <em>default=Parameter.empty</em>, <em>annotation=Parameter.empty</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Parameter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Parameter オブジェクトは <em>イミュータブル</em> です。変更されたコピーを作成するには <a class="reference internal" href="#inspect.Parameter.replace" title="inspect.Parameter.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Parameter.replace()</span></code></a> を使用してください。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>Parameter オブジェクトがピックル並びにハッシュ可能になりました。</p>
+</div>
+<dl class="attribute">
+<dt id="inspect.Parameter.empty">
+<code class="descname">empty</code><a class="headerlink" href="#inspect.Parameter.empty" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>デフォルト値とアノテーションがないことを指すクラスレベルの特殊マーカです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Parameter.name">
+<code class="descname">name</code><a class="headerlink" href="#inspect.Parameter.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>仮引数名 (文字列) です。名前は有効な Python 識別子でなければなりません。</p>
+<div class="impl-detail compound">
+<p class="compound-first"><strong>CPython implementation detail:</strong> CPython generates implicit parameter names of the form <code class="docutils literal notranslate"><span class="pre">.0</span></code> on the
+code objects used to implement comprehensions and generator
+expressions.</p>
+<div class="compound-last versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>These parameter names are exposed by this module as names like
+<code class="docutils literal notranslate"><span class="pre">implicit0</span></code>.</p>
+</div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Parameter.default">
+<code class="descname">default</code><a class="headerlink" href="#inspect.Parameter.default" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>引数のデフォルト値です。引数にデフォルト値がない場合、この属性は <a class="reference internal" href="#inspect.Parameter.empty" title="inspect.Parameter.empty"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Parameter.empty</span></code></a> に設定されます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Parameter.annotation">
+<code class="descname">annotation</code><a class="headerlink" href="#inspect.Parameter.annotation" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>引数のアノテーションです。引数にアノテーションがない場合、この属性は <a class="reference internal" href="#inspect.Parameter.empty" title="inspect.Parameter.empty"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Parameter.empty</span></code></a> に設定されます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Parameter.kind">
+<code class="descname">kind</code><a class="headerlink" href="#inspect.Parameter.kind" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>実引数値がどのように仮引数に束縛されるかを記述します。有効な値 (<a class="reference internal" href="#inspect.Parameter" title="inspect.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> を通じてアクセスできます、たとえば <code class="docutils literal notranslate"><span class="pre">Parameter.KEYWORD_ONLY</span></code>) は:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">名前</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><em>POSITIONAL_ONLY</em></td>
+<td>Value must be supplied as a positional
+argument. Positional only parameters are
+those which appear before a <code class="docutils literal notranslate"><span class="pre">/</span></code> entry (if
+present) in a Python function definition.</td>
+</tr>
+<tr class="row-odd"><td><em>POSITIONAL_OR_KEYWORD</em></td>
+<td>値をキーワードまたは位置引数として渡すことができます (これは Python で実装された関数の標準的な束縛動作です)。</td>
+</tr>
+<tr class="row-even"><td><em>VAR_POSITIONAL</em></td>
+<td>その他の仮引数に束縛されていない位置引数のタプルです。Python の関数定義における <code class="docutils literal notranslate"><span class="pre">*args</span></code> 仮引数に対応します。</td>
+</tr>
+<tr class="row-odd"><td><em>KEYWORD_ONLY</em></td>
+<td>値をキーワード引数として渡さなければなりません。キーワード専用引数は Python の関数定義において <code class="docutils literal notranslate"><span class="pre">*</span></code> や <code class="docutils literal notranslate"><span class="pre">*args</span></code> の後に現れる引数です。</td>
+</tr>
+<tr class="row-even"><td><em>VAR_KEYWORD</em></td>
+<td>その他の仮引数に束縛されていないキーワード引数の辞書です。Python の関数定義における <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> 仮引数に対応します。</td>
+</tr>
+</tbody>
+</table>
+<p>例: デフォルト値のない全てのキーワード専用引数を出力します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sig</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">param</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span> <span class="ow">and</span>
+<span class="gp">... </span>                       <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="n">param</span><span class="o">.</span><span class="n">empty</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Parameter:&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+<span class="go">Parameter: c</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.Parameter.kind.description">
+<code class="descclassname">kind.</code><code class="descname">description</code><a class="headerlink" href="#inspect.Parameter.kind.description" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Describes a enum value of Parameter.kind.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.8 で追加.</span></p>
+</div>
+<p>Example: print all descriptions of arguments:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sig</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">kind</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+<span class="go">positional or keyword</span>
+<span class="go">positional or keyword</span>
+<span class="go">keyword-only</span>
+<span class="go">keyword-only</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="inspect.Parameter.replace">
+<code class="descname">replace</code><span class="sig-paren">(</span><em>*[, name][, kind][, default][, annotation]</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.Parameter.replace" title="この定義へのパーマリンク">¶</a></dt>
+<dd><blockquote>
+<div><p>Create a new Parameter instance based on the instance replaced was invoked
+on.  To override a <a class="reference internal" href="#inspect.Parameter" title="inspect.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> attribute, pass the corresponding
+argument.  To remove a default value or/and an annotation from a
+Parameter, pass <a class="reference internal" href="#inspect.Parameter.empty" title="inspect.Parameter.empty"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Parameter.empty</span></code></a>.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">Parameter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+<span class="go">&#39;foo=42&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">replace</span><span class="p">())</span> <span class="c1"># Will create a shallow copy of &#39;param&#39;</span>
+<span class="go">&#39;foo=42&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="n">annotation</span><span class="o">=</span><span class="s1">&#39;spam&#39;</span><span class="p">))</span>
+<span class="go">&quot;foo:&#39;spam&#39;&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>Python 3.3 では、Parameter オブジェクトは <code class="docutils literal notranslate"><span class="pre">kind</span></code> が <code class="docutils literal notranslate"><span class="pre">POSITIONAL_ONLY</span></code> の場合 <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定された <code class="docutils literal notranslate"><span class="pre">name</span></code> を持つことができました。 これはもう許可されません。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="inspect.BoundArguments">
+<em class="property">class </em><code class="descclassname">inspect.</code><code class="descname">BoundArguments</code><a class="headerlink" href="#inspect.BoundArguments" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Result of a <a class="reference internal" href="#inspect.Signature.bind" title="inspect.Signature.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind()</span></code></a> or <a class="reference internal" href="#inspect.Signature.bind_partial" title="inspect.Signature.bind_partial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind_partial()</span></code></a> call.
+Holds the mapping of arguments to the function's parameters.</p>
+<dl class="attribute">
+<dt id="inspect.BoundArguments.arguments">
+<code class="descname">arguments</code><a class="headerlink" href="#inspect.BoundArguments.arguments" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>An ordered, mutable mapping (<a class="reference internal" href="collections.html#collections.OrderedDict" title="collections.OrderedDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.OrderedDict</span></code></a>) of
+parameters' names to arguments' values.  Contains only explicitly bound
+arguments.  Changes in <a class="reference internal" href="#inspect.BoundArguments.arguments" title="inspect.BoundArguments.arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">arguments</span></code></a> will reflect in <a class="reference internal" href="#inspect.BoundArguments.args" title="inspect.BoundArguments.args"><code class="xref py py-attr docutils literal notranslate"><span class="pre">args</span></code></a> and
+<a class="reference internal" href="#inspect.BoundArguments.kwargs" title="inspect.BoundArguments.kwargs"><code class="xref py py-attr docutils literal notranslate"><span class="pre">kwargs</span></code></a>.</p>
+<p>Should be used in conjunction with <a class="reference internal" href="#inspect.Signature.parameters" title="inspect.Signature.parameters"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Signature.parameters</span></code></a> for any
+argument processing purposes.</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">Arguments for which <a class="reference internal" href="#inspect.Signature.bind" title="inspect.Signature.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind()</span></code></a> or
+<a class="reference internal" href="#inspect.Signature.bind_partial" title="inspect.Signature.bind_partial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind_partial()</span></code></a> relied on a default value are skipped.
+However, if needed, use <a class="reference internal" href="#inspect.BoundArguments.apply_defaults" title="inspect.BoundArguments.apply_defaults"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BoundArguments.apply_defaults()</span></code></a> to add
+them.</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.BoundArguments.args">
+<code class="descname">args</code><a class="headerlink" href="#inspect.BoundArguments.args" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>位置引数の値のタプルです。<a class="reference internal" href="#inspect.BoundArguments.arguments" title="inspect.BoundArguments.arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">arguments</span></code></a> 属性から動的に計算されます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.BoundArguments.kwargs">
+<code class="descname">kwargs</code><a class="headerlink" href="#inspect.BoundArguments.kwargs" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>キーワード引数の値の辞書です。<a class="reference internal" href="#inspect.BoundArguments.arguments" title="inspect.BoundArguments.arguments"><code class="xref py py-attr docutils literal notranslate"><span class="pre">arguments</span></code></a> 属性から動的に計算されます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="inspect.BoundArguments.signature">
+<code class="descname">signature</code><a class="headerlink" href="#inspect.BoundArguments.signature" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>親の <a class="reference internal" href="#inspect.Signature" title="inspect.Signature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Signature</span></code></a> オブジェクトへの参照です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="inspect.BoundArguments.apply_defaults">
+<code class="descname">apply_defaults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#inspect.BoundArguments.apply_defaults" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>存在しない引数のデフォルト値を設定します。</p>
+<p>For variable-positional arguments (<code class="docutils literal notranslate"><span class="pre">*args</span></code>) the default is an
+empty tuple.</p>
+<p>For variable-keyword arguments (<code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>) the default is an
+empty dict.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="s1">&#39;ham&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span> <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ba</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s1">&#39;spam&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ba</span><span class="o">.</span><span class="n">apply_defaults</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ba</span><span class="o">.</span><span class="n">arguments</span>
+<span class="go">OrderedDict([(&#39;a&#39;, &#39;spam&#39;), (&#39;b&#39;, &#39;ham&#39;), (&#39;args&#39;, ())])</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p><a class="reference internal" href="#inspect.BoundArguments.args" title="inspect.BoundArguments.args"><code class="xref py py-attr docutils literal notranslate"><span class="pre">args</span></code></a> および <a class="reference internal" href="#inspect.BoundArguments.kwargs" title="inspect.BoundArguments.kwargs"><code class="xref py py-attr docutils literal notranslate"><span class="pre">kwargs</span></code></a> 属性を使用して関数を呼び出すことができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="o">...</span>
+
+<span class="n">sig</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+<span class="n">ba</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">test</span><span class="p">(</span><span class="o">*</span><span class="n">ba</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">ba</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0362"><strong>PEP 362</strong></a> - Function Signature Object.</dt>
+<dd>The detailed specification, implementation details and examples.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="classes-and-functions">
+<span id="inspect-classes-functions"></span><h2>クラスと関数<a class="headerlink" href="#classes-and-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="inspect.getclasstree">
+<code class="descclassname">inspect.</code><code class="descname">getclasstree</code><span class="sig-paren">(</span><em>classes</em>, <em>unique=False</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getclasstree" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>リストで指定したクラスの継承関係から、ネストしたリストを作成します。ネストしたリストには、直前の要素から派生したクラスが格納されます。各要素は長さ2のタプルで、クラスと基底クラスのタプルを格納しています。<em>unique</em> が真の場合、各クラスは戻り値のリスト内に一つだけしか格納されません。真でなければ、多重継承を利用したクラスとその派生クラスは複数回格納される場合があります。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getargspec">
+<code class="descclassname">inspect.</code><code class="descname">getargspec</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getargspec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get the names and default values of a Python function's parameters. A
+<a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuple</span></a> <code class="docutils literal notranslate"><span class="pre">ArgSpec(args,</span> <span class="pre">varargs,</span> <span class="pre">keywords,</span> <span class="pre">defaults)</span></code> is
+returned. <em>args</em> is a list of the parameter names. <em>varargs</em> and <em>keywords</em>
+are the names of the <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">**</span></code> parameters or <code class="docutils literal notranslate"><span class="pre">None</span></code>. <em>defaults</em> is a
+tuple of default argument values or <code class="docutils literal notranslate"><span class="pre">None</span></code> if there are no default
+arguments; if this tuple has <em>n</em> elements, they correspond to the last
+<em>n</em> elements listed in <em>args</em>.</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.0 で非推奨: </span>Use <a class="reference internal" href="#inspect.getfullargspec" title="inspect.getfullargspec"><code class="xref py py-func docutils literal notranslate"><span class="pre">getfullargspec()</span></code></a> for an updated API that is usually a drop-in
+replacement, but also correctly handles function annotations and
+keyword-only parameters.</p>
+<p>Alternatively, use <a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a> and
+<a class="reference internal" href="#inspect-signature-object"><span class="std std-ref">Signature Object</span></a>, which provide a
+more structured introspection API for callables.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getfullargspec">
+<code class="descclassname">inspect.</code><code class="descname">getfullargspec</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getfullargspec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get the names and default values of a Python function's parameters.  A
+<a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuple</span></a> is returned:</p>
+<p><code class="docutils literal notranslate"><span class="pre">FullArgSpec(args,</span> <span class="pre">varargs,</span> <span class="pre">varkw,</span> <span class="pre">defaults,</span> <span class="pre">kwonlyargs,</span> <span class="pre">kwonlydefaults,</span>
+<span class="pre">annotations)</span></code></p>
+<p><em>args</em> is a list of the positional parameter names.
+<em>varargs</em> is the name of the <code class="docutils literal notranslate"><span class="pre">*</span></code> parameter or <code class="docutils literal notranslate"><span class="pre">None</span></code> if arbitrary
+positional arguments are not accepted.
+<em>varkw</em> is the name of the <code class="docutils literal notranslate"><span class="pre">**</span></code> parameter or <code class="docutils literal notranslate"><span class="pre">None</span></code> if arbitrary
+keyword arguments are not accepted.
+<em>defaults</em> is an <em>n</em>-tuple of default argument values corresponding to the
+last <em>n</em> positional parameters, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if there are no such defaults
+defined.
+<em>kwonlyargs</em> is a list of keyword-only parameter names in declaration order.
+<em>kwonlydefaults</em> is a dictionary mapping parameter names from <em>kwonlyargs</em>
+to the default values used if no argument is supplied.
+<em>annotations</em> is a dictionary mapping parameter names to annotations.
+The special key <code class="docutils literal notranslate"><span class="pre">&quot;return&quot;</span></code> is used to report the function return value
+annotation (if any).</p>
+<p>Note that <a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a> and
+<a class="reference internal" href="#inspect-signature-object"><span class="std std-ref">Signature Object</span></a> provide the recommended
+API for callable introspection, and support additional behaviours (like
+positional-only arguments) that are sometimes encountered in extension module
+APIs. This function is retained primarily for use in code that needs to
+maintain compatibility with the Python 2 <code class="docutils literal notranslate"><span class="pre">inspect</span></code> module API.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>This function is now based on <a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a>, but still ignores
+<code class="docutils literal notranslate"><span class="pre">__wrapped__</span></code> attributes and includes the already bound first
+parameter in the signature output for bound methods.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>This method was previously documented as deprecated in favour of
+<a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a> in Python 3.5, but that decision has been reversed
+in order to restore a clearly supported standard interface for
+single-source Python 2/3 code migrating away from the legacy
+<a class="reference internal" href="#inspect.getargspec" title="inspect.getargspec"><code class="xref py py-func docutils literal notranslate"><span class="pre">getargspec()</span></code></a> API.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Python only explicitly guaranteed that it preserved the declaration
+order of keyword-only parameters as of version 3.7, although in practice
+this order had always been preserved in Python 3.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getargvalues">
+<code class="descclassname">inspect.</code><code class="descname">getargvalues</code><span class="sig-paren">(</span><em>frame</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getargvalues" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get information about arguments passed into a particular frame.  A
+<a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuple</span></a> <code class="docutils literal notranslate"><span class="pre">ArgInfo(args,</span> <span class="pre">varargs,</span> <span class="pre">keywords,</span> <span class="pre">locals)</span></code> is
+returned. <em>args</em> is a list of the argument names.  <em>varargs</em> and <em>keywords</em>
+are the names of the <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">**</span></code> arguments or <code class="docutils literal notranslate"><span class="pre">None</span></code>.  <em>locals</em> is the
+locals dictionary of the given frame.</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">This function was inadvertently marked as deprecated in Python 3.5.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.formatargspec">
+<code class="descclassname">inspect.</code><code class="descname">formatargspec</code><span class="sig-paren">(</span><em>args</em><span class="optional">[</span>, <em>varargs</em>, <em>varkw</em>, <em>defaults</em>, <em>kwonlyargs</em>, <em>kwonlydefaults</em>, <em>annotations</em><span class="optional">[</span>, <em>formatarg</em>, <em>formatvarargs</em>, <em>formatvarkw</em>, <em>formatvalue</em>, <em>formatreturns</em>, <em>formatannotations</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#inspect.formatargspec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Format a pretty argument spec from the values returned by
+<a class="reference internal" href="#inspect.getfullargspec" title="inspect.getfullargspec"><code class="xref py py-func docutils literal notranslate"><span class="pre">getfullargspec()</span></code></a>.</p>
+<p>The first seven arguments are (<code class="docutils literal notranslate"><span class="pre">args</span></code>, <code class="docutils literal notranslate"><span class="pre">varargs</span></code>, <code class="docutils literal notranslate"><span class="pre">varkw</span></code>,
+<code class="docutils literal notranslate"><span class="pre">defaults</span></code>, <code class="docutils literal notranslate"><span class="pre">kwonlyargs</span></code>, <code class="docutils literal notranslate"><span class="pre">kwonlydefaults</span></code>, <code class="docutils literal notranslate"><span class="pre">annotations</span></code>).</p>
+<p>The other six arguments are functions that are called to turn argument names,
+<code class="docutils literal notranslate"><span class="pre">*</span></code> argument name, <code class="docutils literal notranslate"><span class="pre">**</span></code> argument name, default values, return annotation
+and individual annotations into strings, respectively.</p>
+<p>例えば:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">formatargspec</span><span class="p">,</span> <span class="n">getfullargspec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">formatargspec</span><span class="p">(</span><span class="o">*</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+<span class="go">&#39;(a: int, b: float)&#39;</span>
+</pre></div>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.5 で非推奨: </span>Use <a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a> and
+<a class="reference internal" href="#inspect-signature-object"><span class="std std-ref">Signature Object</span></a>, which provide a
+better introspecting API for callables.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.formatargvalues">
+<code class="descclassname">inspect.</code><code class="descname">formatargvalues</code><span class="sig-paren">(</span><em>args</em><span class="optional">[</span>, <em>varargs</em>, <em>varkw</em>, <em>locals</em>, <em>formatarg</em>, <em>formatvarargs</em>, <em>formatvarkw</em>, <em>formatvalue</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#inspect.formatargvalues" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#inspect.getargvalues" title="inspect.getargvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">getargvalues()</span></code></a> で取得した4つの値を読みやすく整形します。 format* 引数はオプションで、名前と値を文字列に変換する整形関数を指定することができます。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">This function was inadvertently marked as deprecated in Python 3.5.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getmro">
+<code class="descclassname">inspect.</code><code class="descname">getmro</code><span class="sig-paren">(</span><em>cls</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getmro" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>cls</em> クラスの基底クラス (<em>cls</em> 自身も含む) を、メソッドの優先順位順に並べたタプルを返します。結果のリスト内で各クラスは一度だけ格納されます。メソッドの優先順位はクラスの型によって異なります。非常に特殊なユーザ定義のメタクラスを使用していない限り、<em>cls</em> が戻り値の先頭要素となります。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getcallargs">
+<code class="descclassname">inspect.</code><code class="descname">getcallargs</code><span class="sig-paren">(</span><em>func</em>, <em>/</em>, <em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getcallargs" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>args</em> と <em>kwds</em> を、Python の関数もしくはメソッド <em>func</em> を呼び出した場合と同じように引数名に束縛します。束縛済みメソッド(bound method)の場合、最初の引数(慣習的に <code class="docutils literal notranslate"><span class="pre">self</span></code> という名前が付けられます)にも、関連づけられたインスタンスを束縛します。引数名 (<code class="docutils literal notranslate"><span class="pre">*</span></code> や <code class="docutils literal notranslate"><span class="pre">**</span></code> 引数が存在すればその名前も) に <em>args</em> と <em>kwds</em> からの値をマップした辞書を返します。<em>func</em> を正しく呼び出せない場合、つまり <code class="docutils literal notranslate"><span class="pre">func(*args,</span> <span class="pre">**kwds)</span></code> がシグネチャの不一致のために例外を投げるような場合には、それと同じ型で同じか似ているメッセージの例外を発生させます。例:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">getcallargs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="o">**</span><span class="n">named</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">getcallargs</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;named&#39;</span><span class="p">:</span> <span class="p">{},</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;pos&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)}</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">getcallargs</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;named&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;pos&#39;</span><span class="p">:</span> <span class="p">()}</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">getcallargs</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">f() missing 1 required positional argument: &#39;a&#39;</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.5 で非推奨: </span>Use <a class="reference internal" href="#inspect.Signature.bind" title="inspect.Signature.bind"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind()</span></code></a> and <a class="reference internal" href="#inspect.Signature.bind_partial" title="inspect.Signature.bind_partial"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Signature.bind_partial()</span></code></a> instead.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getclosurevars">
+<code class="descclassname">inspect.</code><code class="descname">getclosurevars</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getclosurevars" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get the mapping of external name references in a Python function or
+method <em>func</em> to their current values. A
+<a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuple</span></a> <code class="docutils literal notranslate"><span class="pre">ClosureVars(nonlocals,</span> <span class="pre">globals,</span> <span class="pre">builtins,</span> <span class="pre">unbound)</span></code>
+is returned. <em>nonlocals</em> maps referenced names to lexical closure
+variables, <em>globals</em> to the function's module globals and <em>builtins</em> to
+the builtins visible from the function body. <em>unbound</em> is the set of names
+referenced in the function that could not be resolved at all given the
+current module globals and builtins.</p>
+<p><em>func</em> が Python の関数やメソッドでない場合 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> が送出されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.unwrap">
+<code class="descclassname">inspect.</code><code class="descname">unwrap</code><span class="sig-paren">(</span><em>func</em>, <em>*</em>, <em>stop=None</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.unwrap" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get the object wrapped by <em>func</em>. It follows the chain of <code class="xref py py-attr docutils literal notranslate"><span class="pre">__wrapped__</span></code>
+attributes returning the last object in the chain.</p>
+<p><em>stop</em> is an optional callback accepting an object in the wrapper chain
+as its sole argument that allows the unwrapping to be terminated early if
+the callback returns a true value. If the callback never returns a true
+value, the last object in the chain is returned as usual. For example,
+<a class="reference internal" href="#inspect.signature" title="inspect.signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">signature()</span></code></a> uses this to stop unwrapping if any object in the
+chain has a <code class="docutils literal notranslate"><span class="pre">__signature__</span></code> attribute defined.</p>
+<p><a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> is raised if a cycle is encountered.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="the-interpreter-stack">
+<span id="inspect-stack"></span><h2>インタープリタスタック<a class="headerlink" href="#the-interpreter-stack" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>When the following functions return &quot;frame records,&quot; each record is a
+<a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuple</span></a>
+<code class="docutils literal notranslate"><span class="pre">FrameInfo(frame,</span> <span class="pre">filename,</span> <span class="pre">lineno,</span> <span class="pre">function,</span> <span class="pre">code_context,</span> <span class="pre">index)</span></code>.
+The tuple contains the frame object, the filename, the line number of the
+current line,
+the function name, a list of lines of context from the source code, and the
+index of the current line within that list.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>タプルではなく名前付きタプルを返します。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>フレームレコードの最初の要素などのフレームオブジェクトへの参照を保存すると、循環参照になってしまう場合があります。循環参照ができると、Python の循環参照検出機能を有効にしていたとしても関連するオブジェクトが参照しているすべてのオブジェクトが解放されにくくなり、明示的に参照を削除しないとメモリ消費量が増大する恐れがあります。</p>
+<p>参照の削除を Python の循環参照検出機能にまかせることもできますが、 <a class="reference internal" href="../reference/compound_stmts.html#finally"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">finally</span></code></a> 節で循環参照を解除すれば確実にフレーム (とそのローカル変数) は削除されます。また、循環参照検出機能は Python のコンパイルオプションや <a class="reference internal" href="gc.html#gc.disable" title="gc.disable"><code class="xref py py-func docutils literal notranslate"><span class="pre">gc.disable()</span></code></a> で無効とされている場合がありますので注意が必要です。例:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">handle_stackframe_without_leak</span><span class="p">():</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># do something with the frame</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">frame</span>
+</pre></div>
+</div>
+<p class="last">If you want to keep the frame around (for example to print a traceback
+later), you can also break reference cycles by using the
+<a class="reference internal" href="../reference/datamodel.html#frame.clear" title="frame.clear"><code class="xref py py-meth docutils literal notranslate"><span class="pre">frame.clear()</span></code></a> method.</p>
+</div>
+<p>以下の関数でオプション引数 <em>context</em> には、戻り値のソース行リストに何行分のソースを含めるかを指定します。ソース行リストには、実行中の行を中心として指定された行数分のリストを返します。</p>
+<dl class="function">
+<dt id="inspect.getframeinfo">
+<code class="descclassname">inspect.</code><code class="descname">getframeinfo</code><span class="sig-paren">(</span><em>frame</em>, <em>context=1</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getframeinfo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレームまたはトレースバックオブジェクトの情報を取得します。 <a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">名前付きタプル</span></a> <code class="docutils literal notranslate"><span class="pre">Traceback(filename,</span> <span class="pre">lineno,</span> <span class="pre">function,</span> <span class="pre">code_context,</span> <span class="pre">index)</span></code> が返されます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getouterframes">
+<code class="descclassname">inspect.</code><code class="descname">getouterframes</code><span class="sig-paren">(</span><em>frame</em>, <em>context=1</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getouterframes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定したフレームと、その外側の全フレームのフレームレコードを返します。外側のフレームとは <em>frame</em> が生成されるまでのすべての関数呼び出しを示します。戻り値のリストの先頭は <em>frame</em> のフレームレコードで、末尾の要素は <em>frame</em> のスタックにある最も外側のフレームのフレームレコードとなります。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>A list of <a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuples</span></a>
+<code class="docutils literal notranslate"><span class="pre">FrameInfo(frame,</span> <span class="pre">filename,</span> <span class="pre">lineno,</span> <span class="pre">function,</span> <span class="pre">code_context,</span> <span class="pre">index)</span></code>
+is returned.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getinnerframes">
+<code class="descclassname">inspect.</code><code class="descname">getinnerframes</code><span class="sig-paren">(</span><em>traceback</em>, <em>context=1</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getinnerframes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定したフレームと、その内側の全フレームのフレームレコードを返します。内のフレームとは <em>frame</em> から続く一連の関数呼び出しを示します。戻り値のリストの先頭は <em>traceback</em> のフレームレコードで、末尾の要素は例外が発生した位置を示します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>A list of <a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuples</span></a>
+<code class="docutils literal notranslate"><span class="pre">FrameInfo(frame,</span> <span class="pre">filename,</span> <span class="pre">lineno,</span> <span class="pre">function,</span> <span class="pre">code_context,</span> <span class="pre">index)</span></code>
+is returned.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.currentframe">
+<code class="descclassname">inspect.</code><code class="descname">currentframe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#inspect.currentframe" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出し元のフレームオブジェクトを返します。</p>
+<div class="impl-detail compound">
+<p><strong>CPython implementation detail:</strong> この関数はインタプリタの Python スタックフレームサポートに依存します。これは Python のすべての実装に存在している保証はありません。Python スタックフレームサポートのない環境では、この関数は <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.stack">
+<code class="descclassname">inspect.</code><code class="descname">stack</code><span class="sig-paren">(</span><em>context=1</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.stack" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出し元スタックのフレームレコードのリストを返します。最初の要素は呼び出し元のフレームレコードで、末尾の要素はスタックにある最も外側のフレームのフレームレコードとなります。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>A list of <a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuples</span></a>
+<code class="docutils literal notranslate"><span class="pre">FrameInfo(frame,</span> <span class="pre">filename,</span> <span class="pre">lineno,</span> <span class="pre">function,</span> <span class="pre">code_context,</span> <span class="pre">index)</span></code>
+is returned.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.trace">
+<code class="descclassname">inspect.</code><code class="descname">trace</code><span class="sig-paren">(</span><em>context=1</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.trace" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>実行中のフレームと処理中の例外が発生したフレームの間のフレームレコードのリストを返します。最初の要素は呼び出し元のフレームレコードで、末尾の要素は例外が発生した位置を示します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>A list of <a class="reference internal" href="../glossary.html#term-named-tuple"><span class="xref std std-term">named tuples</span></a>
+<code class="docutils literal notranslate"><span class="pre">FrameInfo(frame,</span> <span class="pre">filename,</span> <span class="pre">lineno,</span> <span class="pre">function,</span> <span class="pre">code_context,</span> <span class="pre">index)</span></code>
+is returned.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="fetching-attributes-statically">
+<h2>属性の静的なフェッチ<a class="headerlink" href="#fetching-attributes-statically" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Both <a class="reference internal" href="functions.html#getattr" title="getattr"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr()</span></code></a> and <a class="reference internal" href="functions.html#hasattr" title="hasattr"><code class="xref py py-func docutils literal notranslate"><span class="pre">hasattr()</span></code></a> can trigger code execution when
+fetching or checking for the existence of attributes. Descriptors, like
+properties, will be invoked and <a class="reference internal" href="../reference/datamodel.html#object.__getattr__" title="object.__getattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getattr__()</span></code></a> and <a class="reference internal" href="../reference/datamodel.html#object.__getattribute__" title="object.__getattribute__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getattribute__()</span></code></a>
+may be called.</p>
+<p>For cases where you want passive introspection, like documentation tools, this
+can be inconvenient. <a class="reference internal" href="#inspect.getattr_static" title="inspect.getattr_static"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr_static()</span></code></a> has the same signature as <a class="reference internal" href="functions.html#getattr" title="getattr"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr()</span></code></a>
+but avoids executing code when it fetches attributes.</p>
+<dl class="function">
+<dt id="inspect.getattr_static">
+<code class="descclassname">inspect.</code><code class="descname">getattr_static</code><span class="sig-paren">(</span><em>obj</em>, <em>attr</em>, <em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getattr_static" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Retrieve attributes without triggering dynamic lookup via the
+descriptor protocol, <a class="reference internal" href="../reference/datamodel.html#object.__getattr__" title="object.__getattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getattr__()</span></code></a> or <a class="reference internal" href="../reference/datamodel.html#object.__getattribute__" title="object.__getattribute__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__getattribute__()</span></code></a>.</p>
+<p>Note: this function may not be able to retrieve all attributes
+that getattr can fetch (like dynamically created attributes)
+and may find attributes that getattr can't (like descriptors
+that raise AttributeError). It can also return descriptors objects
+instead of instance members.</p>
+<p>If the instance <a class="reference internal" href="stdtypes.html#object.__dict__" title="object.__dict__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__dict__</span></code></a> is shadowed by another member (for
+example a property) then this function will be unable to find instance
+members.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p><a class="reference internal" href="#inspect.getattr_static" title="inspect.getattr_static"><code class="xref py py-func docutils literal notranslate"><span class="pre">getattr_static()</span></code></a> does not resolve descriptors, for example slot descriptors or
+getset descriptors on objects implemented in C. The descriptor object
+is returned instead of the underlying attribute.</p>
+<p>You can handle these with code like the following. Note that
+for arbitrary getset descriptors invoking these may trigger
+code execution:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># example code for resolving the builtin descriptor types</span>
+<span class="k">class</span> <span class="nc">_foo</span><span class="p">:</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span>
+
+<span class="n">slot_descriptor</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">_foo</span><span class="o">.</span><span class="n">foo</span><span class="p">)</span>
+<span class="n">getset_descriptor</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="n">wrapper_descriptor</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s1">&#39;__add__&#39;</span><span class="p">])</span>
+<span class="n">descriptor_types</span> <span class="o">=</span> <span class="p">(</span><span class="n">slot_descriptor</span><span class="p">,</span> <span class="n">getset_descriptor</span><span class="p">,</span> <span class="n">wrapper_descriptor</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">getattr_static</span><span class="p">(</span><span class="n">some_object</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="ow">in</span> <span class="n">descriptor_types</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="fm">__get__</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="c1"># descriptors can raise AttributeError to</span>
+        <span class="c1"># indicate there is no underlying value</span>
+        <span class="c1"># in which case the descriptor itself will</span>
+        <span class="c1"># have to do</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="current-state-of-generators-and-coroutines">
+<h2>ジェネレータおよびコルーチンの現在の状態<a class="headerlink" href="#current-state-of-generators-and-coroutines" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>When implementing coroutine schedulers and for other advanced uses of
+generators, it is useful to determine whether a generator is currently
+executing, is waiting to start or resume or execution, or has already
+terminated. <a class="reference internal" href="#inspect.getgeneratorstate" title="inspect.getgeneratorstate"><code class="xref py py-func docutils literal notranslate"><span class="pre">getgeneratorstate()</span></code></a> allows the current state of a
+generator to be determined easily.</p>
+<dl class="function">
+<dt id="inspect.getgeneratorstate">
+<code class="descclassname">inspect.</code><code class="descname">getgeneratorstate</code><span class="sig-paren">(</span><em>generator</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getgeneratorstate" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ジェネレータイテレータの現在の状態を取得します。</p>
+<dl class="docutils">
+<dt>取り得る状態は:</dt>
+<dd><ul class="first last simple">
+<li>GEN_CREATED: 実行開始を待機しています。</li>
+<li>GEN_RUNNING: インタープリタによって現在実行されています。</li>
+<li>GEN_SUSPENDED: yield 式で現在サスペンドされています。</li>
+<li>GEN_CLOSED: 実行が完了しました。</li>
+</ul>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getcoroutinestate">
+<code class="descclassname">inspect.</code><code class="descname">getcoroutinestate</code><span class="sig-paren">(</span><em>coroutine</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getcoroutinestate" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get current state of a coroutine object.  The function is intended to be
+used with coroutine objects created by <a class="reference internal" href="../reference/compound_stmts.html#async-def"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code></a> functions, but
+will accept any coroutine-like object that has <code class="docutils literal notranslate"><span class="pre">cr_running</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cr_frame</span></code> attributes.</p>
+<dl class="docutils">
+<dt>取り得る状態は:</dt>
+<dd><ul class="first last simple">
+<li>CORO_CREATED: 実行開始を待機しています。</li>
+<li>CORO_RUNNING: インタープリタにより現在実行中です。</li>
+<li>CORO_SUSPENDED: await 式により現在停止中です。</li>
+<li>CORO_CLOSED: 実行が完了しました。</li>
+</ul>
+</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p>ジェネレータの現在の内部状態を問い合わせることも出来ます。これは主に内部状態が期待通り更新されているかどうかを確認するためのテストの目的に有用です。</p>
+<dl class="function">
+<dt id="inspect.getgeneratorlocals">
+<code class="descclassname">inspect.</code><code class="descname">getgeneratorlocals</code><span class="sig-paren">(</span><em>generator</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getgeneratorlocals" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get the mapping of live local variables in <em>generator</em> to their current
+values.  A dictionary is returned that maps from variable names to values.
+This is the equivalent of calling <a class="reference internal" href="functions.html#locals" title="locals"><code class="xref py py-func docutils literal notranslate"><span class="pre">locals()</span></code></a> in the body of the
+generator, and all the same caveats apply.</p>
+<p>If <em>generator</em> is a <a class="reference internal" href="../glossary.html#term-generator"><span class="xref std std-term">generator</span></a> with no currently associated frame,
+then an empty dictionary is returned.  <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> is raised if
+<em>generator</em> is not a Python generator object.</p>
+<div class="impl-detail compound">
+<p><strong>CPython implementation detail:</strong> This function relies on the generator exposing a Python stack frame
+for introspection, which isn't guaranteed to be the case in all
+implementations of Python. In such cases, this function will always
+return an empty dictionary.</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="inspect.getcoroutinelocals">
+<code class="descclassname">inspect.</code><code class="descname">getcoroutinelocals</code><span class="sig-paren">(</span><em>coroutine</em><span class="sig-paren">)</span><a class="headerlink" href="#inspect.getcoroutinelocals" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>This function is analogous to <a class="reference internal" href="#inspect.getgeneratorlocals" title="inspect.getgeneratorlocals"><code class="xref py py-func docutils literal notranslate"><span class="pre">getgeneratorlocals()</span></code></a>, but
+works for coroutine objects created by <a class="reference internal" href="../reference/compound_stmts.html#async-def"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code></a> functions.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="code-objects-bit-flags">
+<span id="inspect-module-co-flags"></span><h2>Code Objects Bit Flags<a class="headerlink" href="#code-objects-bit-flags" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python code objects have a <code class="docutils literal notranslate"><span class="pre">co_flags</span></code> attribute, which is a bitmap of
+the following flags:</p>
+<dl class="data">
+<dt id="inspect.CO_OPTIMIZED">
+<code class="descclassname">inspect.</code><code class="descname">CO_OPTIMIZED</code><a class="headerlink" href="#inspect.CO_OPTIMIZED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The code object is optimized, using fast locals.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_NEWLOCALS">
+<code class="descclassname">inspect.</code><code class="descname">CO_NEWLOCALS</code><a class="headerlink" href="#inspect.CO_NEWLOCALS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>If set, a new dict will be created for the frame's <code class="docutils literal notranslate"><span class="pre">f_locals</span></code> when
+the code object is executed.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_VARARGS">
+<code class="descclassname">inspect.</code><code class="descname">CO_VARARGS</code><a class="headerlink" href="#inspect.CO_VARARGS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The code object has a variable positional parameter (<code class="docutils literal notranslate"><span class="pre">*args</span></code>-like).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_VARKEYWORDS">
+<code class="descclassname">inspect.</code><code class="descname">CO_VARKEYWORDS</code><a class="headerlink" href="#inspect.CO_VARKEYWORDS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The code object has a variable keyword parameter (<code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>-like).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_NESTED">
+<code class="descclassname">inspect.</code><code class="descname">CO_NESTED</code><a class="headerlink" href="#inspect.CO_NESTED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The flag is set when the code object is a nested function.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_GENERATOR">
+<code class="descclassname">inspect.</code><code class="descname">CO_GENERATOR</code><a class="headerlink" href="#inspect.CO_GENERATOR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The flag is set when the code object is a generator function, i.e.
+a generator object is returned when the code object is executed.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_NOFREE">
+<code class="descclassname">inspect.</code><code class="descname">CO_NOFREE</code><a class="headerlink" href="#inspect.CO_NOFREE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The flag is set if there are no free or cell variables.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_COROUTINE">
+<code class="descclassname">inspect.</code><code class="descname">CO_COROUTINE</code><a class="headerlink" href="#inspect.CO_COROUTINE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The flag is set when the code object is a coroutine function.
+When the code object is executed it returns a coroutine object.
+See <span class="target" id="index-1"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0492"><strong>PEP 492</strong></a> for more details.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_ITERABLE_COROUTINE">
+<code class="descclassname">inspect.</code><code class="descname">CO_ITERABLE_COROUTINE</code><a class="headerlink" href="#inspect.CO_ITERABLE_COROUTINE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The flag is used to transform generators into generator-based
+coroutines.  Generator objects with this flag can be used in
+<code class="docutils literal notranslate"><span class="pre">await</span></code> expression, and can <code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">from</span></code> coroutine objects.
+See <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0492"><strong>PEP 492</strong></a> for more details.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="inspect.CO_ASYNC_GENERATOR">
+<code class="descclassname">inspect.</code><code class="descname">CO_ASYNC_GENERATOR</code><a class="headerlink" href="#inspect.CO_ASYNC_GENERATOR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The flag is set when the code object is an asynchronous generator
+function.  When the code object is executed it returns an
+asynchronous generator object.  See <span class="target" id="index-3"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0525"><strong>PEP 525</strong></a> for more details.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">The flags are specific to CPython, and may not be defined in other
+Python implementations.  Furthermore, the flags are an implementation
+detail, and can be removed or deprecated in future Python releases.
+It's recommended to use public APIs from the <a class="reference internal" href="#module-inspect" title="inspect: Extract information and source code from live objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">inspect</span></code></a> module
+for any introspection needs.</p>
+</div>
+</div>
+<div class="section" id="command-line-interface">
+<span id="inspect-module-cli"></span><h2>コマンドラインインターフェイス<a class="headerlink" href="#command-line-interface" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>The <a class="reference internal" href="#module-inspect" title="inspect: Extract information and source code from live objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">inspect</span></code></a> module also provides a basic introspection capability
+from the command line.</p>
+<p>By default, accepts the name of a module and prints the source of that
+module. A class or function within the module can be printed instead by
+appended a colon and the qualified name of the target object.</p>
+<dl class="cmdoption">
+<dt id="cmdoption-inspect-details">
+<code class="descname">--details</code><code class="descclassname"></code><a class="headerlink" href="#cmdoption-inspect-details" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Print information about the specified object rather than the source code</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">inspect</span></code> --- 活動中のオブジェクトの情報を取得する</a><ul>
+<li><a class="reference internal" href="#types-and-members">型とメンバー</a></li>
+<li><a class="reference internal" href="#retrieving-source-code">ソースコードの情報取得</a></li>
+<li><a class="reference internal" href="#introspecting-callables-with-the-signature-object">Signature オブジェクトで呼び出し可能オブジェクトを内省する</a></li>
+<li><a class="reference internal" href="#classes-and-functions">クラスと関数</a></li>
+<li><a class="reference internal" href="#the-interpreter-stack">インタープリタスタック</a></li>
+<li><a class="reference internal" href="#fetching-attributes-statically">属性の静的なフェッチ</a></li>
+<li><a class="reference internal" href="#current-state-of-generators-and-coroutines">ジェネレータおよびコルーチンの現在の状態</a></li>
+<li><a class="reference internal" href="#code-objects-bit-flags">Code Objects Bit Flags</a></li>
+<li><a class="reference internal" href="#command-line-interface">コマンドラインインターフェイス</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="gc.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">gc</span></code> --- ガベージコレクタインターフェース</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="site.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">site</span></code> --- サイト固有の設定フック</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/inspect.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="site.html" title="site --- サイト固有の設定フック"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="gc.html" title="gc --- ガベージコレクタインターフェース"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" >Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

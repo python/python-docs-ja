@@ -1,0 +1,703 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>5. インポートシステム &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="6. 式 (expression)" href="expressions.html" />
+    <link rel="prev" title="4. 実行モデル" href="executionmodel.html" />
+    <link rel="canonical" href="https://docs.python.org/3/reference/import.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="expressions.html" title="6. 式 (expression)"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="executionmodel.html" title="4. 実行モデル"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python 言語リファレンス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-import-system">
+<span id="importsystem"></span><h1>5. インポートシステム<a class="headerlink" href="#the-import-system" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p id="index-0">ある 1 つの <a class="reference internal" href="../glossary.html#term-module"><span class="xref std std-term">module</span></a> にある Python コードから他のモジュールを <a class="reference internal" href="../glossary.html#term-importing"><span class="xref std std-term">インポート</span></a> することで、そこにあるコードへアクセスできるようになります。 <a class="reference internal" href="simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文はインポート機構を動かす最も一般的な方法ですが、それが唯一の方法ではありません。 <a class="reference internal" href="../library/importlib.html#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a> や組み込みの <a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> といった関数を使っても、インポート機構を動かすことができます。</p>
+<p><a class="reference internal" href="simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文は 2 つの処理を連続して行っています; ある名前のモジュールを探し、その検索結果をローカルスコープの名前に束縛します。 <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> 文の検索処理は、適切な引数で <a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> 関数を呼び出すこととして定義されています。 <a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> の戻り値は <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> 文の名前束縛処理の実行で使われます。名前束縛処理の厳密な詳細は <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> 文を参照してください。</p>
+<p><a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> を直接呼び出すとモジュールの検索のみが行われ、見つかった場合、モジュールの作成処理が行われます。親パッケージのインポートや (<a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> を含む) 様々なキャッシュの更新などの副作用は起きるかもしれませんが、 <a class="reference internal" href="simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文のみが名前束縛処理を行います。</p>
+<p>When an <a class="reference internal" href="simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> statement is executed, the standard builtin
+<a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> function is called. Other mechanisms for invoking the
+import system (such as <a class="reference internal" href="../library/importlib.html#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a>) may choose to bypass
+<a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> and use their own solutions to implement import semantics.</p>
+<p>モジュールが初めてインポートされるとき、 Python はそのモジュールを検索し、見付かった場合、モジュールオブジェクトを作成し、初期化します <a class="footnote-reference" href="#fnmo" id="id1">[1]</a> 。その名前のモジュールが見付からなかった場合、 <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> が送出されます。 Python には、インポート機構が実行されたときに名前からモジュールを検索する様々な戦略が実装されています。これらの戦略は、これ以降の節で解説される様々なフックを使って、修正したり拡張したりできます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>インポートシステムが <span class="target" id="index-46"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> の第 2 フェーズの完全な実装へ更新されました。もはや暗黙的なインポート機構はありません - インポート機構全体は <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> を通して公開されています。加えて、ネイティブの名前空間パッケージのサポートは実装されています (<span class="target" id="index-47"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> を参照) 。</p>
+</div>
+<div class="section" id="importlib">
+<h2>5.1. <a class="reference internal" href="../library/importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a><a class="headerlink" href="#importlib" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="../library/importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a> モジュールはインポート機構とやり取りするための便利な API を提供します。例えば <a class="reference internal" href="../library/importlib.html#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a> は、インポート機構を実行するための組み込みの <a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> よりもシンプルで推奨される API を提供します。より詳細なことは <a class="reference internal" href="../library/importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a> ライブラリのドキュメントを参照してください。</p>
+</div>
+<div class="section" id="packages">
+<h2>5.2. パッケージ<a class="headerlink" href="#packages" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-3">Python にはモジュールオブジェクトの種類は 1 種類しかなく、 Python 、 C 、それ以外のもののどれで実装されているかに関係なく、すべてのモジュールはこの種類になります。モジュールの組織化を助け、名前階層を提供するために、 Python には <a class="reference internal" href="../glossary.html#term-package"><span class="xref std std-term">パッケージ</span></a> という概念があります。</p>
+<p>パッケージはファイルシステムのディレクトリ、モジュールはディレクトリにあるファイルと考えることができますが、パッケージやモジュールはファイルシステムから生まれる必要はないので、この比喩を額面通りに受け取ってはいけません。この文書の目的のために、ディレクトリとファイルという便利な比喩を使うことにします。ファイルシステムのディレクトリのように、パッケージは階層構造を成し、通常のモジュールだけでなく、サブパッケージを含むこともあります。</p>
+<p>すべてのパッケージはモジュールですが、すべてのモジュールがパッケージとは限らないことを心に留めておくのが重要です。もしくは他の言い方をすると、パッケージは単なる特別な種類のモジュールであると言えます。特に、<code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性を持つ任意のモジュールはパッケージと見なされます。</p>
+<p>すべてのモジュールには名前があります。サブパッケージ名は、 Python の標準の属性アクセスの構文に似て、親パッケージ名とドットで区切られています。したがって、 <a class="reference internal" href="../library/sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> と呼ばれるモジュールや <a class="reference internal" href="../library/email.html#module-email" title="email: Package supporting the parsing, manipulating, and generating email messages."><code class="xref py py-mod docutils literal notranslate"><span class="pre">email</span></code></a> と呼ばれるパッケージを見掛けることがあるでしょう。その中には <a class="reference internal" href="../library/email.mime.html#module-email.mime" title="email.mime: Build MIME messages."><code class="xref py py-mod docutils literal notranslate"><span class="pre">email.mime</span></code></a> と呼ばれるサブパッケージと、そのサブパッケージの中に <code class="xref py py-mod docutils literal notranslate"><span class="pre">email.mime.text</span></code> と呼ばれるモジュールがあります。</p>
+<div class="section" id="regular-packages">
+<h3>5.2.1. 通常のパッケージ<a class="headerlink" href="#regular-packages" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-4">Python では、 <a class="reference internal" href="../glossary.html#term-regular-package"><span class="xref std std-term">通常のパッケージ</span></a> と <a class="reference internal" href="../glossary.html#term-namespace-package"><span class="xref std std-term">名前空間パッケージ</span></a> の 2 種類のパッケージが定義されています。通常のパッケージは Python 3.2 以前から存在する伝統的なパッケージです。典型的な通常のパッケージは <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> ファイルを含むディレクトリとして実装されます。通常のパッケージがインポートされたとき、この <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> ファイルが暗黙的に実行され、それで定義しているオブジェクトがパッケージ名前空間にある名前に束縛されます。 <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> ファイルは、他のモジュールに書ける Python コードと同じものを含むことができ、モジュールがインポートされたときに Python はモジュールに属性を追加したりします。</p>
+<p>例えば、以下のようなファイルシステム配置は、3 つのサブパッケージを持つ最上位の <code class="docutils literal notranslate"><span class="pre">parent</span></code> パッケージを定義します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span><span class="o">/</span>
+    <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">one</span><span class="o">/</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">two</span><span class="o">/</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">three</span><span class="o">/</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">parent.one</span></code> をインポートすると暗黙的に <code class="docutils literal notranslate"><span class="pre">parent/__init__.py</span></code> と <code class="docutils literal notranslate"><span class="pre">parent/one/__init__.py</span></code> が実行されます。その後に <code class="docutils literal notranslate"><span class="pre">parent.two</span></code> もしくは <code class="docutils literal notranslate"><span class="pre">parent.three</span></code> をインポートすると、それぞれ <code class="docutils literal notranslate"><span class="pre">parent/two/__init__.py</span></code> や <code class="docutils literal notranslate"><span class="pre">parent/three/__init__.py</span></code> が実行されます。</p>
+</div>
+<div class="section" id="namespace-packages">
+<h3>5.2.2. 名前空間パッケージ<a class="headerlink" href="#namespace-packages" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-5">名前空間パッケージは様々な <a class="reference internal" href="../glossary.html#term-portion"><span class="xref std std-term">ポーション</span></a> を寄せ集めたもので、それぞれのポーションはサブパッケージを親パッケージに提供します。ポーションはファイルシステムの別々の場所にあることもあります。ポーションは、 zip ファイルの中やネットワーク上や、それ以外のインポート時に Python が探すどこかの場所で見つかることもあります。名前空間パッケージはファイルシステム上のオブジェクトに対応することもあるし、そうでないこともあります; それらは実際の実体のない仮想モジュールです。</p>
+<p>名前空間パッケージは、  <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性に普通のリストは使いません。その代わりに独自の iterable 型を使っていて、ポーションの親パッケージのパス (もしくは最上位パッケージのための <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a>) が変わった場合、そのパッケージでの次のインポートの際に、新たに自動でパッケージポーションを検索します。</p>
+<p>名前空間パッケージには <code class="docutils literal notranslate"><span class="pre">parent/__init__.py</span></code> ファイルはありません。それどころか、異なるポーションがそれぞれ提供する複数の <code class="docutils literal notranslate"><span class="pre">parent</span></code> ディレクトリがインポート検索の際に見つかることもあります。したがって <code class="docutils literal notranslate"><span class="pre">parent/one</span></code> は物理的に <code class="docutils literal notranslate"><span class="pre">parent/two</span></code> の隣りにあるとは限りません。その場合、そのパッケージかサブパッケージのうち 1 つがインポートされたとき、Python は最上位の <code class="docutils literal notranslate"><span class="pre">parent</span></code> パッケージのための名前空間パッケージを作成します。</p>
+<p>名前空間パッケージの仕様については <span class="target" id="index-48"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> も参照してください。</p>
+</div>
+</div>
+<div class="section" id="searching">
+<h2>5.3. 検索<a class="headerlink" href="#searching" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>検索を始めるためには、 Python はインポートされるモジュール (もしくはパッケージですが、ここでの議論の目的においてはささいな違いです) の <a class="reference internal" href="../glossary.html#term-qualified-name"><span class="xref std std-term">完全修飾</span></a> 名を必要とします。この名前は、 <a class="reference internal" href="simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文の様々な引数や <a class="reference internal" href="../library/importlib.html#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a> および <a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> 関数のパラメータから得られます。</p>
+<p>この名前はインポート検索の様々なフェーズで使われ、これは例えば <code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> のようなドットで区切られたサブモジュールへのパスだったりします。この場合、 Python は最初に <code class="docutils literal notranslate"><span class="pre">foo</span></code> を、次に <code class="docutils literal notranslate"><span class="pre">foo.bar</span></code> 、そして最後に <code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> をインポートしようとします。中間のいずれかのインポートに失敗した場合は、 <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> が送出されます。</p>
+<div class="section" id="the-module-cache">
+<h3>5.3.1. モジュールキャッシュ<a class="headerlink" href="#the-module-cache" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-7">インポート検索で最初に調べる場所は <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> です。このマッピングは、中間のパスを含む、これまでにインポートされたすべてのモジュールのキャッシュを提供します。なので <code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> がインポート済みの場合、 <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> は <code class="docutils literal notranslate"><span class="pre">foo</span></code> 、 <code class="docutils literal notranslate"><span class="pre">foo.bar</span></code> 、 <code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> のエントリーを含みます。それぞれのキーはその値として対応するモジュールオブジェクトを持ちます。</p>
+<p>インポートではモジュール名は <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> から探され、存在した場合は、対応する値がインポートされるべきモジュールであり、この処理は完了します。しかし値が <code class="docutils literal notranslate"><span class="pre">None</span></code> だった場合、 <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> が送出されます。モジュール名が見付からなかった場合は、 Python はモジュールの検索を続けます。</p>
+<p><a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> は書き込み可能です。キーの削除は対応するモジュールを破壊しない (他のモジュールがそのモジュールへの参照を持っている) かもしれませんが、指定されたモジュールのキャッシュされたエントリーを無効にし、それが次にインポートされたとき Python にそのモジュールを改めて検索させることになります。キーを <code class="docutils literal notranslate"><span class="pre">None</span></code> に対応付けることもできますが、次にそのモジュールがインポートされるときに <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> となってしまいます。</p>
+<p>たとえモジュールオブジェクトへの参照を保持しておいて、 <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> にキャッシュされたエントリーを無効にし、その指定したモジュールを再インポートしたとしても、 2 つのモジュールオブジェクトは同じでは <em>ない</em> ことに注意してください。それとは対照的に、 <a class="reference internal" href="../library/importlib.html#importlib.reload" title="importlib.reload"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.reload()</span></code></a> は <em>同じ</em> モジュールオブジェクトを再利用し、モジュールのコードを再実行することで単にモジュールの内容を再初期化するだけです。</p>
+</div>
+<div class="section" id="finders-and-loaders">
+<h3>5.3.2. ファインダーとローダー<a class="headerlink" href="#finders-and-loaders" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-8"><a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に指定されたモジュールが見つからなかった場合は、 Python のインポートプロトコルが起動され、モジュールを見つけロードします。このプロトコルは 2 つの概念的なオブジェクト、 <a class="reference internal" href="../glossary.html#term-finder"><span class="xref std std-term">ファインダー</span></a> と <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> から成ります。ファインダーの仕事は、知っている戦略を使って指定されたモジュールを見つけられるかどうか判断することです。両方のインターフェースを実装しているオブジェクトは <a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">インポーター</span></a> と呼ばれます - インポーターは要求されたモジュールがロードできると分かったとき、自分自身を返します。</p>
+<p>Python にはデフォルトのファインダーとインポーターがいくつかあります。 1 つ目のものは組み込みモジュールの見つけ方を知っていて、 2 つ目のものは凍結されたモジュール (訳注: freeze ツールで処理されたモジュールのこと。 <a class="reference internal" href="../faq/programming.html"><span class="doc">プログラミング FAQ</span></a> の「どうしたら Python スクリプトからスタンドアロンバイナリを作れますか？」の項目を参照) の見つけ方を知っています。 3 つ目のものは <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">インポートパス</span></a> からモジュールを探します。 <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">インポートパス</span></a> はファイルシステムのパスや zip ファイルの位置を示すリストです。このリストは、 URL で特定できるもののような、位置を示すことのできる任意のリソースの検索にまで拡張することもできます。</p>
+<p>インポート機構は拡張可能なので、モジュール検索の範囲とスコープを拡張するために新しいファインダーを付け加えることができます。</p>
+<p>ファインダーは実際にはモジュールをロードしません。指定されたモジュールが見つかった場合、ファインダーは <em class="dfn">module spec</em> (モジュール仕様)、すなわちモジュールのインポート関連の情報をカプセル化したものを返します。モジュールのロード時にインポート機構はそれを利用します。</p>
+<p>次の節では、インポート機構を拡張するための新しいファインダーやローダーの作成と登録を含め、ファインダーとローダーのプロトコルについてより詳しく解説します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>Python の以前のバージョンでは、ファインダーは直接 <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> を返していましたが、現在はローダーを <em>含む</em> モジュール仕様を返します。ローダーはインポート中はまだ使われていますが、責任は減りました。</p>
+</div>
+</div>
+<div class="section" id="import-hooks">
+<h3>5.3.3. インポートフック<a class="headerlink" href="#import-hooks" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-9">インポート機構は拡張可能なように設計されています; その主となる仕組みは <em>インポートフック</em> です。インポートフックには 2 種類あります: <em>メタフック</em> と <em>インポートパスフック</em> です。</p>
+<p>メタフックはインポート処理の最初、 <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> キャッシュの検索以外のインポート処理より前に呼び出されます。これにより、 <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> の処理や凍結されたモジュールや組み込みのモジュールでさえも、メタフックで上書きすることができます。メタフックは以下で解説するように、 <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> に新しいファインダーオブジェクトを追加することで登録されます。</p>
+<p>インポートパスフックは、 <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> (もしくは <code class="docutils literal notranslate"><span class="pre">package.__path__</span></code>) の処理の一部として、対応するパス要素を取り扱うところで呼び出されます。インポートパスフックは以下で解説するように、新しい呼び出し可能オブジェクトを <a class="reference internal" href="../library/sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> に追加することで登録されます。</p>
+</div>
+<div class="section" id="the-meta-path">
+<h3>5.3.4. メタパス<a class="headerlink" href="#the-meta-path" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-10">指定されたモジュールが <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に見つからなかったとき、 Python は次にメタパス・ファインダー・オブジェクトが格納されている <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> を検索します。指定されたモジュールを扱うことができるかどうかを調べるために、各ファインダーに問い合わせを行います。メタパス・ファインダーには、名前とインポートパスと (オプションの) ターゲットモジュールの 3 つの引数を取る <a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> という名前のメソッドが実装されていなければいけません。メタパス・ファインダーでは、指定されたモジュールを扱えるかどうかを判定するための戦略は任意のものを使って構いません。</p>
+<p>meta path finder が指定されたモジュールの扱い方を知っている場合は、ファインダは spec オブジェクトを返します。指定されたモジュールを扱えない場合は <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。 <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> に対する処理が spec を返さずにリストの末尾に到達してしまった場合は、 <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> を送出します。その他の送出された例外はそのまま呼び出し元に伝播され、インポート処理を異常終了させます。</p>
+<p>メタパス・ファインダーの <a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> メソッドは 2 つまたは 3 つの引数を渡して呼び出します。1 つ目の引数はインポートされるモジュールの完全修飾名で、例えば <code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> などです。2 つ目の引数はモジュールの検索で使われるパスです。最上位のモジュールでは 2 つ目の引数は <code class="docutils literal notranslate"><span class="pre">None</span></code> にしますが、サブモジュールやサブパッケージでは 2 つ目の引数は親パッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性の値です。適切な <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性にアクセスできなかった場合は、 <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> が送出されます。3 つ目の引数は、あとでロードされるターゲットとなる既存のモジュールオブジェクトです。インポートシステムはリロードの間だけターゲットモジュール をセットします。</p>
+<p>メタパスは、1 回のインポート要求で複数回走査される可能性があります。例えば、関係するモジュールがどれもまだキャッシュされていないとしたときに <code class="docutils literal notranslate"><span class="pre">foo.bar.baz</span></code> をインポートすると、最初は各メタパス・ファインダー (<code class="docutils literal notranslate"><span class="pre">mpf</span></code>) に対して <code class="docutils literal notranslate"><span class="pre">mpf.find_spec(&quot;foo&quot;,</span> <span class="pre">None,</span> <span class="pre">None)</span></code> を呼び出して、最上位のインポート処理を行います。<code class="docutils literal notranslate"><span class="pre">foo</span></code> がインポートされた後に、<code class="docutils literal notranslate"><span class="pre">mpf.find_spec(&quot;foo.bar&quot;,</span> <span class="pre">foo.__path__,</span> <span class="pre">None)</span></code> を呼び出していく 2 回目のメタパスの走査が行われ、<code class="docutils literal notranslate"><span class="pre">foo.bar</span></code> がインポートされます。<code class="docutils literal notranslate"><span class="pre">foo.bar</span></code> のインポートまで行われたら、最後の走査で <code class="docutils literal notranslate"><span class="pre">mpf.find_spec(&quot;foo.bar.baz&quot;,</span> <span class="pre">foo.bar.__path__,</span> <span class="pre">None)</span></code> を呼び出していきます。</p>
+<p>あるメタパス・ファインダーは最上位のインポートのみサポートしています。これらのインポーターは、2 つ目の引数に <code class="docutils literal notranslate"><span class="pre">None</span></code> 以外のものが渡されたとき、常に <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+<p>Python のデフォルトの <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> は 3 つのパスファインダーを持っています。組み込みモジュールのインポートの方法を知っているもの、凍結されたモジュールのインポートの方法を知っているもの、 <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">インポートパス</span></a> からのモジュールのインポートの方法を知っているもの (つまり <a class="reference internal" href="../glossary.html#term-path-based-finder"><span class="xref std std-term">パスベース・ファインダー</span></a>) があります。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>メタパス・ファインダーの <a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> メソッドは <a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_module" title="importlib.abc.MetaPathFinder.find_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_module()</span></code></a> を置き換えました。 <code class="docutils literal notranslate"><span class="pre">find_module()</span></code> メソッドは deprecated です。それは今でも変更なしに動きますが、インポート機構はファインダーが <code class="docutils literal notranslate"><span class="pre">find_spec()</span></code> を実装していない場合にのみそれを試します。</p>
+</div>
+</div>
+</div>
+<div class="section" id="loading">
+<h2>5.4. ロード<a class="headerlink" href="#loading" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>モジュール仕様が見つかった場合、インポート機構はモジュールをロードする時にそれ (およびそれに含まれるローダー) を使います。これは、インポートのロード部分で起こることの近似です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="s1">&#39;create_module&#39;</span><span class="p">):</span>
+    <span class="c1"># It is assumed &#39;exec_module&#39; will also be defined on the loader.</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">create_module</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">module</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">ModuleType</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="c1"># The import-related module attributes get set here:</span>
+<span class="n">_init_module_attrs</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># unsupported</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span>
+<span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">submodule_search_locations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># namespace package</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+<span class="k">elif</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="p">,</span> <span class="s1">&#39;exec_module&#39;</span><span class="p">):</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="c1"># Set __loader__ and __package__ if missing.</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">raise</span>
+<span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>以下の詳細に注意してください:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> の中に与えられた名前を持つ既存のモジュールオブジェクトがあるなら、 import は既にそれを返しているでしょう。</li>
+<li>モジュールは、ローダーがモジュールコードを実行する前に <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に存在しています。 モジュールコードが (直接的または間接的に) 自分自身をインポートする可能性があるので、これは重要です; モジュールを <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に追加することで、最悪のケースでは無限の再帰が、そして最良のケースでは複数回のロードが、前もって防止されます。</li>
+<li>ロード処理に失敗した場合、その失敗したモジュールは -- そして、そのモジュールだけが -- <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> から取り除かれます。 <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> キャッシュに既に含まれていたすべてのモジュールと、副作用としてロードに成功したすべてのモジュールは、常にキャッシュに残されます。これはリロードとは対照的で、リロードの場合は失敗したモジュールも <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に残されます。</li>
+<li><a class="reference internal" href="#import-mod-attrs"><span class="std std-ref">後のセクション</span></a> で要約されるように、モジュールが作られてから実行されるまでの間にインポート機構はインポート関連のモジュール属性を設定します (上記擬似コード例の &quot;_init_module_attrs&quot;)。</li>
+<li>モジュール実行はモジュールの名前空間が構築されるロードの重要な瞬間です。実行はローダーに完全に委任され、ローダーは何をどのように構築するかを決定することになります。</li>
+<li>ロードの間に作成されて exec_module() に渡されたモジュールは、インポートの終わりに返されるものとは異なるかもしれません <a class="footnote-reference" href="#fnlo" id="id2">[2]</a>。</li>
+</ul>
+</div></blockquote>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>インポートシステムはローダーの定型的な責任を引き継ぎました。これらは以前は <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.load_module()</span></code></a> メソッドによって実行されました。</p>
+</div>
+<div class="section" id="loaders">
+<h3>5.4.1. ローダー<a class="headerlink" href="#loaders" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>モジュールローダーは、ロードの重要な機能であるモジュール実行機能を提供します。インポート機構は、実行しようとするモジュールオブジェクトを単一の引数として <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.exec_module()</span></code></a> メソッドを呼び出します。 <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.exec_module()</span></code></a> から返された任意の値は無視されます。</p>
+<p>ローダーは以下の仕様を満たしていなければいけません:</p>
+<blockquote>
+<div><ul class="simple">
+<li>モジュールが (組み込みモジュールや動的に読み込まれる拡張モジュールではなくて) Python モジュールだった場合、ローダーはモジュールのグローバル名前空間 (<code class="docutils literal notranslate"><span class="pre">module.__dict__</span></code>) で、モジュールのコードを実行すべきです。</li>
+<li><a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> の呼び出し中に <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> 以外の例外が送出され、伝播されてきたとしても、モジュールをロードできない場合は <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出すべきです。</li>
+</ul>
+</div></blockquote>
+<p>多くの場合、ファインダーとローダーは同じオブジェクトで構いません; そのような場合では <a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> メソッドは単に <code class="docutils literal notranslate"><span class="pre">self</span></code> (訳注: オブジェクト自身) を返すだけです。</p>
+<p>モジュールローダーは、 <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a> メソッドを実装することでロード中にモジュールオブジェクトを作成することを選択できます。このメソッドは、モジュール仕様を引数に取って、ロード中に使う新しいモジュールオブジェクトを返します。 <code class="docutils literal notranslate"><span class="pre">create_module()</span></code> はモジュールオブジェクトに属性を設定する必要はありません。もしこのメソッドが <code class="docutils literal notranslate"><span class="pre">None</span></code> を返すなら、インポート機構は新しいモジュールを自身で作成します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加: </span>ローダーの <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a> メソッド。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load_module()</span></code></a> メソッドは <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> によって置き換えられ、インポート機構がロードのすべての定型責任を引き受けました。</p>
+<p>既存のローダーとの互換性のため、もしローダーに <code class="docutils literal notranslate"><span class="pre">load_module()</span></code> メソッドが存在し、かつローダーが <code class="docutils literal notranslate"><span class="pre">exec_module()</span></code> を実装していなければ、インポート機構はローダーの <code class="docutils literal notranslate"><span class="pre">load_module()</span></code> メソッドを使います。しかし、 <code class="docutils literal notranslate"><span class="pre">load_module()</span></code> は deprecated であり、ローダーは代わりに <code class="docutils literal notranslate"><span class="pre">exec_module()</span></code> を実装すべきです。</p>
+<p><code class="docutils literal notranslate"><span class="pre">load_module()</span></code> メソッドは、モジュールを実行することに加えて上記で説明されたすべての定型的なロード機能を実施しなければなりません。同じ制約が適用されます。以下は追加の明確化です:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に与えられた名前のモジュールが存在している場合、ローダーはその既存のモジュールを使わなければいけません。 (そうしないと <a class="reference internal" href="../library/importlib.html#importlib.reload" title="importlib.reload"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.reload()</span></code></a> は正しく動かないでしょう。) 指定されたモジュールが <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に存在しない場合、ローダーは新しいモジュールオブジェクトを作成し、 <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に追加しなければいけません。</li>
+<li>無限の再帰または複数回のロードを防止するために、ローダーがモジュールコードを実行する前にモジュールは <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に存在しなければなりません (<em>must</em>)。</li>
+<li>ロード処理に失敗した場合、ローダーは <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に追加したモジュールを取り除かなければいけませんが、それはロードに失敗したモジュール <strong>のみ</strong> を、そのモジュールがローダー自身に明示的にロードされた場合に限り、除去しなければなりません。</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><code class="docutils literal notranslate"><span class="pre">exec_module()</span></code> が定義されていて <code class="docutils literal notranslate"><span class="pre">create_module()</span></code> が定義されていない場合、 <a class="reference internal" href="../library/exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> が送出されるようになりました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><code class="docutils literal notranslate"><span class="pre">exec_module()</span></code> が定義されていて <code class="docutils literal notranslate"><span class="pre">create_module()</span></code> が定義されていない場合、 <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> が送出されるようになりました。</p>
+</div>
+</div>
+<div class="section" id="submodules">
+<h3>5.4.2. サブモジュール<a class="headerlink" href="#submodules" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>サブモジュールをロードするのにどのようなメカニズム (例えば、 <code class="docutils literal notranslate"><span class="pre">importlib</span></code> API 、 <code class="docutils literal notranslate"><span class="pre">import</span></code> または <code class="docutils literal notranslate"><span class="pre">import-from</span></code> ステートメント、またはビルトイン関数の <code class="docutils literal notranslate"><span class="pre">__import__</span></code>) が使われた場合でも、バインディングはサブモジュールオブジェクトを親モジュールの名前空間に配置します。例えば、もしパッケージ <code class="docutils literal notranslate"><span class="pre">spam</span></code> がサブモジュール <code class="docutils literal notranslate"><span class="pre">foo</span></code> を持っていた場合、 <code class="docutils literal notranslate"><span class="pre">spam.foo</span></code> をインポートした後は <code class="docutils literal notranslate"><span class="pre">spam</span></code> は値がサブモジュールに束縛された属性 <code class="docutils literal notranslate"><span class="pre">foo</span></code> を持ちます。以下のディレクトリ構造を持っているとしましょう:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">spam</span><span class="o">/</span>
+    <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>そして <code class="docutils literal notranslate"><span class="pre">spam/__init__.py</span></code> は以下のようになっているとします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.foo</span> <span class="kn">import</span> <span class="n">Foo</span>
+<span class="kn">from</span> <span class="nn">.bar</span> <span class="kn">import</span> <span class="n">Bar</span>
+</pre></div>
+</div>
+<p>このとき、以下を実行することにより <code class="docutils literal notranslate"><span class="pre">spam</span></code> モジュールの中に <code class="docutils literal notranslate"><span class="pre">foo</span></code> と <code class="docutils literal notranslate"><span class="pre">bar</span></code> に束縛された名前が置かれます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">spam</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spam</span><span class="o">.</span><span class="n">foo</span>
+<span class="go">&lt;module &#39;spam.foo&#39; from &#39;/tmp/imports/spam/foo.py&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spam</span><span class="o">.</span><span class="n">bar</span>
+<span class="go">&lt;module &#39;spam.bar&#39; from &#39;/tmp/imports/spam/bar.py&#39;&gt;</span>
+</pre></div>
+</div>
+<p>Python の慣れ親しんだ名前束縛ルールからするとこれは驚きかもしれませんが、それは実際インポートシステムの基本的な機能です。不変に保たなければならないのは (上記のインポートの後などで) <code class="docutils literal notranslate"><span class="pre">sys.modules['spam']</span></code> と <code class="docutils literal notranslate"><span class="pre">sys.modules['spam.foo']</span></code> が存在する場合、後者が前者の <code class="docutils literal notranslate"><span class="pre">foo</span></code> 属性として存在しなければならないということです。</p>
+</div>
+<div class="section" id="module-spec">
+<h3>5.4.3. モジュール仕様<a class="headerlink" href="#module-spec" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>インポート機構は、インポートの間 (特にロードの前) に、個々のモジュールについてのさまざまな情報を扱います。情報のほとんどはすべてのモジュールで共通です。モジュール仕様の目的は、このインポート関連の情報をモジュールの単位でカプセル化することです。</p>
+<p>インポートの際にモジュール仕様を使うことは、インポートシステムコンポーネント間、例えばモジュール仕様を作成するファインダーとそれを実行するローダーの間で状態を転送することを可能にします。最も重要なのは、それによってインポート機構がロードの定型的な作業を実行できるようになるということです。これに対して、モジュール仕様なしではローダがその責任を担っていました。</p>
+<p>モジュール仕様は、モジュールオブジェクトの <code class="docutils literal notranslate"><span class="pre">__spec__</span></code> 属性として公開されます。
+モジュール仕様の内容の詳細については <a class="reference internal" href="../library/importlib.html#importlib.machinery.ModuleSpec" title="importlib.machinery.ModuleSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModuleSpec</span></code></a> を参照してください。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</div>
+<div class="section" id="import-related-module-attributes">
+<span id="import-mod-attrs"></span><h3>5.4.4. インポート関連のモジュール属性<a class="headerlink" href="#import-related-module-attributes" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>インポート機構はロードの間、モジュールの仕様に基づいて、ローダーがモジュールが実行する前に以下の属性を書き込みます。</p>
+<dl class="attribute">
+<dt id="__name__">
+<code class="descname">__name__</code><a class="headerlink" href="#__name__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">__name__</span></code> 属性はモジュールの完全修飾名に設定されなければなりません。この名前を利用してインポートシステムでモジュールを一意に識別します。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="__loader__">
+<code class="descname">__loader__</code><a class="headerlink" href="#__loader__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">__loader__</span></code> 属性はモジュールロード時にインポート機構が使用したローダーオブジェクトに設定されなければなりません。この属性は普通は内省用のものですが、ローダー固有の追加機能のために用いることが出来ます。例えばローダー関連のデータの取得です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="__package__">
+<code class="descname">__package__</code><a class="headerlink" href="#__package__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールの <code class="docutils literal notranslate"><span class="pre">__package__</span></code> 属性は設定されなければなりません。値は文字列でなければなりませんが、<code class="docutils literal notranslate"><span class="pre">__name__</span></code> と同じ値でも構いません。モジュールがパッケージの場合、<code class="docutils literal notranslate"><span class="pre">__package__</span></code> の値はその <code class="docutils literal notranslate"><span class="pre">__name__</span></code> でなければなりません。モジュールがパッケージでない場合、トップレベルのモジュールでは <code class="docutils literal notranslate"><span class="pre">__package__</span></code> 空の文字列、サブモジュールでは親のパッケージ名でなければなりません。詳細は <span class="target" id="index-49"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0366"><strong>PEP 366</strong></a> を参照してください。</p>
+<p>この属性は <span class="target" id="index-50"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0366"><strong>PEP 366</strong></a> で定義されているように、メインモジュールからの明示的な相対インポートを計算するために、 <code class="docutils literal notranslate"><span class="pre">__name__</span></code> の代わりに使用されます。
+この属性は <code class="docutils literal notranslate"><span class="pre">__spec__.parent</span></code> と同じ値を持つことを要求されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><code class="docutils literal notranslate"><span class="pre">__package__</span></code> の値が <code class="docutils literal notranslate"><span class="pre">__spec__.parent</span></code> と同じ値を持つことを要求されるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="__spec__">
+<code class="descname">__spec__</code><a class="headerlink" href="#__spec__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">__spec__</span></code> 属性はモジュールロード時に使用されたモジュールスペックに設定されなければなりません。
+<code class="docutils literal notranslate"><span class="pre">__spec__</span></code> を適切に設定すると <a class="reference internal" href="toplevel_components.html#programs"><span class="std std-ref">インタープリタ起動中に初期化されるモジュール</span></a> にも同様に適用されます。
+例外は <code class="docutils literal notranslate"><span class="pre">__main__</span></code> で、<code class="docutils literal notranslate"><span class="pre">__spec__</span></code> は <a class="reference internal" href="#main-spec"><span class="std std-ref">場合によっては None に設定されます</span></a>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__package__</span></code> が定義されていないときは <code class="docutils literal notranslate"><span class="pre">__spec__.parent</span></code> がフォールバックとして使われます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><code class="docutils literal notranslate"><span class="pre">__package__</span></code> が定義されていないときに <code class="docutils literal notranslate"><span class="pre">__spec__.parent</span></code> がフォールバックとして使われるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="__path__">
+<code class="descname">__path__</code><a class="headerlink" href="#__path__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールが (通常のまたは名前空間) パッケージの場合、モジュールオブジェクトの  <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性が設定される必要があります。値はイテレート可能でなければなりませんが、<code class="docutils literal notranslate"><span class="pre">__path__</span></code> に意味がない場合は空でも構いません。<code class="docutils literal notranslate"><span class="pre">__path__</span></code> が空でない場合、イテレート時に文字列を生成しなければなりません。<code class="docutils literal notranslate"><span class="pre">__path__</span></code> のセマンティクスの詳細は  <a class="reference internal" href="#package-path-rules"><span class="std std-ref">下記</span></a> の通りです。</p>
+<p>パッケージでないモジュールは <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性を持ってはいけません。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="__file__">
+<code class="descname">__file__</code><a class="headerlink" href="#__file__" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="__cached__">
+<code class="descname">__cached__</code><a class="headerlink" href="#__cached__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">__file__</span></code> はオプションです。もし設定されるならば、この属性の値は文字列でなければなりません。もしそのような属性が意味を持たない場合 (例えばモジュールがデータベースからロードされた場合) インポートシステムは <code class="docutils literal notranslate"><span class="pre">__file__</span></code> を未設定のままにしても構いません。</p>
+<p>もし <code class="docutils literal notranslate"><span class="pre">__file__</span></code> を設定するなら、 <code class="docutils literal notranslate"><span class="pre">__cached__</span></code> 属性もコードのコンパイルされたバージョンのどれか (例えば、バイトコンパイルされたファイル) へのパスに設定することが適切でしょう。この属性を設定するにあたってファイルが存在する必要はありません; パスは、単にコンパイルされたファイルが存在するかもしれない場所を示しているだけです (<span class="target" id="index-51"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3147"><strong>PEP 3147</strong></a> を参照)。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__file__</span></code> が設定されない場合にも <code class="docutils literal notranslate"><span class="pre">__cached__</span></code> を設定することは適切です。しかし、そのシナリオはかなり変則的です。究極的には、ローダーとは <code class="docutils literal notranslate"><span class="pre">__file__</span></code> と <code class="docutils literal notranslate"><span class="pre">__cached__</span></code> のどちらかまたは両方を利用するものです。したがって、もしローダーがキャッシュされたモジュールからロードする一方でファイルからはロードしないなら、その変則的なシナリオは適切でしょう。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-path">
+<span id="package-path-rules"></span><h3>5.4.5. module.__path__<a class="headerlink" href="#module-path" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>定義より、モジュールに <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性があれば、そのモジュールはパッケージとなります。</p>
+<p>パッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性は、そのサブパッケージのインポート中に使われます。インポート機構の内部では、それは <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> とほとんど同じように機能します。つまり、インポート中にモジュールを探す場所のリストを提供します。しかし、一般的に <code class="docutils literal notranslate"><span class="pre">__path__</span></code> は <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> よりも制約が強いです。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__path__</span></code> は文字列の iterable でなければいけませんが、空でも構いません。 <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> と同じ規則がパッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> にも適用され、パッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> を走査するときに (後で解説する) <a class="reference internal" href="../library/sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> が考慮に入れられます。</p>
+<p>パッケージの <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> ファイルは、パッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性を設定もしくは変更することがあり、これが <span class="target" id="index-52"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> 以前の名前空間パッケージの典型的な実装方法でした。 <span class="target" id="index-53"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> の採択により、もはや名前空間パッケージは、 <code class="docutils literal notranslate"><span class="pre">__path__</span></code> を操作するコードだけを含む <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> ファイルを提供する必要がなくなりました;インポート機構は、名前空間パッケージに対し自動的に適切な <code class="docutils literal notranslate"><span class="pre">__path__</span></code> をセットします。</p>
+</div>
+<div class="section" id="module-reprs">
+<h3>5.4.6. モジュールの repr<a class="headerlink" href="#module-reprs" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>デフォルトでは、すべてのモジュールは利用可能な repr を持っています。ただしこれは上位で設定された属性に依存しており、モジュール仕様によってモジュールオブジェクトの repr をより明示的に制御することができます。</p>
+<p>もしモジュールが仕様 (<code class="docutils literal notranslate"><span class="pre">__spec__</span></code>) を持っていれば、インポート機構はそこから repr を生成しようとします。もしそれが失敗するか、または仕様が存在しなければ、インポートシステムはモジュールで入手可能なあらゆる情報を使ってデフォルトの repr を構築します。それは <code class="docutils literal notranslate"><span class="pre">module.__name__</span></code>, <code class="docutils literal notranslate"><span class="pre">module.__file__</span></code>, <code class="docutils literal notranslate"><span class="pre">module.__loader__</span></code> を (足りない情報についてはデフォルト値を使って補いながら) repr への入力として使おうと試みます。</p>
+<p>これが使われている正確な規則です:</p>
+<blockquote>
+<div><ul class="simple">
+<li>モジュールが <code class="docutils literal notranslate"><span class="pre">__spec__</span></code> 属性を持っていれば、仕様に含まれる情報が repr を生成するために使われます。 &quot;name&quot;, &quot;loader&quot;, &quot;origin&quot;, &quot;has_location&quot; 属性が参照されます。</li>
+<li>モジュールに <code class="docutils literal notranslate"><span class="pre">__file__</span></code> 属性がある場合は、モジュールの repr の一部として使われます。</li>
+<li>モジュールに <code class="docutils literal notranslate"><span class="pre">__file__</span></code> はないが <code class="docutils literal notranslate"><span class="pre">__loader__</span></code> があり、その値が <code class="docutils literal notranslate"><span class="pre">None</span></code> ではない場合は、ローダーの repr がモジュールの repr の一部として使われます。</li>
+<li>そうでなければ、単にモジュールの <code class="docutils literal notranslate"><span class="pre">__name__</span></code> を repr の中で使います。</li>
+</ul>
+</div></blockquote>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.module_repr" title="importlib.abc.Loader.module_repr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">loader.module_repr()</span></code></a> の使用は deprecated です。インポート機構によりモジュール仕様がモジュール repr を生成するために使用されるようになりました。</p>
+<p>Python 3.3 との後方互換性のために、ローダーの <a class="reference internal" href="../library/importlib.html#importlib.abc.Loader.module_repr" title="importlib.abc.Loader.module_repr"><code class="xref py py-meth docutils literal notranslate"><span class="pre">module_repr()</span></code></a> メソッドが定義されていたら、モジュール repr を生成するために上記のいずれかのアプローチを試す前にそのメソッドが呼ばれます。ただし、このメソッドは deprecated です。</p>
+</div>
+</div>
+<div class="section" id="cached-bytecode-invalidation">
+<span id="pyc-invalidation"></span><h3>5.4.7. キャッシュされたバイトコードの無効化<a class="headerlink" href="#cached-bytecode-invalidation" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Before Python loads cached bytecode from <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> file, it checks whether the
+cache is up-to-date with the source <code class="docutils literal notranslate"><span class="pre">.py</span></code> file. By default, Python does this
+by storing the source's last-modified timestamp and size in the cache file when
+writing it. At runtime, the import system then validates the cache file by
+checking the stored metadata in the cache file against the source's
+metadata.</p>
+<p>Python also supports &quot;hash-based&quot; cache files, which store a hash of the source
+file's contents rather than its metadata. There are two variants of hash-based
+<code class="docutils literal notranslate"><span class="pre">.pyc</span></code> files: checked and unchecked. For checked hash-based <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> files,
+Python validates the cache file by hashing the source file and comparing the
+resulting hash with the hash in the cache file. If a checked hash-based cache
+file is found to be invalid, Python regenerates it and writes a new checked
+hash-based cache file. For unchecked hash-based <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> files, Python simply
+assumes the cache file is valid if it exists. Hash-based <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> files
+validation behavior may be overridden with the <a class="reference internal" href="../using/cmdline.html#cmdoption-check-hash-based-pycs"><code class="xref std std-option docutils literal notranslate"><span class="pre">--check-hash-based-pycs</span></code></a>
+flag.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Added hash-based <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> files. Previously, Python only supported
+timestamp-based invalidation of bytecode caches.</p>
+</div>
+</div>
+</div>
+<div class="section" id="the-path-based-finder">
+<h2>5.5. パスベース・ファインダー<a class="headerlink" href="#the-path-based-finder" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-16">上で触れた通り、 Python にはいくつかのデフォルトのメタパス・ファインダーが備わっています。そのうちの 1 つは <a class="reference internal" href="../glossary.html#term-path-based-finder"><span class="xref std std-term">パスベース・ファインダー</span></a> (<a class="reference internal" href="../library/importlib.html#importlib.machinery.PathFinder" title="importlib.machinery.PathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathFinder</span></code></a>) と呼ばれ、 <a class="reference internal" href="../glossary.html#term-path-entry"><span class="xref std std-term">パスエントリ</span></a> のリストである <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">インポートパス</span></a> を検索します。それぞれのパスエントリは、モジュールを探す場所を指しています。</p>
+<p>パスベース・ファインダー自体は何かのインポート方法を知っているわけではありません。その代わりに、個々のパスエントリを走査し、それぞれに特定の種類のパスの扱いを知っているパスエントリ・ファインダーを関連付けます。</p>
+<p>デフォルトのパスエントリ・ファインダーは、ファイルシステム上のモジュールを見つけるためのすべてのセマンティクスを実装しています。それは Python ソースコード (<code class="docutils literal notranslate"><span class="pre">.py</span></code> ファイル) 、Python バイトコード (<code class="docutils literal notranslate"><span class="pre">.pyc</span></code> ファイル) 、共有ライブラリ (例えば <code class="docutils literal notranslate"><span class="pre">.so</span></code> ファイル) などの特別なファイルタイプを処理します。標準ライブラリの <a class="reference internal" href="../library/zipimport.html#module-zipimport" title="zipimport: Support for importing Python modules from ZIP archives."><code class="xref py py-mod docutils literal notranslate"><span class="pre">zipimport</span></code></a> モジュールによってサポートされる場合は、デフォルトのパスエントリ・ファインダーは (共有ライブラリ以外の) すべてのファイルタイプの zip ファイルからのロードも扱います。</p>
+<p>パスエントリはファイルシステム上の場所に限定される必要はありません。URL やデータベースクエリやその他文字列で指定できる場所を参照することも可能です。</p>
+<p>パスベース・ファインダーにはフックやプロトコルを追加することができ、それによって検索可能なパスエントリの種類を拡張し、カスタマイズすることができます。例えば、ネットワーク上の URL をパスエントリとしてサポートしたい場合、 web 上のモジュールを見つけるために HTTP の取り扱い方を実装したフックを書くことができます。この (呼び出し可能オブジェクトである) フックは、下で解説するプロトコルをサポートする <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> を返します。このプロトコルは  web からモジュールのローダーを取得するのに使われます。</p>
+<p>警告の言葉: この節と前の節の両方で <em>ファインダー</em> という言葉が、 <a class="reference internal" href="../glossary.html#term-meta-path-finder"><span class="xref std std-term">メタパス・ファインダー</span></a> と <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> という用語で区別されて使われています。これら 2 種類のファインダーは非常に似ており、似たプロトコルをサポートし、インポート処理で同じように機能しますが、微妙に異なっているのを心に留めておくのは重要です。特に、メタパス・ファインダーはインポート処理の開始時、 <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> の走査が動くときに動作します。</p>
+<p>それとは対照的に、パスエントリ・ファインダーはある意味でパスベース・ファインダーの実装詳細であり、実際 <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> からパスベース・ファインダーが取り除かれた場合、パスエントリ・ファインダーの実装は何も実行されないでしょう。</p>
+<div class="section" id="path-entry-finders">
+<h3>5.5.1. パスエントリ・ファインダー<a class="headerlink" href="#path-entry-finders" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-17"><a class="reference internal" href="../glossary.html#term-path-based-finder"><span class="xref std std-term">パスベース・ファインダー</span></a> には、文字列 <a class="reference internal" href="../glossary.html#term-path-entry"><span class="xref std std-term">パスエントリ</span></a> で指定された場所の Python モジュールや Python パッケージを見つけ、ロードする責任があります。ほとんどのパスエントリはファイルシステム上の場所を指定していますが、そこに制限される必要はありません。</p>
+<p>メタパス・ファインダーとして、 <a class="reference internal" href="../glossary.html#term-path-based-finder"><span class="xref std std-term">パスベース・ファインダー</span></a> には前に解説した <a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> プロトコルが実装されていますが、これに加えて <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">インポートパス</span></a> からモジュールを見つけ、ロードする方法をカスタマイズするために使えるフックを提供しています。</p>
+<p><a class="reference internal" href="../glossary.html#term-path-based-finder"><span class="xref std std-term">パスベース・ファインダー</span></a> は <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> 、 <a class="reference internal" href="../library/sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> 、 <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> という 3 つの変数を使います。さらにパッケージオブジェクトの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性も使います。これらによって、インポート処理をカスタマイズする方法が提供されます。</p>
+<p><a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> には、モジュールとパッケージを探す場所文字列の一覧があります。これは <code class="xref py py-data docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 環境変数とその他様々なインストール方法や実装に依存するデフォルト値で初期化されます。 <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> 内の要素は、ファイルシステム上のディレクトリや zip ファイルやその他モジュールを探すべき &quot;場所&quot; となりうるもの (<a class="reference internal" href="../library/site.html#module-site" title="site: Module responsible for site-specific configuration."><code class="xref py py-mod docutils literal notranslate"><span class="pre">site</span></code></a> モジュールを参照) を指すことができます。文字列およびバイト列のみを <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> に入れるべきです; 他のデータ型は無視されます。バイト列の要素のエンコーディングは、各 <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> によって判別されます。</p>
+<p><a class="reference internal" href="../glossary.html#term-path-based-finder"><span class="xref std std-term">パスベース・ファインダー</span></a> は <a class="reference internal" href="../glossary.html#term-meta-path-finder"><span class="xref std std-term">メタパス・ファインダー</span></a> なので、インポート機構は、前で解説したパスベース・ファインダーの <a class="reference internal" href="../library/importlib.html#importlib.machinery.PathFinder.find_spec" title="importlib.machinery.PathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a>  メソッドを呼び出すことで <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">インポートパス</span></a> の検索を始めます。 <code class="docutils literal notranslate"><span class="pre">path</span></code> 引数が <a class="reference internal" href="../library/importlib.html#importlib.machinery.PathFinder.find_spec" title="importlib.machinery.PathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> に渡されたときは、それは走査するパス文字列のリスト - 典型的にはそのパッケージの中でインポートしているパッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性になります。 <code class="docutils literal notranslate"><span class="pre">path</span></code> 引数が <code class="docutils literal notranslate"><span class="pre">None</span></code> だった場合、それは最上位のインポートであることを示していて、 <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> が使われます。</p>
+<p>パスベース・ファインダーは検索パスのすべての要素について反復処理をし、それぞれのパスに対して適切な <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> (<a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder" title="importlib.abc.PathEntryFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathEntryFinder</span></code></a>) を探します。これは時間のかかる処理 (例えば、この検索のための <cite>stat()</cite> 呼び出しのオーバーヘッド) になり得るので、パスベース・ファインダーはパス要素からパスエントリ・ファインダーへの対応付けをキャッシュとして持っておきます。このキャッシュは <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> に持っています (名前に反して、このキャッシュは実際には <a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">インポーター</span></a> には制限されておらず、ファインダーオブジェクトを保持します) 。このようにして、時間のかかる特定の <a class="reference internal" href="../glossary.html#term-path-entry"><span class="xref std std-term">パスエントリ</span></a> の場所のための <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> の検索を一度だけ検索すれば良くなります。パスベース・ファインダーにパスエントリの検索を再度行わせるために、ユーザコードでは自由に <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> からキャッシュを取り除いて構いません  <a class="footnote-reference" href="#fnpic" id="id3">[3]</a> 。</p>
+<p>path entry がキャッシュの中に無かった場合、 path based finder は <a class="reference internal" href="../library/sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> の中の呼び出し可能オブジェクトを全て辿ります。
+このリストのそれぞれの <a class="reference internal" href="../glossary.html#term-path-entry-hook"><span class="xref std std-term">path entry フック</span></a> は、検索する path entry という引数 1 つを渡して呼び出されます。
+その呼び出し可能オブジェクトは path entry を扱える <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">path entry finder</span></a> を返すか、  <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。
+<a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> は、フックが <a class="reference internal" href="../glossary.html#term-path-entry"><span class="xref std std-term">path entry</span></a> のための <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">path entry finder</span></a> を探せないことを報せるために path based finder が使います。
+この例外は処理されず、 <a class="reference internal" href="../glossary.html#term-import-path"><span class="xref std std-term">import path</span></a> を辿っていく処理が続けられます。
+フックは引数として文字列またはバイト列オブジェクトを期待します;
+バイト列オブジェクトのエンコーディングはフックに任されていて (例えば、ファイルシステムのエンコーディングの UTF-8 やそれ以外などです) 、フックが引数をデコードできなかった場合は <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出すべきです。</p>
+<p><a class="reference internal" href="../library/sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> を辿る処理が <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> を何も返さずに終わった場合、パスベース・ファインダーの <a class="reference internal" href="../library/importlib.html#importlib.machinery.PathFinder.find_spec" title="importlib.machinery.PathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> メソッドは、 <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> に (このパスエントリに対するファインダーが存在しないことを示すために) <code class="docutils literal notranslate"><span class="pre">None</span></code> を保存し、 <a class="reference internal" href="../glossary.html#term-meta-path-finder"><span class="xref std std-term">メタパス・ファインダー</span></a> はモジュールが見つからなかったことを伝えるために <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+<p><a class="reference internal" href="../library/sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> 上の <a class="reference internal" href="../glossary.html#term-path-entry-hook"><span class="xref std std-term">パスエントリフック</span></a> 呼び出し可能オブジェクトの戻り値のいずれかが <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> <em>であった</em> 場合、後で出てくるモジュール仕様を探すためのプロトコルが使われ、それがモジュールをロードするために使われます。</p>
+<p>（空の文字列によって表される）現在のディレクトリは、 <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> の他のエントリとは多少異なる方法で処理されます。まず、現在のディレクトリが存在しないことが判明した場合、 <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> には何も追加されません。次に、現在のディレクトリに対する値は個々のモジュールのルックアップで毎回新たに検索されます。 3番目に、 <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> に使われ、 <a class="reference internal" href="../library/importlib.html#importlib.machinery.PathFinder.find_spec" title="importlib.machinery.PathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.machinery.PathFinder.find_spec()</span></code></a> が返すパスは、実際のディレクトリであって空の文字列ではありません。</p>
+</div>
+<div class="section" id="path-entry-finder-protocol">
+<h3>5.5.2. パスエントリ・ファインダー・プロトコル<a class="headerlink" href="#path-entry-finder-protocol" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>モジュールと初期化されたパッケージのインポートをサポートするため、および名前空間パッケージのポーションとして提供するために、パスエントリ・ファインダーは <a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a>  メソッドを実装しなければいけません。</p>
+<p><a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> takes two arguments: the
+fully qualified name of the module being imported, and the (optional) target
+module.  <code class="docutils literal notranslate"><span class="pre">find_spec()</span></code> returns a fully populated spec for the module.
+This spec will always have &quot;loader&quot; set (with one exception).</p>
+<p>To indicate to the import machinery that the spec represents a namespace
+<a class="reference internal" href="../glossary.html#term-portion"><span class="xref std std-term">portion</span></a>, the path entry finder sets &quot;loader&quot; on the spec to
+<code class="docutils literal notranslate"><span class="pre">None</span></code> and &quot;submodule_search_locations&quot; to a list containing the
+portion.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> は <a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder.find_loader" title="importlib.abc.PathEntryFinder.find_loader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_loader()</span></code></a> と <a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder.find_module" title="importlib.abc.PathEntryFinder.find_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_module()</span></code></a> を置き換えました。両者は deprecated ですが、 <cite>find_spec()</cite> が定義されていなければ使われます。</p>
+<p>古いパスエントリ・ファインダーの中には、 <code class="docutils literal notranslate"><span class="pre">find_spec()</span></code> の代わりにこれら 2 つの deperecated なメソッドのうちのいずれかを実装しているものがあるかもしれません。これらのメソッドは後方互換性のためにまだ考慮されています。しかし、パスエントリ・ファインダーに <code class="docutils literal notranslate"><span class="pre">find_spec()</span></code> が実装されていれば、古いメソッドは無視されます。</p>
+<p><a class="reference internal" href="../library/importlib.html#importlib.abc.PathEntryFinder.find_loader" title="importlib.abc.PathEntryFinder.find_loader"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_loader()</span></code></a> はインポートされるモジュールの完全修飾名を引数に取ります。 <code class="docutils literal notranslate"><span class="pre">find_loader()</span></code> は、第 1 要素がローダで第  2要素が名前空間 <a class="reference internal" href="../glossary.html#term-portion"><span class="xref std std-term">ポーション</span></a> である 2 要素のタプルを返します。第 1 要素 (つまりローダー) が <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、その意味は、パスエントリ・ファインダー自身は指定されたモジュールのためのローダーを持っていないものの、パスエントリがモジュールの名前空間ポーションに関係している (contribute) のをパスエントリ・ファインダーが知っているということです。これは、ほとんど常にファイルシステム上に物理的な実体のない名前空間パッケージをインポートしようとした場合です。パスエントリ・ファインダーがローダーとして <code class="docutils literal notranslate"><span class="pre">None</span></code> を返す場合には、 2 要素タプルである戻り値の第 2 要素はシーケンスでなければなりません。ただし、シーケンスは空でも構いません。</p>
+<p><code class="docutils literal notranslate"><span class="pre">find_loader()</span></code> が <code class="docutils literal notranslate"><span class="pre">None</span></code> でないローダー値を返した場合、ポーションは無視され、パスベース・ファインダーからローダーが返され、パスエントリ上の検索が終了します。</p>
+<p>他のインポート機構の実装に対する後方互換性のために、多くのパスエントリ・ファインダーは、メタパス・ファインダーがサポートするのと同じ伝統的な <code class="docutils literal notranslate"><span class="pre">find_module()</span></code>  メソッドもサポートしています。しかし、パスエントリ・ファインダーの <code class="docutils literal notranslate"><span class="pre">find_module()</span></code>  メソッドは、決して <code class="docutils literal notranslate"><span class="pre">path</span></code> 引数では呼び出されません (このメソッドは、パスフックの最初の呼び出しから適切なパス情報を記録する動作が期待されています)。</p>
+<p>パスエントリ・ファインダーの <code class="docutils literal notranslate"><span class="pre">find_module()</span></code> メソッドは deprecated です。なぜなら、その方法ではパスエントリ・ファインダーが名前空間パッケージに対してポーションを提供することができないからです。もし <code class="docutils literal notranslate"><span class="pre">find_loader()</span></code> と <code class="docutils literal notranslate"><span class="pre">find_module()</span></code> の両方がパスエントリ・ファインダーに存在したら、インポートシステムは常に <code class="docutils literal notranslate"><span class="pre">find_module()</span></code> よりも <code class="docutils literal notranslate"><span class="pre">find_loader()</span></code> を優先して呼び出します。</p>
+</div>
+</div>
+</div>
+<div class="section" id="replacing-the-standard-import-system">
+<h2>5.6. 標準のインポートシステムを置き換える<a class="headerlink" href="#replacing-the-standard-import-system" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>インポートシステム全体を置き換えるための最も信頼性のある仕組みは、 <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> のデフォルトの内容を削除し、全部をカスタムのメタパスフックで置き換えるものです。</p>
+<p>もし、 import 文の動作だけを変更し、インポートシステムにアクセスする他の API には影響を与えなくてもよければ、組み込みの <a class="reference internal" href="../library/functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> 関数を置き換えるだけで十分です。この手法は、ある 1 つのモジュール内だけで import 文の動作を変更するのにも用いられます。</p>
+<p>To selectively prevent the import of some modules from a hook early on the
+meta path (rather than disabling the standard import system entirely),
+it is sufficient to raise <a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> directly from
+<a class="reference internal" href="../library/importlib.html#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> instead of returning
+<code class="docutils literal notranslate"><span class="pre">None</span></code>. The latter indicates that the meta path search should continue,
+while raising an exception terminates it immediately.</p>
+</div>
+<div class="section" id="package-relative-imports">
+<span id="relativeimports"></span><h2>5.7. Package Relative Imports<a class="headerlink" href="#package-relative-imports" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Relative imports use leading dots. A single leading dot indicates a relative
+import, starting with the current package. Two or more leading dots indicate a
+relative import to the parent(s) of the current package, one level per dot
+after the first. For example, given the following package layout:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">package</span><span class="o">/</span>
+    <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">subpackage1</span><span class="o">/</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">moduleX</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">moduleY</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">subpackage2</span><span class="o">/</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">moduleZ</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">moduleA</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>In either <code class="docutils literal notranslate"><span class="pre">subpackage1/moduleX.py</span></code> or <code class="docutils literal notranslate"><span class="pre">subpackage1/__init__.py</span></code>,
+the following are valid relative imports:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">.moduleY</span> <span class="kn">import</span> <span class="n">spam</span>
+<span class="kn">from</span> <span class="nn">.moduleY</span> <span class="kn">import</span> <span class="n">spam</span> <span class="k">as</span> <span class="n">ham</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">moduleY</span>
+<span class="kn">from</span> <span class="nn">..subpackage1</span> <span class="kn">import</span> <span class="n">moduleY</span>
+<span class="kn">from</span> <span class="nn">..subpackage2.moduleZ</span> <span class="kn">import</span> <span class="n">eggs</span>
+<span class="kn">from</span> <span class="nn">..moduleA</span> <span class="kn">import</span> <span class="n">foo</span>
+</pre></div>
+</div>
+<p>Absolute imports may use either the <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">&lt;&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">&lt;&gt;</span> <span class="pre">import</span> <span class="pre">&lt;&gt;</span></code>
+syntax, but relative imports may only use the second form; the reason
+for this is that:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">XXX.YYY.ZZZ</span>
+</pre></div>
+</div>
+<p>should expose <code class="docutils literal notranslate"><span class="pre">XXX.YYY.ZZZ</span></code> as a usable expression, but .moduleY is
+not a valid expression.</p>
+</div>
+<div class="section" id="special-considerations-for-main">
+<h2>5.8. __main__ に対する特別な考慮<a class="headerlink" href="#special-considerations-for-main" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="../library/__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> モジュールは、 Python のインポートシステムに関連する特別なケースです。 <a class="reference internal" href="toplevel_components.html#programs"><span class="std std-ref">他の場所</span></a> で言及されているように、 <code class="docutils literal notranslate"><span class="pre">__main__</span></code> モジュールは <a class="reference internal" href="../library/sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> や <a class="reference internal" href="../library/builtins.html#module-builtins" title="builtins: The module that provides the built-in namespace."><code class="xref py py-mod docutils literal notranslate"><span class="pre">builtins</span></code></a> などと同様にインタプリタースタートアップで直接初期化されます。しかし、前者 2 つのモジュールと違って、 <code class="docutils literal notranslate"><span class="pre">__main__</span></code> は厳密にはビルトインのモジュールとしての資格を持っていません。これは、 <code class="docutils literal notranslate"><span class="pre">__main__</span></code> が初期化される方法がインタプリタが起動されるときのフラグやその他のオプションに依存するためです。</p>
+<div class="section" id="main-spec">
+<span id="id4"></span><h3>5.8.1. __main__.__spec__<a class="headerlink" href="#main-spec" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> がどのように初期化されるかに依存して、 <code class="docutils literal notranslate"><span class="pre">__main__.__spec__</span></code> は適切に設定されることもあれば <code class="docutils literal notranslate"><span class="pre">None</span></code> になることもあります。</p>
+<p>Python が <a class="reference internal" href="../using/cmdline.html#cmdoption-m"><code class="xref std std-option docutils literal notranslate"><span class="pre">-m</span></code></a> オプションを付けて実行された場合には、 <code class="docutils literal notranslate"><span class="pre">__spec__</span></code> は対応するモジュールまたはパッケージのモジュール仕様に設定されます。また、ディレクトリや zip ファイル、または他の <a class="reference internal" href="../library/sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> エントリを実行する処理の一部として <code class="docutils literal notranslate"><span class="pre">__main__</span></code> モジュールがロードされる場合にも <code class="docutils literal notranslate"><span class="pre">__spec__</span></code> が生成 (populate) されます。</p>
+<p><a class="reference internal" href="../using/cmdline.html#using-on-interface-options"><span class="std std-ref">それ以外のケース</span></a> では、 <code class="docutils literal notranslate"><span class="pre">__main__.__spec__</span></code> は <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定されます。これは、 <a class="reference internal" href="../library/__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> を生成 (populate) するために使われたコードがインポート可能なモジュールと直接一致していないためです:</p>
+<ul class="simple">
+<li>対話プロンプト</li>
+<li><a class="reference internal" href="../using/cmdline.html#cmdoption-c"><code class="xref std std-option docutils literal notranslate"><span class="pre">-c</span></code></a> オプション</li>
+<li>stdin から起動された場合</li>
+<li>ソースファイルやバイトコードファイルから直接起動された場合</li>
+</ul>
+<p>最後のケースでは、たとえ技術的にはファイルがモジュールとして直接インポートできた <em>としても</em> <code class="docutils literal notranslate"><span class="pre">__main__.__spec__</span></code> は常に <code class="docutils literal notranslate"><span class="pre">None</span></code> になることに注意してください。もし <a class="reference internal" href="../library/__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> において有効なモジュールメタデータが必要なら <a class="reference internal" href="../using/cmdline.html#cmdoption-m"><code class="xref std std-option docutils literal notranslate"><span class="pre">-m</span></code></a> スイッチを使ってください。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__main__</span></code> がインポート可能なモジュールと一致し、 <code class="docutils literal notranslate"><span class="pre">__main__.__spec__</span></code> がそれに応じて設定されていたとしても、それでもなお、この 2 つのモジュールは別物とみなされることに注意してください。これは、 <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> チェックによって保証されるブロックは、 <code class="docutils literal notranslate"><span class="pre">__main__</span></code> 名前空間を生成 (populate) するためにモジュールが使用される時にだけ実行され、通常のインポート時には実行されない、という事実に起因しています。</p>
+</div>
+</div>
+<div class="section" id="open-issues">
+<h2>5.9. 取り掛かり中の問題<a class="headerlink" href="#open-issues" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>XXX 図があるととても良い。</p>
+<p>XXX * (import_machinery.rst) モジュールとパッケージの属性のみに紙面を割いた節を設けるのは何如でしょうか? もしかしたらデータモデルについての言語リファレンスのページにある関係する内容を拡張したり、置き換えるようなものになるかもしれません。</p>
+<p>XXX ライブラリマニュアルの runpy や pkgutil の解説の先頭すべてに、&quot;こちらも参照 (See Also)&quot; という、この新しいインポートシステムの節へのリンクを置くべき。</p>
+<p>XXX <code class="docutils literal notranslate"><span class="pre">__main__</span></code> が初期化される様々な方法についてより多くの説明を追加する?</p>
+<p>XXX <code class="docutils literal notranslate"><span class="pre">__main__</span></code> の特異性/落とし穴についてより多くの情報を追加する (つまり <span class="target" id="index-54"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0395"><strong>PEP 395</strong></a> からコピーする)</p>
+</div>
+<div class="section" id="references">
+<h2>5.10. 参考資料<a class="headerlink" href="#references" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python の初期の頃からすると、インポート機構は目覚ましい発展を遂げました。
+一部細かいところがドキュメントが書かれたときから変わってはいますが、最初期の <a class="reference external" href="https://www.python.org/doc/essays/packages/">パッケージの仕様</a> はまだ読むことができます。</p>
+<p>オリジナルの <a class="reference internal" href="../library/sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> の仕様は <span class="target" id="index-55"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> で、その後継となる拡張が <span class="target" id="index-56"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> です。</p>
+<p><span class="target" id="index-57"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> は Python 3.3 に <a class="reference internal" href="../glossary.html#term-namespace-package"><span class="xref std std-term">名前空間パッケージ</span></a> を導入しています。 <span class="target" id="index-58"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a> はまた <code class="xref py py-meth docutils literal notranslate"><span class="pre">find_module()</span></code> に代わるものとして <code class="xref py py-meth docutils literal notranslate"><span class="pre">find_loader()</span></code> プロトコルを導入しています。</p>
+<p><span class="target" id="index-59"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0366"><strong>PEP 366</strong></a> は、メインモジュールでの明示的な相対インポートのために追加した <code class="docutils literal notranslate"><span class="pre">__package__</span></code> 属性の解説をしています。</p>
+<p><span class="target" id="index-60"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0328"><strong>PEP 328</strong></a> は絶対インポート、明示的な相対インポート、および、当初 <code class="docutils literal notranslate"><span class="pre">__name__</span></code> で提案し、後に <span class="target" id="index-61"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0366"><strong>PEP 366</strong></a> が <code class="docutils literal notranslate"><span class="pre">__package__</span></code> で定めた仕様を導入しました。</p>
+<p><span class="target" id="index-62"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0338"><strong>PEP 338</strong></a> はモジュールをスクリプトとして実行するときの仕様を定めています。</p>
+<p><span class="target" id="index-63"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0451"><strong>PEP 451</strong></a> は、モジュール仕様オブジェクトにおけるモジュール毎のインポート状態のカプセル化を追加しています。また、ローダーの定型的な責任のほとんどをインポート機構に肩代わりさせています。これらの変更により、インポートシステムのいくつかの API が deprecate され、またファインダーとローダーには新しいメソッドが追加されました。</p>
+<p class="rubric">脚注</p>
+<table class="docutils footnote" frame="void" id="fnmo" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference internal" href="../library/types.html#types.ModuleType" title="types.ModuleType"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.ModuleType</span></code></a> を参照してください。</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="fnlo" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>importlib の実装は、戻り値を直接使うことは避けています。その代わりに、モジュール名を調べて <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> からモジュールオブジェクトを得ます。こうすることの間接的な効果は、インポートされたモジュールが <a class="reference internal" href="../library/sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> にいる自分自身を置き換えることがあるということです。これは実装依存の動作であり、他の Python 実装では保証されていない動作です。</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="fnpic" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td>レガシーなコードでは、 <a class="reference internal" href="../library/sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> に <a class="reference internal" href="../library/imp.html#imp.NullImporter" title="imp.NullImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">imp.NullImporter</span></code></a> のインスタンスがいることがあります。それの代わりに <code class="docutils literal notranslate"><span class="pre">None</span></code> を使うようにコードを変更することが推奨されます。より詳しいことは <a class="reference internal" href="../whatsnew/3.3.html#portingpythoncode"><span class="std std-ref">Python コードの移植</span></a> を参照してください。</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">5. インポートシステム</a><ul>
+<li><a class="reference internal" href="#importlib">5.1. <code class="docutils literal notranslate"><span class="pre">importlib</span></code></a></li>
+<li><a class="reference internal" href="#packages">5.2. パッケージ</a><ul>
+<li><a class="reference internal" href="#regular-packages">5.2.1. 通常のパッケージ</a></li>
+<li><a class="reference internal" href="#namespace-packages">5.2.2. 名前空間パッケージ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#searching">5.3. 検索</a><ul>
+<li><a class="reference internal" href="#the-module-cache">5.3.1. モジュールキャッシュ</a></li>
+<li><a class="reference internal" href="#finders-and-loaders">5.3.2. ファインダーとローダー</a></li>
+<li><a class="reference internal" href="#import-hooks">5.3.3. インポートフック</a></li>
+<li><a class="reference internal" href="#the-meta-path">5.3.4. メタパス</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#loading">5.4. ロード</a><ul>
+<li><a class="reference internal" href="#loaders">5.4.1. ローダー</a></li>
+<li><a class="reference internal" href="#submodules">5.4.2. サブモジュール</a></li>
+<li><a class="reference internal" href="#module-spec">5.4.3. モジュール仕様</a></li>
+<li><a class="reference internal" href="#import-related-module-attributes">5.4.4. インポート関連のモジュール属性</a></li>
+<li><a class="reference internal" href="#module-path">5.4.5. module.__path__</a></li>
+<li><a class="reference internal" href="#module-reprs">5.4.6. モジュールの repr</a></li>
+<li><a class="reference internal" href="#cached-bytecode-invalidation">5.4.7. キャッシュされたバイトコードの無効化</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-path-based-finder">5.5. パスベース・ファインダー</a><ul>
+<li><a class="reference internal" href="#path-entry-finders">5.5.1. パスエントリ・ファインダー</a></li>
+<li><a class="reference internal" href="#path-entry-finder-protocol">5.5.2. パスエントリ・ファインダー・プロトコル</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#replacing-the-standard-import-system">5.6. 標準のインポートシステムを置き換える</a></li>
+<li><a class="reference internal" href="#package-relative-imports">5.7. Package Relative Imports</a></li>
+<li><a class="reference internal" href="#special-considerations-for-main">5.8. __main__ に対する特別な考慮</a><ul>
+<li><a class="reference internal" href="#main-spec">5.8.1. __main__.__spec__</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#open-issues">5.9. 取り掛かり中の問題</a></li>
+<li><a class="reference internal" href="#references">5.10. 参考資料</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="executionmodel.html"
+                        title="前の章へ">4. 実行モデル</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="expressions.html"
+                        title="次の章へ">6. 式 (expression)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/reference/import.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="expressions.html" title="6. 式 (expression)"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="executionmodel.html" title="4. 実行モデル"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 言語リファレンス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

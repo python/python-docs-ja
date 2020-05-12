@@ -1,0 +1,440 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DateTime オブジェクト &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="初期化 (initialization)、終了処理 (finalization)、スレッド" href="init.html" />
+    <link rel="prev" title="コンテキスト変数オブジェクト" href="contextvars.html" />
+    <link rel="canonical" href="https://docs.python.org/3/c-api/datetime.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="init.html" title="初期化 (initialization)、終了処理 (finalization)、スレッド"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="contextvars.html" title="コンテキスト変数オブジェクト"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="concrete.html" accesskey="U">具象オブジェクト (concrete object) レイヤ</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="datetime-objects">
+<span id="datetimeobjects"></span><h1>DateTime オブジェクト<a class="headerlink" href="#datetime-objects" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><a class="reference internal" href="../library/datetime.html#module-datetime" title="datetime: Basic date and time types."><code class="xref py py-mod docutils literal notranslate"><span class="pre">datetime</span></code></a> モジュールでは、様々な日付オブジェクトや時刻オブジェクトを提供しています。以下に示す関数を使う場合には、あらかじめヘッダファイル <code class="file docutils literal notranslate"><span class="pre">datetime.h</span></code> をソースに include し (<code class="file docutils literal notranslate"><span class="pre">Python.h</span></code> はこのファイルを include しません)、 <code class="xref c c-macro docutils literal notranslate"><span class="pre">PyDateTime_IMPORT</span></code> マクロを、通常はモジュール初期化関数から、起動しておく必要があります。このマクロは以下のマクロで使われる静的変数 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTimeAPI</span></code> に C 構造体へのポインタを入れます。</p>
+<p>UTCシングルトンにアクセスするためのマクロ:</p>
+<dl class="var">
+<dt id="c.PyDateTime_TimeZone_UTC">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDateTime_TimeZone_UTC</code><a class="headerlink" href="#c.PyDateTime_TimeZone_UTC" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UTCタイムゾーンに相当するシングルトンを返します。
+これは <code class="xref py py-attr docutils literal notranslate"><span class="pre">datetime.timezon.utc</span></code> と同じオブジェクトです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p>型チェックマクロ:</p>
+<dl class="function">
+<dt id="c.PyDate_Check">
+int <code class="descname">PyDate_Check</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDate_Check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateType</span></code> 型か <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateType</span></code> 型のサブタイプのオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDate_CheckExact">
+int <code class="descname">PyDate_CheckExact</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDate_CheckExact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateType</span></code> 型のオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_Check">
+int <code class="descname">PyDateTime_Check</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_Check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateTimeType</span></code> 型か <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateTimeType</span></code> 型のサブタイプのオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_CheckExact">
+int <code class="descname">PyDateTime_CheckExact</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_CheckExact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateTimeType</span></code> 型のオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTime_Check">
+int <code class="descname">PyTime_Check</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTime_Check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_TimeType</span></code> 型か <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_TimeType</span></code> 型のサブタイプのオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTime_CheckExact">
+int <code class="descname">PyTime_CheckExact</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTime_CheckExact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_TimeType</span></code> 型のオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDelta_Check">
+int <code class="descname">PyDelta_Check</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDelta_Check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DeltaType</span></code> 型か <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DeltaType</span></code> 型のサブタイプのオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDelta_CheckExact">
+int <code class="descname">PyDelta_CheckExact</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDelta_CheckExact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DeltaType</span></code> 型のオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTZInfo_Check">
+int <code class="descname">PyTZInfo_Check</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTZInfo_Check" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_TZInfoType</span></code> 型か <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_TZInfoType</span></code> 型のサブタイプのオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTZInfo_CheckExact">
+int <code class="descname">PyTZInfo_CheckExact</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ob</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTZInfo_CheckExact" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>ob</em> が <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_TZInfoType</span></code> 型のオブジェクトの場合に真を返します; <em>ob</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。</p>
+</dd></dl>
+
+<p>以下はオブジェクトを作成するためのマクロです:</p>
+<dl class="function">
+<dt id="c.PyDate_FromDate">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDate_FromDate</code><span class="sig-paren">(</span>int<em>&nbsp;year</em>, int<em>&nbsp;month</em>, int<em>&nbsp;day</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDate_FromDate" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>指定した年、月、日の <a class="reference internal" href="../library/datetime.html#datetime.date" title="datetime.date"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> オブジェクトを返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_FromDateAndTime">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDateTime_FromDateAndTime</code><span class="sig-paren">(</span>int<em>&nbsp;year</em>, int<em>&nbsp;month</em>, int<em>&nbsp;day</em>, int<em>&nbsp;hour</em>, int<em>&nbsp;minute</em>, int<em>&nbsp;second</em>, int<em>&nbsp;usecond</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_FromDateAndTime" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>指定した年、月、日、時、分、秒、マイクロ秒の <a class="reference internal" href="../library/datetime.html#datetime.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a> オブジェクトを返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_FromDateAndTimeAndFold">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDateTime_FromDateAndTimeAndFold</code><span class="sig-paren">(</span>int<em>&nbsp;year</em>, int<em>&nbsp;month</em>, int<em>&nbsp;day</em>, int<em>&nbsp;hour</em>, int<em>&nbsp;minute</em>, int<em>&nbsp;second</em>, int<em>&nbsp;usecond</em>, int<em>&nbsp;fold</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_FromDateAndTimeAndFold" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>指定された年、月、日、時、分、秒、マイクロ秒、fold の <a class="reference internal" href="../library/datetime.html#datetime.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a> オブジェクトを返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTime_FromTime">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyTime_FromTime</code><span class="sig-paren">(</span>int<em>&nbsp;hour</em>, int<em>&nbsp;minute</em>, int<em>&nbsp;second</em>, int<em>&nbsp;usecond</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTime_FromTime" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>指定された時、分、秒、マイクロ秒の <a class="reference internal" href="../library/datetime.html#datetime.time" title="datetime.time"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.time</span></code></a> オブジェクトを返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTime_FromTimeAndFold">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyTime_FromTimeAndFold</code><span class="sig-paren">(</span>int<em>&nbsp;hour</em>, int<em>&nbsp;minute</em>, int<em>&nbsp;second</em>, int<em>&nbsp;usecond</em>, int<em>&nbsp;fold</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTime_FromTimeAndFold" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>指定された時、分、秒、マイクロ秒、fold の <a class="reference internal" href="../library/datetime.html#datetime.time" title="datetime.time"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.time</span></code></a> オブジェクトを返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDelta_FromDSU">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDelta_FromDSU</code><span class="sig-paren">(</span>int<em>&nbsp;days</em>, int<em>&nbsp;seconds</em>, int<em>&nbsp;useconds</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDelta_FromDSU" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>指定された日、秒、マイクロ秒の <a class="reference internal" href="../library/datetime.html#datetime.timedelta" title="datetime.timedelta"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.timedelta</span></code></a> オブジェクトを返します。マイクロ秒と秒が <a class="reference internal" href="../library/datetime.html#datetime.timedelta" title="datetime.timedelta"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.timedelta</span></code></a> オブジェクトで定義されている範囲に入るように正規化を行います。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTimeZone_FromOffset">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyTimeZone_FromOffset</code><span class="sig-paren">(</span>PyDateTime_DeltaType*<em>&nbsp;offset</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTimeZone_FromOffset" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><em>offset</em> 引数で指定した固定オフセットを持つ、名前のない <a class="reference internal" href="../library/datetime.html#datetime.timezone" title="datetime.timezone"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.timezone</span></code></a> オブジェクトを返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyTimeZone_FromOffsetAndName">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyTimeZone_FromOffsetAndName</code><span class="sig-paren">(</span>PyDateTime_DeltaType*<em>&nbsp;offset</em>, PyUnicode*<em>&nbsp;name</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyTimeZone_FromOffsetAndName" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><em>offset*引数で指定した固定のオフセットと、*name</em> のタイムゾーン名を持つ <a class="reference internal" href="../library/datetime.html#datetime.timezone" title="datetime.timezone"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.timezone</span></code></a> オブジェクトを返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p>以下のマクロは date オブジェクトからフィールド値を取り出すためのものです。引数は <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_Date</span></code> またはそのサブクラス (例えば <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateTime</span></code>)の  インスタンスでなければなりません。引数を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> にしてはならず、型チェックは行いません:</p>
+<dl class="function">
+<dt id="c.PyDateTime_GET_YEAR">
+int <code class="descname">PyDateTime_GET_YEAR</code><span class="sig-paren">(</span>PyDateTime_Date<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_GET_YEAR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>年を正の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_GET_MONTH">
+int <code class="descname">PyDateTime_GET_MONTH</code><span class="sig-paren">(</span>PyDateTime_Date<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_GET_MONTH" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>月を 1 から 12 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_GET_DAY">
+int <code class="descname">PyDateTime_GET_DAY</code><span class="sig-paren">(</span>PyDateTime_Date<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_GET_DAY" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>日を 1 から 31 の間の整数で返します。</p>
+</dd></dl>
+
+<p>以下のマクロは datetime オブジェクトからフィールド値を取り出すためのものです。引数は <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_DateTime</span></code> またはそのサブクラスのインスタンスでなければなりません。引数を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> にしてはならず、型チェックは行いません:</p>
+<dl class="function">
+<dt id="c.PyDateTime_DATE_GET_HOUR">
+int <code class="descname">PyDateTime_DATE_GET_HOUR</code><span class="sig-paren">(</span>PyDateTime_DateTime<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DATE_GET_HOUR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>時を 0 から 23 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_DATE_GET_MINUTE">
+int <code class="descname">PyDateTime_DATE_GET_MINUTE</code><span class="sig-paren">(</span>PyDateTime_DateTime<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DATE_GET_MINUTE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>分を 0 から 59 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_DATE_GET_SECOND">
+int <code class="descname">PyDateTime_DATE_GET_SECOND</code><span class="sig-paren">(</span>PyDateTime_DateTime<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DATE_GET_SECOND" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>秒を 0 から 59 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_DATE_GET_MICROSECOND">
+int <code class="descname">PyDateTime_DATE_GET_MICROSECOND</code><span class="sig-paren">(</span>PyDateTime_DateTime<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DATE_GET_MICROSECOND" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>マイクロ秒を 0 から 999999 の間の整数で返します。</p>
+</dd></dl>
+
+<p>以下のマクロは time オブジェクトからフィールド値を取り出すためのものです。引数は <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_Time</span></code> またはそのサブクラスのインスタンスでなければなりません。引数を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> にしてはならず、型チェックは行いません:</p>
+<dl class="function">
+<dt id="c.PyDateTime_TIME_GET_HOUR">
+int <code class="descname">PyDateTime_TIME_GET_HOUR</code><span class="sig-paren">(</span>PyDateTime_Time<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_TIME_GET_HOUR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>時を 0 から 23 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_TIME_GET_MINUTE">
+int <code class="descname">PyDateTime_TIME_GET_MINUTE</code><span class="sig-paren">(</span>PyDateTime_Time<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_TIME_GET_MINUTE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>分を 0 から 59 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_TIME_GET_SECOND">
+int <code class="descname">PyDateTime_TIME_GET_SECOND</code><span class="sig-paren">(</span>PyDateTime_Time<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_TIME_GET_SECOND" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>秒を 0 から 59 の間の整数で返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_TIME_GET_MICROSECOND">
+int <code class="descname">PyDateTime_TIME_GET_MICROSECOND</code><span class="sig-paren">(</span>PyDateTime_Time<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_TIME_GET_MICROSECOND" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>マイクロ秒を 0 から 999999 の間の整数で返します。</p>
+</dd></dl>
+
+<p>以下のマクロは time delta オブジェクトからフィールド値をとりだすためのものです。引数は <code class="xref c c-data docutils literal notranslate"><span class="pre">PyDateTime_Delta</span></code> かそのサブクラスのインスタンスでなければなりません。引数を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> にしてはならず、型チェックは行いません:</p>
+<dl class="function">
+<dt id="c.PyDateTime_DELTA_GET_DAYS">
+int <code class="descname">PyDateTime_DELTA_GET_DAYS</code><span class="sig-paren">(</span>PyDateTime_Delta<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DELTA_GET_DAYS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>日数を -999999999 から 999999999 の間の整数で返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_DELTA_GET_SECONDS">
+int <code class="descname">PyDateTime_DELTA_GET_SECONDS</code><span class="sig-paren">(</span>PyDateTime_Delta<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DELTA_GET_SECONDS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>秒数を 0 から 86399 の間の整数で返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDateTime_DELTA_GET_MICROSECONDS">
+int <code class="descname">PyDateTime_DELTA_GET_MICROSECONDS</code><span class="sig-paren">(</span>PyDateTime_Delta<em>&nbsp;*o</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_DELTA_GET_MICROSECONDS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>マイクロ秒を 0 から 999999 の間の整数で返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p>以下のマクロは DB API を実装する上での便宜用です:</p>
+<dl class="function">
+<dt id="c.PyDateTime_FromTimestamp">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDateTime_FromTimestamp</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*args</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDateTime_FromTimestamp" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dateitme.datetime.fromtimestamp()</span></code> に渡すのに適した引数タプルから新たな <a class="reference internal" href="../library/datetime.html#datetime.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a> オブジェクトを生成して返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyDate_FromTimestamp">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyDate_FromTimestamp</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*args</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyDate_FromTimestamp" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">dateitme.date.fromtimestamp()</span></code> に渡すのに適した引数タプルから新たな <a class="reference internal" href="../library/datetime.html#datetime.date" title="datetime.date"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> オブジェクトを生成して返します。</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="contextvars.html"
+                        title="前の章へ">コンテキスト変数オブジェクト</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="init.html"
+                        title="次の章へ">初期化 (initialization)、終了処理 (finalization)、スレッド</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/c-api/datetime.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="init.html" title="初期化 (initialization)、終了処理 (finalization)、スレッド"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="contextvars.html" title="コンテキスト変数オブジェクト"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="concrete.html" >具象オブジェクト (concrete object) レイヤ</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

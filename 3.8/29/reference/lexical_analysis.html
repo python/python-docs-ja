@@ -1,0 +1,757 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>2. 字句解析 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="3. データモデル" href="datamodel.html" />
+    <link rel="prev" title="1. はじめに" href="introduction.html" />
+    <link rel="canonical" href="https://docs.python.org/3/reference/lexical_analysis.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="datamodel.html" title="3. データモデル"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="1. はじめに"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python 言語リファレンス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="lexical-analysis">
+<span id="lexical"></span><h1>2. 字句解析<a class="headerlink" href="#lexical-analysis" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p id="index-0">Python で書かれたプログラムは <em>パーザ (parser)</em> に読み込まれます。パーザへの入力は、 <em>字句解析器 (lexical analyzer)</em> によって生成された一連の <em>トークン (token)</em> からなります。この章では、字句解析器がファイルをトークン列に分解する方法について解説します。</p>
+<p>Python はプログラムテキストを Unicode コードポイントとして読み込みます。ソースファイルのエンコーディングはエンコーディング宣言で与えられ、デフォルトは UTF-8  です。詳細は <span class="target" id="index-37"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3120"><strong>PEP 3120</strong></a> を参照してください。ソースファイルがデコードできなければ、 <a class="reference internal" href="../library/exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> が送出されます。</p>
+<div class="section" id="line-structure">
+<span id="id1"></span><h2>2.1. 行構造<a class="headerlink" href="#line-structure" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-2">Python プログラムは多数の <em>論理行 (logical lines)</em> に分割されます。</p>
+<div class="section" id="logical-lines">
+<span id="id2"></span><h3>2.1.1. 論理行 (logical line)<a class="headerlink" href="#logical-lines" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-3">論理行の終端は、トークン NEWLINE で表されます。構文上許されている場合 (複合文: compound statement 中の実行文: statement) を除いて、実行文は論理行間にまたがることはできません。論理行は一行またはそれ以上の <em>物理行(physical line)</em> からなり、物理行の末尾には明示的または非明示的な <em>行連結(line joining)</em> 規則が続きます。</p>
+</div>
+<div class="section" id="physical-lines">
+<span id="id3"></span><h3>2.1.2. 物理行 (physical line)<a class="headerlink" href="#physical-lines" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>物理行とは、行終端コードで区切られた文字列のことです。
+ソースファイルやソース文字列では、各プラットフォームごとの標準の行終端コードを使用することができます。
+Unix形式ではASCII LF (行送り: linefeed)文字、 Windows形式ではASCII 配列の CR LF (復帰: return に続いて行送り) 、 Macintosh形式ではASCII CR (復帰) 文字です。
+これら全ての形式のコードは、違うプラットフォームでも等しく使用することができます。
+入力の末尾も、最後の物理行の暗黙的な終端としての役割を果たします。</p>
+<p>Pythonに埋め込む場合には、標準のC言語の改行文字の変換規則 (ASCII LFを表現した文字コード <code class="docutils literal notranslate"><span class="pre">\n</span></code> が行終端となります) に従って、 Python APIにソースコードを渡す必要があります。</p>
+</div>
+<div class="section" id="comments">
+<span id="id4"></span><h3>2.1.3. コメント (Comments)<a class="headerlink" href="#comments" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-4">コメントは文字列リテラル内に入っていないハッシュ文字 (<code class="docutils literal notranslate"><span class="pre">#</span></code>) から始まり、同じ物理行の末端で終わります。
+非明示的な行継続規則が適用されていない限り、コメントは論理行を終端させます。
+コメントは構文上無視されます。</p>
+</div>
+<div class="section" id="encoding-declarations">
+<span id="encodings"></span><h3>2.1.4. エンコード宣言 (encoding declaration)<a class="headerlink" href="#encoding-declarations" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-5">Python スクリプト中の一行目か二行目にあるコメントが正規表現 <code class="docutils literal notranslate"><span class="pre">coding[=:]\s*([-\w.]+)</span></code> にマッチする場合、コメントはエンコード宣言として処理されます; この表現の最初のグループがソースコードファイルのエンコードを指定します。エンコード宣言は自身の行になければなりません。二行目にある場合、一行目もコメントのみの行でなければなりません。エンコード宣言式として推奨する形式は</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: &lt;encoding-name&gt; -*-</span>
+</pre></div>
+</div>
+<p>これは GNU Emacs で認識できます。または</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># vim:fileencoding=&lt;encoding-name&gt;</span>
+</pre></div>
+</div>
+<p>これは、Bram Moolenar による VIM が認識できる形式です。</p>
+<p>エンコーディング宣言が見つからなければ、デフォルトのエンコーディングは UTF-8 です。さらに、ファイルの先頭のバイト列が UTF-8 バイトオーダ記号 (<code class="docutils literal notranslate"><span class="pre">b'\xef\xbb\xbf'</span></code>) なら、ファイルのエンコーディングは UTF-8 と宣言されているものとします (この機能は Microsoft の <strong class="program">notepad</strong> やその他のエディタでサポートされています)。</p>
+<p>エンコーディングが宣言される場合、そのエンコーディング名は Python によって認識できなければなりません。宣言されたエンコーディングは、例えば文字列リテラル、コメント、識別子などの、全ての字句解析に使われます。</p>
+</div>
+<div class="section" id="explicit-line-joining">
+<span id="explicit-joining"></span><h3>2.1.5. 明示的な行継続<a class="headerlink" href="#explicit-line-joining" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-6">二つまたはそれ以上の物理行を論理行としてつなげるためには、バックスラッシュ文字 (<code class="docutils literal notranslate"><span class="pre">\</span></code>) を使って以下のようにします: 物理行が文字列リテラルやコメント中の文字でないバックスラッシュで終わっている場合、後続する行とつなげて一つの論理行を構成し、バックスラッシュおよびバックスラッシュの後ろにある行末文字を削除します。例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="mi">1900</span> <span class="o">&lt;</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="mi">2100</span> <span class="ow">and</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">month</span> <span class="o">&lt;=</span> <span class="mi">12</span> \
+   <span class="ow">and</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">day</span> <span class="o">&lt;=</span> <span class="mi">31</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">hour</span> <span class="o">&lt;</span> <span class="mi">24</span> \
+   <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">minute</span> <span class="o">&lt;</span> <span class="mi">60</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">second</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">:</span>   <span class="c1"># Looks like a valid date</span>
+        <span class="k">return</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>バックスラッシュで終わる行にはコメントを入れることはできません。また、バックスラッシュを使ってコメントを継続することはできません。バックスラッシュが文字列リテラル中にある場合を除き、バックスラッシュの後ろにトークンを継続することはできません (すなわち、物理行内の文字列リテラル以外のトークンをバックスラッシュを使って分断することはできません)。上記以外の場所では、文字列リテラル外にあるバックスラッシュはどこにあっても不正となります。</p>
+</div>
+<div class="section" id="implicit-line-joining">
+<span id="implicit-joining"></span><h3>2.1.6. 非明示的な行継続<a class="headerlink" href="#implicit-line-joining" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>丸括弧 (parentheses)、角括弧 (square bracket) 、および波括弧 (curly brace) 内の式は、バックスラッシュを使わずに一行以上の物理行に分割することができます。例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">month_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Januari&#39;</span><span class="p">,</span> <span class="s1">&#39;Februari&#39;</span><span class="p">,</span> <span class="s1">&#39;Maart&#39;</span><span class="p">,</span>      <span class="c1"># These are the</span>
+               <span class="s1">&#39;April&#39;</span><span class="p">,</span>   <span class="s1">&#39;Mei&#39;</span><span class="p">,</span>      <span class="s1">&#39;Juni&#39;</span><span class="p">,</span>       <span class="c1"># Dutch names</span>
+               <span class="s1">&#39;Juli&#39;</span><span class="p">,</span>    <span class="s1">&#39;Augustus&#39;</span><span class="p">,</span> <span class="s1">&#39;September&#39;</span><span class="p">,</span>  <span class="c1"># for the months</span>
+               <span class="s1">&#39;Oktober&#39;</span><span class="p">,</span> <span class="s1">&#39;November&#39;</span><span class="p">,</span> <span class="s1">&#39;December&#39;</span><span class="p">]</span>   <span class="c1"># of the year</span>
+</pre></div>
+</div>
+<p>非明示的に継続された行にはコメントを含めることができます。継続行のインデントは重要ではありません。空の継続行を書くことができます。非明示的な継続行中には、NEWLINE トークンは存在しません。非明示的な行の継続は、三重クオートされた文字列 (下記参照) でも発生します; この場合には、コメントを含めることができません。</p>
+</div>
+<div class="section" id="blank-lines">
+<span id="id5"></span><h3>2.1.7. 空行<a class="headerlink" href="#blank-lines" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-7">スペース、タブ、フォームフィード、およびコメントのみを含む論理行は無視されます (すなわち、NEWLINE トークンは生成されません)。文を対話的に入力している際には、空行の扱いは行読み込み-評価-出力 (read-eval-print) ループの実装によって異なることがあります。標準的な対話的インタプリタの実装では、完全な空行でできた論理行 (すなわち、空白文字もコメントも全く含まない空行) は、複数行からなる文の終端を示します。</p>
+</div>
+<div class="section" id="indentation">
+<span id="id6"></span><h3>2.1.8. インデント<a class="headerlink" href="#indentation" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-8">論理行の行頭にある、先頭の空白 (スペースおよびタブ) の連なりは、その行のインデントレベルを計算するために使われます。インデントレベルは、実行文のグループ化方法を決定するために用いられます。</p>
+<p>タブは (左から右の方向に) 1 つにつき 8 つのスペースで置き換えられ、置き換え後の文字数は 8 の倍数になります (Unix で使われている規則と同じになるよう意図されています)。そして、最初の非空白文字までのスペースの総数が、その行のインデントを決定します。インデントは、バックスラッシュで複数の物理行に分割できません; 最初のバックスラッシュまでの空白がインデントを決定します。</p>
+<p>ソースファイルがタブとスペースを混在させ、その意味づけがタブのスペース換算数に依存するようなら、インデントは不合理なものとして却下されます。その場合は <a class="reference internal" href="../library/exceptions.html#TabError" title="TabError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TabError</span></code></a> が送出されます。</p>
+<p><strong>プラットフォーム間の互換性に関する注意:</strong> 非 UNIX プラットフォームにおけるテキストエディタの性質上、一つのソースファイル内でタブとインデントを混在させて使うのは賢明ではありません。また、プラットフォームによっては、最大インデントレベルを明示的に制限しているかもしれません。</p>
+<p>フォームフィード文字が行の先頭にあっても構いません; フォームフィード文字は上のインデントレベル計算時には無視されます。フォームフィード文字が先頭の空白中の他の場所にある場合、その影響は未定義です (例えば、スペースの数を 0 にリセットするかもしれません)。</p>
+<p id="index-9">連続する行における各々のインデントレベルは、 INDENT および DEDENT トークンを生成するために使われます。トークンの生成はスタックを用いて以下のように行われます。</p>
+<p>ファイル中の最初の行を読み出す前に、スタックにゼロが一つ積まれ (push され) ます; このゼロは決して除去 (pop) されることはありません。スタックの先頭に積まれてゆく数字は、常にスタックの末尾から先頭にかけて厳密に増加するようになっています。各論理行の開始位置において、その行のインデントレベル値がスタックの先頭の値と比較されます。値が等しければ何もしません。インデントレベル値がスタック上の値よりも大きければ、インデントレベル値はスタックに積まれ、INDENT トークンが一つ生成されます。インデントレベル値がスタック上の値よりも小さい場合、その値はスタック内のいずれかの値と <em>等しくなければなりません</em> ; スタック上のインデントレベル値よりも大きい値はすべて除去され、値が一つ除去されるごとに DEDENT トークンが一つ生成されます。ファイルの末尾では、スタックに残っているゼロより大きい値は全て除去され、値が一つ除去されるごとに DEDENT トークンが一つ生成されます。</p>
+<p>以下の例に正しく (しかし当惑させるように) インデントされた Python コードの一部を示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">perm</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+        <span class="c1"># Compute the list of all permutations of l</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                  <span class="k">return</span> <span class="p">[</span><span class="n">l</span><span class="p">]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)):</span>
+             <span class="n">s</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+             <span class="n">p</span> <span class="o">=</span> <span class="n">perm</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+              <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span>
+</pre></div>
+</div>
+<p>以下の例は、様々なインデントエラーになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span> <span class="k">def</span> <span class="nf">perm</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>                       <span class="c1"># error: first line indented</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)):</span>             <span class="c1"># error: not indented</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">perm</span><span class="p">(</span><span class="n">l</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:])</span>   <span class="c1"># error: unexpected indent</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">r</span>                <span class="c1"># error: inconsistent dedent</span>
+</pre></div>
+</div>
+<p>(実際は、最初の 3 つのエラーはパーザによって検出されます; 最後のエラーのみが字句解析器で見つかります --- <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">r</span></code> のインデントは、スタックから逐次除去されていくどのインデントレベル値とも一致しません)</p>
+</div>
+<div class="section" id="whitespace-between-tokens">
+<span id="whitespace"></span><h3>2.1.9. トークン間の空白<a class="headerlink" href="#whitespace-between-tokens" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>論理行の先頭や文字列の内部にある場合を除き、空白文字であるスペース、タブ、およびフォームフィードは、トークンを分割するために自由に利用することができます。二つのトークンを並べて書くと別のトークンとしてみなされてしまうような場合には、トークンの間に空白が必要となります (例えば、ab は一つのトークンですが、 a b は二つのトークンとなります)。</p>
+</div>
+</div>
+<div class="section" id="other-tokens">
+<span id="id7"></span><h2>2.2. その他のトークン<a class="headerlink" href="#other-tokens" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>NEWLINE、INDENT、および DEDENT の他、以下のトークンのカテゴリ: <em>識別子 (identifier)</em>, <em>キーワード(keyword)</em>, <em>リテラル</em>, <em>演算子 (operator)</em>, <em>デリミタ (delimiter)</em> が存在します。空白文字 (上で述べた行終端文字以外) はトークンではありませんが、トークンを区切る働きがあります。トークンの解析にあいまいさが生じた場合、トークンは左から右に読んで不正でないトークンを構築できる最長の文字列を含むように構築されます。</p>
+</div>
+<div class="section" id="identifiers">
+<span id="identifiers-and-keywords"></span><h2>2.3. 識別子 (identifier) およびキーワード (keyword)<a class="headerlink" href="#identifiers" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-10">識別子 (または <em>名前 (name)</em>) は、以下の字句定義で記述されます。</p>
+<p>Python における識別子の構文は、Unicode 標準仕様添付書類 UAX-31 に基づき、詳細と変更点は以下で定義します。詳しくは <span class="target" id="index-38"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3131"><strong>PEP 3131</strong></a> を参照してください。</p>
+<p>ASCII 範囲 (U+0001..U+007F) 内では、識別子として有効な文字は Python 2.x におけるものと同じです。大文字と小文字の <code class="docutils literal notranslate"><span class="pre">A</span></code> から <code class="docutils literal notranslate"><span class="pre">Z</span></code>、アンダースコア <code class="docutils literal notranslate"><span class="pre">_</span></code>、先頭の文字を除く数字 <code class="docutils literal notranslate"><span class="pre">0</span></code> から <code class="docutils literal notranslate"><span class="pre">9</span></code> です。</p>
+<p>Python 3.0 は、さらに ASCII 範囲外から文字を導入します (<span class="target" id="index-39"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3131"><strong>PEP 3131</strong></a> を参照してください。)。これらの文字については、分類は <a class="reference internal" href="../library/unicodedata.html#module-unicodedata" title="unicodedata: Access the Unicode Database."><code class="xref py py-mod docutils literal notranslate"><span class="pre">unicodedata</span></code></a> モジュールに含まれる Unicode Character Database の版を使います。</p>
+<p>識別子の長さには制限がありません。大小文字は区別されます。</p>
+<pre>
+<strong id="grammar-token-identifier">identifier  </strong> ::=  <a class="reference internal" href="#grammar-token-xid-start"><code class="xref docutils literal notranslate"><span class="pre">xid_start</span></code></a> <a class="reference internal" href="#grammar-token-xid-continue"><code class="xref docutils literal notranslate"><span class="pre">xid_continue</span></code></a>*
+<strong id="grammar-token-id-start">id_start    </strong> ::=  &lt;all characters in general categories Lu, Ll, Lt, Lm, Lo, Nl, the underscore, and characters with the Other_ID_Start property&gt;
+<strong id="grammar-token-id-continue">id_continue </strong> ::=  &lt;all characters in <a class="reference internal" href="#grammar-token-id-start"><code class="xref docutils literal notranslate"><span class="pre">id_start</span></code></a>, plus characters in the categories Mn, Mc, Nd, Pc and others with the Other_ID_Continue property&gt;
+<strong id="grammar-token-xid-start">xid_start   </strong> ::=  &lt;all characters in <a class="reference internal" href="#grammar-token-id-start"><code class="xref docutils literal notranslate"><span class="pre">id_start</span></code></a> whose NFKC normalization is in &quot;id_start xid_continue*&quot;&gt;
+<strong id="grammar-token-xid-continue">xid_continue</strong> ::=  &lt;all characters in <a class="reference internal" href="#grammar-token-id-continue"><code class="xref docutils literal notranslate"><span class="pre">id_continue</span></code></a> whose NFKC normalization is in &quot;id_continue*&quot;&gt;
+</pre>
+<p>上で言及した Unicode カテゴリコードは以下を表します:</p>
+<ul class="simple">
+<li><em>Lu</em> - 大文字 (uppercase letters)</li>
+<li><em>Ll</em> - 小文字 (lowercase letters)</li>
+<li><em>Lt</em> - 先頭が大文字 (titlecase letters)</li>
+<li><em>Lm</em> - 修飾文字 (modifier letters)</li>
+<li><em>Lo</em> - その他の文字 (other letters)</li>
+<li><em>Nl</em> - 数値を表す文字 (letter numbers)</li>
+<li><em>Mn</em> - 字幅のない記号 (nonspacing marks)</li>
+<li><em>Mc</em> - 字幅のある結合記号 (spacing combining marks)</li>
+<li><em>Nd</em> - 10 進数字 (decimal numbers)</li>
+<li><em>Pc</em> - 連結用句読記号 (connector punctuations)</li>
+<li><em>Other_ID_Start</em> - explicit list of characters in <a class="reference external" href="http://www.unicode.org/Public/12.1.0/ucd/PropList.txt">PropList.txt</a> to support backwards
+compatibility</li>
+<li><em>Other_ID_Continue</em> - 同様</li>
+</ul>
+<p>すべての識別子は、解析中は正規化形式 NFKC に変換されます。識別子間の比較は NFKC に基づきます。</p>
+<p>識別子として有効なすべての Unicode 4.1 の文字を列挙した参考 HTML ファイルが <a class="reference external" href="https://www.dcl.hpi.uni-potsdam.de/home/loewis/table-3131.html">https://www.dcl.hpi.uni-potsdam.de/home/loewis/table-3131.html</a> にあります。</p>
+<div class="section" id="keywords">
+<span id="id8"></span><h3>2.3.1. キーワード (keyword)<a class="headerlink" href="#keywords" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-13">以下の識別子は、予約語、または Python 言語における <em>キーワード (keyword)</em> として使われ、通常の識別子として使うことはできません。キーワードは厳密に下記の通りに綴らなければなりません:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>False      await      else       import     pass
+None       break      except     in         raise
+True       class      finally    is         return
+and        continue   for        lambda     try
+as         def        from       nonlocal   while
+assert     del        global     not        with
+async      elif       if         or         yield
+</pre></div>
+</div>
+</div>
+<div class="section" id="reserved-classes-of-identifiers">
+<span id="id-classes"></span><span id="index-14"></span><h3>2.3.2. 予約済みの識別子種 (reserved classes of identifiers)<a class="headerlink" href="#reserved-classes-of-identifiers" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>ある種の (キーワードを除く) 識別子には、特殊な意味があります。これらの識別子種は、先頭や末尾にあるアンダースコア文字のパターンで区別されます:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">_*</span></code></dt>
+<dd><p class="first"><code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">module</span> <span class="pre">import</span> <span class="pre">*</span></code> で import されません。対話インタプリタでは、直前に行われた評価の結果を記憶するために特殊な識別子 <code class="docutils literal notranslate"><span class="pre">_</span></code> が使われます; この識別子は <a class="reference internal" href="../library/builtins.html#module-builtins" title="builtins: The module that provides the built-in namespace."><code class="xref py py-mod docutils literal notranslate"><span class="pre">builtins</span></code></a> モジュール内に記憶されます。対話モードでないとき、 <code class="docutils literal notranslate"><span class="pre">_</span></code> に特別な意味はなく、定義されていません。 <a class="reference internal" href="simple_stmts.html#import"><span class="std std-ref">import 文</span></a> を参照してください。</p>
+<div class="last admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">名前 <code class="docutils literal notranslate"><span class="pre">_</span></code> は、しばしば国際化 (internationalization) と共に用いられます; この慣習についての詳しい情報は、 <a class="reference internal" href="../library/gettext.html#module-gettext" title="gettext: Multilingual internationalization services."><code class="xref py py-mod docutils literal notranslate"><span class="pre">gettext</span></code></a> を参照してください。</p>
+</div>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">__*__</span></code></dt>
+<dd>システムで定義された (system-defined) 名前です。非公式には&quot;dunder&quot;な名前と呼ばれます(訳注: double underscoresの略)。これらの名前はインタープリタと (標準ライブラリを含む) 実装上で定義されています。 現行のシステムでの名前は <a class="reference internal" href="datamodel.html#specialnames"><span class="std std-ref">特殊メソッド名</span></a> などで話題に挙げられています。 Python の将来のバージョンではより多くの名前が定義されることになります。このドキュメントで明記されている用法に従わない、 <em>あらゆる</em> <code class="docutils literal notranslate"><span class="pre">__*__</span></code> の名前は、いかなるコンテキストにおける利用でも、警告無く損害を引き起こすことがあります。</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">__*</span></code></dt>
+<dd>クラスプライベート (class-private) な名前です。このカテゴリに属する名前は、クラス定義のコンテキスト上で用いられた場合、基底クラスと派生クラスの &quot;プライベートな&quot; 属性間で名前衝突が起こるのを防ぐために書き直されます。 <a class="reference internal" href="expressions.html#atom-identifiers"><span class="std std-ref">識別子 (identifier、または名前 (name))</span></a> を参照してください。</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="literals">
+<span id="id9"></span><h2>2.4. リテラル<a class="headerlink" href="#literals" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-15">リテラル (literal) とは、いくつかの組み込み型の定数を表記したものです。</p>
+<div class="section" id="string-and-bytes-literals">
+<span id="strings"></span><span id="index-16"></span><h3>2.4.1. 文字列およびバイト列リテラル<a class="headerlink" href="#string-and-bytes-literals" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>文字列リテラルは以下の字句定義で記述されます:</p>
+<pre>
+<strong id="grammar-token-stringliteral">stringliteral  </strong> ::=  [<a class="reference internal" href="#grammar-token-stringprefix"><code class="xref docutils literal notranslate"><span class="pre">stringprefix</span></code></a>](<a class="reference internal" href="#grammar-token-shortstring"><code class="xref docutils literal notranslate"><span class="pre">shortstring</span></code></a> | <a class="reference internal" href="#grammar-token-longstring"><code class="xref docutils literal notranslate"><span class="pre">longstring</span></code></a>)
+<strong id="grammar-token-stringprefix">stringprefix   </strong> ::=  &quot;r&quot; | &quot;u&quot; | &quot;R&quot; | &quot;U&quot; | &quot;f&quot; | &quot;F&quot;
+                     | &quot;fr&quot; | &quot;Fr&quot; | &quot;fR&quot; | &quot;FR&quot; | &quot;rf&quot; | &quot;rF&quot; | &quot;Rf&quot; | &quot;RF&quot;
+<strong id="grammar-token-shortstring">shortstring    </strong> ::=  &quot;'&quot; <a class="reference internal" href="#grammar-token-shortstringitem"><code class="xref docutils literal notranslate"><span class="pre">shortstringitem</span></code></a>* &quot;'&quot; | '&quot;' <a class="reference internal" href="#grammar-token-shortstringitem"><code class="xref docutils literal notranslate"><span class="pre">shortstringitem</span></code></a>* '&quot;'
+<strong id="grammar-token-longstring">longstring     </strong> ::=  &quot;'''&quot; <a class="reference internal" href="#grammar-token-longstringitem"><code class="xref docutils literal notranslate"><span class="pre">longstringitem</span></code></a>* &quot;'''&quot; | '&quot;&quot;&quot;' <a class="reference internal" href="#grammar-token-longstringitem"><code class="xref docutils literal notranslate"><span class="pre">longstringitem</span></code></a>* '&quot;&quot;&quot;'
+<strong id="grammar-token-shortstringitem">shortstringitem</strong> ::=  <a class="reference internal" href="#grammar-token-shortstringchar"><code class="xref docutils literal notranslate"><span class="pre">shortstringchar</span></code></a> | <a class="reference internal" href="#grammar-token-stringescapeseq"><code class="xref docutils literal notranslate"><span class="pre">stringescapeseq</span></code></a>
+<strong id="grammar-token-longstringitem">longstringitem </strong> ::=  <a class="reference internal" href="#grammar-token-longstringchar"><code class="xref docutils literal notranslate"><span class="pre">longstringchar</span></code></a> | <a class="reference internal" href="#grammar-token-stringescapeseq"><code class="xref docutils literal notranslate"><span class="pre">stringescapeseq</span></code></a>
+<strong id="grammar-token-shortstringchar">shortstringchar</strong> ::=  &lt;any source character except &quot;\&quot; or newline or the quote&gt;
+<strong id="grammar-token-longstringchar">longstringchar </strong> ::=  &lt;any source character except &quot;\&quot;&gt;
+<strong id="grammar-token-stringescapeseq">stringescapeseq</strong> ::=  &quot;\&quot; &lt;any source character&gt;
+</pre>
+<pre>
+<strong id="grammar-token-bytesliteral">bytesliteral  </strong> ::=  <a class="reference internal" href="#grammar-token-bytesprefix"><code class="xref docutils literal notranslate"><span class="pre">bytesprefix</span></code></a>(<a class="reference internal" href="#grammar-token-shortbytes"><code class="xref docutils literal notranslate"><span class="pre">shortbytes</span></code></a> | <a class="reference internal" href="#grammar-token-longbytes"><code class="xref docutils literal notranslate"><span class="pre">longbytes</span></code></a>)
+<strong id="grammar-token-bytesprefix">bytesprefix   </strong> ::=  &quot;b&quot; | &quot;B&quot; | &quot;br&quot; | &quot;Br&quot; | &quot;bR&quot; | &quot;BR&quot; | &quot;rb&quot; | &quot;rB&quot; | &quot;Rb&quot; | &quot;RB&quot;
+<strong id="grammar-token-shortbytes">shortbytes    </strong> ::=  &quot;'&quot; <a class="reference internal" href="#grammar-token-shortbytesitem"><code class="xref docutils literal notranslate"><span class="pre">shortbytesitem</span></code></a>* &quot;'&quot; | '&quot;' <a class="reference internal" href="#grammar-token-shortbytesitem"><code class="xref docutils literal notranslate"><span class="pre">shortbytesitem</span></code></a>* '&quot;'
+<strong id="grammar-token-longbytes">longbytes     </strong> ::=  &quot;'''&quot; <a class="reference internal" href="#grammar-token-longbytesitem"><code class="xref docutils literal notranslate"><span class="pre">longbytesitem</span></code></a>* &quot;'''&quot; | '&quot;&quot;&quot;' <a class="reference internal" href="#grammar-token-longbytesitem"><code class="xref docutils literal notranslate"><span class="pre">longbytesitem</span></code></a>* '&quot;&quot;&quot;'
+<strong id="grammar-token-shortbytesitem">shortbytesitem</strong> ::=  <a class="reference internal" href="#grammar-token-shortbyteschar"><code class="xref docutils literal notranslate"><span class="pre">shortbyteschar</span></code></a> | <a class="reference internal" href="#grammar-token-bytesescapeseq"><code class="xref docutils literal notranslate"><span class="pre">bytesescapeseq</span></code></a>
+<strong id="grammar-token-longbytesitem">longbytesitem </strong> ::=  <a class="reference internal" href="#grammar-token-longbyteschar"><code class="xref docutils literal notranslate"><span class="pre">longbyteschar</span></code></a> | <a class="reference internal" href="#grammar-token-bytesescapeseq"><code class="xref docutils literal notranslate"><span class="pre">bytesescapeseq</span></code></a>
+<strong id="grammar-token-shortbyteschar">shortbyteschar</strong> ::=  &lt;any ASCII character except &quot;\&quot; or newline or the quote&gt;
+<strong id="grammar-token-longbyteschar">longbyteschar </strong> ::=  &lt;any ASCII character except &quot;\&quot;&gt;
+<strong id="grammar-token-bytesescapeseq">bytesescapeseq</strong> ::=  &quot;\&quot; &lt;any ASCII character&gt;
+</pre>
+<p>上記の生成規則で示されていない文法的な制限が一つあります。リテラルの <a class="reference internal" href="#grammar-token-stringprefix"><code class="xref std std-token docutils literal notranslate"><span class="pre">stringprefix</span></code></a> や <a class="reference internal" href="#grammar-token-bytesprefix"><code class="xref std std-token docutils literal notranslate"><span class="pre">bytesprefix</span></code></a> と残りの部分の間に空白を入れてはならないことです。ソースコード文字セット (source character set) はエンコーディング宣言で定義されます。エンコーディング宣言がなければ UTF-8 です。節 <a class="reference internal" href="#encodings"><span class="std std-ref">エンコード宣言 (encoding declaration)</span></a> を参照してください。</p>
+<p id="index-17">より平易な説明: これらの型のリテラルは、対応する一重引用符 (<code class="docutils literal notranslate"><span class="pre">'</span></code>) または二重引用符 (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code>) で囲われます。また、対応する三連の一重引用符や二重引用符で囲うこともできます  (通常、<em>三重クオート文字列: triple-quoted string</em> と呼ばれます)。バックスラッシュ (<code class="docutils literal notranslate"><span class="pre">\</span></code>) 文字で、本来特別な意味を持つ文字、例えば改行文字、バックスラッシュ自身、クオート文字などを、エスケープできます。</p>
+<p id="index-18">バイト列リテラルには、常に <code class="docutils literal notranslate"><span class="pre">'b'</span></code> や <code class="docutils literal notranslate"><span class="pre">'B'</span></code> が接頭します。これらによって、 <a class="reference internal" href="../library/stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> 型ではなく <a class="reference internal" href="../library/stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> 型のインスタンスが作成されます。バイト列リテラルは ASCII 文字のみ含むことができます。 128 以上の数値を持つバイトはエスケープして表されなければなりません。</p>
+<p id="index-19">文字列リテラルとバイト列リテラルの両方は、任意で文字 <code class="docutils literal notranslate"><span class="pre">'r'</span></code> または <code class="docutils literal notranslate"><span class="pre">'R'</span></code> をプレフィックスに持つことができます; そのような文字列は <em class="dfn">raw strings</em> と呼ばれ、バックスラッシュをリテラル文字として扱います。その結果、文字列リテラルでは raw 文字列中の <code class="docutils literal notranslate"><span class="pre">'\U'</span></code> と <code class="docutils literal notranslate"><span class="pre">'\u'</span></code> のエスケープは特別扱いされません。 Python 2.x の raw unicode リテラルが Python 3.x とは異なる振る舞いをするため、 <code class="docutils literal notranslate"><span class="pre">'ur'</span></code> 構文はサポートされません。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加: </span>raw バイト列リテラルの <code class="docutils literal notranslate"><span class="pre">'rb'</span></code> プレフィックスが <code class="docutils literal notranslate"><span class="pre">'br'</span></code> の同義語として追加されました。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加: </span>Python 2.x と 3.x 両対応のコードベースのメンテナンスを単純化するために、レガシー unicode リテラル (<code class="docutils literal notranslate"><span class="pre">u'value'</span></code>) のサポートが再び導入されました。詳細は <span class="target" id="index-40"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0414"><strong>PEP 414</strong></a> を参照してください。</p>
+</div>
+<p id="index-21"><code class="docutils literal notranslate"><span class="pre">'f'</span></code> または <code class="docutils literal notranslate"><span class="pre">'F'</span></code> の接頭辞が付いた文字列リテラルはフォーマット済み文字列リテラル（ <em class="dfn">formatted string literal</em> ）です。詳細については <a class="reference internal" href="#f-strings"><span class="std std-ref">フォーマット済み文字列リテラル</span></a> を参照してください。接頭辞の <code class="docutils literal notranslate"><span class="pre">'f'</span></code> は <code class="docutils literal notranslate"><span class="pre">'r'</span></code> と組み合わせられますが、 <code class="docutils literal notranslate"><span class="pre">'b'</span></code> や <code class="docutils literal notranslate"><span class="pre">'u'</span></code> と組み合わせることはできません。つまりフォーマット済みの raw 文字列リテラルは可ですが、フォーマット済みのバイト列リテラルは不可です。</p>
+<p>三重クオートリテラル中には、三連のエスケープされないクオート文字でリテラルを終端してしまわないかぎり、エスケープされていない改行やクオートを書くことができます (さらに、それらはそのまま文字列中に残ります)。(ここでいう &quot;クオート&quot; とは、文字列の囲みを開始するときに使った文字を示し、<code class="docutils literal notranslate"><span class="pre">'</span></code> か <code class="docutils literal notranslate"><span class="pre">&quot;</span></code> のいずれかです。)</p>
+<p id="index-22"><code class="docutils literal notranslate"><span class="pre">'r'</span></code> または <code class="docutils literal notranslate"><span class="pre">'R'</span></code> 接頭文字がつかないかぎり、文字列またはバイト列リテラル中のエスケープシーケンスは標準 C で使われているのと同様の法則にしたがって解釈されます。以下に Python で認識されるエスケープシーケンスを示します:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="58%" />
+<col width="12%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">エスケープシーケンス</th>
+<th class="head">意味</th>
+<th class="head">注釈</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\newline</span></code></td>
+<td>バックスラッシュと改行文字が無視されます</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\\</span></code></td>
+<td>バックスラッシュ (<code class="docutils literal notranslate"><span class="pre">\</span></code>)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\'</span></code></td>
+<td>一重引用符 (<code class="docutils literal notranslate"><span class="pre">'</span></code>)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\&quot;</span></code></td>
+<td>二重引用符 (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code>)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\a</span></code></td>
+<td>ASCII 端末ベル (BEL)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\b</span></code></td>
+<td>ASCII バックスペース (BS)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\f</span></code></td>
+<td>ASCII フォームフィード (FF)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\n</span></code></td>
+<td>ASCII 行送り (LF)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\r</span></code></td>
+<td>ASCII 復帰 (CR)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\t</span></code></td>
+<td>ASCII 水平タブ (TAB)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\v</span></code></td>
+<td>ASCII 垂直タブ (VT)</td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\ooo</span></code></td>
+<td>8 進数値 <em>ooo</em> を持つ文字</td>
+<td>(1,3)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\xhh</span></code></td>
+<td>16 進数値 <em>hh</em> を持つ文字</td>
+<td>(2,3)</td>
+</tr>
+</tbody>
+</table>
+<p>文字列でのみ認識されるエスケープシーケンスは以下のとおりです:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="58%" />
+<col width="12%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">エスケープシーケンス</th>
+<th class="head">意味</th>
+<th class="head">注釈</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\N{name}</span></code></td>
+<td>Unicode データベース中で <em>name</em> という名前の文字</td>
+<td>(4)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">\uxxxx</span></code></td>
+<td>16-bit の十六進値 <em>xxxx</em> を持つ文字</td>
+<td>(5)</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">\Uxxxxxxxx</span></code></td>
+<td>32-bit の十六進値 <em>xxxxxxxx</em> を持つ文字</td>
+<td>(6)</td>
+</tr>
+</tbody>
+</table>
+<p>注釈:</p>
+<ol class="arabic">
+<li><p class="first">標準 C と同じく、最大で 3 桁の 8 進数まで受理します。</p>
+</li>
+<li><p class="first">標準 C とは違い、ちょうど 2 桁の 16 進数しか受理されません。</p>
+</li>
+<li><p class="first">バイト列リテラル中では、十六進および八進エスケープは与えられた値のバイトを表します。文字列リテラル中では、エスケープ文字は与えられた値を持つ Unicode 文字を表します。</p>
+</li>
+<li><div class="first versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>name aliases <a class="footnote-reference" href="#id13" id="id10">[1]</a> に対するサポートが追加されました。</p>
+</div>
+</li>
+<li><p class="first">ちょうど 4 桁の 16 進数しか受理されません。</p>
+</li>
+<li><p class="first">あらゆるユニコード文字はこのようにしてエンコードすることができます。正確に8文字の16進数字が必要です。</p>
+</li>
+</ol>
+<p id="index-23">標準の C とは違い、認識されなかったエスケープシーケンスはすべて、そのまま文字列中に残ります。すなわち、<em>バックスラッシュも結果中に残ります</em>。(この挙動はデバッグの際に便利です: エスケープシーケンスが誤入力されたら、その出力結果が失敗しているのが分かりやすくなります。) 文字列中でのみ認識されるエスケープシーケンスは、バイト列リテラルには、認識されないエスケープシーケンスとして分類されるので注意してください。</p>
+<blockquote>
+<div><div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>Unrecognized escape sequences produce a <a class="reference internal" href="../library/exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a>.  In
+a future Python version they will be a <a class="reference internal" href="../library/exceptions.html#SyntaxWarning" title="SyntaxWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxWarning</span></code></a> and
+eventually a <a class="reference internal" href="../library/exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a>.</p>
+</div>
+</div></blockquote>
+<p>raw リテラルでも、引用符はバックスラッシュでエスケープできますが、バックスラッシュ自体も文字列に残ります; 例えば、<code class="docutils literal notranslate"><span class="pre">r&quot;\&quot;&quot;</span></code> は有効な文字列リテラルで、バックスラッシュと二重引用符からなる文字列を表します; <code class="docutils literal notranslate"><span class="pre">r&quot;\&quot;</span></code> は無効な文字列リテラルです (raw リテラルを奇数個連なったバックスラッシュで終わらせることはできません)。具体的には、(バックスラッシュが直後のクオート文字をエスケープしてしまうので)  <em>raw文字列を単一のバックスラッシュで終わらせることはできません</em> さらに、バックスラッシュの直後に改行がきても、行継続を意味する <em>のではなく</em>、リテラルの一部であるそれら二つの文字として解釈されます。</p>
+</div>
+<div class="section" id="string-literal-concatenation">
+<span id="string-concatenation"></span><h3>2.4.2. 文字列リテラルの結合 (concatenation)<a class="headerlink" href="#string-literal-concatenation" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>文字列やバイト列リテラルは、互いに異なる引用符を使っていても (空白文字で区切っても) 複数隣接させることができます。これは各々の文字列を結合するのと同じ意味を持ちます。したがって、<code class="docutils literal notranslate"><span class="pre">&quot;hello&quot;</span> <span class="pre">'world'</span></code> は <code class="docutils literal notranslate"><span class="pre">&quot;helloworld&quot;</span></code> と同じです。この機能を使うと、バックスラッシュを減らしたり、長い文字列を手軽に分離して複数行にまたがらせたり、あるいは部分文字列ごとにコメントを追加することさえできます。例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;[A-Za-z_]&quot;</span>       <span class="c1"># letter or underscore</span>
+           <span class="s2">&quot;[A-Za-z0-9_]*&quot;</span>   <span class="c1"># letter, digit or underscore</span>
+          <span class="p">)</span>
+</pre></div>
+</div>
+<p>この機能は文法レベルで定義されていますが、スクリプトをコンパイルする際の処理として実現されることに注意してください。実行時に文字列表現を結合したければ、 '+' 演算子を使わなければなりません。また、リテラルの結合においては、結合する各要素に異なる引用符形式を使ったり (raw 文字列と三重引用符を混ぜることさえできます) 、フォーマット済み文字列リテラルと通常の文字列リテラルを結合したりすることもできますので注意してください。</p>
+</div>
+<div class="section" id="formatted-string-literals">
+<span id="f-strings"></span><span id="index-24"></span><h3>2.4.3. フォーマット済み文字列リテラル<a class="headerlink" href="#formatted-string-literals" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+<p>フォーマット済み文字列リテラル（ <em class="dfn">formatted string literal</em> ）または <em class="dfn">f-string</em> は、接頭辞 <code class="docutils literal notranslate"><span class="pre">'f'</span></code> または <code class="docutils literal notranslate"><span class="pre">'F'</span></code> の付いた文字列リテラルです。これらの文字列には、波括弧 <code class="docutils literal notranslate"><span class="pre">{}</span></code> で区切られた式である置換フィールドを含めることができます。他の文字列リテラルの場合は内容が常に一定で変わることが無いのに対して、フォーマット済み文字列リテラルは実行時に式として評価されます。</p>
+<p>エスケープシーケンスは通常の文字列リテラルと同様にデコードされます (ただしリテラルが raw 文字列でもある場合は除きます) 。エスケープシーケンスをデコードした後は、文字列の内容は次の文法で解釈されます:</p>
+<pre>
+<strong id="grammar-token-f-string">f_string         </strong> ::=  (<a class="reference internal" href="#grammar-token-literal-char"><code class="xref docutils literal notranslate"><span class="pre">literal_char</span></code></a> | &quot;{{&quot; | &quot;}}&quot; | <a class="reference internal" href="#grammar-token-replacement-field"><code class="xref docutils literal notranslate"><span class="pre">replacement_field</span></code></a>)*
+<strong id="grammar-token-replacement-field">replacement_field</strong> ::=  &quot;{&quot; <a class="reference internal" href="#grammar-token-f-expression"><code class="xref docutils literal notranslate"><span class="pre">f_expression</span></code></a> [&quot;!&quot; <a class="reference internal" href="#grammar-token-conversion"><code class="xref docutils literal notranslate"><span class="pre">conversion</span></code></a>] [&quot;:&quot; <a class="reference internal" href="#grammar-token-format-spec"><code class="xref docutils literal notranslate"><span class="pre">format_spec</span></code></a>] &quot;}&quot;
+<strong id="grammar-token-f-expression">f_expression     </strong> ::=  (<a class="reference internal" href="expressions.html#grammar-token-conditional-expression"><code class="xref docutils literal notranslate"><span class="pre">conditional_expression</span></code></a> | &quot;*&quot; <a class="reference internal" href="expressions.html#grammar-token-or-expr"><code class="xref docutils literal notranslate"><span class="pre">or_expr</span></code></a>)
+                         (&quot;,&quot; <a class="reference internal" href="expressions.html#grammar-token-conditional-expression"><code class="xref docutils literal notranslate"><span class="pre">conditional_expression</span></code></a> | &quot;,&quot; &quot;*&quot; <a class="reference internal" href="expressions.html#grammar-token-or-expr"><code class="xref docutils literal notranslate"><span class="pre">or_expr</span></code></a>)* [&quot;,&quot;]
+                       | <a class="reference internal" href="expressions.html#grammar-token-yield-expression"><code class="xref docutils literal notranslate"><span class="pre">yield_expression</span></code></a>
+<strong id="grammar-token-conversion">conversion       </strong> ::=  &quot;s&quot; | &quot;r&quot; | &quot;a&quot;
+<strong id="grammar-token-format-spec">format_spec      </strong> ::=  (<a class="reference internal" href="#grammar-token-literal-char"><code class="xref docutils literal notranslate"><span class="pre">literal_char</span></code></a> | NULL | <a class="reference internal" href="#grammar-token-replacement-field"><code class="xref docutils literal notranslate"><span class="pre">replacement_field</span></code></a>)*
+<strong id="grammar-token-literal-char">literal_char     </strong> ::=  &lt;any code point except &quot;{&quot;, &quot;}&quot; or NULL&gt;
+</pre>
+<p>文字列のうち波括弧の外にある部分については書いてある通りに扱われます。ただし二重の波括弧 <code class="docutils literal notranslate"><span class="pre">'{{'</span></code> または <code class="docutils literal notranslate"><span class="pre">'}}'</span></code> は、それぞれに対応する一重の波括弧に置換されます。一重の開き波括弧 <code class="docutils literal notranslate"><span class="pre">'{'</span></code> は、置換フィールドを開始します。置換フィールドは Python の式で始まり、式の後には感嘆符 <code class="docutils literal notranslate"><span class="pre">'!'</span></code> に続けて変換フィールドを追記でき、さらにコロン <code class="docutils literal notranslate"><span class="pre">':'</span></code> に続けて書式指定子を追記できます。そして置換フィールドは、閉じ波括弧 <code class="docutils literal notranslate"><span class="pre">'}'</span></code> で終了します。</p>
+<p>Expressions in formatted string literals are treated like regular
+Python expressions surrounded by parentheses, with a few exceptions.
+An empty expression is not allowed, and both <a class="reference internal" href="expressions.html#lambda"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">lambda</span></code></a>  and
+assignment expressions <code class="docutils literal notranslate"><span class="pre">:=</span></code> must be surrounded by explicit parentheses.
+Replacement expressions can contain line breaks (e.g. in triple-quoted
+strings), but they cannot contain comments.  Each expression is evaluated
+in the context where the formatted string literal appears, in order from
+left to right.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Prior to Python 3.7, an <a class="reference internal" href="expressions.html#await"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">await</span></code></a> expression and comprehensions
+containing an <a class="reference internal" href="compound_stmts.html#async-for"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">async</span> <span class="pre">for</span></code></a> clause were illegal in the expressions
+in formatted string literals due to a problem with the implementation.</p>
+</div>
+<p>もし変換フィールドが指定されていた場合、式の評価結果はフォーマットの前に変換されます。変換 <code class="docutils literal notranslate"><span class="pre">'!s'</span></code> は <a class="reference internal" href="../library/stdtypes.html#str" title="str"><code class="xref py py-func docutils literal notranslate"><span class="pre">str()</span></code></a> を、 <code class="docutils literal notranslate"><span class="pre">'!r'</span></code> は <a class="reference internal" href="../library/functions.html#repr" title="repr"><code class="xref py py-func docutils literal notranslate"><span class="pre">repr()</span></code></a> を、そして <code class="docutils literal notranslate"><span class="pre">'!a'</span></code> は <a class="reference internal" href="../library/functions.html#ascii" title="ascii"><code class="xref py py-func docutils literal notranslate"><span class="pre">ascii()</span></code></a> を呼び出します。</p>
+<p>その結果は、続いて <a class="reference internal" href="../library/functions.html#format" title="format"><code class="xref py py-func docutils literal notranslate"><span class="pre">format()</span></code></a> のプロトコルでフォーマットされます。書式指定子は式または変換結果の <a class="reference internal" href="datamodel.html#object.__format__" title="object.__format__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__format__()</span></code></a> メソッドに渡されます。書式指定子が省略された場合は、空文字列が渡されます。そしてフォーマットされた結果は、文字列全体の最終的な値に挿入されます。</p>
+<p>最上位の書式指定子には、入れ子の置換フィールドを含めることができます。
+これらの入れ子のフィールドには、自身の変換フィールドと <a class="reference internal" href="../library/string.html#formatspec"><span class="std std-ref">書式指定子</span></a> を含めることができますが、さらに入れ子になった置換フィールドを含めることはできません。
+文字列の .format() メソッドで使われる <a class="reference internal" href="../library/string.html#formatspec"><span class="std std-ref">書式指定ミニ言語仕様</span></a> でも同様です。</p>
+<p>フォーマット済み文字列リテラルは他の文字列リテラルと結合できますが、置換フィールドを複数のリテラルに分割して書くことはできません。</p>
+<p>フォーマット済み文字列リテラルの例をいくつか挙げます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Fred&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">f</span><span class="s2">&quot;He said his name is </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+<span class="go">&quot;He said his name is &#39;Fred&#39;.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">f</span><span class="s2">&quot;He said his name is </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>  <span class="c1"># repr() is equivalent to !r</span>
+<span class="go">&quot;He said his name is &#39;Fred&#39;.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">width</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">precision</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">(</span><span class="s2">&quot;12.34567&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">f</span><span class="s2">&quot;result: </span><span class="si">{</span><span class="n">value</span><span class="si">:{</span><span class="n">width</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">precision</span><span class="si">}}</span><span class="s2">&quot;</span>  <span class="c1"># nested fields</span>
+<span class="go">&#39;result:      12.35&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="mi">2017</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="mi">27</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">today</span><span class="si">:</span><span class="s2">%B %d, %Y</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># using date format specifier</span>
+<span class="go">&#39;January 27, 2017&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">number</span> <span class="o">=</span> <span class="mi">1024</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">number</span><span class="si">:</span><span class="s2">#0x</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># using integer format specifier</span>
+<span class="go">&#39;0x400&#39;</span>
+</pre></div>
+</div>
+<p>通常の文字列リテラルと構文が共通なので（訳註：通常の文字列リテラルにおける引用符の扱いと同様に）、置換フィールド中に、外側のフォーマット済み文字列リテラルで使われている引用符を含めることはできません:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="sa">f</span><span class="s2">&quot;abc </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> def&quot;</span>    <span class="c1"># error: outer string literal ended prematurely</span>
+<span class="sa">f</span><span class="s2">&quot;abc </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> def&quot;</span>    <span class="c1"># workaround: use different quoting</span>
+</pre></div>
+</div>
+<p>式の中でバックスラッシュは使用できず、エラーを送出します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="sa">f</span><span class="s2">&quot;newline: </span><span class="si">{</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># raises SyntaxError</span>
+</pre></div>
+</div>
+<p>バックスラッシュでのエスケープが必要な値を含める必要がある場合は、一時変数を作成してください。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">newline</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">f</span><span class="s2">&quot;newline: </span><span class="si">{</span><span class="n">newline</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="go">&#39;newline: 10&#39;</span>
+</pre></div>
+</div>
+<p>フォーマット済み文字列リテラルは、たとえ式を含んでいなかったとしても、 docstring としては使えません。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="sa">f</span><span class="s2">&quot;Not a docstring&quot;</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="vm">__doc__</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>フォーマット済み文字列リテラルを Python に追加した提案 <span class="target" id="index-41"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0498"><strong>PEP 498</strong></a> も参照してください。また関連する文字列フォーマットの仕組みを使っている <a class="reference internal" href="../library/stdtypes.html#str.format" title="str.format"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.format()</span></code></a> も参照してください。</p>
+</div>
+<div class="section" id="numeric-literals">
+<span id="numbers"></span><h3>2.4.4. 数値リテラル<a class="headerlink" href="#numeric-literals" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-26">数値リテラルには 3 種類あります。整数 (integer)、浮動小数点数 (floating point number)、虚数(imaginary numbers) です。複素数リテラルは存在しません。(複素数は実数と虚数の和として作れます)。</p>
+<p>数値リテラルには符号が含まれていないことに注意してください; <code class="docutils literal notranslate"><span class="pre">-1</span></code> のような句は、実際には単項演算子 (unary operator) '<code class="docutils literal notranslate"><span class="pre">-</span></code>' とリテラル <code class="docutils literal notranslate"><span class="pre">1</span></code> を組み合わせたものです。</p>
+</div>
+<div class="section" id="integer-literals">
+<span id="integers"></span><span id="index-27"></span><h3>2.4.5. 整数リテラル<a class="headerlink" href="#integer-literals" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>整数リテラルは以下の字句定義で記述されます:</p>
+<pre>
+<strong id="grammar-token-integer">integer     </strong> ::=  <a class="reference internal" href="#grammar-token-decinteger"><code class="xref docutils literal notranslate"><span class="pre">decinteger</span></code></a> | <a class="reference internal" href="#grammar-token-bininteger"><code class="xref docutils literal notranslate"><span class="pre">bininteger</span></code></a> | <a class="reference internal" href="#grammar-token-octinteger"><code class="xref docutils literal notranslate"><span class="pre">octinteger</span></code></a> | <a class="reference internal" href="#grammar-token-hexinteger"><code class="xref docutils literal notranslate"><span class="pre">hexinteger</span></code></a>
+<strong id="grammar-token-decinteger">decinteger  </strong> ::=  <a class="reference internal" href="#grammar-token-nonzerodigit"><code class="xref docutils literal notranslate"><span class="pre">nonzerodigit</span></code></a> ([&quot;_&quot;] <a class="reference internal" href="#grammar-token-digit"><code class="xref docutils literal notranslate"><span class="pre">digit</span></code></a>)* | &quot;0&quot;+ ([&quot;_&quot;] &quot;0&quot;)*
+<strong id="grammar-token-bininteger">bininteger  </strong> ::=  &quot;0&quot; (&quot;b&quot; | &quot;B&quot;) ([&quot;_&quot;] <a class="reference internal" href="#grammar-token-bindigit"><code class="xref docutils literal notranslate"><span class="pre">bindigit</span></code></a>)+
+<strong id="grammar-token-octinteger">octinteger  </strong> ::=  &quot;0&quot; (&quot;o&quot; | &quot;O&quot;) ([&quot;_&quot;] <a class="reference internal" href="#grammar-token-octdigit"><code class="xref docutils literal notranslate"><span class="pre">octdigit</span></code></a>)+
+<strong id="grammar-token-hexinteger">hexinteger  </strong> ::=  &quot;0&quot; (&quot;x&quot; | &quot;X&quot;) ([&quot;_&quot;] <a class="reference internal" href="#grammar-token-hexdigit"><code class="xref docutils literal notranslate"><span class="pre">hexdigit</span></code></a>)+
+<strong id="grammar-token-nonzerodigit">nonzerodigit</strong> ::=  &quot;1&quot;...&quot;9&quot;
+<strong id="grammar-token-digit">digit       </strong> ::=  &quot;0&quot;...&quot;9&quot;
+<strong id="grammar-token-bindigit">bindigit    </strong> ::=  &quot;0&quot; | &quot;1&quot;
+<strong id="grammar-token-octdigit">octdigit    </strong> ::=  &quot;0&quot;...&quot;7&quot;
+<strong id="grammar-token-hexdigit">hexdigit    </strong> ::=  <a class="reference internal" href="#grammar-token-digit"><code class="xref docutils literal notranslate"><span class="pre">digit</span></code></a> | &quot;a&quot;...&quot;f&quot; | &quot;A&quot;...&quot;F&quot;
+</pre>
+<p>値がメモリ上に収まるかどうかという問題を除けば、整数リテラルには長さの制限がありません。</p>
+<p>アンダースコアはリテラルの値を判断するにあたって無視されます。そのためアンダースコアを使って数字をグループ化することで読みやすくできます。アンダースコアは数字と数字の間に 1 つだけ、あるいは <code class="docutils literal notranslate"><span class="pre">0x</span></code> のような基数指定の直後に 1 つだけ挿入できます。</p>
+<p>なお、非 0 の十進数の先頭には 0 を付けられません。これは、Python がバージョン 3.0 以前に使っていた C 形式の八進リテラルとの曖昧さを回避するためです。</p>
+<p>整数リテラルの例をいくつか示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="mi">7</span>     <span class="mi">2147483647</span>                        <span class="mo">0o177</span>    <span class="mb">0b100110111</span>
+<span class="mi">3</span>     <span class="mi">79228162514264337593543950336</span>     <span class="mo">0o377</span>    <span class="mh">0xdeadbeef</span>
+      <span class="mi">100_000_000_000</span>                   <span class="mb">0b_1110_0101</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>グループ化を目的としたリテラル中のアンダースコアが許されるようになりました。</p>
+</div>
+</div>
+<div class="section" id="floating-point-literals">
+<span id="floating"></span><span id="index-28"></span><h3>2.4.6. 浮動小数点数リテラル<a class="headerlink" href="#floating-point-literals" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>浮動小数点数リテラルは以下の字句定義で記述されます:</p>
+<pre>
+<strong id="grammar-token-floatnumber">floatnumber  </strong> ::=  <a class="reference internal" href="#grammar-token-pointfloat"><code class="xref docutils literal notranslate"><span class="pre">pointfloat</span></code></a> | <a class="reference internal" href="#grammar-token-exponentfloat"><code class="xref docutils literal notranslate"><span class="pre">exponentfloat</span></code></a>
+<strong id="grammar-token-pointfloat">pointfloat   </strong> ::=  [<a class="reference internal" href="#grammar-token-digitpart"><code class="xref docutils literal notranslate"><span class="pre">digitpart</span></code></a>] <a class="reference internal" href="#grammar-token-fraction"><code class="xref docutils literal notranslate"><span class="pre">fraction</span></code></a> | <a class="reference internal" href="#grammar-token-digitpart"><code class="xref docutils literal notranslate"><span class="pre">digitpart</span></code></a> &quot;.&quot;
+<strong id="grammar-token-exponentfloat">exponentfloat</strong> ::=  (<a class="reference internal" href="#grammar-token-digitpart"><code class="xref docutils literal notranslate"><span class="pre">digitpart</span></code></a> | <a class="reference internal" href="#grammar-token-pointfloat"><code class="xref docutils literal notranslate"><span class="pre">pointfloat</span></code></a>) <a class="reference internal" href="#grammar-token-exponent"><code class="xref docutils literal notranslate"><span class="pre">exponent</span></code></a>
+<strong id="grammar-token-digitpart">digitpart    </strong> ::=  <a class="reference internal" href="#grammar-token-digit"><code class="xref docutils literal notranslate"><span class="pre">digit</span></code></a> ([&quot;_&quot;] <a class="reference internal" href="#grammar-token-digit"><code class="xref docutils literal notranslate"><span class="pre">digit</span></code></a>)*
+<strong id="grammar-token-fraction">fraction     </strong> ::=  &quot;.&quot; <a class="reference internal" href="#grammar-token-digitpart"><code class="xref docutils literal notranslate"><span class="pre">digitpart</span></code></a>
+<strong id="grammar-token-exponent">exponent     </strong> ::=  (&quot;e&quot; | &quot;E&quot;) [&quot;+&quot; | &quot;-&quot;] <a class="reference internal" href="#grammar-token-digitpart"><code class="xref docutils literal notranslate"><span class="pre">digitpart</span></code></a>
+</pre>
+<p>なお、整数部と指数部は常に 10 を基数として解釈されます。例えば、<code class="docutils literal notranslate"><span class="pre">077e010</span></code> は正しい表記であり、<code class="docutils literal notranslate"><span class="pre">77e10</span></code> と同じ数を表します。浮動小数点数リテラルの取りうる値の範囲は実装に依存します。整数リテラルと同じように、アンダースコアで数字をグループ分けできます。</p>
+<p>浮動小数点数リテラルの例をいくつか示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="mf">3.14</span>    <span class="mf">10.</span>    <span class="o">.</span><span class="mi">001</span>    <span class="mf">1e100</span>    <span class="mf">3.14e-10</span>    <span class="mf">0e0</span>    <span class="mf">3.14_15_93</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>グループ化を目的としたリテラル中のアンダースコアが許されるようになりました。</p>
+</div>
+</div>
+<div class="section" id="imaginary-literals">
+<span id="imaginary"></span><span id="index-29"></span><h3>2.4.7. 虚数 (imaginary) リテラル<a class="headerlink" href="#imaginary-literals" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>虚数リテラルは以下のような字句定義で記述されます:</p>
+<pre>
+<strong id="grammar-token-imagnumber">imagnumber</strong> ::=  (<a class="reference internal" href="#grammar-token-floatnumber"><code class="xref docutils literal notranslate"><span class="pre">floatnumber</span></code></a> | <a class="reference internal" href="#grammar-token-digitpart"><code class="xref docutils literal notranslate"><span class="pre">digitpart</span></code></a>) (&quot;j&quot; | &quot;J&quot;)
+</pre>
+<p>虚数リテラルは、実数部が 0.0 の複素数を表します。複素数は二つ組の浮動小数点型の数値で表され、それぞれの数値は浮動小数点型と同じ定義域の範囲を持ちます。実数部がゼロでない浮動小数点を生成するには、 <code class="docutils literal notranslate"><span class="pre">(3+4j)</span></code> のように虚数リテラルに浮動小数点数を加算します。以下に虚数リテラルの例をいくつか示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="mf">3.14</span><span class="n">j</span>   <span class="mf">10.</span><span class="n">j</span>    <span class="mi">10</span><span class="n">j</span>     <span class="o">.</span><span class="mi">001</span><span class="n">j</span>   <span class="mf">1e100j</span>   <span class="mf">3.14e-10</span><span class="n">j</span>   <span class="mf">3.14_15_93</span><span class="n">j</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="operators">
+<span id="id11"></span><h2>2.5. 演算子<a class="headerlink" href="#operators" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-30">以下のトークンは演算子です:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+       -       *       **      /       //      %      @
+&lt;&lt;      &gt;&gt;      &amp;       |       ^       ~       :=
+&lt;       &gt;       &lt;=      &gt;=      ==      !=
+</pre></div>
+</div>
+</div>
+<div class="section" id="delimiters">
+<span id="id12"></span><h2>2.6. デリミタ (delimiter)<a class="headerlink" href="#delimiters" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-31">以下のトークンは文法上のデリミタとして働きます:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(       )       [       ]       {       }
+,       :       .       ;       @       =       -&gt;
++=      -=      *=      /=      //=     %=      @=
+&amp;=      |=      ^=      &gt;&gt;=     &lt;&lt;=     **=
+</pre></div>
+</div>
+<p>ピリオドは浮動小数点数や虚数リテラル中にも置けます。ピリオド三つの列はスライス表記における省略符号 (ellipsis) リテラルとして特別な意味を持ちます。リスト後半の累算代入演算子 (augmented assignment operator) は、字句的にはデリミタとして振舞いますが、演算も行います。</p>
+<p>以下の印字可能 ASCII 文字は、他のトークンの一部として特殊な意味を持っていたり、字句解析器にとって重要な意味を持っています:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&#39;       &quot;       #       \
+</pre></div>
+</div>
+<p>以下の印字可能 ASCII 文字は、Python では使われていません。これらの文字が文字列リテラルやコメントの外にある場合、無条件にエラーとなります:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$       ?       `
+</pre></div>
+</div>
+<p class="rubric">脚注</p>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id10">[1]</a></td><td><a class="reference external" href="http://www.unicode.org/Public/11.0.0/ucd/NameAliases.txt">http://www.unicode.org/Public/11.0.0/ucd/NameAliases.txt</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. 字句解析</a><ul>
+<li><a class="reference internal" href="#line-structure">2.1. 行構造</a><ul>
+<li><a class="reference internal" href="#logical-lines">2.1.1. 論理行 (logical line)</a></li>
+<li><a class="reference internal" href="#physical-lines">2.1.2. 物理行 (physical line)</a></li>
+<li><a class="reference internal" href="#comments">2.1.3. コメント (Comments)</a></li>
+<li><a class="reference internal" href="#encoding-declarations">2.1.4. エンコード宣言 (encoding declaration)</a></li>
+<li><a class="reference internal" href="#explicit-line-joining">2.1.5. 明示的な行継続</a></li>
+<li><a class="reference internal" href="#implicit-line-joining">2.1.6. 非明示的な行継続</a></li>
+<li><a class="reference internal" href="#blank-lines">2.1.7. 空行</a></li>
+<li><a class="reference internal" href="#indentation">2.1.8. インデント</a></li>
+<li><a class="reference internal" href="#whitespace-between-tokens">2.1.9. トークン間の空白</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-tokens">2.2. その他のトークン</a></li>
+<li><a class="reference internal" href="#identifiers">2.3. 識別子 (identifier) およびキーワード (keyword)</a><ul>
+<li><a class="reference internal" href="#keywords">2.3.1. キーワード (keyword)</a></li>
+<li><a class="reference internal" href="#reserved-classes-of-identifiers">2.3.2. 予約済みの識別子種 (reserved classes of identifiers)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#literals">2.4. リテラル</a><ul>
+<li><a class="reference internal" href="#string-and-bytes-literals">2.4.1. 文字列およびバイト列リテラル</a></li>
+<li><a class="reference internal" href="#string-literal-concatenation">2.4.2. 文字列リテラルの結合 (concatenation)</a></li>
+<li><a class="reference internal" href="#formatted-string-literals">2.4.3. フォーマット済み文字列リテラル</a></li>
+<li><a class="reference internal" href="#numeric-literals">2.4.4. 数値リテラル</a></li>
+<li><a class="reference internal" href="#integer-literals">2.4.5. 整数リテラル</a></li>
+<li><a class="reference internal" href="#floating-point-literals">2.4.6. 浮動小数点数リテラル</a></li>
+<li><a class="reference internal" href="#imaginary-literals">2.4.7. 虚数 (imaginary) リテラル</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#operators">2.5. 演算子</a></li>
+<li><a class="reference internal" href="#delimiters">2.6. デリミタ (delimiter)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="introduction.html"
+                        title="前の章へ">1. はじめに</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="datamodel.html"
+                        title="次の章へ">3. データモデル</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/reference/lexical_analysis.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="datamodel.html" title="3. データモデル"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="introduction.html" title="1. はじめに"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 言語リファレンス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

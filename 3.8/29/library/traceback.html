@@ -1,0 +1,666 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>traceback --- スタックトレースの表示または取得 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="__future__ --- future 文の定義" href="__future__.html" />
+    <link rel="prev" title="atexit --- 終了ハンドラ" href="atexit.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/traceback.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="__future__.html" title="__future__ --- future 文の定義"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="atexit.html" title="atexit --- 終了ハンドラ"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" accesskey="U">Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-traceback">
+<span id="traceback-print-or-retrieve-a-stack-traceback"></span><h1><a class="reference internal" href="#module-traceback" title="traceback: Print or retrieve a stack traceback."><code class="xref py py-mod docutils literal notranslate"><span class="pre">traceback</span></code></a> --- スタックトレースの表示または取得<a class="headerlink" href="#module-traceback" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/traceback.py">Lib/traceback.py</a></p>
+<hr class="docutils" />
+<p>このモジュールは Python プログラムのスタックトレースを抽出し、書式を整え、表示するための標準インターフェースを提供します。モジュールがスタックトレースを表示するとき、Python インタープリタの動作を正確に模倣します。インタープリタの&quot;ラッパー&quot;の場合のように、プログラムの制御の元でスタックトレースを表示したいと思ったときに役に立ちます。</p>
+<p id="index-0">モジュールはトレースバックオブジェクトを使用します。このオブジェクトの型は <a class="reference internal" href="sys.html#sys.last_traceback" title="sys.last_traceback"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.last_traceback</span></code></a> 変数に格納され、<a class="reference internal" href="sys.html#sys.exc_info" title="sys.exc_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.exc_info()</span></code></a> の三番目に返されます。</p>
+<p>このモジュールには、以下の関数が定義されています:</p>
+<dl class="function">
+<dt id="traceback.print_tb">
+<code class="descclassname">traceback.</code><code class="descname">print_tb</code><span class="sig-paren">(</span><em>tb</em>, <em>limit=None</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.print_tb" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>limit</em> が正の場合、トレースバックオブジェクト <em>tb</em> から <em>limit</em> までのスタックトレース項目 (呼び出し側のフレームから開始) を出力します。
+そうでない場合、最新 <code class="docutils literal notranslate"><span class="pre">abs(limit)</span></code> 項目を出力します。
+<em>limit</em> が省略されるか <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、すべての項目が出力されます。
+<em>file</em> が省略されるか <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合は、 <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> へ出力されます。
+そうでない場合、 <em>file</em> は出力を受け取る開いたファイルまたは file-like オブジェクトでなければなりません。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>負の <em>limit</em> がサポートされました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.print_exception">
+<code class="descclassname">traceback.</code><code class="descname">print_exception</code><span class="sig-paren">(</span><em>etype</em>, <em>value</em>, <em>tb</em>, <em>limit=None</em>, <em>file=None</em>, <em>chain=True</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.print_exception" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>トレースバックオブジェクト <em>tb</em> から例外の情報とスタックトレースの項目を <em>file</em> に出力します。
+この関数は以下の点で <a class="reference internal" href="#traceback.print_tb" title="traceback.print_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_tb()</span></code></a> と異なります:</p>
+<ul class="simple">
+<li><em>tb</em> が <code class="docutils literal notranslate"><span class="pre">None</span></code> でない場合ヘッダ <code class="docutils literal notranslate"><span class="pre">Traceback</span> <span class="pre">(most</span> <span class="pre">recent</span> <span class="pre">call</span> <span class="pre">last):</span></code> を出力します</li>
+<li>スタックトレースの後に例外 <em>etype</em> と <em>value</em> を出力します</li>
+</ul>
+<ul class="simple" id="index-1">
+<li><em>type(value)</em> が <a class="reference internal" href="exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> であり、 <em>value</em> が適切な形式を持っていれば、そのエラーのおおよその位置を示すマークと共にシンタックスエラーが発生した行が表示されます。</li>
+</ul>
+<p>オプション引数 <em>limit</em> の意味は  <a class="reference internal" href="#traceback.print_tb" title="traceback.print_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_tb()</span></code></a> のものと同じです。
+<em>chain</em> が真の場合 (デフォルト)、連鎖した例外 (例外の <code class="xref py py-attr docutils literal notranslate"><span class="pre">__cause__</span></code> か <code class="xref py py-attr docutils literal notranslate"><span class="pre">__context__</span></code> 属性) も出力されます。
+これはインタープリタ自身が処理されていない例外を出力するときと同じです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>引数 <em>etype</em> は無視され、 <em>value</em> の型から推論されます。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.print_exc">
+<code class="descclassname">traceback.</code><code class="descname">print_exc</code><span class="sig-paren">(</span><em>limit=None</em>, <em>file=None</em>, <em>chain=True</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.print_exc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">print_exception(*sys.exc_info(),</span> <span class="pre">limit,</span> <span class="pre">file,</span> <span class="pre">chain)</span></code> の省略表現です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.print_last">
+<code class="descclassname">traceback.</code><code class="descname">print_last</code><span class="sig-paren">(</span><em>limit=None</em>, <em>file=None</em>, <em>chain=True</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.print_last" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">print_exception(sys.last_type,</span> <span class="pre">sys.last_value,</span> <span class="pre">sys.last_traceback,</span> <span class="pre">limit,</span> <span class="pre">file,</span> <span class="pre">chain)</span></code> の省略表現です。
+一般に、例外が対話的なプロンプトに達した後にのみ機能します (<a class="reference internal" href="sys.html#sys.last_type" title="sys.last_type"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.last_type</span></code></a> 参照)。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.print_stack">
+<code class="descclassname">traceback.</code><code class="descname">print_stack</code><span class="sig-paren">(</span><em>f=None</em>, <em>limit=None</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.print_stack" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>limit</em> が正の場合、最大 <em>limit</em> 個のスタックトレース項目 (呼び出し地点から開始) を出力します。 そうでない場合、最新の <code class="docutils literal notranslate"><span class="pre">abs(limit)</span></code> 個を出力します。 <em>limit</em> が省略されるか <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、すべての項目が出力されます。オプションの <em>f</em> 引数は、開始するスタックフレームを指定するために用いることができます。オプションの <em>file</em> 引数は <a class="reference internal" href="#traceback.print_tb" title="traceback.print_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_tb()</span></code></a> の <em>file</em> 引数と同様の意味を持っています。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>負の <em>limit</em> がサポートされました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.extract_tb">
+<code class="descclassname">traceback.</code><code class="descname">extract_tb</code><span class="sig-paren">(</span><em>tb</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.extract_tb" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> object representing a list of &quot;pre-processed&quot;
+stack trace entries extracted from the traceback object <em>tb</em>.  It is useful
+for alternate formatting of stack traces.  The optional <em>limit</em> argument has
+the same meaning as for <a class="reference internal" href="#traceback.print_tb" title="traceback.print_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_tb()</span></code></a>.  A &quot;pre-processed&quot; stack trace
+entry is a <a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> object containing attributes
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">filename</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code>,
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code>, and <code class="xref py py-attr docutils literal notranslate"><span class="pre">line</span></code> representing the
+information that is usually printed for a stack trace.  The
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">line</span></code> is a string with leading and trailing
+whitespace stripped; if the source is not available it is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.extract_stack">
+<code class="descclassname">traceback.</code><code class="descname">extract_stack</code><span class="sig-paren">(</span><em>f=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.extract_stack" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のスタックフレームから生のトレースバックを取り出します。戻り値は <a class="reference internal" href="#traceback.extract_tb" title="traceback.extract_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_tb()</span></code></a> と同じ形式です。オプションの <em>f</em> と <em>limit</em> 引数は <a class="reference internal" href="#traceback.print_stack" title="traceback.print_stack"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_stack()</span></code></a> と同じ意味を持ちます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.format_list">
+<code class="descclassname">traceback.</code><code class="descname">format_list</code><span class="sig-paren">(</span><em>extracted_list</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.format_list" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Given a list of tuples or <a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> objects as returned by
+<a class="reference internal" href="#traceback.extract_tb" title="traceback.extract_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_tb()</span></code></a> or <a class="reference internal" href="#traceback.extract_stack" title="traceback.extract_stack"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_stack()</span></code></a>, return a list of strings ready
+for printing.  Each string in the resulting list corresponds to the item with
+the same index in the argument list.  Each string ends in a newline; the
+strings may contain internal newlines as well, for those items whose source
+text line is not <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.format_exception_only">
+<code class="descclassname">traceback.</code><code class="descname">format_exception_only</code><span class="sig-paren">(</span><em>etype</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.format_exception_only" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>トレースバックの例外部分を書式化します。引数は <code class="docutils literal notranslate"><span class="pre">sys.last_type</span></code> と <code class="docutils literal notranslate"><span class="pre">sys.last_value</span></code> のような例外の型と値です。戻り値はそれぞれが改行で終わっている文字列のリストです。通常、リストは一つの文字列を含んでいます。しかし、 <a class="reference internal" href="exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> 例外に対しては、 (出力されるときに) 構文エラーが起きた場所についての詳細な情報を示す行をいくつか含んでいます。どの例外が起きたのかを示すメッセージは、常にリストの最後の文字列です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.format_exception">
+<code class="descclassname">traceback.</code><code class="descname">format_exception</code><span class="sig-paren">(</span><em>etype</em>, <em>value</em>, <em>tb</em>, <em>limit=None</em>, <em>chain=True</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.format_exception" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>スタックトレースと例外情報を書式化します。引数は <a class="reference internal" href="#traceback.print_exception" title="traceback.print_exception"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_exception()</span></code></a> の対応する引数と同じ意味を持ちます。戻り値は文字列のリストで、それぞれの文字列は改行で終わり、そのいくつかは内部に改行を含みます。これらの行が連結されて出力される場合は、厳密に <a class="reference internal" href="#traceback.print_exception" title="traceback.print_exception"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_exception()</span></code></a> と同じテキストが出力されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>引数 <em>etype</em> は無視され、 <em>value</em> の型から推論されます。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.format_exc">
+<code class="descclassname">traceback.</code><code class="descname">format_exc</code><span class="sig-paren">(</span><em>limit=None</em>, <em>chain=True</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.format_exc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>これは、<code class="docutils literal notranslate"><span class="pre">print_exc(limit)</span></code> に似ていますが、ファイルに出力する代わりに文字列を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.format_tb">
+<code class="descclassname">traceback.</code><code class="descname">format_tb</code><span class="sig-paren">(</span><em>tb</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.format_tb" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">format_list(extract_tb(tb,</span> <span class="pre">limit))</span></code> の省略表現です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.format_stack">
+<code class="descclassname">traceback.</code><code class="descname">format_stack</code><span class="sig-paren">(</span><em>f=None</em>, <em>limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.format_stack" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">format_list(extract_stack(f,</span> <span class="pre">limit))</span></code> の省略表現です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.clear_frames">
+<code class="descclassname">traceback.</code><code class="descname">clear_frames</code><span class="sig-paren">(</span><em>tb</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.clear_frames" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>各フレームオブジェクトの <code class="xref py py-meth docutils literal notranslate"><span class="pre">clear()</span></code> メソッドを呼んでトレースバック <em>tb</em> 内の全スタックフレームの局所変数を消去します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.walk_stack">
+<code class="descclassname">traceback.</code><code class="descname">walk_stack</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.walk_stack" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Walk a stack following <code class="docutils literal notranslate"><span class="pre">f.f_back</span></code> from the given frame, yielding the frame
+and line number for each frame. If <em>f</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the current stack is
+used. This helper is used with <a class="reference internal" href="#traceback.StackSummary.extract" title="traceback.StackSummary.extract"><code class="xref py py-meth docutils literal notranslate"><span class="pre">StackSummary.extract()</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="traceback.walk_tb">
+<code class="descclassname">traceback.</code><code class="descname">walk_tb</code><span class="sig-paren">(</span><em>tb</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.walk_tb" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Walk a traceback following <code class="docutils literal notranslate"><span class="pre">tb_next</span></code> yielding the frame and line number
+for each frame. This helper is used with <a class="reference internal" href="#traceback.StackSummary.extract" title="traceback.StackSummary.extract"><code class="xref py py-meth docutils literal notranslate"><span class="pre">StackSummary.extract()</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<p>このモジュールは以下のクラスも定義しています:</p>
+<div class="section" id="tracebackexception-objects">
+<h2><a class="reference internal" href="#traceback.TracebackException" title="traceback.TracebackException"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracebackException</span></code></a> オブジェクト<a class="headerlink" href="#tracebackexception-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+<p><a class="reference internal" href="#traceback.TracebackException" title="traceback.TracebackException"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracebackException</span></code></a> オブジェクトは実際の例外から作られ、後の出力のために軽量な方法でデータをキャプチャします。</p>
+<dl class="class">
+<dt id="traceback.TracebackException">
+<em class="property">class </em><code class="descclassname">traceback.</code><code class="descname">TracebackException</code><span class="sig-paren">(</span><em>exc_type</em>, <em>exc_value</em>, <em>exc_traceback</em>, <em>*</em>, <em>limit=None</em>, <em>lookup_lines=True</em>, <em>capture_locals=False</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.TracebackException" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>後のレンダリングのために例外をキャプチャします。
+<em>limit</em>、<em>lookup_lines</em>、<em>capture_locals</em> は <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> class のものです。</p>
+<p>局所変数がキャプチャされたとき、それらはトレースバックに表示されることに注意してください。</p>
+<dl class="attribute">
+<dt id="traceback.TracebackException.__cause__">
+<code class="descname">__cause__</code><a class="headerlink" href="#traceback.TracebackException.__cause__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>元々の <code class="docutils literal notranslate"><span class="pre">__cause__</span></code> の <a class="reference internal" href="#traceback.TracebackException" title="traceback.TracebackException"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracebackException</span></code></a>。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.__context__">
+<code class="descname">__context__</code><a class="headerlink" href="#traceback.TracebackException.__context__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>元々の <code class="docutils literal notranslate"><span class="pre">__context__</span></code> の <a class="reference internal" href="#traceback.TracebackException" title="traceback.TracebackException"><code class="xref py py-class docutils literal notranslate"><span class="pre">TracebackException</span></code></a>。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.__suppress_context__">
+<code class="descname">__suppress_context__</code><a class="headerlink" href="#traceback.TracebackException.__suppress_context__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>元々の例外からの <code class="docutils literal notranslate"><span class="pre">__suppress_context__</span></code>。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.stack">
+<code class="descname">stack</code><a class="headerlink" href="#traceback.TracebackException.stack" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>トレースバックを表す <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a>。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.exc_type">
+<code class="descname">exc_type</code><a class="headerlink" href="#traceback.TracebackException.exc_type" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>元々のトレースバックのクラス。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.filename">
+<code class="descname">filename</code><a class="headerlink" href="#traceback.TracebackException.filename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>構文エラー用 - エラーが発生したファイルの名前。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.lineno">
+<code class="descname">lineno</code><a class="headerlink" href="#traceback.TracebackException.lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>構文エラー用 - エラーが発生した行番号。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.text">
+<code class="descname">text</code><a class="headerlink" href="#traceback.TracebackException.text" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>構文エラー用 - エラーが発生したテクスト。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.offset">
+<code class="descname">offset</code><a class="headerlink" href="#traceback.TracebackException.offset" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>構文エラー用 - エラーが発生したテクストへのオフセット。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="traceback.TracebackException.msg">
+<code class="descname">msg</code><a class="headerlink" href="#traceback.TracebackException.msg" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>構文エラー用 - コンパイラのエラーメッセージ。</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="traceback.TracebackException.from_exception">
+<em class="property">classmethod </em><code class="descname">from_exception</code><span class="sig-paren">(</span><em>exc</em>, <em>*</em>, <em>limit=None</em>, <em>lookup_lines=True</em>, <em>capture_locals=False</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.TracebackException.from_exception" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>後のレンダリングのために例外をキャプチャします。
+<em>limit</em>、<em>lookup_lines</em>、<em>capture_locals</em> は <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> class のものです。</p>
+<p>局所変数がキャプチャされたとき、それらはトレースバックに表示されることに注意してください。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="traceback.TracebackException.format">
+<code class="descname">format</code><span class="sig-paren">(</span><em>*</em>, <em>chain=True</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.TracebackException.format" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>例外を書式化します。</p>
+<p><em>chain</em> が <code class="docutils literal notranslate"><span class="pre">True</span></code> でない場合 <code class="docutils literal notranslate"><span class="pre">__cause__</span></code> と <code class="docutils literal notranslate"><span class="pre">__context__</span></code> は書式化されません。</p>
+<p>返り値は文字列のジェネレータで、それぞれ改行で終わりますが、内部に改行を持つものもあります。
+<a class="reference internal" href="#traceback.print_exception" title="traceback.print_exception"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_exception()</span></code></a> はこのメソッドのラッパで、単にファイルに出力します。</p>
+<p>例外発生を指すメッセージは常に出力の最後の文字列です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="traceback.TracebackException.format_exception_only">
+<code class="descname">format_exception_only</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#traceback.TracebackException.format_exception_only" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>トレースバックの例外部を書式化します。</p>
+<p>返り値は文字列のジェネレータで、それぞれ改行で終わります。</p>
+<p>通常、ジェネレータが出す文字列は一つです。
+しかしながら <a class="reference internal" href="exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> 例外の場合、構文例外が発生した箇所の詳細な情報を表す行を複数出します。</p>
+<p>例外発生を指すメッセージは常に出力の最後の文字列です。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="stacksummary-objects">
+<h2><a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> オブジェクト<a class="headerlink" href="#stacksummary-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+<p><a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> オブジェクトは書式化の準備ができているコールスタックを表します。</p>
+<dl class="class">
+<dt id="traceback.StackSummary">
+<em class="property">class </em><code class="descclassname">traceback.</code><code class="descname">StackSummary</code><a class="headerlink" href="#traceback.StackSummary" title="この定義へのパーマリンク">¶</a></dt>
+<dd><dl class="classmethod">
+<dt id="traceback.StackSummary.extract">
+<em class="property">classmethod </em><code class="descname">extract</code><span class="sig-paren">(</span><em>frame_gen</em>, <em>*</em>, <em>limit=None</em>, <em>lookup_lines=True</em>, <em>capture_locals=False</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.StackSummary.extract" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ジェネレータ (例えば <a class="reference internal" href="#traceback.walk_stack" title="traceback.walk_stack"><code class="xref py py-func docutils literal notranslate"><span class="pre">walk_stack()</span></code></a> や <a class="reference internal" href="#traceback.walk_tb" title="traceback.walk_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">walk_tb()</span></code></a> が返すもの) から <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> を構築します。</p>
+<p>If <em>limit</em> is supplied, only this many frames are taken from <em>frame_gen</em>.
+If <em>lookup_lines</em> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, the returned <a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a>
+objects will not have read their lines in yet, making the cost of
+creating the <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> cheaper (which may be valuable if it
+may not actually get formatted). If <em>capture_locals</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code> the
+local variables in each <a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> are captured as object
+representations.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="traceback.StackSummary.from_list">
+<em class="property">classmethod </em><code class="descname">from_list</code><span class="sig-paren">(</span><em>a_list</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.StackSummary.from_list" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Construct a <a class="reference internal" href="#traceback.StackSummary" title="traceback.StackSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StackSummary</span></code></a> object from a supplied list of
+<a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> objects or old-style list of tuples.  Each tuple
+should be a 4-tuple with filename, lineno, name, line as the elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="traceback.StackSummary.format">
+<code class="descname">format</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#traceback.StackSummary.format" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Returns a list of strings ready for printing.  Each string in the
+resulting list corresponds to a single frame from the stack.
+Each string ends in a newline; the strings may contain internal
+newlines as well, for those items with source text lines.</p>
+<p>For long sequences of the same frame and line, the first few
+repetitions are shown, followed by a summary line stating the exact
+number of further repetitions.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>Long sequences of repeated frames are now abbreviated.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="framesummary-objects">
+<h2><a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> オブジェクト<a class="headerlink" href="#framesummary-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+<p><a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> オブジェクトトレースバック内の単一のフレームを表します。</p>
+<dl class="class">
+<dt id="traceback.FrameSummary">
+<em class="property">class </em><code class="descclassname">traceback.</code><code class="descname">FrameSummary</code><span class="sig-paren">(</span><em>filename</em>, <em>lineno</em>, <em>name</em>, <em>lookup_line=True</em>, <em>locals=None</em>, <em>line=None</em><span class="sig-paren">)</span><a class="headerlink" href="#traceback.FrameSummary" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Represent a single frame in the traceback or stack that is being formatted
+or printed. It may optionally have a stringified version of the frames
+locals included in it. If <em>lookup_line</em> is <code class="docutils literal notranslate"><span class="pre">False</span></code>, the source code is not
+looked up until the <a class="reference internal" href="#traceback.FrameSummary" title="traceback.FrameSummary"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrameSummary</span></code></a> has the <code class="xref py py-attr docutils literal notranslate"><span class="pre">line</span></code>
+attribute accessed (which also happens when casting it to a tuple).
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">line</span></code> may be directly provided, and will prevent line
+lookups happening at all. <em>locals</em> is an optional local variable
+dictionary, and if supplied the variable representations are stored in the
+summary for later display.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="traceback-examples">
+<span id="traceback-example"></span><h2>トレースバックの例<a class="headerlink" href="#traceback-examples" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>この簡単な例では基本的な read-eval-print ループを実装しています。標準的な Python の対話インタープリタループに似ていますが、 Python のものより便利ではありません。インタープリタループのより完全な実装については、 <a class="reference internal" href="code.html#module-code" title="code: Facilities to implement read-eval-print loops."><code class="xref py py-mod docutils literal notranslate"><span class="pre">code</span></code></a> モジュールを参照してください。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">traceback</span>
+
+<span class="k">def</span> <span class="nf">run_user_code</span><span class="p">(</span><span class="n">envdir</span><span class="p">):</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;&gt;&gt;&gt; &quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">exec</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">envdir</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exception in user code:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="n">envdir</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">run_user_code</span><span class="p">(</span><span class="n">envdir</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>次の例は例外とトレースバックの出力並びに形式が異なることを示します:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">traceback</span>
+
+<span class="k">def</span> <span class="nf">lumberjack</span><span class="p">():</span>
+    <span class="n">bright_side_of_death</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">bright_side_of_death</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">lumberjack</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+    <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** print_tb:&quot;</span><span class="p">)</span>
+    <span class="n">traceback</span><span class="o">.</span><span class="n">print_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** print_exception:&quot;</span><span class="p">)</span>
+    <span class="c1"># exc_type below is ignored on 3.5 and later</span>
+    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">,</span>
+                              <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** print_exc:&quot;</span><span class="p">)</span>
+    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** format_exc, first and last line:&quot;</span><span class="p">)</span>
+    <span class="n">formatted_lines</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">formatted_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">formatted_lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** format_exception:&quot;</span><span class="p">)</span>
+    <span class="c1"># exc_type below is ignored on 3.5 and later</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span>
+                                          <span class="n">exc_traceback</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** extract_tb:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** format_tb:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*** tb_lineno:&quot;</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_lineno</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>この例の出力は次のようになります:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*** print_tb:
+  File &quot;&lt;doctest...&gt;&quot;, line 10, in &lt;module&gt;
+    lumberjack()
+*** print_exception:
+Traceback (most recent call last):
+  File &quot;&lt;doctest...&gt;&quot;, line 10, in &lt;module&gt;
+    lumberjack()
+  File &quot;&lt;doctest...&gt;&quot;, line 4, in lumberjack
+    bright_side_of_death()
+IndexError: tuple index out of range
+*** print_exc:
+Traceback (most recent call last):
+  File &quot;&lt;doctest...&gt;&quot;, line 10, in &lt;module&gt;
+    lumberjack()
+  File &quot;&lt;doctest...&gt;&quot;, line 4, in lumberjack
+    bright_side_of_death()
+IndexError: tuple index out of range
+*** format_exc, first and last line:
+Traceback (most recent call last):
+IndexError: tuple index out of range
+*** format_exception:
+[&#39;Traceback (most recent call last):\n&#39;,
+ &#39;  File &quot;&lt;doctest...&gt;&quot;, line 10, in &lt;module&gt;\n    lumberjack()\n&#39;,
+ &#39;  File &quot;&lt;doctest...&gt;&quot;, line 4, in lumberjack\n    bright_side_of_death()\n&#39;,
+ &#39;  File &quot;&lt;doctest...&gt;&quot;, line 7, in bright_side_of_death\n    return tuple()[0]\n&#39;,
+ &#39;IndexError: tuple index out of range\n&#39;]
+*** extract_tb:
+[&lt;FrameSummary file &lt;doctest...&gt;, line 10 in &lt;module&gt;&gt;,
+ &lt;FrameSummary file &lt;doctest...&gt;, line 4 in lumberjack&gt;,
+ &lt;FrameSummary file &lt;doctest...&gt;, line 7 in bright_side_of_death&gt;]
+*** format_tb:
+[&#39;  File &quot;&lt;doctest...&gt;&quot;, line 10, in &lt;module&gt;\n    lumberjack()\n&#39;,
+ &#39;  File &quot;&lt;doctest...&gt;&quot;, line 4, in lumberjack\n    bright_side_of_death()\n&#39;,
+ &#39;  File &quot;&lt;doctest...&gt;&quot;, line 7, in bright_side_of_death\n    return tuple()[0]\n&#39;]
+*** tb_lineno: 10
+</pre></div>
+</div>
+<p>次の例は、スタックの print と format の違いを示しています:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">traceback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">another_function</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">lumberstack</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">lumberstack</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">traceback</span><span class="o">.</span><span class="n">print_stack</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">()))</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_stack</span><span class="p">()))</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">another_function</span><span class="p">()</span>
+<span class="go">  File &quot;&lt;doctest&gt;&quot;, line 10, in &lt;module&gt;</span>
+<span class="go">    another_function()</span>
+<span class="go">  File &quot;&lt;doctest&gt;&quot;, line 3, in another_function</span>
+<span class="go">    lumberstack()</span>
+<span class="go">  File &quot;&lt;doctest&gt;&quot;, line 6, in lumberstack</span>
+<span class="go">    traceback.print_stack()</span>
+<span class="go">[(&#39;&lt;doctest&gt;&#39;, 10, &#39;&lt;module&gt;&#39;, &#39;another_function()&#39;),</span>
+<span class="go"> (&#39;&lt;doctest&gt;&#39;, 3, &#39;another_function&#39;, &#39;lumberstack()&#39;),</span>
+<span class="go"> (&#39;&lt;doctest&gt;&#39;, 7, &#39;lumberstack&#39;, &#39;print(repr(traceback.extract_stack()))&#39;)]</span>
+<span class="go">[&#39;  File &quot;&lt;doctest&gt;&quot;, line 10, in &lt;module&gt;\n    another_function()\n&#39;,</span>
+<span class="go"> &#39;  File &quot;&lt;doctest&gt;&quot;, line 3, in another_function\n    lumberstack()\n&#39;,</span>
+<span class="go"> &#39;  File &quot;&lt;doctest&gt;&quot;, line 8, in lumberstack\n    print(repr(traceback.format_stack()))\n&#39;]</span>
+</pre></div>
+</div>
+<p>最後の例は、残りの幾つかの関数のデモをします:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">traceback</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traceback</span><span class="o">.</span><span class="n">format_list</span><span class="p">([(</span><span class="s1">&#39;spam.py&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;&lt;module&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;spam.eggs()&#39;</span><span class="p">),</span>
+<span class="gp">... </span>                       <span class="p">(</span><span class="s1">&#39;eggs.py&#39;</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="s1">&#39;eggs&#39;</span><span class="p">,</span> <span class="s1">&#39;return &quot;bacon&quot;&#39;</span><span class="p">)])</span>
+<span class="go">[&#39;  File &quot;spam.py&quot;, line 3, in &lt;module&gt;\n    spam.eggs()\n&#39;,</span>
+<span class="go"> &#39;  File &quot;eggs.py&quot;, line 42, in eggs\n    return &quot;bacon&quot;\n&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">an_error</span> <span class="o">=</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s1">&#39;tuple index out of range&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception_only</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">an_error</span><span class="p">),</span> <span class="n">an_error</span><span class="p">)</span>
+<span class="go">[&#39;IndexError: tuple index out of range\n&#39;]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">traceback</span></code> --- スタックトレースの表示または取得</a><ul>
+<li><a class="reference internal" href="#tracebackexception-objects"><code class="docutils literal notranslate"><span class="pre">TracebackException</span></code> オブジェクト</a></li>
+<li><a class="reference internal" href="#stacksummary-objects"><code class="docutils literal notranslate"><span class="pre">StackSummary</span></code> オブジェクト</a></li>
+<li><a class="reference internal" href="#framesummary-objects"><code class="docutils literal notranslate"><span class="pre">FrameSummary</span></code> オブジェクト</a></li>
+<li><a class="reference internal" href="#traceback-examples">トレースバックの例</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="atexit.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">atexit</span></code> --- 終了ハンドラ</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="__future__.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">__future__</span></code> --- future 文の定義</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/traceback.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="__future__.html" title="__future__ --- future 文の定義"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="atexit.html" title="atexit --- 終了ハンドラ"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" >Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

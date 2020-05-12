@@ -1,0 +1,922 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>xml.parsers.expat --- Expat を使った高速な XML 解析 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="インターネットプロトコルとサポート" href="internet.html" />
+    <link rel="prev" title="xml.sax.xmlreader --- XML パーサのインタフェース" href="xml.sax.reader.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/pyexpat.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="internet.html" title="インターネットプロトコルとサポート"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="xml.sax.reader.html" title="xml.sax.xmlreader --- XML パーサのインタフェース"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="markup.html" accesskey="U">構造化マークアップツール</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-xml.parsers.expat">
+<span id="xml-parsers-expat-fast-xml-parsing-using-expat"></span><h1><a class="reference internal" href="#module-xml.parsers.expat" title="xml.parsers.expat: An interface to the Expat non-validating XML parser."><code class="xref py py-mod docutils literal notranslate"><span class="pre">xml.parsers.expat</span></code></a> --- Expat を使った高速な XML 解析<a class="headerlink" href="#module-xml.parsers.expat" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<hr class="docutils" />
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyexpat</span></code> モジュールは悪意を持って作成されたデータに対して安全ではありません。信頼できないデータや認証されていないデータをパースする必要がある場合は <a class="reference internal" href="xml.html#xml-vulnerabilities"><span class="std std-ref">XML の脆弱性</span></a> を参照してください。</p>
+</div>
+<p id="index-0"><a class="reference internal" href="#module-xml.parsers.expat" title="xml.parsers.expat: An interface to the Expat non-validating XML parser."><code class="xref py py-mod docutils literal notranslate"><span class="pre">xml.parsers.expat</span></code></a> モジュールは、検証 (validation) を行わない XML パーザ (parser, 解析器)、Expat への Python インタフェースです。モジュールは一つの拡張型 <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> を提供します。これは XMLパーザの現在の状況を表します。一旦 <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトを生成すると、オブジェクトの様々な属性をハンドラ関数 (handler function) に設定できます。その後、XML 文書をパーザに入力すると、 XML文書の文字列とマークアップに応じてハンドラ関数が呼び出されます。</p>
+<p id="index-1">このモジュールでは、Expatパーザへのアクセスを提供するために <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyexpat</span></code> モジュールを使用します。 <code class="xref py py-mod docutils literal notranslate"><span class="pre">pyexpat</span></code> モジュールの直接使用は撤廃されています。</p>
+<p>このモジュールは、例外を一つと型オブジェクトを一つ提供しています:</p>
+<dl class="exception">
+<dt id="xml.parsers.expat.ExpatError">
+<em class="property">exception </em><code class="descclassname">xml.parsers.expat.</code><code class="descname">ExpatError</code><a class="headerlink" href="#xml.parsers.expat.ExpatError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Expat がエラーを報告したときに例外を送出します。 Expatのエラーを解釈する上での詳細な情報は、 <a class="reference internal" href="#expaterror-objects"><span class="std std-ref">ExpatError 例外</span></a> を参照してください。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="xml.parsers.expat.error">
+<em class="property">exception </em><code class="descclassname">xml.parsers.expat.</code><code class="descname">error</code><a class="headerlink" href="#xml.parsers.expat.error" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#xml.parsers.expat.ExpatError" title="xml.parsers.expat.ExpatError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ExpatError</span></code></a> の別名です。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.XMLParserType">
+<code class="descclassname">xml.parsers.expat.</code><code class="descname">XMLParserType</code><a class="headerlink" href="#xml.parsers.expat.XMLParserType" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#xml.parsers.expat.ParserCreate" title="xml.parsers.expat.ParserCreate"><code class="xref py py-func docutils literal notranslate"><span class="pre">ParserCreate()</span></code></a> 関数から返された戻り値の型を示します。</p>
+</dd></dl>
+
+<p><a class="reference internal" href="#module-xml.parsers.expat" title="xml.parsers.expat: An interface to the Expat non-validating XML parser."><code class="xref py py-mod docutils literal notranslate"><span class="pre">xml.parsers.expat</span></code></a> モジュールには以下の 2 つの関数が収められています:</p>
+<dl class="function">
+<dt id="xml.parsers.expat.ErrorString">
+<code class="descclassname">xml.parsers.expat.</code><code class="descname">ErrorString</code><span class="sig-paren">(</span><em>errno</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.ErrorString" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられたエラー番号 <em>errno</em> を解説する文字列を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="xml.parsers.expat.ParserCreate">
+<code class="descclassname">xml.parsers.expat.</code><code class="descname">ParserCreate</code><span class="sig-paren">(</span><em>encoding=None</em>, <em>namespace_separator=None</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.ParserCreate" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新しい <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトを作成し、返します。 <em>encoding</em> が指定されていた場合、XMLデータで使われている文字列のエンコード名でなければなりません。 Expatは、Pythonのように多くのエンコードをサポートしておらず、またエンコーディングのレパートリを拡張することはできません; サポートするエンコードは、UTF-8, UTF-16, ISO-8859-1 (Latin1), ASCII です。 <em>encoding</em> <a class="footnote-reference" href="#id3" id="id1">[1]</a> が指定されると、文書に対する明示的、非明示的なエンコード指定を上書き (override) します。</p>
+<p>Expat はオプションで XML 名前空間の処理を行うことができます。これは引数 <em>namespace_separator</em> に値を指定することで有効になります。この値は、1文字の文字列でなければなりません; 文字列が誤った長さを持つ場合には <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます (<code class="docutils literal notranslate"><span class="pre">None</span></code> は値の省略と見なされます)。名前空間の処理が可能なとき、名前空間に属する要素と属性が展開されます。要素のハンドラである <code class="xref py py-attr docutils literal notranslate"><span class="pre">StartElementHandler</span></code> と <code class="xref py py-attr docutils literal notranslate"><span class="pre">EndElementHandler</span></code> に渡された要素名は、名前空間の URI、名前空間の区切り文字、要素名のローカル部を連結したものになります。名前空間の区切り文字が 0 バイト (<code class="docutils literal notranslate"><span class="pre">chr(0)</span></code>) の場合、名前空間の URI とローカル部は区切り文字なしで連結されます。</p>
+<p>たとえば、<em>namespace_separator</em> に空白文字(<code class="docutils literal notranslate"><span class="pre">'</span> <span class="pre">'</span></code>)がセットされ、次のような文書が解析されるとします:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="nt">&lt;root</span> <span class="na">xmlns    =</span> <span class="s">&quot;http://default-namespace.org/&quot;</span>
+      <span class="na">xmlns:py =</span> <span class="s">&quot;http://www.python.org/ns/&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;py:elem1</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;elem2</span> <span class="na">xmlns=</span><span class="s">&quot;&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/root&gt;</span>
+</pre></div>
+</div>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">StartElementHandler</span></code> は各要素ごとに次のような文字列を受け取ります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">default</span><span class="o">-</span><span class="n">namespace</span><span class="o">.</span><span class="n">org</span><span class="o">/</span> <span class="n">root</span>
+<span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">ns</span><span class="o">/</span> <span class="n">elem1</span>
+<span class="n">elem2</span>
+</pre></div>
+</div>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyexpat</span></code> が使っている <code class="docutils literal notranslate"><span class="pre">Expat</span></code> ライブラリの制限により、返される <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> インスタンスは単独の XML ドキュメントの解析にしか使えません。それぞれのドキュメントごとに別々のパーサのインスタンスを作るために <code class="docutils literal notranslate"><span class="pre">ParserCreate</span></code> を呼び出してください。</p>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><a class="reference external" href="http://www.libexpat.org/">The Expat XML Parser</a></dt>
+<dd>Expatプロジェクトのホームページ。</dd>
+</dl>
+</div>
+<div class="section" id="xmlparser-objects">
+<span id="id2"></span><h2>XMLParser オブジェクト<a class="headerlink" href="#xmlparser-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトは以下のようなメソッドを持ちます:</p>
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.Parse">
+<code class="descclassname">xmlparser.</code><code class="descname">Parse</code><span class="sig-paren">(</span><em>data</em><span class="optional">[</span>, <em>isfinal</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.Parse" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字列 <em>data</em> の内容を解析し、解析されたデータを処理するための適切な関数を呼び出します。このメソッドを最後に呼び出す時は <em>isfinal</em> を真にしなければなりません; 単体ファイルを細切れに渡して解析出来ることを意味しますが、複数ファイルは扱えません。 <em>data</em> にはいつでも空の文字列を渡せます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.ParseFile">
+<code class="descclassname">xmlparser.</code><code class="descname">ParseFile</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.ParseFile" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>file</em> オブジェクトから読み込んだXMLデータを解析します。 <em>file</em> には <cite>read(nbytes)</cite> メソッドのみが必要です。このメソッドはデータがなくなった場合に空文字列を返さねばなりません。。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.SetBase">
+<code class="descclassname">xmlparser.</code><code class="descname">SetBase</code><span class="sig-paren">(</span><em>base</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.SetBase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(XML) 宣言中のシステム識別子中の相対 URI を解決するための、基底 URI を設定します。相対識別子の解決はアプリケーションに任されます: この値は関数 <a class="reference internal" href="#xml.parsers.expat.xmlparser.ExternalEntityRefHandler" title="xml.parsers.expat.xmlparser.ExternalEntityRefHandler"><code class="xref py py-func docutils literal notranslate"><span class="pre">ExternalEntityRefHandler()</span></code></a> や <a class="reference internal" href="#xml.parsers.expat.xmlparser.NotationDeclHandler" title="xml.parsers.expat.xmlparser.NotationDeclHandler"><code class="xref py py-func docutils literal notranslate"><span class="pre">NotationDeclHandler()</span></code></a>, <a class="reference internal" href="#xml.parsers.expat.xmlparser.UnparsedEntityDeclHandler" title="xml.parsers.expat.xmlparser.UnparsedEntityDeclHandler"><code class="xref py py-func docutils literal notranslate"><span class="pre">UnparsedEntityDeclHandler()</span></code></a> に引数 <em>base</em> としてそのまま渡されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.GetBase">
+<code class="descclassname">xmlparser.</code><code class="descname">GetBase</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.GetBase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>以前の <a class="reference internal" href="#xml.parsers.expat.xmlparser.SetBase" title="xml.parsers.expat.xmlparser.SetBase"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SetBase()</span></code></a> によって設定された基底 URI を文字列の形で返します。 <a class="reference internal" href="#xml.parsers.expat.xmlparser.SetBase" title="xml.parsers.expat.xmlparser.SetBase"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SetBase()</span></code></a> が呼ばれていないときには <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.GetInputContext">
+<code class="descclassname">xmlparser.</code><code class="descname">GetInputContext</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.GetInputContext" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のイベントを発生させた入力データを文字列として返します。データはテキストの入っているエンティティが持っているエンコードになります。イベントハンドラがアクティブでないときに呼ばれると、戻り値は <code class="docutils literal notranslate"><span class="pre">None</span></code> となります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.ExternalEntityParserCreate">
+<code class="descclassname">xmlparser.</code><code class="descname">ExternalEntityParserCreate</code><span class="sig-paren">(</span><em>context</em><span class="optional">[</span>, <em>encoding</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.ExternalEntityParserCreate" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>親となるパーザで解析された内容が参照している、外部で解析されるエンティティを解析するために使える &quot;子の&quot; パーザを作成します。 <em>context</em> パラメータは、以下に記すように <a class="reference internal" href="#xml.parsers.expat.xmlparser.ExternalEntityRefHandler" title="xml.parsers.expat.xmlparser.ExternalEntityRefHandler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExternalEntityRefHandler()</span></code></a> ハンドラ関数に渡される文字列でなければなりません。子のパーザは <a class="reference internal" href="#xml.parsers.expat.xmlparser.ordered_attributes" title="xml.parsers.expat.xmlparser.ordered_attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ordered_attributes</span></code></a>, <a class="reference internal" href="#xml.parsers.expat.xmlparser.specified_attributes" title="xml.parsers.expat.xmlparser.specified_attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">specified_attributes</span></code></a> が現在のパーザの値に設定されて生成されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.SetParamEntityParsing">
+<code class="descclassname">xmlparser.</code><code class="descname">SetParamEntityParsing</code><span class="sig-paren">(</span><em>flag</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.SetParamEntityParsing" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パラメータエンティティ (外部DTDサブセットを含む) の解析を制御します。 <em>flag</em> の有効な値は、 <code class="xref py py-const docutils literal notranslate"><span class="pre">XML_PARAM_ENTITY_PARSING_NEVER</span></code>, <code class="xref py py-const docutils literal notranslate"><span class="pre">XML_PARAM_ENTITY_PARSING_UNLESS_STANDALONE</span></code>, <code class="xref py py-const docutils literal notranslate"><span class="pre">XML_PARAM_ENTITY_PARSING_ALWAYS</span></code> です。 flag の設定をしたら true を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.UseForeignDTD">
+<code class="descclassname">xmlparser.</code><code class="descname">UseForeignDTD</code><span class="sig-paren">(</span><span class="optional">[</span><em>flag</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.UseForeignDTD" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>flag</em> の値をデフォルトのtrueにすると、Expatは代わりのDTDをロードするため、すべての引数に <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> を設定して <a class="reference internal" href="#xml.parsers.expat.xmlparser.ExternalEntityRefHandler" title="xml.parsers.expat.xmlparser.ExternalEntityRefHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ExternalEntityRefHandler</span></code></a> を呼び出します。XML文書が文書型定義を持っていなければ、 <a class="reference internal" href="#xml.parsers.expat.xmlparser.ExternalEntityRefHandler" title="xml.parsers.expat.xmlparser.ExternalEntityRefHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ExternalEntityRefHandler</span></code></a> が呼び出しますが、 <a class="reference internal" href="#xml.parsers.expat.xmlparser.StartDoctypeDeclHandler" title="xml.parsers.expat.xmlparser.StartDoctypeDeclHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StartDoctypeDeclHandler</span></code></a> と <a class="reference internal" href="#xml.parsers.expat.xmlparser.EndDoctypeDeclHandler" title="xml.parsers.expat.xmlparser.EndDoctypeDeclHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EndDoctypeDeclHandler</span></code></a> は呼び出されません。</p>
+<p><em>flag</em> にfalseを与えると、メソッドが前回呼ばれた時のtrueの設定が解除されますが、他には何も起こりません。</p>
+<p>このメソッドは <a class="reference internal" href="#xml.parsers.expat.xmlparser.Parse" title="xml.parsers.expat.xmlparser.Parse"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Parse()</span></code></a> または <a class="reference internal" href="#xml.parsers.expat.xmlparser.ParseFile" title="xml.parsers.expat.xmlparser.ParseFile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ParseFile()</span></code></a> メソッドが呼び出される前にだけ呼び出されます;これら2つのメソッドのどちらかが呼び出されたあとにメソッドが呼ばれると、 <a class="reference internal" href="code.html#module-code" title="code: Facilities to implement read-eval-print loops."><code class="xref py py-attr docutils literal notranslate"><span class="pre">code</span></code></a> に定数 <code class="docutils literal notranslate"><span class="pre">errors.codes[errors.XML_ERROR_CANT_CHANGE_FEATURE_ONCE_PARSING]</span></code> が設定されて例外 <a class="reference internal" href="#xml.parsers.expat.ExpatError" title="xml.parsers.expat.ExpatError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ExpatError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトは次のような属性を持ちます:</p>
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.buffer_size">
+<code class="descclassname">xmlparser.</code><code class="descname">buffer_size</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.buffer_size" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#xml.parsers.expat.xmlparser.buffer_text" title="xml.parsers.expat.xmlparser.buffer_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">buffer_text</span></code></a> が真の時に使われるバッファのサイズです。この属性に新しい整数値を代入することで違うバッファサイズにできます。サイズが変えられるときにバッファはフラッシュされます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.buffer_text">
+<code class="descclassname">xmlparser.</code><code class="descname">buffer_text</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.buffer_text" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この値を真にすると、 <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトが Expatから返されたもとの内容をバッファに保持するようになります。これにより可能なときに何度も <a class="reference internal" href="#xml.parsers.expat.xmlparser.CharacterDataHandler" title="xml.parsers.expat.xmlparser.CharacterDataHandler"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CharacterDataHandler()</span></code></a> を呼び出してしまうようなことを避けることができます。Expatは通常、文字列のデータを行末ごと大量に破棄するため、かなりパフォーマンスを改善できるはずです。この属性はデフォルトでは偽で、いつでも変更可能です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.buffer_used">
+<code class="descclassname">xmlparser.</code><code class="descname">buffer_used</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.buffer_used" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#xml.parsers.expat.xmlparser.buffer_text" title="xml.parsers.expat.xmlparser.buffer_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">buffer_text</span></code></a> が利用可能なとき、バッファに保持されたバイト数です。これらのバイトはUTF-8でエンコードされたテキストを表します。この属性は <a class="reference internal" href="#xml.parsers.expat.xmlparser.buffer_text" title="xml.parsers.expat.xmlparser.buffer_text"><code class="xref py py-attr docutils literal notranslate"><span class="pre">buffer_text</span></code></a> が偽の時には意味がありません。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.ordered_attributes">
+<code class="descclassname">xmlparser.</code><code class="descname">ordered_attributes</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.ordered_attributes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この属性をゼロ以外の整数にすると、報告される(XMLノードの) 属性を辞書型ではなくリスト型にします。属性は文書のテキスト中の出現順で示されます。それぞれの属性は、2つのリストのエントリ: 属性名とその値、が与えられます。 (このモジュールの古いバージョンでも、同じフォーマットが使われています。) デフォルトでは、この属性はデフォルトでは偽となりますが、いつでも変更可能です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.specified_attributes">
+<code class="descclassname">xmlparser.</code><code class="descname">specified_attributes</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.specified_attributes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ゼロ以外の整数にすると、パーザは文書のインスタンスで特定される属性だけを報告し、属性宣言から導出された属性は報告しないようになります。この属性が指定されたアプリケーションでは、XMLプロセッサの振る舞いに関する標準に従うために必要とされる (文書型) 宣言によって、どのような付加情報が利用できるのかということについて特に注意を払わなければなりません。デフォルトで、この属性は偽となりますが、いつでも変更可能です。</p>
+</dd></dl>
+
+<p>以下の属性には、 <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトで最も最近に起きたエラーに関する値が入っており、また <code class="xref py py-meth docutils literal notranslate"><span class="pre">Parse()</span></code> または <code class="xref py py-meth docutils literal notranslate"><span class="pre">ParseFile()</span></code> メソッドが <a class="reference internal" href="#xml.parsers.expat.ExpatError" title="xml.parsers.expat.ExpatError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">xml.parsers.expat.ExpatError</span></code></a> 例外を送出した際にのみ正しい値となります。</p>
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.ErrorByteIndex">
+<code class="descclassname">xmlparser.</code><code class="descname">ErrorByteIndex</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.ErrorByteIndex" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーが発生したバイトのインデクスです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.ErrorCode">
+<code class="descclassname">xmlparser.</code><code class="descname">ErrorCode</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.ErrorCode" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーを特定する数値によるコードです。この値は <a class="reference internal" href="#xml.parsers.expat.ErrorString" title="xml.parsers.expat.ErrorString"><code class="xref py py-func docutils literal notranslate"><span class="pre">ErrorString()</span></code></a> に渡したり、 <code class="docutils literal notranslate"><span class="pre">errors</span></code> オブジェクトで定義された内容と比較できます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.ErrorColumnNumber">
+<code class="descclassname">xmlparser.</code><code class="descname">ErrorColumnNumber</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.ErrorColumnNumber" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーの発生したカラム番号です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.ErrorLineNumber">
+<code class="descclassname">xmlparser.</code><code class="descname">ErrorLineNumber</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.ErrorLineNumber" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーの発生した行番号です。</p>
+</dd></dl>
+
+<p>以下の属性は <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクトがその時パースしている位置に関する値を保持しています。コールバックがパースイベントを報告している間、これらの値はイベントの生成した文字列の先頭の位置を指し示します。コールバックの外から参照された時には、（対応するコールバックであるかにかかわらず）直前のパースイベントの位置を示します。</p>
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.CurrentByteIndex">
+<code class="descclassname">xmlparser.</code><code class="descname">CurrentByteIndex</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.CurrentByteIndex" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パーサへの入力の、現在のバイトインデックス。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.CurrentColumnNumber">
+<code class="descclassname">xmlparser.</code><code class="descname">CurrentColumnNumber</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.CurrentColumnNumber" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パーサへの入力の、現在のカラム番号。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.xmlparser.CurrentLineNumber">
+<code class="descclassname">xmlparser.</code><code class="descname">CurrentLineNumber</code><a class="headerlink" href="#xml.parsers.expat.xmlparser.CurrentLineNumber" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パーサへの入力の、現在の行番号。</p>
+</dd></dl>
+
+<p>以下に指定可能なハンドラのリストを示します。 <code class="xref py py-class docutils literal notranslate"><span class="pre">xmlparser</span></code> オブジェクト <em>o</em> にハンドラを指定するには、 <code class="docutils literal notranslate"><span class="pre">o.handlername</span> <span class="pre">=</span> <span class="pre">func</span></code> を使用します。 <em>handlername</em> は、以下のリストに挙げた値をとらなければならず、また <em>func</em> は正しい数の引数を受理する呼び出し可能なオブジェクトでなければなりません。引数は特に明記しない限り、すべて文字列となります。</p>
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.XmlDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">XmlDeclHandler</code><span class="sig-paren">(</span><em>version</em>, <em>encoding</em>, <em>standalone</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.XmlDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>XML 宣言が解析された時に呼ばれます。
+XML宣言は XML 勧告の適用バージョン、文書テクストのエンコード、ならびに任意の &quot;standalone&quot; 宣言の (任意の) 宣言です。
+<em>version</em> と <em>encoding</em> は文字列で、<em>standalone</em> は文書がスタンドアローンと宣言された場合は <code class="docutils literal notranslate"><span class="pre">1</span></code>、スタンドアローンでないと宣言された場合は <code class="docutils literal notranslate"><span class="pre">0</span></code>、スタンドアローン節がない場合は <code class="docutils literal notranslate"><span class="pre">-1</span></code> です。
+Expat のバージョン 1.95.0 以降でのみ使用できます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.StartDoctypeDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">StartDoctypeDeclHandler</code><span class="sig-paren">(</span><em>doctypeName</em>, <em>systemId</em>, <em>publicId</em>, <em>has_internal_subset</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.StartDoctypeDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Expatが文書型宣言 (<code class="docutils literal notranslate"><span class="pre">&lt;!DOCTYPE</span> <span class="pre">...</span></code>)を解析し始めたときに呼び出されます。 <em>doctypeName</em> は、与えられた値がそのまま Expat に提供されます。 <em>systemId</em> と <em>publicId</em> パラメタが指定されている場合、それぞれシステムと公開識別子を与えます。省略する時には <code class="docutils literal notranslate"><span class="pre">None</span></code> にします。文書が内部的な文書宣言のサブセット (internal document declaration subset) を持つか、サブセット自体の場合、 <em>has_internal_subset</em> は true になります。このハンドラには、Expat version 1.2以上が必要です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.EndDoctypeDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">EndDoctypeDeclHandler</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.EndDoctypeDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Expatが文書型宣言の解析を終えたときに呼び出されます。このハンドラには、Expat version 1.2以上が必要です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.ElementDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">ElementDeclHandler</code><span class="sig-paren">(</span><em>name</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.ElementDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>それぞれの要素型宣言ごとに呼び出されます。 <em>name</em> は要素型の名前であり、 <em>model</em> は内容モデル (content model) の表現です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.AttlistDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">AttlistDeclHandler</code><span class="sig-paren">(</span><em>elname</em>, <em>attname</em>, <em>type</em>, <em>default</em>, <em>required</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.AttlistDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ひとつの要素型で宣言される属性ごとに呼び出されます。属性リストの宣言が 3つの属性を宣言したとすると、このハンドラは各属性に1度ずつ、 3度呼び出されます。 <em>elname</em> は要素名であり、これに対して宣言が適用され、 <em>attname</em> が宣言された属性名となります。属性型は文字列で、 <em>type</em> として渡されます。取り得る値は、 <code class="docutils literal notranslate"><span class="pre">'CDATA'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ID'</span></code>, <code class="docutils literal notranslate"><span class="pre">'IDREF'</span></code>, ... です。 <em>default</em> は、文書のインスタンスによって属性が指定されていないときに使用されるデフォルト値です。デフォルト値(<code class="docutils literal notranslate"><span class="pre">#IMPLIED</span></code> values)が存在しないときには <code class="docutils literal notranslate"><span class="pre">None</span></code> を与えます。文書のインスタンス中に属性値を与える必要のあるときには <em>required</em> が true になります。これにはExpat version 1.95.0 以上が必要です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.StartElementHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">StartElementHandler</code><span class="sig-paren">(</span><em>name</em>, <em>attributes</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.StartElementHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>要素の開始ごとに呼び出されます。
+<em>name</em> は要素名を持つ文字列で、 <em>attributes</em> は要素の属性です。
+<a class="reference internal" href="#xml.parsers.expat.xmlparser.ordered_attributes" title="xml.parsers.expat.xmlparser.ordered_attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ordered_attributes</span></code></a> が真の場合これはリストです (詳細は <a class="reference internal" href="#xml.parsers.expat.xmlparser.ordered_attributes" title="xml.parsers.expat.xmlparser.ordered_attributes"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ordered_attributes</span></code></a> を参照してください)。
+そうでなければ名前を値に対応させる辞書です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.EndElementHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">EndElementHandler</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.EndElementHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>要素の終端を処理するごとに呼び出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.ProcessingInstructionHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">ProcessingInstructionHandler</code><span class="sig-paren">(</span><em>target</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.ProcessingInstructionHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>処理命令を処理するごとに呼び出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.CharacterDataHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">CharacterDataHandler</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.CharacterDataHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字データを処理するときに呼びだされます。このハンドラは通常の文字データ、 CDATAセクション、無視できる空白文字列のために呼び出されます。これらを識別しなければならないアプリケーションは、要求された情報を収集するために <a class="reference internal" href="#xml.parsers.expat.xmlparser.StartCdataSectionHandler" title="xml.parsers.expat.xmlparser.StartCdataSectionHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StartCdataSectionHandler</span></code></a>, <a class="reference internal" href="#xml.parsers.expat.xmlparser.EndCdataSectionHandler" title="xml.parsers.expat.xmlparser.EndCdataSectionHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EndCdataSectionHandler</span></code></a>, and <a class="reference internal" href="#xml.parsers.expat.xmlparser.ElementDeclHandler" title="xml.parsers.expat.xmlparser.ElementDeclHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ElementDeclHandler</span></code></a> コールバックメソッドを使用できます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.UnparsedEntityDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">UnparsedEntityDeclHandler</code><span class="sig-paren">(</span><em>entityName</em>, <em>base</em>, <em>systemId</em>, <em>publicId</em>, <em>notationName</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.UnparsedEntityDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>解析されていない (NDATA) エンティティ宣言を処理するために呼び出されます。このハンドラは Expat ライブラリのバージョン1.2のためだけに存在します; より最近のバージョンでは、代わりに <a class="reference internal" href="#xml.parsers.expat.xmlparser.EntityDeclHandler" title="xml.parsers.expat.xmlparser.EntityDeclHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EntityDeclHandler</span></code></a> を使用してください (根底にある Expat ライブラリ内の関数は、撤廃されたものであると宣言されています)。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.EntityDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">EntityDeclHandler</code><span class="sig-paren">(</span><em>entityName</em>, <em>is_parameter_entity</em>, <em>value</em>, <em>base</em>, <em>systemId</em>, <em>publicId</em>, <em>notationName</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.EntityDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エンティティ宣言ごとに呼び出されます。パラメタと内部エンティティについて、 <em>value</em> はエンティティ宣言の宣言済みの内容を与える文字列となります; 外部エンティティの時には <code class="docutils literal notranslate"><span class="pre">None</span></code> となります。解析済みエンティティの場合、 <em>notationName</em> パラメタは <code class="docutils literal notranslate"><span class="pre">None</span></code> となり、解析されていないエンティティの時には記法 (notation) 名となります。 <em>is_parameter_entity</em> は、エンティティがパラメタエンティティの場合真に、一般エンティティ (general entitiy) の場合には偽になります (ほとんどのアプリケーションでは、一般エンティティのことしか気にする必要がありません)。このハンドラは Expat ライブラリのバージョン1.95.0 以降でのみ使用できます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.NotationDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">NotationDeclHandler</code><span class="sig-paren">(</span><em>notationName</em>, <em>base</em>, <em>systemId</em>, <em>publicId</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.NotationDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>記法の宣言 (notation declaration) で呼び出されます。 <em>notationName</em>, <em>base</em>, <em>systemId</em>, および <em>publicId</em> を与える場合、文字列にします。public な識別子が省略された場合、 <em>publicId</em> は <code class="docutils literal notranslate"><span class="pre">None</span></code> になります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.StartNamespaceDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">StartNamespaceDeclHandler</code><span class="sig-paren">(</span><em>prefix</em>, <em>uri</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.StartNamespaceDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>要素が名前空間宣言を含んでいる場合に呼び出されます。名前空間宣言は、宣言が配置されている要素に対して <a class="reference internal" href="#xml.parsers.expat.xmlparser.StartElementHandler" title="xml.parsers.expat.xmlparser.StartElementHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StartElementHandler</span></code></a> が呼び出される前に処理されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.EndNamespaceDeclHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">EndNamespaceDeclHandler</code><span class="sig-paren">(</span><em>prefix</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.EndNamespaceDeclHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>名前空間宣言を含んでいたエレメントの終了タグに到達したときに呼び出されます。このハンドラは、要素に関する名前空間宣言ごとに、 <a class="reference internal" href="#xml.parsers.expat.xmlparser.StartNamespaceDeclHandler" title="xml.parsers.expat.xmlparser.StartNamespaceDeclHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StartNamespaceDeclHandler</span></code></a> とは逆の順番で一度だけ呼び出され、各名前空間宣言のスコープが開始されたことを示します。このハンドラは、要素が終了する際、対応する <a class="reference internal" href="#xml.parsers.expat.xmlparser.EndElementHandler" title="xml.parsers.expat.xmlparser.EndElementHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EndElementHandler</span></code></a> が呼ばれた後に呼び出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.CommentHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">CommentHandler</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.CommentHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>コメントで呼び出されます。 <em>data</em> はコメントのテキストで、先頭の '<code class="docutils literal notranslate"><span class="pre">&lt;!-</span></code> <code class="docutils literal notranslate"><span class="pre">-</span></code>' と末尾の '<code class="docutils literal notranslate"><span class="pre">-</span></code> <code class="docutils literal notranslate"><span class="pre">-&gt;</span></code>' を除きます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.StartCdataSectionHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">StartCdataSectionHandler</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.StartCdataSectionHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>CDATA セクションの開始時に呼び出されます。CDATA セクションの構文的な開始と終了位置を識別できるようにするには、このハンドラと <a class="reference internal" href="#xml.parsers.expat.xmlparser.EndCdataSectionHandler" title="xml.parsers.expat.xmlparser.EndCdataSectionHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EndCdataSectionHandler</span></code></a> が必要です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.EndCdataSectionHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">EndCdataSectionHandler</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.EndCdataSectionHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>CDATA セクションの終了時に呼び出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.DefaultHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">DefaultHandler</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.DefaultHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>XML 文書中で、適用可能なハンドラが指定されていない文字すべてに対して呼び出されます。この文字とは、検出されたことが報告されるが、ハンドラは指定されていないようなコンストラクト (construct) の一部である文字を意味します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.DefaultHandlerExpand">
+<code class="descclassname">xmlparser.</code><code class="descname">DefaultHandlerExpand</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.DefaultHandlerExpand" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#xml.parsers.expat.xmlparser.DefaultHandler" title="xml.parsers.expat.xmlparser.DefaultHandler"><code class="xref py py-func docutils literal notranslate"><span class="pre">DefaultHandler()</span></code></a> と同じですが、内部エンティティの展開を禁止しません。エンティティ参照はデフォルトハンドラに渡されません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.NotStandaloneHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">NotStandaloneHandler</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.NotStandaloneHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>XML 文書がスタンドアロンの文書として宣言されていない場合に呼び出されます。外部サブセットやパラメタエンティティへの参照が存在するが、XML 宣言が XML 宣言中で standalone 変数を <code class="docutils literal notranslate"><span class="pre">yes</span></code> に設定していない場合に起きます。このハンドラが <code class="docutils literal notranslate"><span class="pre">0</span></code> を返すと、パーザは <code class="xref py py-const docutils literal notranslate"><span class="pre">XML_ERROR_NOT_STANDALONE</span></code> を発生させます。このハンドラが設定されていなければ、パーザは前述の事態で例外を送出しません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="xml.parsers.expat.xmlparser.ExternalEntityRefHandler">
+<code class="descclassname">xmlparser.</code><code class="descname">ExternalEntityRefHandler</code><span class="sig-paren">(</span><em>context</em>, <em>base</em>, <em>systemId</em>, <em>publicId</em><span class="sig-paren">)</span><a class="headerlink" href="#xml.parsers.expat.xmlparser.ExternalEntityRefHandler" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>外部エンティティの参照時に呼び出されます。 <em>base</em> は現在の基底 (base) で、以前の <a class="reference internal" href="#xml.parsers.expat.xmlparser.SetBase" title="xml.parsers.expat.xmlparser.SetBase"><code class="xref py py-meth docutils literal notranslate"><span class="pre">SetBase()</span></code></a> で設定された値になっています。 public、および system の識別子である、 <em>systemId</em> と <em>publicId</em> が指定されている場合、値は文字列です; public 識別子が指定されていない場合、 <em>publicId</em> は <code class="docutils literal notranslate"><span class="pre">None</span></code> になります。 <em>context</em> の値は不明瞭なものであり、以下に記述するようにしか使ってはなりません。</p>
+<p>外部エンティティが解析されるようにするには、このハンドラを実装しなければなりません。このハンドラは、 <code class="docutils literal notranslate"><span class="pre">ExternalEntityParserCreate(context)</span></code> を使って適切なコールバックを指定し、子パーザを生成して、エンティティを解析する役割を担います。このハンドラは整数を返さなければなりません; <code class="docutils literal notranslate"><span class="pre">0</span></code> を返した場合、パーザは <code class="xref py py-const docutils literal notranslate"><span class="pre">XML_ERROR_EXTERNAL_ENTITY_HANDLING</span></code> エラーを送出します。そうでない場合、解析を継続します。</p>
+<p>このハンドラが与えられておらず、 <a class="reference internal" href="#xml.parsers.expat.xmlparser.DefaultHandler" title="xml.parsers.expat.xmlparser.DefaultHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DefaultHandler</span></code></a> コールバックが指定されていれば、外部エンティティは <a class="reference internal" href="#xml.parsers.expat.xmlparser.DefaultHandler" title="xml.parsers.expat.xmlparser.DefaultHandler"><code class="xref py py-attr docutils literal notranslate"><span class="pre">DefaultHandler</span></code></a> で報告されます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="expaterror-exceptions">
+<span id="expaterror-objects"></span><h2>ExpatError 例外<a class="headerlink" href="#expaterror-exceptions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#xml.parsers.expat.ExpatError" title="xml.parsers.expat.ExpatError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ExpatError</span></code></a> 例外はいくつかの興味深い属性を備えています:</p>
+<dl class="attribute">
+<dt id="xml.parsers.expat.ExpatError.code">
+<code class="descclassname">ExpatError.</code><code class="descname">code</code><a class="headerlink" href="#xml.parsers.expat.ExpatError.code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>特定のエラーに対する Expat の内部エラー番号です。
+<a class="reference internal" href="#xml.parsers.expat.errors.messages" title="xml.parsers.expat.errors.messages"><code class="xref py py-data docutils literal notranslate"><span class="pre">errors.messages</span></code></a> 辞書はこれらのエラー番号を Expat のエラーメッセージに対応させます。
+例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">xml.parsers.expat</span> <span class="kn">import</span> <span class="n">ParserCreate</span><span class="p">,</span> <span class="n">ExpatError</span><span class="p">,</span> <span class="n">errors</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">ParserCreate</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">some_xml_document</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">ExpatError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error:&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="n">err</span><span class="o">.</span><span class="n">code</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#module-xml.parsers.expat.errors" title="xml.parsers.expat.errors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">errors</span></code></a> モジュールはエラーメッセージ定数と、それらのメッセージをエラーコードに対応させる辞書 <a class="reference internal" href="#xml.parsers.expat.errors.codes" title="xml.parsers.expat.errors.codes"><code class="xref py py-data docutils literal notranslate"><span class="pre">codes</span></code></a> も提供しています。以下を参照してください。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.ExpatError.lineno">
+<code class="descclassname">ExpatError.</code><code class="descname">lineno</code><a class="headerlink" href="#xml.parsers.expat.ExpatError.lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーが検出された場所の行番号です。最初の行の番号は <code class="docutils literal notranslate"><span class="pre">1</span></code> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="xml.parsers.expat.ExpatError.offset">
+<code class="descclassname">ExpatError.</code><code class="descname">offset</code><a class="headerlink" href="#xml.parsers.expat.ExpatError.offset" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーが発生した場所の行内でのオフセットです。最初のカラムの番号は <code class="docutils literal notranslate"><span class="pre">0</span></code> です。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="example">
+<span id="expat-example"></span><h2>使用例<a class="headerlink" href="#example" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下のプログラムでは、与えられた引数を出力するだけの三つのハンドラを定義しています。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xml.parsers.expat</span>
+
+<span class="c1"># 3 handler functions</span>
+<span class="k">def</span> <span class="nf">start_element</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Start element:&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">end_element</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;End element:&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">char_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Character data:&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">parsers</span><span class="o">.</span><span class="n">expat</span><span class="o">.</span><span class="n">ParserCreate</span><span class="p">()</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">StartElementHandler</span> <span class="o">=</span> <span class="n">start_element</span>
+<span class="n">p</span><span class="o">.</span><span class="n">EndElementHandler</span> <span class="o">=</span> <span class="n">end_element</span>
+<span class="n">p</span><span class="o">.</span><span class="n">CharacterDataHandler</span> <span class="o">=</span> <span class="n">char_data</span>
+
+<span class="n">p</span><span class="o">.</span><span class="n">Parse</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<span class="s2">&lt;parent id=&quot;top&quot;&gt;&lt;child1 name=&quot;paul&quot;&gt;Text goes here&lt;/child1&gt;</span>
+<span class="s2">&lt;child2 name=&quot;fred&quot;&gt;More text&lt;/child2&gt;</span>
+<span class="s2">&lt;/parent&gt;&quot;&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このプログラムの出力は以下のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">Start</span> <span class="n">element</span><span class="p">:</span> <span class="n">parent</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="s1">&#39;top&#39;</span><span class="p">}</span>
+<span class="n">Start</span> <span class="n">element</span><span class="p">:</span> <span class="n">child1</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;paul&#39;</span><span class="p">}</span>
+<span class="n">Character</span> <span class="n">data</span><span class="p">:</span> <span class="s1">&#39;Text goes here&#39;</span>
+<span class="n">End</span> <span class="n">element</span><span class="p">:</span> <span class="n">child1</span>
+<span class="n">Character</span> <span class="n">data</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">Start</span> <span class="n">element</span><span class="p">:</span> <span class="n">child2</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;fred&#39;</span><span class="p">}</span>
+<span class="n">Character</span> <span class="n">data</span><span class="p">:</span> <span class="s1">&#39;More text&#39;</span>
+<span class="n">End</span> <span class="n">element</span><span class="p">:</span> <span class="n">child2</span>
+<span class="n">Character</span> <span class="n">data</span><span class="p">:</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="n">End</span> <span class="n">element</span><span class="p">:</span> <span class="n">parent</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-xml.parsers.expat.model">
+<span id="content-model-descriptions"></span><span id="expat-content-models"></span><h2>内容モデルの記述<a class="headerlink" href="#module-xml.parsers.expat.model" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>内容モデルは入れ子になったタプルを使って記述されています。各タプルには以下の 4 つの値が収められています: 型、限定詞 (quantifier)、名前、そして子のタプル。子のタプルは単に内容モデルを記述したものです。</p>
+<p>最初の二つのフィールドの値は <a class="reference internal" href="#module-xml.parsers.expat.model" title="xml.parsers.expat.model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">xml.parsers.expat.model</span></code></a> モジュールで定義されている定数です。これらの定数は二つのグループ: モデル型 (model type) グループと限定子 (quantifier) グループ、に取りまとめられます。</p>
+<p>以下にモデル型グループにおける定数を示します:</p>
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CTYPE_ANY</code></dt>
+<dd><p>モデル名で指定された要素は <code class="docutils literal notranslate"><span class="pre">ANY</span></code> の内容モデルを持つと宣言されます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CTYPE_CHOICE</code></dt>
+<dd><p>指定されたエレメントはいくつかのオプションから選択できるようになっています; <code class="docutils literal notranslate"><span class="pre">(A</span> <span class="pre">|</span> <span class="pre">B</span> <span class="pre">|</span> <span class="pre">C)</span></code> のような内容モデルで用いられます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CTYPE_EMPTY</code></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">EMPTY</span></code> であると宣言されている要素はこのモデル型を持ちます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CTYPE_MIXED</code></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CTYPE_NAME</code></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CTYPE_SEQ</code></dt>
+<dd><p>順々に続くようなモデルの系列を表すモデルがこのモデル型で表されます。 <code class="docutils literal notranslate"><span class="pre">(A,</span> <span class="pre">B,</span> <span class="pre">C)</span></code> のようなモデルで用いられます。</p>
+</dd></dl>
+
+<p>限定子グループにおける定数を以下に示します:</p>
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CQUANT_NONE</code></dt>
+<dd><p>修飾子 (modifier) が指定されていません。従って <code class="docutils literal notranslate"><span class="pre">A</span></code> のように、厳密に一つだけです。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CQUANT_OPT</code></dt>
+<dd><p>このモデルはオプションです: <code class="docutils literal notranslate"><span class="pre">A?</span></code> のように、一つか全くないかです。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CQUANT_PLUS</code></dt>
+<dd><p>このモデルは (<code class="docutils literal notranslate"><span class="pre">A+</span></code> のように) 一つかそれ以上あります。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descclassname">xml.parsers.expat.model.</code><code class="descname">XML_CQUANT_REP</code></dt>
+<dd><p>このモデルは <code class="docutils literal notranslate"><span class="pre">A*</span></code> のようにゼロ回以上あります。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-xml.parsers.expat.errors">
+<span id="expat-error-constants"></span><span id="expat-errors"></span><h2>Expat エラー定数<a class="headerlink" href="#module-xml.parsers.expat.errors" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下の定数は <a class="reference internal" href="#module-xml.parsers.expat.errors" title="xml.parsers.expat.errors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">xml.parsers.expat.errors</span></code></a> モジュールで提供されています。
+これらの定数は、エラーが発生した際に送出される <code class="xref py py-exc docutils literal notranslate"><span class="pre">ExpatError</span></code> 例外オブジェクトのいくつかの属性を解釈する上で便利です。
+後方互換性の理由で、定数値は数字のエラー  <em>コード</em> ではなくエラー <em>メッセージ</em> です。
+属性を解釈するには <a class="reference internal" href="code.html#module-code" title="code: Facilities to implement read-eval-print loops."><code class="xref py py-attr docutils literal notranslate"><span class="pre">code</span></code></a> 属性と <code class="samp docutils literal notranslate"><span class="pre">errors.codes[errors.XML_ERROR_</span><em><span class="pre">CONSTANT_NAME</span></em><span class="pre">]</span></code> を比較します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">errors</span></code> モジュールには以下の属性があります:</p>
+<dl class="data">
+<dt id="xml.parsers.expat.errors.codes">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">codes</code><a class="headerlink" href="#xml.parsers.expat.errors.codes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>数値的なエラーコードを文字列の記述に対応させる辞書です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.messages">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">messages</code><a class="headerlink" href="#xml.parsers.expat.errors.messages" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字列の記述をエラーコードに対応させる辞書です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_ASYNC_ENTITY">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_ASYNC_ENTITY</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_ASYNC_ENTITY" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>属性値中のエンティティ参照が、内部エンティティではなく外部エンティティを参照しました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_BAD_CHAR_REF">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_BAD_CHAR_REF</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_BAD_CHAR_REF" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字参照が、XML では正しくない (illegal) 文字を参照しました (例えば <code class="docutils literal notranslate"><span class="pre">0</span></code> や '<code class="docutils literal notranslate"><span class="pre">&amp;#0;</span></code>')。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_BINARY_ENTITY_REF">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_BINARY_ENTITY_REF</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_BINARY_ENTITY_REF" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エンティティ参照が、記法 (notation) つきで宣言されているエンティティを参照したため、解析できません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_DUPLICATE_ATTRIBUTE">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_DUPLICATE_ATTRIBUTE</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_DUPLICATE_ATTRIBUTE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>一つの属性が一つの開始タグ内に一度より多く使われています。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_INCORRECT_ENCODING">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_INCORRECT_ENCODING</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_INCORRECT_ENCODING" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_INVALID_TOKEN">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_INVALID_TOKEN</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_INVALID_TOKEN" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>入力されたバイトが文字に適切に関連付けできない際に送出されます; 例えば、UTF-8 入力ストリームにおける NUL バイト (値 <code class="docutils literal notranslate"><span class="pre">0</span></code>) などです。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_JUNK_AFTER_DOC_ELEMENT">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_JUNK_AFTER_DOC_ELEMENT</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_JUNK_AFTER_DOC_ELEMENT" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>空白以外の何かがドキュメント要素の後にあります。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_MISPLACED_XML_PI">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_MISPLACED_XML_PI</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_MISPLACED_XML_PI" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>入力データの先頭以外の場所に XML 定義が見つかりました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_NO_ELEMENTS">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_NO_ELEMENTS</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_NO_ELEMENTS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この文書には要素がありません (XML では全ての文書は確実に最上位の要素を正確に一つ持たなければなりません)。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_NO_MEMORY">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_NO_MEMORY</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_NO_MEMORY" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Expat が内部メモリを確保できませんでした。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_PARAM_ENTITY_REF">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_PARAM_ENTITY_REF</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_PARAM_ENTITY_REF" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パラメータエンティティが許可されていない場所で見つかりました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_PARTIAL_CHAR">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_PARTIAL_CHAR</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_PARTIAL_CHAR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>入力に不完全な文字が見つかりました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_RECURSIVE_ENTITY_REF">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_RECURSIVE_ENTITY_REF</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_RECURSIVE_ENTITY_REF" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エンティティ参照中に、同じエンティティへの別の参照が入っていました; おそらく違う名前で参照しているか、間接的に参照しています。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_SYNTAX">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_SYNTAX</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_SYNTAX" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>何らかの仕様化されていない構文エラーに遭遇しました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_TAG_MISMATCH">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_TAG_MISMATCH</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_TAG_MISMATCH" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>終了タグが最も内側で開かれている開始タグに一致しません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNCLOSED_TOKEN">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNCLOSED_TOKEN</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNCLOSED_TOKEN" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>何らかの (開始タグのような) トークンが閉じられないまま、ストリームの終端や次のトークンに遭遇しました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNDEFINED_ENTITY">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNDEFINED_ENTITY</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNDEFINED_ENTITY" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>定義されていないエンティティへの参照が行われました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNKNOWN_ENCODING">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNKNOWN_ENCODING</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNKNOWN_ENCODING" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ドキュメントのエンコードが Expat でサポートされていません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNCLOSED_CDATA_SECTION">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNCLOSED_CDATA_SECTION</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNCLOSED_CDATA_SECTION" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>CDATAセクションが閉じられていません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_EXTERNAL_ENTITY_HANDLING">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_EXTERNAL_ENTITY_HANDLING</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_EXTERNAL_ENTITY_HANDLING" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_NOT_STANDALONE">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_NOT_STANDALONE</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_NOT_STANDALONE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>XML文書が &quot;standalone&quot; だと宣言されており <code class="xref py py-attr docutils literal notranslate"><span class="pre">NotStandaloneHandler</span></code> が設定され <code class="docutils literal notranslate"><span class="pre">0</span></code> が返されているにもかかわらず、パーサは &quot;standalone&quot; ではないと判別しました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNEXPECTED_STATE">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNEXPECTED_STATE</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNEXPECTED_STATE" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_ENTITY_DECLARED_IN_PE">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_ENTITY_DECLARED_IN_PE</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_ENTITY_DECLARED_IN_PE" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_FEATURE_REQUIRES_XML_DTD">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_FEATURE_REQUIRES_XML_DTD</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_FEATURE_REQUIRES_XML_DTD" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>その操作を完了するにはDTDのサポートが必要ですが、ExpatがDTDのサポートをしない設定になっています。これは <a class="reference internal" href="#module-xml.parsers.expat" title="xml.parsers.expat: An interface to the Expat non-validating XML parser."><code class="xref py py-mod docutils literal notranslate"><span class="pre">xml.parsers.expat</span></code></a> モジュールの標準的なビルドでは報告されません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_CANT_CHANGE_FEATURE_ONCE_PARSING">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_CANT_CHANGE_FEATURE_ONCE_PARSING</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_CANT_CHANGE_FEATURE_ONCE_PARSING" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パースが始まったあとで動作の変更が要求されました。これはパースが開始される前にのみ変更可能です。（現在のところ） <code class="xref py py-meth docutils literal notranslate"><span class="pre">UseForeignDTD()</span></code> によってのみ送出されます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNBOUND_PREFIX">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNBOUND_PREFIX</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNBOUND_PREFIX" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>名前空間の処理を有効すると宣言されていないプレフィックスが見つかります。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_UNDECLARING_PREFIX">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_UNDECLARING_PREFIX</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_UNDECLARING_PREFIX" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>XML文書はプレフィックスに対応した名前空間宣言を削除しようとしました。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_INCOMPLETE_PE">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_INCOMPLETE_PE</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_INCOMPLETE_PE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パラメータエンティティは不完全なマークアップを含んでいます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_XML_DECL">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_XML_DECL</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_XML_DECL" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>XML文書中に要素がありません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_TEXT_DECL">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_TEXT_DECL</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_TEXT_DECL" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>外部エンティティ中のテキスト宣言にエラーがあります。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_PUBLICID">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_PUBLICID</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_PUBLICID" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パブリックID中に許可されていない文字があります。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_SUSPENDED">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_SUSPENDED</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_SUSPENDED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>要求された操作は一時停止されたパーサで行われていますが、許可されていない操作です。このエラーは追加の入力を行なおうとしている場合、もしくはパーサが停止しようとしている場合にも送出されます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_NOT_SUSPENDED">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_NOT_SUSPENDED</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_NOT_SUSPENDED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パーサを一時停止しようとしましたが、停止されませんでした。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_ABORTED">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_ABORTED</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_ABORTED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Pythonアプリケーションには通知されません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_FINISHED">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_FINISHED</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_FINISHED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>要求された操作で、パース対象となる入力が完了したと判断しましたが、入力は受理されませんでした。このエラーは追加の入力を行なおうとしている場合、もしくはパーサが停止しようとしている場合に送出されます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="xml.parsers.expat.errors.XML_ERROR_SUSPEND_PE">
+<code class="descclassname">xml.parsers.expat.errors.</code><code class="descname">XML_ERROR_SUSPEND_PE</code><a class="headerlink" href="#xml.parsers.expat.errors.XML_ERROR_SUSPEND_PE" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">脚注</p>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>XML 出力に含まれるエンコーディング文字列は適切な規格に従っていなければなりません。例えば、 &quot;UTF-8&quot; は有効ですが、 &quot;UTF8&quot; はそうではありません。<a class="reference external" href="https://www.w3.org/TR/2006/REC-xml11-20060816/#NT-EncodingDecl">https://www.w3.org/TR/2006/REC-xml11-20060816/#NT-EncodingDecl</a> と <a class="reference external" href="https://www.iana.org/assignments/character-sets/character-sets.xhtml">https://www.iana.org/assignments/character-sets/character-sets.xhtml</a> を参照してください。</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">xml.parsers.expat</span></code> --- Expat を使った高速な XML 解析</a><ul>
+<li><a class="reference internal" href="#xmlparser-objects">XMLParser オブジェクト</a></li>
+<li><a class="reference internal" href="#expaterror-exceptions">ExpatError 例外</a></li>
+<li><a class="reference internal" href="#example">使用例</a></li>
+<li><a class="reference internal" href="#module-xml.parsers.expat.model">内容モデルの記述</a></li>
+<li><a class="reference internal" href="#module-xml.parsers.expat.errors">Expat エラー定数</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="xml.sax.reader.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">xml.sax.xmlreader</span></code> --- XML パーサのインタフェース</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="internet.html"
+                        title="次の章へ">インターネットプロトコルとサポート</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/pyexpat.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="internet.html" title="インターネットプロトコルとサポート"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="xml.sax.reader.html" title="xml.sax.xmlreader --- XML パーサのインタフェース"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="markup.html" >構造化マークアップツール</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

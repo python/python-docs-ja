@@ -1,0 +1,994 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>io --- ストリームを扱うコアツール &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="time --- 時刻データへのアクセスと変換" href="time.html" />
+    <link rel="prev" title="os --- 雑多なオペレーティングシステムインタフェース" href="os.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/io.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="time.html" title="time --- 時刻データへのアクセスと変換"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="os.html" title="os --- 雑多なオペレーティングシステムインタフェース"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="allos.html" accesskey="U">汎用オペレーティングシステムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-io">
+<span id="io-core-tools-for-working-with-streams"></span><h1><a class="reference internal" href="#module-io" title="io: Core tools for working with streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">io</span></code></a> --- ストリームを扱うコアツール<a class="headerlink" href="#module-io" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/io.py">Lib/io.py</a></p>
+<hr class="docutils" />
+<div class="section" id="overview">
+<span id="io-overview"></span><h2>概要<a class="headerlink" href="#overview" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-0"><a class="reference internal" href="#module-io" title="io: Core tools for working with streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">io</span></code></a> モジュールは様々な種類の I/O を扱う Python の主要な機能を提供しています。 I/O には主に3つの種類があります; <em>テキスト I/O</em>, <em>バイナリ I/O</em>, <em>raw I/O</em> です。これらは汎用的なカテゴリで、各カテゴリには様々なストレージが利用されます。これらのいずれかのカテゴリに属する具象オブジェクトは全て <a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">file object</span></a> と呼ばれます。他によく使われる用語として <em>ストリーム</em> と <em>file-like オブジェクト</em> があります。</p>
+<p>それぞれの具象ストリームオブジェクトは、カテゴリに応じた機能を持ちます。ストリームは読み込み専用、書き込み専用、読み書き可能のいずかになります。任意のランダムアクセス（前方、後方の任意の場所にシークする）が可能かもしれませんし、シーケンシャルアクセスしかできないかもしれません（例えばソケットやパイプなど）。</p>
+<p>全てのストリームは、与えられたデータの型に対して厳密です。例えば、バイナリストリームの <code class="docutils literal notranslate"><span class="pre">write()</span></code> メソッドに対して <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> オブジェクトを渡すと <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> 例外を発生させます。テキストストリームの <code class="docutils literal notranslate"><span class="pre">write()</span></code> メソッドに <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> オブジェクトを渡しても同じです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>以前 <a class="reference internal" href="exceptions.html#IOError" title="IOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IOError</span></code></a> を送出していた操作が <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出するようになりました。 <a class="reference internal" href="exceptions.html#IOError" title="IOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IOError</span></code></a> は今は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> の別名です。</p>
+</div>
+<div class="section" id="text-i-o">
+<h3>テキスト I/O<a class="headerlink" href="#text-i-o" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>テキスト I/O は、 <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> オブジェクトを受け取り、生成します。すなわち、背後にあるストレージがバイト列 (例えばファイルなど) を格納するときは常に、透過的にデータのエンコード・デコードを行ない、オプションでプラットフォーム依存の改行文字変換を行います。</p>
+<p>テキストストリームを作る一番簡単な方法は、オプションでエンコーディングを指定して、 <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-meth docutils literal notranslate"><span class="pre">open()</span></code></a> を利用することです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;myfile.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO</span></code></a> オブジェクトはインメモリーのテキストストリームです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="s2">&quot;some initial text data&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>テキストストリームの API は <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> のドキュメントで詳しく解説します。</p>
+</div>
+<div class="section" id="binary-i-o">
+<h3>バイナリ I/O<a class="headerlink" href="#binary-i-o" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>バイナリー I/O (<em>buffered I/O</em> とも呼ばれます) は <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> を受け取り <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> オブジェクトを生成します。エンコード、デコード、改行文字変換は一切行いません。このカテゴリのストリームは全ての非テキストデータや、テキストデータの扱いを手動で管理したい場合に利用することができます。</p>
+<p>バイナリーストリームを生成する一番簡単な方法は、 <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-meth docutils literal notranslate"><span class="pre">open()</span></code></a> の mode 文字列に <code class="docutils literal notranslate"><span class="pre">'b'</span></code> を指定することです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;myfile.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> はインメモリーのバイナリストリームです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;some initial binary data: </span><span class="se">\x00\x01</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>バイナリーストリーム API は <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> のドキュメントで詳しく解説します。</p>
+<p>他のライブラリモジュールが、別のテキスト・バイナリーストリームを生成する方法を提供しています。例えば <a class="reference internal" href="socket.html#socket.socket.makefile" title="socket.socket.makefile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">socket.socket.makefile()</span></code></a> などです。</p>
+</div>
+<div class="section" id="raw-i-o">
+<h3>Raw I/O<a class="headerlink" href="#raw-i-o" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Raw I/O (<em>unbuffered I/O</em> とも呼ばれます) は、バイナリーストリームやテキストストリームの低水準の部品としてよく利用されます。ユーザーコードで直接 raw ストリームを扱うべき場面は滅多にありません。とはいえ、バッファリングを無効にしてファイルをバイナリーモードで開くことで raw ストリームを作ることができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;myfile.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">,</span> <span class="n">buffering</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>raw ストリーム API は <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> のドキュメントで詳しく解説します。</p>
+</div>
+</div>
+<div class="section" id="high-level-module-interface">
+<h2>高水準のモジュールインターフェイス<a class="headerlink" href="#high-level-module-interface" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="data">
+<dt id="io.DEFAULT_BUFFER_SIZE">
+<code class="descclassname">io.</code><code class="descname">DEFAULT_BUFFER_SIZE</code><a class="headerlink" href="#io.DEFAULT_BUFFER_SIZE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このモジュールの buffered I/O クラスで利用されるデフォルトのバッファーサイズを表す整数です。可能であれば、<a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> は file の blksize (<a class="reference internal" href="os.html#os.stat" title="os.stat"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.stat()</span></code></a> で取得される) を利用します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="io.open">
+<code class="descclassname">io.</code><code class="descname">open</code><span class="sig-paren">(</span><em>file</em>, <em>mode='r'</em>, <em>buffering=-1</em>, <em>encoding=None</em>, <em>errors=None</em>, <em>newline=None</em>, <em>closefd=True</em>, <em>opener=None</em><span class="sig-paren">)</span><a class="headerlink" href="#io.open" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>組み込みの <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> 関数のエイリアスです。</p>
+<p class="audit-hook">引数 <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">mode</span></code>, <code class="docutils literal notranslate"><span class="pre">flags</span></code> を指定して <a class="reference internal" href="sys.html#auditing"><span class="std std-ref">監査イベント</span></a> <code class="docutils literal notranslate"><span class="pre">open</span></code> を送出します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="io.open_code">
+<code class="descclassname">io.</code><code class="descname">open_code</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#io.open_code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Opens the provided file with mode <code class="docutils literal notranslate"><span class="pre">'rb'</span></code>. This function should be used
+when the intent is to treat the contents as executable code.</p>
+<p><code class="docutils literal notranslate"><span class="pre">path</span></code> should be a <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> and an absolute path.</p>
+<p>The behavior of this function may be overridden by an earlier call to the
+<a class="reference internal" href="../c-api/file.html#c.PyFile_SetOpenCodeHook" title="PyFile_SetOpenCodeHook"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyFile_SetOpenCodeHook()</span></code></a>. However, assuming that <code class="docutils literal notranslate"><span class="pre">path</span></code> is a
+<a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> and an absolute path, <code class="docutils literal notranslate"><span class="pre">open_code(path)</span></code> should always behave
+the same as <code class="docutils literal notranslate"><span class="pre">open(path,</span> <span class="pre">'rb')</span></code>. Overriding the behavior is intended for
+additional validation or preprocessing of the file.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.8 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="exception">
+<dt id="io.BlockingIOError">
+<em class="property">exception </em><code class="descclassname">io.</code><code class="descname">BlockingIOError</code><a class="headerlink" href="#io.BlockingIOError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>互換性のための、組み込みの <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> 例外のエイリアスです。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="io.UnsupportedOperation">
+<em class="property">exception </em><code class="descclassname">io.</code><code class="descname">UnsupportedOperation</code><a class="headerlink" href="#io.UnsupportedOperation" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> と <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を継承した例外です。ストリームがサポートしていない操作を行おうとした時に送出されます。</p>
+</dd></dl>
+
+<div class="section" id="in-memory-streams">
+<h3>インメモリー ストリーム<a class="headerlink" href="#in-memory-streams" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> や <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> を、読み書き可能なファイルのように扱うことができます。 <a class="reference internal" href="#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO</span></code></a> は文字列に対して、テキストモードで開かれたファイルのように使うことができます。 <a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> はバイナリーモードで開いたファイルのように扱うことができます。この2つのクラスは、読み書き可能で、ランダムアクセス可能です。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a></dt>
+<dd>標準 IO ストリームを持っています: <a class="reference internal" href="sys.html#sys.stdin" title="sys.stdin"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stdin</span></code></a>, <a class="reference internal" href="sys.html#sys.stdout" title="sys.stdout"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stdout</span></code></a>, <a class="reference internal" href="sys.html#sys.stderr" title="sys.stderr"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a>。</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="section" id="class-hierarchy">
+<h2>クラス階層<a class="headerlink" href="#class-hierarchy" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>I/O ストリームの実装はクラス階層に分けて整理されています。まずストリームのカテゴリを分類するための <a class="reference internal" href="../glossary.html#term-abstract-base-class"><span class="xref std std-term">抽象基底クラス</span></a> (ABC) があり、続いて標準のストリーム実装を行う具象クラス群があります。</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">抽象基底クラス群は、具象ストリームクラスの実装を助けるために、いくつかのデフォルトの実装を提供しています。例えば、 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> は <code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code> と <a class="reference internal" href="#io.IOBase.readline" title="io.IOBase.readline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readline()</span></code></a> の最適化されていない実装を提供しています。</p>
+</div>
+</div></blockquote>
+<p>I/O 階層の最上位には抽象基底クラスの <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> があります。 <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> ではストリームに対して基本的なインタフェースを定義しています。 しかしながら、ストリームに対する読み込みと書き込みが分離されていないことに注意してください。 実装においては与えられた操作をサポートしない場合は <a class="reference internal" href="#io.UnsupportedOperation" title="io.UnsupportedOperation"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnsupportedOperation</span></code></a> を送出することが許されています。</p>
+<p><a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> ABC は <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> を拡張します。このクラスはストリームからの bytes の読み書きを扱います。 <a class="reference internal" href="#io.FileIO" title="io.FileIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileIO</span></code></a> は、 <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> を継承してマシンのファイルシステム中のファイルへのインタフェースを提供します。</p>
+<p><a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> ABC は生のバイトストリーム (<a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a>) 上にバッファ処理を追加します。そのサブクラスの <a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a>, <a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a>, <a class="reference internal" href="#io.BufferedRWPair" title="io.BufferedRWPair"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRWPair</span></code></a> では、 それぞれ読み込み専用、書き込み専用、読み書き可能なストリームをバッファします。 <a class="reference internal" href="#io.BufferedRandom" title="io.BufferedRandom"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRandom</span></code></a> ではランダムアクセスストリームに対してバッファされたインタフェースを提供します。 <a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> も <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> のサブクラスで、インメモリのバイト列へのシンプルなストリームです。</p>
+<p>もう一つの <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> のサブクラスである <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> ABC は、 テキストを表すバイトストリームを扱い、文字列とのエンコードやデコードといった処理を行います。 <a class="reference internal" href="#io.TextIOWrapper" title="io.TextIOWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code></a> はその拡張で、バッファ付き raw ストリーム (<a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a>) へのバッファされたテキストインタフェースです。 最後に <a class="reference internal" href="#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO</span></code></a> はテキストに対するインメモリストリームです。</p>
+<p>引数名は規約に含まれていません。 そして <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> の引数だけがキーワード引数として用いられることが意図されています。</p>
+<p>次のテーブルは <a class="reference internal" href="#module-io" title="io: Core tools for working with streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">io</span></code></a> モジュールが提供する ABC の概要です:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="15%" />
+<col width="21%" />
+<col width="43%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">ABC</th>
+<th class="head">継承元</th>
+<th class="head">スタブメソッド</th>
+<th class="head">Mixin するメソッドとプロパティ</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a></td>
+<td>&#160;</td>
+<td><code class="docutils literal notranslate"><span class="pre">fileno</span></code>, <code class="docutils literal notranslate"><span class="pre">seek</span></code>, <code class="docutils literal notranslate"><span class="pre">truncate</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">close</span></code>, <code class="docutils literal notranslate"><span class="pre">closed</span></code>, <code class="docutils literal notranslate"><span class="pre">__enter__</span></code>, <code class="docutils literal notranslate"><span class="pre">__exit__</span></code>, <code class="docutils literal notranslate"><span class="pre">flush</span></code>, <code class="docutils literal notranslate"><span class="pre">isatty</span></code>, <code class="docutils literal notranslate"><span class="pre">__iter__</span></code>, <code class="docutils literal notranslate"><span class="pre">__next__</span></code>, <code class="docutils literal notranslate"><span class="pre">readable</span></code>, <code class="docutils literal notranslate"><span class="pre">readline</span></code>, <code class="docutils literal notranslate"><span class="pre">readlines</span></code>, <code class="docutils literal notranslate"><span class="pre">seekable</span></code>, <code class="docutils literal notranslate"><span class="pre">tell</span></code>, <code class="docutils literal notranslate"><span class="pre">writable</span></code>, <code class="docutils literal notranslate"><span class="pre">writelines</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a></td>
+<td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">readinto</span></code>, <code class="docutils literal notranslate"><span class="pre">write</span></code></td>
+<td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> から継承したメソッド、 <code class="docutils literal notranslate"><span class="pre">read</span></code>, <code class="docutils literal notranslate"><span class="pre">readall</span></code></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a></td>
+<td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">detach</span></code>, <code class="docutils literal notranslate"><span class="pre">read</span></code>, <code class="docutils literal notranslate"><span class="pre">read1</span></code>, <code class="docutils literal notranslate"><span class="pre">write</span></code></td>
+<td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> から継承したメソッド、 <code class="docutils literal notranslate"><span class="pre">readinto</span></code>, <code class="docutils literal notranslate"><span class="pre">readinto1</span></code></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a></td>
+<td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a></td>
+<td><code class="docutils literal notranslate"><span class="pre">detach</span></code>, <code class="docutils literal notranslate"><span class="pre">read</span></code>, <code class="docutils literal notranslate"><span class="pre">readline</span></code>, <code class="docutils literal notranslate"><span class="pre">write</span></code></td>
+<td><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> から継承したメソッド、 <code class="docutils literal notranslate"><span class="pre">encoding</span></code>, <code class="docutils literal notranslate"><span class="pre">errors</span></code>, <code class="docutils literal notranslate"><span class="pre">newlines</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="i-o-base-classes">
+<h3>I/O 基底クラス<a class="headerlink" href="#i-o-base-classes" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="io.IOBase">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">IOBase</code><a class="headerlink" href="#io.IOBase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>すべての I/O クラスの抽象基底クラスです。バイトストリームへの操作を行います。パブリックなコンストラクタはありません。</p>
+<p>継承先のクラスが選択的にオーバライドできるように、このクラスは多くのメソッドに空の抽象実装をしています。デフォルトの実装では、読み込み、書き込み、シークができないファイルを表現します。</p>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> では <code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code> が宣言されていませんが、これはシグナチャが変化するためで、実装やクライアントはこれらのメソッドをインタフェースの一部として考えるべきです。
+また、実装はサポートしていない操作を呼び出されたときは <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> (または <a class="reference internal" href="#io.UnsupportedOperation" title="io.UnsupportedOperation"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnsupportedOperation</span></code></a>) を発生させるかもしれません。</p>
+<p>ファイルへのバイナリデータの読み書きに用いられる基本型は <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> です。
+他の <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> もメソッドの引数として受け付けられます。
+テキスト I/O クラスは <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> データを扱います。</p>
+<p>閉じられたストリームに対するメソッド呼び出しは (問い合わせであっても) 未定義です。この場合、実装は <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を送出することがあります。</p>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> (とそのサブクラス) はイテレータプロトコルをサポートします。 <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> オブジェクトをイテレートすると、ストリーム内の行が yield されます。ストリーム内の行の定義は、そのストリームが (バイト列を yield する) バイナリストリームか (文字列を yield する) テキストストリームかによって、 少し異なります。下の <a class="reference internal" href="#io.IOBase.readline" title="io.IOBase.readline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readline()</span></code></a> を参照してください。</p>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> はコンテキストマネージャでもあります。そのため <a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> 構文をサポートします。 次の例では、 <code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code> 構文が終わった後で---たとえ例外が発生した場合でも、 <em>file</em> は閉じられます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;spam.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Spam and eggs!&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> は以下のデータ属性とメソッドを提供します:</p>
+<dl class="method">
+<dt id="io.IOBase.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.close" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このストリームをフラッシュして閉じます。このメソッドはファイルが既に閉じられていた場合は特に何の効果もありません。いったんファイルが閉じられると、すべてのファイルに対する操作 (例えば読み込みや書き込み) で <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が発生します。</p>
+<p>利便性のためにこのメソッドを複数回呼ぶことは許されています。しかし、効果があるのは最初の1回だけです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="io.IOBase.closed">
+<code class="descname">closed</code><a class="headerlink" href="#io.IOBase.closed" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームが閉じられていた場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> になります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.fileno">
+<code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームが保持しているファイル記述子 (整数値) が存在する場合はそれを返します。もし IO オブジェクトがファイル記述子を使っていない場合は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> が発生します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.flush" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>適用可能であればストリームの書き込みバッファをフラッシュします。読み出し専用や非ブロッキングストリームでは何もしません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.isatty">
+<code class="descname">isatty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.isatty" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームが対話的であれば (つまりターミナルや tty デバイスにつながっている場合) <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.readable">
+<code class="descname">readable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.readable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームが読み込める場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。 <code class="docutils literal notranslate"><span class="pre">False</span></code> の場合は <code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code> は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を発生させます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.readline">
+<code class="descname">readline</code><span class="sig-paren">(</span><em>size=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.readline" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームから 1 行読み込んで返します。もし <em>size</em> が指定された場合、最大で <em>size</em> バイトが読み込まれます。</p>
+<p>バイナリファイルでは行末文字は常に <code class="docutils literal notranslate"><span class="pre">b'\n'</span></code> となります。テキストファイルでは、認識される行末文字を選択するために <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> に対する <em>newline</em> 引数が使われます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.readlines">
+<code class="descname">readlines</code><span class="sig-paren">(</span><em>hint=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.readlines" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームから行のリストを読み込んで返します。 <em>hint</em> を指定することで、読み込む行数を制御できます。もし読み込んだすべての行のサイズ (バイト数、もしくは文字数) が <em>hint</em> の値を超えた場合、読み込みをそこで終了します。</p>
+<p>ただし、 <code class="docutils literal notranslate"><span class="pre">file.readlines()</span></code> を呼びださなくても <code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">line</span> <span class="pre">in</span> <span class="pre">file:</span> <span class="pre">...</span></code> のように file オブジェクトを直接イテレートすることができます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.seek">
+<code class="descname">seek</code><span class="sig-paren">(</span><em>offset</em>, <em>whence=SEEK_SET</em><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.seek" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリーム位置を指定された <em>offset</em> バイトに変更します。<em>offset</em> は <em>whence</em> で指定された位置からの相対位置として解釈されます。 <em>whence</em> のデフォルト値は <code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_SET</span></code> です。 <em>whence</em> に指定できる値は:</p>
+<ul class="simple">
+<li><code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_SET</span></code> または <code class="docutils literal notranslate"><span class="pre">0</span></code> -- ストリームの先頭 (デフォルト)。 <em>offset</em> は 0 もしくは正の値でなければなりません。</li>
+<li><code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_CUR</span></code> または <code class="docutils literal notranslate"><span class="pre">1</span></code> -- 現在のストリーム位置。 <em>offset</em> は負の値も可能です。</li>
+<li><code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_END</span></code> または <code class="docutils literal notranslate"><span class="pre">2</span></code> -- ストリームの末尾。 <em>offset</em> は通常負の値です。</li>
+</ul>
+<p>新しい絶対位置を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.1 で追加: </span><code class="docutils literal notranslate"><span class="pre">SEEK_*</span></code> 定数.</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加: </span>一部のオペレーティングシステムは <code class="xref py py-data docutils literal notranslate"><span class="pre">os.SEEK_HOLE</span></code> や <code class="xref py py-data docutils literal notranslate"><span class="pre">os.SEEK_DATA</span></code> など、追加の値をサポートすることがあります。ファイルに対して利用できる値は、そのファイルがテキストモードで開かれたかバイナリモードで開かれたかに依存します。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.seekable">
+<code class="descname">seekable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.seekable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームがランダムアクセスをサポートしている場合、 <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。 <code class="docutils literal notranslate"><span class="pre">False</span></code> の場合、 <a class="reference internal" href="#io.IOBase.seek" title="io.IOBase.seek"><code class="xref py py-meth docutils literal notranslate"><span class="pre">seek()</span></code></a>、 <a class="reference internal" href="#io.IOBase.tell" title="io.IOBase.tell"><code class="xref py py-meth docutils literal notranslate"><span class="pre">tell()</span></code></a>、 <a class="reference internal" href="#io.IOBase.truncate" title="io.IOBase.truncate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">truncate()</span></code></a> を使用すると <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を発生させます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.tell">
+<code class="descname">tell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.tell" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のストリーム位置を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.truncate">
+<code class="descname">truncate</code><span class="sig-paren">(</span><em>size=None</em><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.truncate" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームのサイズを、指定された <em>size</em> バイト (または <em>size</em> が指定されていない場合、現在位置) に変更します。現在のストリーム位置は変更されません。このサイズ変更により、現在のファイルサイズを拡大または縮小させることができます。拡大の場合には、新しいファイル領域の内容はプラットホームによって異なります (ほとんどのシステムでは、追加のバイトが 0 で埋められます)。新しいファイルサイズが返されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>Windows で、拡大時に追加領域を 0 で埋めるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.writable">
+<code class="descname">writable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.writable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームが書き込みをサポートしている場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。 <code class="docutils literal notranslate"><span class="pre">False</span></code> の場合は <code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code>、 <a class="reference internal" href="#io.IOBase.truncate" title="io.IOBase.truncate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">truncate()</span></code></a> は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.writelines">
+<code class="descname">writelines</code><span class="sig-paren">(</span><em>lines</em><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.writelines" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームに行のリストを書き込みます。行区切り文字は追加されないので、書き込む各行の行末に行区切り文字を含ませるのが一般的です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.IOBase.__del__">
+<code class="descname">__del__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.IOBase.__del__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトの破壊の用意をします。このメソッドはインスタンスの <a class="reference internal" href="#io.IOBase.close" title="io.IOBase.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> メソッドを呼びます。 <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> はこのメソッドのデフォルトの実装を提供します</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.RawIOBase">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">RawIOBase</code><a class="headerlink" href="#io.RawIOBase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>生のバイナリ I/O への基底クラスです。 <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> を継承しています。パブリックコンストラクタはありません。</p>
+<p>raw バイナリ I/O は典型的に、下にある OS デバイスや API への低水準のアクセスを提供し、高水準の基本要素へとカプセル化しようとはしません (これはこのページで後述する Buffered I/O や Text I/O に任せます)。</p>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> の属性やメソッドに加えて、 <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> は次のメソッドを提供します:</p>
+<dl class="method">
+<dt id="io.RawIOBase.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>size=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#io.RawIOBase.read" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>オブジェクトを <em>size</em> バイトまで読み込み、それを返します。
+簡単のため、 <em>size</em> が指定されていないか -1 の場合は、 EOF までの全てのバイトを返します。
+そうでない場合は、システムコール呼び出しが一度だけ行われます。
+オペレーティングシステムコールから返ってきたものが <em>size</em> バイトより少なければ、 <em>size</em> バイトより少ない返り値になることがあります。</p>
+<p><em>size</em> が 0 でないのに 0 バイトが返った場合、それはファイルの終端を表します。オブジェクトがノンブロッキングモードで、1 バイトも読み込めなければ、<code class="docutils literal notranslate"><span class="pre">None</span></code> が返されます。</p>
+<p>デフォルトの実装は <a class="reference internal" href="#io.RawIOBase.readall" title="io.RawIOBase.readall"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readall()</span></code></a> と <a class="reference internal" href="#io.RawIOBase.readinto" title="io.RawIOBase.readinto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code></a> に従います。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.RawIOBase.readall">
+<code class="descname">readall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.RawIOBase.readall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>EOF までストリームからすべてのバイトを読み込みます。必要な場合はストリームに対して複数の呼び出しをします。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.RawIOBase.readinto">
+<code class="descname">readinto</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.RawIOBase.readinto" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>あらかじめ確保された書き込み可能な <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes 類オブジェクト</span></a> <em>b</em> にバイト列を読み込み、読み込んだバイト数を返します。
+例えば、 <em>b</em> は <a class="reference internal" href="stdtypes.html#bytearray" title="bytearray"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></a> です。
+オブジェクトがノンブロッキングモードで、 1 バイトも読み込めなければ、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が返されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.RawIOBase.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.RawIOBase.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられた <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> <em>b</em> を生ストリームに書き込み、書き込んだバイト数を返します。これは、根底の生ストリームの性質や、特にノンブロッキングである場合に、 <em>b</em> のバイト数より小さくなることがあります。生ストリームがブロックされないように設定されていて、かつ1バイトも即座に書き込むことができなければ、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が返されます。このメソッドから返った後で呼び出し元は <em>b</em> を解放したり変更したりするかもしれないので、実装はメソッド呼び出しの間だけ <em>b</em> にアクセスすべきです。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.BufferedIOBase">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">BufferedIOBase</code><a class="headerlink" href="#io.BufferedIOBase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>何らかのバッファリングをサポートするバイナリストリームの基底クラスです。 <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> を継承します。パブリックなコンストラクタはありません。</p>
+<p><a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> との主な違いは、メソッド <a class="reference internal" href="#io.BufferedIOBase.read" title="io.BufferedIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a>、 <a class="reference internal" href="#io.BufferedIOBase.readinto" title="io.BufferedIOBase.readinto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code></a> および <a class="reference internal" href="#io.BufferedIOBase.write" title="io.BufferedIOBase.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code></a> は 、ことによると複数回のシステムコールを行って、(それぞれ) 要求されただけの入力を読み込もうとしたり与えられた出力の全てを消費しようとしたりする点です。</p>
+<p>加えて、元になる生ストリームが非ブロッキングモードでかつ準備ができていない場合に、これらのメソッドは、 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> を送出するかもしれません。対応する <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> バージョンと違って、 <code class="docutils literal notranslate"><span class="pre">None</span></code> を返すことはありません。</p>
+<p>さらに、 <a class="reference internal" href="#io.BufferedIOBase.read" title="io.BufferedIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> メソッドは、 <a class="reference internal" href="#io.BufferedIOBase.readinto" title="io.BufferedIOBase.readinto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code></a> に従うデフォルト実装を持ちません。</p>
+<p>通常の <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> 実装は <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> 実装を継承せずに、 <a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a> と <a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a> がするようにこれをラップすべきです。</p>
+<p><a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> は <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> からのメソッドと属性に加えて、以下のメソッドを提供もしくはオーバーライドします:</p>
+<dl class="attribute">
+<dt id="io.BufferedIOBase.raw">
+<code class="descname">raw</code><a class="headerlink" href="#io.BufferedIOBase.raw" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> が扱う根底の生ストリーム (<a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> インスタンス) を返します。これは <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> API には含まれず、よって実装に含まれないことがあります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedIOBase.detach">
+<code class="descname">detach</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedIOBase.detach" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>根底の生ストリームをバッファから分離して返します。</p>
+<p>生ストリームが取り外された後、バッファは使用不能状態になります。</p>
+<p>バッファには、 <a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> など、このメソッドで返される単体のストリームという概念を持たないものがあります。これらは <a class="reference internal" href="#io.UnsupportedOperation" title="io.UnsupportedOperation"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnsupportedOperation</span></code></a> を送出します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedIOBase.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>size=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedIOBase.read" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最大で <em>size</em> バイト読み込んで返します。 引数が省略されるか、 <code class="docutils literal notranslate"><span class="pre">None</span></code> か、または負の値であった場合、 データは EOF に到達するまで読み込まれます。 ストリームが既に EOF に到達していた場合は空の <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> オブジェクトが返されます。</p>
+<p>引数が正で、元になる生ストリームが対話的でなければ、必要なバイト数を満たすように複数回の生 read が発行されるかもしれません (先に EOF に到達しない限りは)。対話的な場合は、最大で一回の raw read しか発行されず、短い結果でも EOF に達したことを意味しません。</p>
+<p>元になる生ストリームがノンブロッキングモードで、呼び出された時点でデータを持っていなければ、 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedIOBase.read1">
+<code class="descname">read1</code><span class="sig-paren">(</span><span class="optional">[</span><em>size</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedIOBase.read1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>根底の raw ストリームの <a class="reference internal" href="#io.RawIOBase.read" title="io.RawIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> (または <a class="reference internal" href="#io.RawIOBase.readinto" title="io.RawIOBase.readinto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code></a> ) メソッドを高々 1 回呼び出し、最大で <em>size</em> バイト読み込み、返します。これは、 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> オブジェクトの上に独自のバッファリングを実装するときに便利です。</p>
+<p><em>size</em> に <a href="#id1"><span class="problematic" id="id2">``</span></a>-1``（デフォルト値)を指定すると任意バイト長を返します（EOFに到達していなければ返されるバイト数は 0 より大きくなります）</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedIOBase.readinto">
+<code class="descname">readinto</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedIOBase.readinto" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>あらかじめ確保された書き込み可能な <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes 類オブジェクト</span></a> <em>b</em> にバイト列を読み込み、読み込んだバイト数を返します。
+例えば、 <em>b</em> は <a class="reference internal" href="stdtypes.html#bytearray" title="bytearray"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></a> です。</p>
+<p><a class="reference internal" href="#io.BufferedIOBase.read" title="io.BufferedIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> と同様に、下層の raw ストリームが対話的でない限り、複数の読み込みは下層の raw ストリームに与えられるかもしれません。</p>
+<p>元になる生ストリームがノンブロッキングモードで、呼び出された時点でデータを持っていなければ、 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedIOBase.readinto1">
+<code class="descname">readinto1</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedIOBase.readinto1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>根底の raw ストリームの <a class="reference internal" href="#io.RawIOBase.read" title="io.RawIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> (または <a class="reference internal" href="#io.RawIOBase.readinto" title="io.RawIOBase.readinto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code></a>) メソッドを高々 1 回呼び出し、あらかじめ確保された書き込み可能な <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> <em>b</em> にバイト列を読み込みます。読み込んだバイト数を返します。</p>
+<p>元になる生ストリームがノンブロッキングモードで、呼び出された時点でデータを持っていなければ、 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> が送出されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedIOBase.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedIOBase.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられた <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> <em>b</em> を書き込み、書き込んだバイト数を返します (これは常に <em>b</em> のバイト数と等しくなります。なぜなら、もし書き込みに失敗した場合は <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> が発生するからです)。実際の実装に依存して、これらのバイト列は根底のストリームに即座に書き込まれることもあれば、パフォーマンスやレイテンシの関係でバッファに保持されることもあります。</p>
+<p>ノンブロッキングモードであるとき、バッファが満杯で根底の生ストリームが書き込み時点でさらなるデータを受け付けられない場合 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> が送出されます。</p>
+<p>このメソッドが戻った後で、呼び出し元は <em>b</em> を解放、または変更するかもしれないので、実装はメソッド呼び出しの間だけ <em>b</em> にアクセスすべきです。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="raw-file-i-o">
+<h3>生ファイルI/O<a class="headerlink" href="#raw-file-i-o" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="io.FileIO">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">FileIO</code><span class="sig-paren">(</span><em>name</em>, <em>mode='r'</em>, <em>closefd=True</em>, <em>opener=None</em><span class="sig-paren">)</span><a class="headerlink" href="#io.FileIO" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#io.FileIO" title="io.FileIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileIO</span></code></a> はバイトデータを含む OS レベルのファイルを表します。 <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> インタフェースを (したがって <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> インタフェースも) 実装しています。</p>
+<p><em>name</em> は、次の 2 つのいずれかです。</p>
+<ul class="simple">
+<li>開くファイルへのパスを表す文字列または <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> オブジェクト。
+この場合、closefd は <code class="docutils literal notranslate"><span class="pre">True</span></code> (デフォルト) でなければなりません。
+<code class="docutils literal notranslate"><span class="pre">True</span></code> でない場合、エラーが送出されます。</li>
+<li>結果の <a class="reference internal" href="#io.FileIO" title="io.FileIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileIO</span></code></a> オブジェクトがアクセスを与える、既存の OS レベルファイル記述子の数を表す整数。FileIO オブジェクトが閉じられると、<em>closefd</em> が <code class="docutils literal notranslate"><span class="pre">False</span></code> に設定されていない場合、この fd も閉じられます。</li>
+</ul>
+<p><em>mode</em> は 読み込み（デフォルト）、書き込み、排他的作成、追記に対し <code class="docutils literal notranslate"><span class="pre">'r'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'w'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'x'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'a'</span></code> です。ファイルは書き込みや追記で開かれたときに存在しない場合作成されます。書き込みのときにファイルの内容は破棄されます。作成時に既に存在する場合は <a class="reference internal" href="exceptions.html#FileExistsError" title="FileExistsError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileExistsError</span></code></a> が送出されます。作成のためにファイルを開くのは暗黙的に書き込みなので、このモードは <code class="docutils literal notranslate"><span class="pre">'w'</span></code> と同じように振る舞います。読み込みと書き込みを同時に許可するにはモードに <code class="docutils literal notranslate"><span class="pre">'+'</span></code> を加えてください。</p>
+<p>このクラスの <code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code> (正の引数で呼び出されたとき), <code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code> および <code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code> メソッドは、単にシステムコールを一度呼び出します。</p>
+<p>呼び出し可能オブジェクトを <em>opener</em> として与えることで、カスタムのオープナーが使えます。そしてファイルオブジェクトの基底のファイルディスクリプタは、<em>opener</em> を (<em>name</em>, <em>flags</em>) で呼び出して得られます。<em>opener</em> は開いたファイルディスクリプタを返さなければなりません。 (<a class="reference internal" href="os.html#os.open" title="os.open"><code class="xref py py-mod docutils literal notranslate"><span class="pre">os.open</span></code></a> を <em>opener</em> として渡すと、<code class="docutils literal notranslate"><span class="pre">None</span></code> を渡したのと同様の機能になります。)</p>
+<p>新たに作成されたファイルは <a class="reference internal" href="os.html#fd-inheritance"><span class="std std-ref">継承不可</span></a>  です。</p>
+<p><em>opener</em> 引数を使う例については <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> 組み込み関数を参照してください。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><em>opener</em> 引数が追加されました。<code class="docutils literal notranslate"><span class="pre">'x'</span></code> モードが追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>ファイルが継承不可になりました。</p>
+</div>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> と <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> の属性やメソッドに加え、<a class="reference internal" href="#io.FileIO" title="io.FileIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileIO</span></code></a> は以下のデータ属性を提供します:</p>
+<dl class="attribute">
+<dt id="io.FileIO.mode">
+<code class="descname">mode</code><a class="headerlink" href="#io.FileIO.mode" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>コンストラクタに渡されたモードです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="io.FileIO.name">
+<code class="descname">name</code><a class="headerlink" href="#io.FileIO.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル名。コンストラクタに名前が渡されなかったときはファイル記述子になります。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="buffered-streams">
+<h3>バッファ付きストリーム<a class="headerlink" href="#buffered-streams" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>バッファ付き I/O ストリームは、I/O デバイスに生 I/O より高レベルなインタフェースを提供します。</p>
+<dl class="class">
+<dt id="io.BytesIO">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">BytesIO</code><span class="sig-paren">(</span><span class="optional">[</span><em>initial_bytes</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BytesIO" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>インメモリの bytes バッファを利用したストリームの実装です。 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> を継承します。バッファは <a class="reference internal" href="#io.IOBase.close" title="io.IOBase.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> メソッドが呼び出された際に破棄されます。</p>
+<p>省略可能な引数 <em>initial_bytes</em> は、初期データを含んだ <a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> です。</p>
+<p><a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> は <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> または <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> からのメソッドに加えて、以下のメソッドを提供もしくはオーバーライドします:</p>
+<dl class="method">
+<dt id="io.BytesIO.getbuffer">
+<code class="descname">getbuffer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BytesIO.getbuffer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バッファの内容をコピーすることなく、その内容の上に、読み込み及び書き込みが可能なビューを返します。また、このビューを変更すると、バッファの内容は透過的に更新されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;abcdef&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">view</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">getbuffer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">view</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;56&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+<span class="go">b&#39;ab56ef&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">ビューが存在する限り、<a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> オブジェクトはリサイズやクローズされません。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BytesIO.getvalue">
+<code class="descname">getvalue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BytesIO.getvalue" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バッファの全内容を含む <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BytesIO.read1">
+<code class="descname">read1</code><span class="sig-paren">(</span><span class="optional">[</span><em>size</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BytesIO.read1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> においては、このメソッドは <a class="reference internal" href="#io.BufferedIOBase.read" title="io.BufferedIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> と同じです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><em>size</em> 引数が任意になりました。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BytesIO.readinto1">
+<code class="descname">readinto1</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BytesIO.readinto1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> においては、このメソッドは <a class="reference internal" href="#io.BufferedIOBase.readinto" title="io.BufferedIOBase.readinto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readinto()</span></code></a> と同じです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.BufferedReader">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">BufferedReader</code><span class="sig-paren">(</span><em>raw</em>, <em>buffer_size=DEFAULT_BUFFER_SIZE</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedReader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>読み込み可能でシーケンシャルな <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> オブジェクトへの高水準のアクセスを提供するバッファです。 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> を継承します。このオブジェクトからデータを読み込むとき、より大きい量のデータが根底の raw ストリームから要求され、内部バッファに保存される場合があります。バッファされたデータは、その次の読み込み時に直接返されます。</p>
+<p>このコンストラクタは与えられた <em>raw</em> ストリームと <em>buffer_size</em> に対し <a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a> を生成します。 <em>buffer_size</em> が省略された場合、代わりに <a class="reference internal" href="#io.DEFAULT_BUFFER_SIZE" title="io.DEFAULT_BUFFER_SIZE"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_BUFFER_SIZE</span></code></a> が使われます。</p>
+<p><a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a> は <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> または <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> からのメソッドに加えて、以下のメソッドを提供もしくはオーバーライドします:</p>
+<dl class="method">
+<dt id="io.BufferedReader.peek">
+<code class="descname">peek</code><span class="sig-paren">(</span><span class="optional">[</span><em>size</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedReader.peek" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>位置を進めずにストリームからバイト列を返します。これを果たすために生ストリームに対して行われる read は高々一度だけです。返されるバイト数は、要求より少ないかもしれませんし、多いかもしれません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedReader.read">
+<code class="descname">read</code><span class="sig-paren">(</span><span class="optional">[</span><em>size</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedReader.read" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>size</em> バイトを読み込んで返します。<em>size</em> が与えられないか負の値ならば、EOF まで、または非ブロッキングモード中で read 呼び出しがブロックされるまでを返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedReader.read1">
+<code class="descname">read1</code><span class="sig-paren">(</span><span class="optional">[</span><em>size</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedReader.read1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>raw ストリームに対しただ一度の呼び出しで最大 <em>size</em> バイトを読み込んで返します。少なくとも 1 バイトがバッファされていれば、バッファされているバイト列だけが返されます。それ以外の場合は raw ストリームの読み込みが一回呼び出されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><em>size</em> 引数が任意になりました。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.BufferedWriter">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">BufferedWriter</code><span class="sig-paren">(</span><em>raw</em>, <em>buffer_size=DEFAULT_BUFFER_SIZE</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedWriter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>書き込み可能でシーケンシャルな <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> オブジェクトへの、高レベルなアクセスを提供するバッファです。 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> を継承します。このオブジェクトに書き込むとき、データは通常内部バッファに保持されます。このバッファは、以下のような種々の状況で根底の <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> オブジェクトに書き込まれます。</p>
+<ul class="simple">
+<li>保留中の全データに対してバッファが足りなくなったとき;</li>
+<li><a class="reference internal" href="#io.BufferedWriter.flush" title="io.BufferedWriter.flush"><code class="xref py py-meth docutils literal notranslate"><span class="pre">flush()</span></code></a> が呼び出されたとき;</li>
+<li><code class="xref py py-meth docutils literal notranslate"><span class="pre">seek()</span></code> が (<a class="reference internal" href="#io.BufferedRandom" title="io.BufferedRandom"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRandom</span></code></a> オブジェクトに対して) 呼び出されたとき;</li>
+<li><a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a> オブジェクトが閉じられたり破棄されたりしたとき。</li>
+</ul>
+<p>このコンストラクタは与えられた書き込み可能な <em>raw</em> ストリームに対し <a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a> を生成します。 <em>buffer_size</em> が省略された場合、 <a class="reference internal" href="#io.DEFAULT_BUFFER_SIZE" title="io.DEFAULT_BUFFER_SIZE"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_BUFFER_SIZE</span></code></a> がデフォルトになります。</p>
+<p><a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a> は <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> または <a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> からのメソッドに加えて、以下のメソッドを提供もしくはオーバーライドします:</p>
+<dl class="method">
+<dt id="io.BufferedWriter.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedWriter.flush" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バッファに保持されたバイト列を生ストリームに強制的に流し込みます。生ストリームがブロックした場合 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.BufferedWriter.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>b</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedWriter.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-bytes-like-object"><span class="xref std std-term">bytes-like オブジェクト</span></a> <em>b</em> を書き込み、書き込んだバイト数を返します。ノンブロッキング時、バッファが書き込まれるべきなのに生ストリームがブロックした場合 <a class="reference internal" href="exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.BufferedRandom">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">BufferedRandom</code><span class="sig-paren">(</span><em>raw</em>, <em>buffer_size=DEFAULT_BUFFER_SIZE</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedRandom" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>A buffered interface to random access streams.  It inherits
+<a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a> and <a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a>.</p>
+<p>このコンストラクタは第一引数として与えられるシーク可能な生ストリームに対し、リーダーおよびライターを作成します。 <em>buffer_size</em> が省略された場合、 <a class="reference internal" href="#io.DEFAULT_BUFFER_SIZE" title="io.DEFAULT_BUFFER_SIZE"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_BUFFER_SIZE</span></code></a> がデフォルトになります。</p>
+<p><a class="reference internal" href="#io.BufferedRandom" title="io.BufferedRandom"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRandom</span></code></a> is capable of anything <a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a> or
+<a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a> can do.  In addition, <code class="xref py py-meth docutils literal notranslate"><span class="pre">seek()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">tell()</span></code>
+are guaranteed to be implemented.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="io.BufferedRWPair">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">BufferedRWPair</code><span class="sig-paren">(</span><em>reader</em>, <em>writer</em>, <em>buffer_size=DEFAULT_BUFFER_SIZE</em><span class="sig-paren">)</span><a class="headerlink" href="#io.BufferedRWPair" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>2つの単方向 <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> オブジェクト -- 一つは読み込み可能、他方が書き込み可能 -- を組み合わせてバッファ付きの双方向 I/O オブジェクトにしたものです。 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> を継承しています。</p>
+<p><em>reader</em> と <em>writer</em> はそれぞれ読み込み可能、書き込み可能な <a class="reference internal" href="#io.RawIOBase" title="io.RawIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RawIOBase</span></code></a> オブジェクトです。 <em>buffer_size</em> が省略された場合 <a class="reference internal" href="#io.DEFAULT_BUFFER_SIZE" title="io.DEFAULT_BUFFER_SIZE"><code class="xref py py-data docutils literal notranslate"><span class="pre">DEFAULT_BUFFER_SIZE</span></code></a> がデフォルトになります。</p>
+<p><a class="reference internal" href="#io.BufferedRWPair" title="io.BufferedRWPair"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRWPair</span></code></a> は、 <a class="reference internal" href="#io.UnsupportedOperation" title="io.UnsupportedOperation"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnsupportedOperation</span></code></a> を送出する <a class="reference internal" href="#io.BufferedIOBase.detach" title="io.BufferedIOBase.detach"><code class="xref py py-meth docutils literal notranslate"><span class="pre">detach()</span></code></a> を除く、 <a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> の全てのメソッドを実装します。</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last"><a class="reference internal" href="#io.BufferedRWPair" title="io.BufferedRWPair"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRWPair</span></code></a> は下層の生ストリームのアクセスを同期しようとはしません。同じオブジェクトをリーダとライタとして渡してはいけません。その場合は代わりに <a class="reference internal" href="#io.BufferedRandom" title="io.BufferedRandom"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRandom</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h3>テキスト I/O<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="io.TextIOBase">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">TextIOBase</code><a class="headerlink" href="#io.TextIOBase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テキストストリームの基底クラスです。
+このクラスはストリーム I/O への、文字と行に基づいたインタフェースを提供します。
+<a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> を継承します。
+パブリックなコンストラクタはありません。</p>
+<p><a class="reference internal" href="#io.IOBase" title="io.IOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IOBase</span></code></a> から継承した属性とメソッドに加えて、 <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> は以下のデータ属性とメソッドを提供しています:</p>
+<dl class="attribute">
+<dt id="io.TextIOBase.encoding">
+<code class="descname">encoding</code><a class="headerlink" href="#io.TextIOBase.encoding" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エンコーディング名で、ストリームのバイト列を文字列にデコードするとき、また文字列をバイト列にエンコードするときに使われます。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="io.TextIOBase.errors">
+<code class="descname">errors</code><a class="headerlink" href="#io.TextIOBase.errors" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このエンコーダやデコーダのエラー設定です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="io.TextIOBase.newlines">
+<code class="descname">newlines</code><a class="headerlink" href="#io.TextIOBase.newlines" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字列、文字列のタプル、または <code class="docutils literal notranslate"><span class="pre">None</span></code> で、改行がどのように読み換えられるかを指定します。実装や内部コンストラクタのフラグに依って、これは利用できないことがあります。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="io.TextIOBase.buffer">
+<code class="descname">buffer</code><a class="headerlink" href="#io.TextIOBase.buffer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> が扱う根底のバイナリバッファ (<a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> インスタンス) です。これは <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> API には含まれず、よって実装に含まれない場合があります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOBase.detach">
+<code class="descname">detach</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOBase.detach" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>根底のバイナリバッファを <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> から分離して返します。</p>
+<p>根底のバッファが取り外された後、 <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> は使用不能状態になります。</p>
+<p><a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> 実装には、 <a class="reference internal" href="#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO</span></code></a> など、根底のバッファという概念を持たないものがあります。これらを呼び出すと <a class="reference internal" href="#io.UnsupportedOperation" title="io.UnsupportedOperation"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnsupportedOperation</span></code></a> を送出します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOBase.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>size=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOBase.read" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最大 <em>size</em> 文字をストリームから読み込み、一つの <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> にして返します。 <em>size</em> が負の値または <code class="docutils literal notranslate"><span class="pre">None</span></code> ならば、 EOF まで読みます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOBase.readline">
+<code class="descname">readline</code><span class="sig-paren">(</span><em>size=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOBase.readline" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>改行または EOF まで読み込み、一つの <code class="docutils literal notranslate"><span class="pre">str</span></code> を返します。ストリームが既に EOF に到達している場合、空文字列が返されます。</p>
+<p><em>size</em> が指定された場合、最大 <em>size</em> 文字が読み込まれます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOBase.seek">
+<code class="descname">seek</code><span class="sig-paren">(</span><em>offset</em>, <em>whence=SEEK_SET</em><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOBase.seek" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定された <em>offset</em> にストリーム位置を変更します。 挙動は <em>whence</em> 引数によります。 <em>whence</em> のデフォルト値は <code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_SET</span></code> です。:</p>
+<ul class="simple">
+<li><code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_SET</span></code> または <code class="docutils literal notranslate"><span class="pre">0</span></code>: ストリームの先頭からシークします (デフォルト)。 <em>offset</em> は <a class="reference internal" href="#io.TextIOBase.tell" title="io.TextIOBase.tell"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TextIOBase.tell()</span></code></a> が返す数か0のどちらかでなければなりません。それ以外の <em>offset</em> 値は未定義の挙動を起こします。</li>
+<li><code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_CUR</span></code> または <code class="docutils literal notranslate"><span class="pre">1</span></code>: 現在の位置に &quot;シークします&quot;。 <em>offset</em> は 0 でなければなりません。つまり何もしません (他の値はサポートされていません)。</li>
+<li><code class="xref py py-data docutils literal notranslate"><span class="pre">SEEK_END</span></code> または <code class="docutils literal notranslate"><span class="pre">2</span></code>: ストリーム終端へシークします。 <em>offset</em> は 0 でなければなりません (他の値はサポートされていません)．</li>
+</ul>
+<p>新しい絶対位置を、不透明な数値で返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.1 で追加: </span><code class="docutils literal notranslate"><span class="pre">SEEK_*</span></code> 定数.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOBase.tell">
+<code class="descname">tell</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOBase.tell" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ストリームの現在位置を不透明な数値で返します。この値は根底のバイナリストレージ内でのバイト数を表すとは限りません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOBase.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOBase.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>文字列 <em>s</em> をストリームに書き出し、書き出された文字数を返します。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.TextIOWrapper">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">TextIOWrapper</code><span class="sig-paren">(</span><em>buffer</em>, <em>encoding=None</em>, <em>errors=None</em>, <em>newline=None</em>, <em>line_buffering=False</em>, <em>write_through=False</em><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOWrapper" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#io.BufferedIOBase" title="io.BufferedIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedIOBase</span></code></a> バイナリストリーム上のバッファ付きテキストストリーム。 <a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> を継承します。</p>
+<p><em>encoding</em> はストリームがエンコードやデコードされるエンコード名です。デフォルトは <a class="reference internal" href="locale.html#locale.getpreferredencoding" title="locale.getpreferredencoding"><code class="xref py py-func docutils literal notranslate"><span class="pre">locale.getpreferredencoding(False)</span></code></a> です。</p>
+<p><em>errors</em> はオプションの文字列で、エンコードやデコードの際のエラーをどのように扱うかを指定します。エンコードエラーがあったときに <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> 例外を送出させるには <code class="docutils literal notranslate"><span class="pre">'strict'</span></code> を渡します (デフォルトの <code class="docutils literal notranslate"><span class="pre">None</span></code> でも同じです)。エラーを無視させるには <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code> を渡します。 (エンコーディングエラーを無視するとデータを喪失する可能性があることに注意してください。) <code class="docutils literal notranslate"><span class="pre">'replace'</span></code> は不正な形式の文字の代わりにマーカ (たとえば <code class="docutils literal notranslate"><span class="pre">'?'</span></code>) を挿入させます。<code class="docutils literal notranslate"><span class="pre">'backslashreplace'</span></code> を指定すると、不正な形式のデータをバックスラッシュ付きのエスケープシーケンスに置換します。書き込み時には <code class="docutils literal notranslate"><span class="pre">'xmlcharrefreplace'</span></code> (適切な XML 文字参照に置換) や <code class="docutils literal notranslate"><span class="pre">'namereplace'</span></code> (<code class="docutils literal notranslate"><span class="pre">\N{...}</span></code> エスケープシーケンスに置換) も使えます。他にも <a class="reference internal" href="codecs.html#codecs.register_error" title="codecs.register_error"><code class="xref py py-func docutils literal notranslate"><span class="pre">codecs.register_error()</span></code></a> で登録されたエラー処理名が有効です。</p>
+<p id="index-1"><em>newline</em> は行末をどのように処理するかを制御します 。<code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">''</span></code>, <code class="docutils literal notranslate"><span class="pre">'\n'</span></code>, <code class="docutils literal notranslate"><span class="pre">'\r'</span></code>, <code class="docutils literal notranslate"><span class="pre">'\r\n'</span></code> のいずれかです。これは以下のように動作します:</p>
+<ul class="simple">
+<li>ストリームからの入力を読み込んでいる時、<em>newline</em> が <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、<a class="reference internal" href="../glossary.html#term-universal-newlines"><span class="xref std std-term">universal newlines</span></a> モードが有効になります。入力中の行は <code class="docutils literal notranslate"><span class="pre">'\n'</span></code>、<code class="docutils literal notranslate"><span class="pre">'\r'</span></code>、または <code class="docutils literal notranslate"><span class="pre">'\r\n'</span></code> で終わり、呼び出し元に返される前に <code class="docutils literal notranslate"><span class="pre">'\n'</span></code> に変換されます。 <code class="docutils literal notranslate"><span class="pre">''</span></code> の場合、ユニバーサル改行モードは有効になりますが、行末は変換されずに呼び出し元に返されます。その他の合法な値の場合、入力行は与えられた文字列でのみ終わり、行末は変換されずに呼び出し元に返されます。</li>
+<li>ストリームへの出力の書き込み時、<em>newline</em> が <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、全ての <code class="docutils literal notranslate"><span class="pre">'\n'</span></code> 文字はシステムのデフォルトの行セパレータ <a class="reference internal" href="os.html#os.linesep" title="os.linesep"><code class="xref py py-data docutils literal notranslate"><span class="pre">os.linesep</span></code></a> に変換されます。 <em>newline</em> が <code class="docutils literal notranslate"><span class="pre">''</span></code> または <code class="docutils literal notranslate"><span class="pre">'\n'</span></code> の場合は変換されません。<em>newline</em> がその他の正当な値の場合、全ての <code class="docutils literal notranslate"><span class="pre">'\n'</span></code> 文字は与えられた文字列に変換されます。</li>
+</ul>
+<p><em>line_buffering</em> が <code class="docutils literal notranslate"><span class="pre">True</span></code> の場合、 write への呼び出しが改行文字もしくはキャリッジリターンを含んでいれば、暗黙的に <code class="xref py py-meth docutils literal notranslate"><span class="pre">flush()</span></code> が呼び出されます。</p>
+<p><em>write_through</em> が <code class="docutils literal notranslate"><span class="pre">True</span></code> の場合、<code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code> の呼び出しはバッファされないことが保証されます。 <a class="reference internal" href="#io.TextIOWrapper" title="io.TextIOWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code></a> オブジェクトに書かれた全てのデータは直ちに下層のバイナリ <em>buffer</em> に処理されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><em>write_through</em> 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><em>encoding</em> の規定値が <code class="docutils literal notranslate"><span class="pre">locale.getpreferredencoding()</span></code> から <code class="docutils literal notranslate"><span class="pre">locale.getpreferredencoding(False)</span></code> になりました。
+<a class="reference internal" href="locale.html#locale.setlocale" title="locale.setlocale"><code class="xref py py-func docutils literal notranslate"><span class="pre">locale.setlocale()</span></code></a> を用いてロケールのエンコーディングを一時的に変更してはいけません。ユーザが望むエンコーディングではなく現在のロケールのエンコーディングを使用してください。</p>
+</div>
+<p><a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> とその親クラスのメンバーに加えて、<a class="reference internal" href="#io.TextIOWrapper" title="io.TextIOWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code></a> は以下のメンバーを提供しています:</p>
+<dl class="attribute">
+<dt id="io.TextIOWrapper.line_buffering">
+<code class="descname">line_buffering</code><a class="headerlink" href="#io.TextIOWrapper.line_buffering" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>行バッファリングが有効かどうか。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="io.TextIOWrapper.write_through">
+<code class="descname">write_through</code><a class="headerlink" href="#io.TextIOWrapper.write_through" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>書き込みが、根柢のバイナリバッファに即座に渡されるかどうか。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="io.TextIOWrapper.reconfigure">
+<code class="descname">reconfigure</code><span class="sig-paren">(</span><em>*[, encoding][, errors][, newline][,                      line_buffering][, write_through]</em><span class="sig-paren">)</span><a class="headerlink" href="#io.TextIOWrapper.reconfigure" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このテキストストリームを <em>encoding</em>, <em>errors</em>, <em>newline</em>, <em>line_buffering</em> と <em>write_through</em> を新しい設定として再設定します。</p>
+<p><em>encoding</em> が指定されており、<em>errors</em> が指定されていないときに、 <code class="docutils literal notranslate"><span class="pre">errors='strict'</span></code> が使われている場合を除き、指定されなかったパラメータは現在の設定が保持されます。</p>
+<p>ストリームからすでにデータが読み出されていた場合、encodingとnewlineは変更できません。一方で、書き込み後にencodingを変更することはできます。</p>
+<p>このメソッドは、新しい設定を適用するまえにストリームをフラッシュします。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="io.StringIO">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">StringIO</code><span class="sig-paren">(</span><em>initial_value=''</em>, <em>newline='\n'</em><span class="sig-paren">)</span><a class="headerlink" href="#io.StringIO" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テキストIO のためのインメモリストリーム。テキストバッファは <a class="reference internal" href="#io.IOBase.close" title="io.IOBase.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> メソッドが呼び出された際に破棄されます。</p>
+<p>バッファの初期値を <em>initial_value</em> で与えることが出来ます。改行変換を有効にすると、改行コードは <a class="reference internal" href="#io.TextIOBase.write" title="io.TextIOBase.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code></a> によってエンコードされます。ストリームはバッファの開始位置に配置されます。</p>
+<p><em>newline</em> 引数は <a class="reference internal" href="#io.TextIOWrapper" title="io.TextIOWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code></a> のものと同じように働きます。デフォルトでは <code class="docutils literal notranslate"><span class="pre">\n</span></code> 文字だけを行末とみなし、また、改行の変換は行いません。 <em>newline</em> に <code class="docutils literal notranslate"><span class="pre">None</span></code> をセットすると改行コードを全てのプラットフォームで <code class="docutils literal notranslate"><span class="pre">\n</span></code> で書き込みますが、読み込み時にはそれでもユニバーサル改行としてのデコードは実行されます。</p>
+<p><a class="reference internal" href="#io.TextIOBase" title="io.TextIOBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOBase</span></code></a> およびその親クラスから継承したメソッドに加えて <a class="reference internal" href="#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO</span></code></a> は以下のメソッドを提供しています:</p>
+<dl class="method">
+<dt id="io.StringIO.getvalue">
+<code class="descname">getvalue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#io.StringIO.getvalue" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バッファの全内容を含む <code class="docutils literal notranslate"><span class="pre">str</span></code> を返します。改行コードのデコードは <a class="reference internal" href="#io.TextIOBase.read" title="io.TextIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> によって行われますが、これによるストリーム位置の変更は起こりません。</p>
+</dd></dl>
+
+<p>使用例:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;First line.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Second line.&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+
+<span class="c1"># Retrieve file contents -- this will be</span>
+<span class="c1"># &#39;First line.\nSecond line.\n&#39;</span>
+<span class="n">contents</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+<span class="c1"># Close object and discard memory buffer --</span>
+<span class="c1"># .getvalue() will now raise an exception.</span>
+<span class="n">output</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<span class="target" id="index-2"></span><dl class="class">
+<dt id="io.IncrementalNewlineDecoder">
+<em class="property">class </em><code class="descclassname">io.</code><code class="descname">IncrementalNewlineDecoder</code><a class="headerlink" href="#io.IncrementalNewlineDecoder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>改行を <a class="reference internal" href="../glossary.html#term-universal-newlines"><span class="xref std std-term">universal newlines</span></a> モードにデコードするヘルパーコーデックです。 <a class="reference internal" href="codecs.html#codecs.IncrementalDecoder" title="codecs.IncrementalDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">codecs.IncrementalDecoder</span></code></a> を継承しています。</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="performance">
+<h2>性能<a class="headerlink" href="#performance" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このセクションでは与えられた具体的な I/O 実装の性能について議論します。</p>
+<div class="section" id="id2">
+<h3>バイナリ I/O<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>バッファ付き I/O は、ユーザが 1 バイトだけ要求した場合でさえ、データを大きな塊でのみ読み書きします。これにより、オペレーティングシステムのバッファ無し I/O ルーチンを呼び出して実行する非効率性はすべて隠されます。その成果は、OS と、実行される I/O の種類によって異なります。例えば、Linux のような現行の OS では、バッファ無しディスク I/O がバッファ付き I/O と同じくらい早いことがあります。しかし、どのプラットフォームとデバイスにおいても、バッファ付き I/O は最低でも予測可能なパフォーマンスを提供します。ですから、バイナリデータに対しては、バッファ無し I/O を使用するより、バッファ付きの I/O を使用するほうが望ましい場合がほとんどです。</p>
+</div>
+<div class="section" id="id3">
+<h3>テキスト I/O<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>(ファイルなどの) バイナリストレージ上のテキスト I/O は、同じストレージ上のバイナリ I/O より非常に遅いです。なぜならこれには、文字コーデックを使った Unicode とバイナリデータ間の変換を必要とするからです。これは大量のテキストデータ、例えば大きなログファイルを扱うときに顕著に成り得ます。同様に、 <code class="xref py py-meth docutils literal notranslate"><span class="pre">TextIOWrapper.tell()</span></code> や <code class="xref py py-meth docutils literal notranslate"><span class="pre">TextIOWrapper.seek()</span></code> はどちらも、使われている復元アルゴリズムのために遅くなります。</p>
+<p>しかし <a class="reference internal" href="#io.StringIO" title="io.StringIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">StringIO</span></code></a> は、ネイティブなインメモリ Unicode コンテナで、 <a class="reference internal" href="#io.BytesIO" title="io.BytesIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesIO</span></code></a> と同程度の速度を示します。</p>
+</div>
+<div class="section" id="multi-threading">
+<h3>マルチスレッディング<a class="headerlink" href="#multi-threading" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>(Unix における <code class="docutils literal notranslate"><span class="pre">read(2)</span></code> のような) オペレーティングシステムコールの、それがラッピングするものがスレッドセーフであるような範囲内では、 <a class="reference internal" href="#io.FileIO" title="io.FileIO"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileIO</span></code></a> オブジェクトもまた、スレッドセーフです。</p>
+<p>バイナリバッファ付きオブジェクト (<a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a>, <a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a>, <a class="reference internal" href="#io.BufferedRandom" title="io.BufferedRandom"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRandom</span></code></a> および <a class="reference internal" href="#io.BufferedRWPair" title="io.BufferedRWPair"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRWPair</span></code></a> のインスタンス) は、その内部構造をロックを使って保護します。このため、これらを複数のスレッドから同時に呼び出しても安全です。</p>
+<p><a class="reference internal" href="#io.TextIOWrapper" title="io.TextIOWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code></a> オブジェクトはスレッドセーフではありません。</p>
+</div>
+<div class="section" id="reentrancy">
+<h3>リエントラント性<a class="headerlink" href="#reentrancy" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>バイナリバッファ付きオブジェクト (<a class="reference internal" href="#io.BufferedReader" title="io.BufferedReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedReader</span></code></a>, <a class="reference internal" href="#io.BufferedWriter" title="io.BufferedWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedWriter</span></code></a>, <a class="reference internal" href="#io.BufferedRandom" title="io.BufferedRandom"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRandom</span></code></a> および <a class="reference internal" href="#io.BufferedRWPair" title="io.BufferedRWPair"><code class="xref py py-class docutils literal notranslate"><span class="pre">BufferedRWPair</span></code></a> のインスタンス) は、リエントラント (再入可能) ではありません。リエントラントな呼び出しは普通の状況では起こりませんが、 I/O を <a class="reference internal" href="signal.html#module-signal" title="signal: Set handlers for asynchronous events."><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal</span></code></a> ハンドラで行なっているときに起こりえます。スレッドが、すでにアクセスしているバッファ付きオブジェクトに再び入ろうとすると <a class="reference internal" href="exceptions.html#RuntimeError" title="RuntimeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> が送出されます。これは、バッファ付きオブジェクトに複数のスレッドから入ることを禁止するわけではありません。</p>
+<p><a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> 関数は <a class="reference internal" href="#io.TextIOWrapper" title="io.TextIOWrapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextIOWrapper</span></code></a> 内部のバッファ付きオブジェクトをラップするため、テキストファイルにも暗黙に拡張されます。これは、標準ストリームを含むので、組み込み関数 <a class="reference internal" href="functions.html#print" title="print"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> にも同様に影響します。</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">io</span></code> --- ストリームを扱うコアツール</a><ul>
+<li><a class="reference internal" href="#overview">概要</a><ul>
+<li><a class="reference internal" href="#text-i-o">テキスト I/O</a></li>
+<li><a class="reference internal" href="#binary-i-o">バイナリ I/O</a></li>
+<li><a class="reference internal" href="#raw-i-o">Raw I/O</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#high-level-module-interface">高水準のモジュールインターフェイス</a><ul>
+<li><a class="reference internal" href="#in-memory-streams">インメモリー ストリーム</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#class-hierarchy">クラス階層</a><ul>
+<li><a class="reference internal" href="#i-o-base-classes">I/O 基底クラス</a></li>
+<li><a class="reference internal" href="#raw-file-i-o">生ファイルI/O</a></li>
+<li><a class="reference internal" href="#buffered-streams">バッファ付きストリーム</a></li>
+<li><a class="reference internal" href="#id1">テキスト I/O</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance">性能</a><ul>
+<li><a class="reference internal" href="#id2">バイナリ I/O</a></li>
+<li><a class="reference internal" href="#id3">テキスト I/O</a></li>
+<li><a class="reference internal" href="#multi-threading">マルチスレッディング</a></li>
+<li><a class="reference internal" href="#reentrancy">リエントラント性</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="os.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">os</span></code> --- 雑多なオペレーティングシステムインタフェース</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="time.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">time</span></code> --- 時刻データへのアクセスと変換</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/io.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="time.html" title="time --- 時刻データへのアクセスと変換"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="os.html" title="os --- 雑多なオペレーティングシステムインタフェース"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="allos.html" >汎用オペレーティングシステムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

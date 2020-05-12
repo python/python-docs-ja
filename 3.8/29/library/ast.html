@@ -1,0 +1,589 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ast --- 抽象構文木 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="symtable --- コンパイラの記号表へのアクセス" href="symtable.html" />
+    <link rel="prev" title="parser --- Python 解析木にアクセスする" href="parser.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/ast.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="symtable.html" title="symtable --- コンパイラの記号表へのアクセス"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="parser.html" title="parser --- Python 解析木にアクセスする"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="language.html" accesskey="U">Python言語サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-ast">
+<span id="ast-abstract-syntax-trees"></span><h1><a class="reference internal" href="#module-ast" title="ast: Abstract Syntax Tree classes and manipulation."><code class="xref py py-mod docutils literal notranslate"><span class="pre">ast</span></code></a> --- 抽象構文木<a class="headerlink" href="#module-ast" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/ast.py">Lib/ast.py</a></p>
+<hr class="docutils" />
+<p><a class="reference internal" href="#module-ast" title="ast: Abstract Syntax Tree classes and manipulation."><code class="xref py py-mod docutils literal notranslate"><span class="pre">ast</span></code></a> モジュールは、Python アプリケーションで Python の抽象構文木を処理しやすくするものです。抽象構文そのものは、Python のリリースごとに変化する可能性があります。このモジュールを使用すると、現在の文法をプログラム上で知る助けになるでしょう。</p>
+<p>抽象構文木を作成するには、 <code class="xref py py-data docutils literal notranslate"><span class="pre">ast.PyCF_ONLY_AST</span></code> を組み込み関数 <a class="reference internal" href="functions.html#compile" title="compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> のフラグとして渡すか、あるいはこのモジュールで提供されているヘルパー関数 <a class="reference internal" href="#ast.parse" title="ast.parse"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse()</span></code></a> を使います。その結果は、 <a class="reference internal" href="#ast.AST" title="ast.AST"><code class="xref py py-class docutils literal notranslate"><span class="pre">ast.AST</span></code></a> を継承したクラスのオブジェクトのツリーとなります。抽象構文木は組み込み関数 <a class="reference internal" href="functions.html#compile" title="compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> を使って Python コード・オブジェクトにコンパイルすることができます。</p>
+<div class="section" id="node-classes">
+<h2>Node クラス<a class="headerlink" href="#node-classes" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="ast.AST">
+<em class="property">class </em><code class="descclassname">ast.</code><code class="descname">AST</code><a class="headerlink" href="#ast.AST" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このクラスは全ての AST ノード・クラスの基底です。実際のノード・クラスは <a class="reference internal" href="#abstract-grammar"><span class="std std-ref">後ほど</span></a> 示す <code class="file docutils literal notranslate"><span class="pre">Parser/Python.asdl</span></code> ファイルから派生したものです。これらのクラスは <code class="xref py py-mod docutils literal notranslate"><span class="pre">_ast</span></code> C モジュールで定義され、 <a class="reference internal" href="#module-ast" title="ast: Abstract Syntax Tree classes and manipulation."><code class="xref py py-mod docutils literal notranslate"><span class="pre">ast</span></code></a> にもエクスポートし直されています。</p>
+<p>抽象文法の左辺のシンボル一つずつにそれぞれ一つのクラスがあります (たとえば <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.stmt</span></code> や <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.expr</span></code>)。それに加えて、右辺のコンストラクタ一つずつにそれぞれ一つのクラスがあり、これらのクラスは左辺のツリーのクラスを継承しています。たとえば、 <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.BinOp</span></code> は <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.expr</span></code> から継承しています。代替を伴った生成規則 (production rules with alternatives) (別名 &quot;sums&quot;) の場合、左辺は抽象クラスとなり、特定のコンストラクタ・ノードのインスタンスのみが作成されます。</p>
+<span class="target" id="index-0"></span><span class="target" id="index-1"></span><dl class="attribute">
+<dt id="ast.AST._fields">
+<code class="descname">_fields</code><a class="headerlink" href="#ast.AST._fields" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>各具象クラスは属性 <a class="reference internal" href="#ast.AST._fields" title="ast.AST._fields"><code class="xref py py-attr docutils literal notranslate"><span class="pre">_fields</span></code></a> を持っており、すべての子ノードの名前をそこに保持しています。</p>
+<p>具象クラスのインスタンスは、各子ノードに対してそれぞれひとつの属性を持っています。この属性は、文法で定義された型となります。たとえば <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.BinOp</span></code> のインスタンスは <code class="xref py py-attr docutils literal notranslate"><span class="pre">left</span></code> という属性を持っており、その型は <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.expr</span></code> です。</p>
+<p>これらの属性が、文法上 (クエスチョンマークを用いて) オプションであるとマークされている場合は、その値が <code class="docutils literal notranslate"><span class="pre">None</span></code> となることもあります。属性が0個以上の複数の値をとりうる場合 (アスタリスクでマークされている場合) は、値は Python のリストで表されます。全ての属性は AST を <a class="reference internal" href="functions.html#compile" title="compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> でコンパイルする際には存在しなければならず、そして妥当な値でなければなりません。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ast.AST.lineno">
+<code class="descname">lineno</code><a class="headerlink" href="#ast.AST.lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="ast.AST.col_offset">
+<code class="descname">col_offset</code><a class="headerlink" href="#ast.AST.col_offset" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="ast.AST.end_lineno">
+<code class="descname">end_lineno</code><a class="headerlink" href="#ast.AST.end_lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="ast.AST.end_col_offset">
+<code class="descname">end_col_offset</code><a class="headerlink" href="#ast.AST.end_col_offset" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Instances of <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.expr</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.stmt</span></code> subclasses have
+<a class="reference internal" href="#ast.AST.lineno" title="ast.AST.lineno"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code></a>, <a class="reference internal" href="#ast.AST.col_offset" title="ast.AST.col_offset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">col_offset</span></code></a>, <a class="reference internal" href="#ast.AST.lineno" title="ast.AST.lineno"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code></a>, and <a class="reference internal" href="#ast.AST.col_offset" title="ast.AST.col_offset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">col_offset</span></code></a>
+attributes.  The <a class="reference internal" href="#ast.AST.lineno" title="ast.AST.lineno"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code></a> and <a class="reference internal" href="#ast.AST.end_lineno" title="ast.AST.end_lineno"><code class="xref py py-attr docutils literal notranslate"><span class="pre">end_lineno</span></code></a> are the first and
+last line numbers of source text span (1-indexed so the first line is line 1)
+and the <a class="reference internal" href="#ast.AST.col_offset" title="ast.AST.col_offset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">col_offset</span></code></a> and <a class="reference internal" href="#ast.AST.end_col_offset" title="ast.AST.end_col_offset"><code class="xref py py-attr docutils literal notranslate"><span class="pre">end_col_offset</span></code></a> are the corresponding
+UTF-8 byte offsets of the first and last tokens that generated the node.
+The UTF-8 offset is recorded because the parser uses UTF-8 internally.</p>
+<p>Note that the end positions are not required by the compiler and are
+therefore optional. The end offset is <em>after</em> the last symbol, for example
+one can get the source segment of a one-line expression node using
+<code class="docutils literal notranslate"><span class="pre">source_line[node.col_offset</span> <span class="pre">:</span> <span class="pre">node.end_col_offset]</span></code>.</p>
+</dd></dl>
+
+<p>クラス <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.T</span></code> のコンストラクタは引数を次のように解析します:</p>
+<ul class="simple">
+<li>位置引数があるとすれば、 <code class="xref py py-attr docutils literal notranslate"><span class="pre">T._fields</span></code> にあるのと同じだけの個数が無ければなりません。これらの引数はそこにある名前を持った属性として割り当てられます。</li>
+<li>キーワード引数があるとすれば、それらはその名前の属性にその値を割り当てられます。</li>
+</ul>
+<p>たとえば、 <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.UnaryOp</span></code> ノードを生成して属性を埋めるには、次のようにすることができます</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">()</span>
+<span class="n">node</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">USub</span><span class="p">()</span>
+<span class="n">node</span><span class="o">.</span><span class="n">operand</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">()</span>
+<span class="n">node</span><span class="o">.</span><span class="n">operand</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">node</span><span class="o">.</span><span class="n">operand</span><span class="o">.</span><span class="n">lineno</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">node</span><span class="o">.</span><span class="n">operand</span><span class="o">.</span><span class="n">col_offset</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">node</span><span class="o">.</span><span class="n">lineno</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">node</span><span class="o">.</span><span class="n">col_offset</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>もしくはよりコンパクトにも書けます</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">UnaryOp</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">USub</span><span class="p">(),</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">lineno</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                   <span class="n">lineno</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>:class:<a href="#id1"><span class="problematic" id="id2">`</span></a>ast.Constant`が全ての定数に使われるようになりました。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.8 で非推奨: </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ast.Num</span></code>、 <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.Str</span></code>、<code class="xref py py-class docutils literal notranslate"><span class="pre">ast.Bytes</span></code>、<code class="xref py py-class docutils literal notranslate"><span class="pre">ast.NameConstant</span></code> そして <code class="xref py py-class docutils literal notranslate"><span class="pre">ast.Ellipsis</span></code> は現バージョンまで使用可能ですが、将来のPythonリリースで削除される予定です。削除されるまでの間、これらをインスタンス化すると、異なるクラスのインスタンスが返されます。</p>
+</div>
+</div>
+<div class="section" id="abstract-grammar">
+<span id="id1"></span><h2>抽象文法 (Abstract Grammar)<a class="headerlink" href="#abstract-grammar" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>抽象文法は、現在次のように定義されています:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>-- ASDL&#39;s 5 builtin types are:
+-- identifier, int, string, object, constant
+
+module Python
+{
+    mod = Module(stmt* body, type_ignore *type_ignores)
+        | Interactive(stmt* body)
+        | Expression(expr body)
+        | FunctionType(expr* argtypes, expr returns)
+
+        -- not really an actual node but useful in Jython&#39;s typesystem.
+        | Suite(stmt* body)
+
+    stmt = FunctionDef(identifier name, arguments args,
+                       stmt* body, expr* decorator_list, expr? returns,
+                       string? type_comment)
+          | AsyncFunctionDef(identifier name, arguments args,
+                             stmt* body, expr* decorator_list, expr? returns,
+                             string? type_comment)
+
+          | ClassDef(identifier name,
+             expr* bases,
+             keyword* keywords,
+             stmt* body,
+             expr* decorator_list)
+          | Return(expr? value)
+
+          | Delete(expr* targets)
+          | Assign(expr* targets, expr value, string? type_comment)
+          | AugAssign(expr target, operator op, expr value)
+          -- &#39;simple&#39; indicates that we annotate simple name without parens
+          | AnnAssign(expr target, expr annotation, expr? value, int simple)
+
+          -- use &#39;orelse&#39; because else is a keyword in target languages
+          | For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)
+          | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)
+          | While(expr test, stmt* body, stmt* orelse)
+          | If(expr test, stmt* body, stmt* orelse)
+          | With(withitem* items, stmt* body, string? type_comment)
+          | AsyncWith(withitem* items, stmt* body, string? type_comment)
+
+          | Raise(expr? exc, expr? cause)
+          | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)
+          | Assert(expr test, expr? msg)
+
+          | Import(alias* names)
+          | ImportFrom(identifier? module, alias* names, int? level)
+
+          | Global(identifier* names)
+          | Nonlocal(identifier* names)
+          | Expr(expr value)
+          | Pass | Break | Continue
+
+          -- XXX Jython will be different
+          -- col_offset is the byte offset in the utf8 string the parser uses
+          attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
+
+          -- BoolOp() can use left &amp; right?
+    expr = BoolOp(boolop op, expr* values)
+         | NamedExpr(expr target, expr value)
+         | BinOp(expr left, operator op, expr right)
+         | UnaryOp(unaryop op, expr operand)
+         | Lambda(arguments args, expr body)
+         | IfExp(expr test, expr body, expr orelse)
+         | Dict(expr* keys, expr* values)
+         | Set(expr* elts)
+         | ListComp(expr elt, comprehension* generators)
+         | SetComp(expr elt, comprehension* generators)
+         | DictComp(expr key, expr value, comprehension* generators)
+         | GeneratorExp(expr elt, comprehension* generators)
+         -- the grammar constrains where yield expressions can occur
+         | Await(expr value)
+         | Yield(expr? value)
+         | YieldFrom(expr value)
+         -- need sequences for compare to distinguish between
+         -- x &lt; 4 &lt; 3 and (x &lt; 4) &lt; 3
+         | Compare(expr left, cmpop* ops, expr* comparators)
+         | Call(expr func, expr* args, keyword* keywords)
+         | FormattedValue(expr value, int? conversion, expr? format_spec)
+         | JoinedStr(expr* values)
+         | Constant(constant value, string? kind)
+
+         -- the following expression can appear in assignment context
+         | Attribute(expr value, identifier attr, expr_context ctx)
+         | Subscript(expr value, slice slice, expr_context ctx)
+         | Starred(expr value, expr_context ctx)
+         | Name(identifier id, expr_context ctx)
+         | List(expr* elts, expr_context ctx)
+         | Tuple(expr* elts, expr_context ctx)
+
+          -- col_offset is the byte offset in the utf8 string the parser uses
+          attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
+
+    expr_context = Load | Store | Del | AugLoad | AugStore | Param
+
+    slice = Slice(expr? lower, expr? upper, expr? step)
+          | ExtSlice(slice* dims)
+          | Index(expr value)
+
+    boolop = And | Or
+
+    operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift
+                 | RShift | BitOr | BitXor | BitAnd | FloorDiv
+
+    unaryop = Invert | Not | UAdd | USub
+
+    cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
+
+    comprehension = (expr target, expr iter, expr* ifs, int is_async)
+
+    excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)
+                    attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
+
+    arguments = (arg* posonlyargs, arg* args, arg? vararg, arg* kwonlyargs,
+                 expr* kw_defaults, arg? kwarg, expr* defaults)
+
+    arg = (identifier arg, expr? annotation, string? type_comment)
+           attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
+
+    -- keyword arguments supplied to call (NULL identifier for **kwargs)
+    keyword = (identifier? arg, expr value)
+
+    -- import name with optional &#39;as&#39; alias.
+    alias = (identifier name, identifier? asname)
+
+    withitem = (expr context_expr, expr? optional_vars)
+
+    type_ignore = TypeIgnore(int lineno, string tag)
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="ast-helpers">
+<h2><a class="reference internal" href="#module-ast" title="ast: Abstract Syntax Tree classes and manipulation."><code class="xref py py-mod docutils literal notranslate"><span class="pre">ast</span></code></a> ヘルパー<a class="headerlink" href="#ast-helpers" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ノード・クラスの他に、 <a class="reference internal" href="#module-ast" title="ast: Abstract Syntax Tree classes and manipulation."><code class="xref py py-mod docutils literal notranslate"><span class="pre">ast</span></code></a> モジュールは以下のような抽象構文木をトラバースするためのユーティリティ関数やクラスも定義しています:</p>
+<dl class="function">
+<dt id="ast.parse">
+<code class="descclassname">ast.</code><code class="descname">parse</code><span class="sig-paren">(</span><em>source</em>, <em>filename='&lt;unknown&gt;'</em>, <em>mode='exec'</em>, <em>*</em>, <em>type_comments=False</em>, <em>feature_version=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.parse" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>source</em> を解析して AST ノードにします。<code class="docutils literal notranslate"><span class="pre">compile(source,</span> <span class="pre">filename,</span> <span class="pre">mode,</span> <span class="pre">ast.PyCF_ONLY_AST)</span></code> と等価です。</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">type_comments=True</span></code> is given, the parser is modified to check
+and return type comments as specified by <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0484"><strong>PEP 484</strong></a> and <span class="target" id="index-3"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0526"><strong>PEP 526</strong></a>.
+This is equivalent to adding <code class="xref py py-data docutils literal notranslate"><span class="pre">ast.PyCF_TYPE_COMMENTS</span></code> to the
+flags passed to <a class="reference internal" href="functions.html#compile" title="compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a>.  This will report syntax errors
+for misplaced type comments.  Without this flag, type comments will
+be ignored, and the <code class="docutils literal notranslate"><span class="pre">type_comment</span></code> field on selected AST nodes
+will always be <code class="docutils literal notranslate"><span class="pre">None</span></code>.  In addition, the locations of <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">type:</span>
+<span class="pre">ignore</span></code> comments will be returned as the <code class="docutils literal notranslate"><span class="pre">type_ignores</span></code>
+attribute of <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> (otherwise it is always an empty list).</p>
+<p>In addition, if <code class="docutils literal notranslate"><span class="pre">mode</span></code> is <code class="docutils literal notranslate"><span class="pre">'func_type'</span></code>, the input syntax is
+modified to correspond to <span class="target" id="index-4"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0484"><strong>PEP 484</strong></a> &quot;signature type comments&quot;,
+e.g. <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">int)</span> <span class="pre">-&gt;</span> <span class="pre">List[str]</span></code>.</p>
+<p>Also, setting <code class="docutils literal notranslate"><span class="pre">feature_version</span></code> to a tuple <code class="docutils literal notranslate"><span class="pre">(major,</span> <span class="pre">minor)</span></code>
+will attempt to parse using that Python version's grammar.
+Currently <code class="docutils literal notranslate"><span class="pre">major</span></code> must equal to <code class="docutils literal notranslate"><span class="pre">3</span></code>.  For example, setting
+<code class="docutils literal notranslate"><span class="pre">feature_version=(3,</span> <span class="pre">4)</span></code> will allow the use of <code class="docutils literal notranslate"><span class="pre">async</span></code> and
+<code class="docutils literal notranslate"><span class="pre">await</span></code> as variable names.  The lowest supported version is
+<code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">4)</span></code>; the highest is <code class="docutils literal notranslate"><span class="pre">sys.version_info[0:2]</span></code>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">十分に大きい文字列や複雑な文字列によって Python の抽象構文木コンパイラのスタックの深さの限界を越えることで、 Python インタプリタをクラッシュさせることができます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span><code class="docutils literal notranslate"><span class="pre">type_comments</span></code>、<code class="docutils literal notranslate"><span class="pre">mode='func_type'</span></code>、<a href="#id1"><span class="problematic" id="id2">``</span></a>feature_version``が追加されました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.literal_eval">
+<code class="descclassname">ast.</code><code class="descname">literal_eval</code><span class="sig-paren">(</span><em>node_or_string</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.literal_eval" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>式ノードまたは Python のリテラルまたはコンテナのディスプレイ表現を表す文字列を安全に評価します。与えられる文字列またはノードは次のリテラルのみからなるものに限られます: 文字列、バイト列、数、タプル、リスト、辞書、集合、ブール値、 <code class="docutils literal notranslate"><span class="pre">None</span></code> 。</p>
+<p>この関数は Python の式を含んだ信頼出来ない出どころからの文字列を、値自身を解析することなしに安全に評価するのに使えます。この関数は、例えば演算や添え字を含んだ任意の複雑な表現を評価するのには使えません。</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">十分に大きい文字列や複雑な文字列によって Python の抽象構文木コンパイラのスタックの深さの限界を越えることで、 Python インタプリタをクラッシュさせることができます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.2 で変更: </span>バイト列リテラルと集合リテラルが受け取れるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.get_docstring">
+<code class="descclassname">ast.</code><code class="descname">get_docstring</code><span class="sig-paren">(</span><em>node</em>, <em>clean=True</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.get_docstring" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられた <em>node</em> (これは <code class="xref py py-class docutils literal notranslate"><span class="pre">FunctionDef</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncFunctionDef</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ClassDef</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> のいずれかのノードでなければなりません) のドキュメント文字列を返します。もしドキュメント文字列が無ければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。 <em>clean</em> が真ならば、ドキュメント文字列のインデントを <a class="reference internal" href="inspect.html#inspect.cleandoc" title="inspect.cleandoc"><code class="xref py py-func docutils literal notranslate"><span class="pre">inspect.cleandoc()</span></code></a> を用いて一掃します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncFunctionDef</span></code> がサポートされました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.get_source_segment">
+<code class="descclassname">ast.</code><code class="descname">get_source_segment</code><span class="sig-paren">(</span><em>source</em>, <em>node</em>, <em>*</em>, <em>padded=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.get_source_segment" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get source code segment of the <em>source</em> that generated <em>node</em>.
+If some location information (<code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">end_lineno</span></code>,
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">col_offset</span></code>, or <code class="xref py py-attr docutils literal notranslate"><span class="pre">end_col_offset</span></code>) is missing, return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>If <em>padded</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the first line of a multi-line statement will
+be padded with spaces to match its original position.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.8 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.fix_missing_locations">
+<code class="descclassname">ast.</code><code class="descname">fix_missing_locations</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.fix_missing_locations" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="functions.html#compile" title="compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> はノード・ツリーをコンパイルする際、 <code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code> と <code class="xref py py-attr docutils literal notranslate"><span class="pre">col_offset</span></code> 両属性をサポートする全てのノードに対しそれが存在するものと想定します。生成されたノードに対しこれらを埋めて回るのはどちらかというと退屈な作業なので、このヘルパーが再帰的に二つの属性がセットされていないものに親ノードと同じ値をセットしていきます。再帰の出発点が <em>node</em> です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.increment_lineno">
+<code class="descclassname">ast.</code><code class="descname">increment_lineno</code><span class="sig-paren">(</span><em>node</em>, <em>n=1</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.increment_lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Increment the line number and end line number of each node in the tree
+starting at <em>node</em> by <em>n</em>. This is useful to &quot;move code&quot; to a different
+location in a file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.copy_location">
+<code class="descclassname">ast.</code><code class="descname">copy_location</code><span class="sig-paren">(</span><em>new_node</em>, <em>old_node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.copy_location" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Copy source location (<code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">col_offset</span></code>, <code class="xref py py-attr docutils literal notranslate"><span class="pre">end_lineno</span></code>,
+and <code class="xref py py-attr docutils literal notranslate"><span class="pre">end_col_offset</span></code>) from <em>old_node</em> to <em>new_node</em> if possible,
+and return <em>new_node</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.iter_fields">
+<code class="descclassname">ast.</code><code class="descname">iter_fields</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.iter_fields" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>node</em> にある <code class="docutils literal notranslate"><span class="pre">node._fields</span></code> のそれぞれのフィールドを <code class="docutils literal notranslate"><span class="pre">(フィールド名,</span> <span class="pre">値)</span></code> のタプルとして yield します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.iter_child_nodes">
+<code class="descclassname">ast.</code><code class="descname">iter_child_nodes</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.iter_child_nodes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>node</em> の直接の子ノード全てを yield します。すなわち、yield されるのは、ノードであるような全てのフィールドおよびノードのリストであるようなフィールドの全てのアイテムです。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.walk">
+<code class="descclassname">ast.</code><code class="descname">walk</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.walk" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>node</em> の全ての子孫ノード(<em>node</em> 自体を含む)を再帰的に yield します。順番は決められていません。この関数はノードをその場で変更するだけで文脈を気にしないような場合に便利です。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ast.NodeVisitor">
+<em class="property">class </em><code class="descclassname">ast.</code><code class="descname">NodeVisitor</code><a class="headerlink" href="#ast.NodeVisitor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>抽象構文木を渡り歩いてビジター関数を見つけたノードごとに呼び出すノード・ビジターの基底クラスです。この関数は <a class="reference internal" href="#ast.NodeVisitor.visit" title="ast.NodeVisitor.visit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">visit()</span></code></a> メソッドに送られる値を返してもかまいません。</p>
+<p>このクラスはビジター・メソッドを付け加えたサブクラスを派生させることを意図しています。</p>
+<dl class="method">
+<dt id="ast.NodeVisitor.visit">
+<code class="descname">visit</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.NodeVisitor.visit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノードを訪れます。デフォルトの実装では <code class="samp docutils literal notranslate"><span class="pre">self.visit_</span><em><span class="pre">classname</span></em></code> というメソッド (ここで <em>classname</em> はノードのクラス名です) を呼び出すか、そのメソッドがなければ <a class="reference internal" href="#ast.NodeVisitor.generic_visit" title="ast.NodeVisitor.generic_visit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generic_visit()</span></code></a> を呼び出します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ast.NodeVisitor.generic_visit">
+<code class="descname">generic_visit</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.NodeVisitor.generic_visit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このビジターはノードの全ての子について <a class="reference internal" href="#ast.NodeVisitor.visit" title="ast.NodeVisitor.visit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">visit()</span></code></a> を呼び出します。</p>
+<p>注意して欲しいのは、専用のビジター・メソッドを具えたノードの子ノードは、このビジターが <a class="reference internal" href="#ast.NodeVisitor.generic_visit" title="ast.NodeVisitor.generic_visit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generic_visit()</span></code></a> を呼び出すかそれ自身で子ノードを訪れない限り訪れられないということです。</p>
+</dd></dl>
+
+<p>トラバースの途中でノードを変化させたいならば <a class="reference internal" href="#ast.NodeVisitor" title="ast.NodeVisitor"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeVisitor</span></code></a> を使ってはいけません。そうした目的のために変更を許す特別なビジター (<a class="reference internal" href="#ast.NodeTransformer" title="ast.NodeTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeTransformer</span></code></a>) があります。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.8 で非推奨: </span>Methods <code class="xref py py-meth docutils literal notranslate"><span class="pre">visit_Num()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">visit_Str()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">visit_Bytes()</span></code>,
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">visit_NameConstant()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">visit_Ellipsis()</span></code> are deprecated
+now and will not be called in future Python versions.  Add the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">visit_Constant()</span></code> method to handle all constant nodes.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="ast.NodeTransformer">
+<em class="property">class </em><code class="descclassname">ast.</code><code class="descname">NodeTransformer</code><a class="headerlink" href="#ast.NodeTransformer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#ast.NodeVisitor" title="ast.NodeVisitor"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeVisitor</span></code></a> のサブクラスで抽象構文木を渡り歩きながらノードを変更することを許すものです。</p>
+<p><a class="reference internal" href="#ast.NodeTransformer" title="ast.NodeTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeTransformer</span></code></a> は抽象構文木(AST)を渡り歩き、ビジター・メソッドの戻り値を使って古いノードを置き換えたり削除したりします。ビジター・メソッドの戻り値が <code class="docutils literal notranslate"><span class="pre">None</span></code> ならば、ノードはその場から取り去られ、そうでなければ戻り値で置き換えられます。置き換えない場合は戻り値が元のノードそのものであってもかまいません。</p>
+<p>それでは例を示しましょう。Name (たとえば <code class="docutils literal notranslate"><span class="pre">foo</span></code>) を見つけるたび全て <code class="docutils literal notranslate"><span class="pre">data['foo']</span></code> に書き換える変換器 (transformer) です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">RewriteName</span><span class="p">(</span><span class="n">NodeTransformer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">visit_Name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Subscript</span><span class="p">(</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">Name</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">Load</span><span class="p">()),</span>
+            <span class="nb">slice</span><span class="o">=</span><span class="n">Index</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">Constant</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)),</span>
+            <span class="n">ctx</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">ctx</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>操作しようとしているノードが子ノードを持つならば、その子ノードの変形も自分で行うか、またはそのノードに対し最初に <code class="xref py py-meth docutils literal notranslate"><span class="pre">generic_visit()</span></code> メソッドを呼び出すか、それを行うのはあなたの責任だということを肝に銘じましょう。</p>
+<p>文のコレクションであるようなノード (全ての文のノードが当てはまります) に対して、このビジターは単独のノードではなくノードのリストを返すかもしれません。</p>
+<p><a class="reference internal" href="#ast.NodeTransformer" title="ast.NodeTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeTransformer</span></code></a> が(たとえば、 <code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code> のような)位置情報を与えずに(元の木の一部ではなく)新しいノードを導入する場合、 <a class="reference internal" href="#ast.fix_missing_locations" title="ast.fix_missing_locations"><code class="xref py py-func docutils literal notranslate"><span class="pre">fix_missing_locations()</span></code></a> を新しいサブツリーで呼び出して、位置情報を再計算する必要があります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;eval&#39;</span><span class="p">)</span>
+<span class="n">new_tree</span> <span class="o">=</span> <span class="n">fix_missing_locations</span><span class="p">(</span><span class="n">RewriteName</span><span class="p">()</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">tree</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>たいてい、変換器の使い方は次のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">node</span> <span class="o">=</span> <span class="n">YourTransformer</span><span class="p">()</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="ast.dump">
+<code class="descclassname">ast.</code><code class="descname">dump</code><span class="sig-paren">(</span><em>node</em>, <em>annotate_fields=True</em>, <em>include_attributes=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ast.dump" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>node</em> 内のツリーのフォーマットされたダンプを返します。主な使い道はデバッグです。 <em>annotate_fields</em> が(デフォルトで)trueの場合、返される文字列はフィールドの名前と値を示します。 <em>annotate_fields</em> がfalseの場合、あいまいさのないフィールド名を省略することにより、結果文字列はよりコンパクトになります。行番号や列オフセットのような属性はデフォルトではダンプされません。これがほ欲しければ、 <em>include_attributes</em> をtrueにセットすることができます。</p>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last">外部ドキュメント <a class="reference external" href="https://greentreesnakes.readthedocs.io/">Green Tree Snakes</a> には Python AST についての詳細が書かれています。</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">ast</span></code> --- 抽象構文木</a><ul>
+<li><a class="reference internal" href="#node-classes">Node クラス</a></li>
+<li><a class="reference internal" href="#abstract-grammar">抽象文法 (Abstract Grammar)</a></li>
+<li><a class="reference internal" href="#ast-helpers"><code class="docutils literal notranslate"><span class="pre">ast</span></code> ヘルパー</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="parser.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">parser</span></code> --- Python 解析木にアクセスする</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="symtable.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">symtable</span></code> --- コンパイラの記号表へのアクセス</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/ast.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="symtable.html" title="symtable --- コンパイラの記号表へのアクセス"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="parser.html" title="parser --- Python 解析木にアクセスする"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="language.html" >Python言語サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

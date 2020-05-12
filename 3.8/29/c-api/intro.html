@@ -1,0 +1,601 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>はじめに &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="安定 ABI (Stable Appliction Binary Interface)" href="stable.html" />
+    <link rel="prev" title="Python/C API リファレンスマニュアル" href="index.html" />
+    <link rel="canonical" href="https://docs.python.org/3/c-api/intro.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="stable.html" title="安定 ABI (Stable Appliction Binary Interface)"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Python/C API リファレンスマニュアル"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python/C API リファレンスマニュアル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="introduction">
+<span id="api-intro"></span><h1>はじめに<a class="headerlink" href="#introduction" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Python のアプリケーションプログラマ用インタフェース (Application Programmer's Interface, API) は、 Python インタプリタに対する様々なレベルでのアクセス手段を C や C++ のプログラマに提供しています。この API は通常 C++ からも全く同じように利用できるのですが、簡潔な呼び名にするために Python/C API と名づけられています。根本的に異なる二つの目的から、 Python/C API が用いられます。第一は、特定用途の <em>拡張モジュール (extention module)</em> 、すなわち Python インタプリタを拡張する C で書かれたモジュールを記述する、という目的です。第二は、より大規模なアプリケーション内で Python を構成要素 (component) として利用するという目的です; このテクニックは、一般的にはアプリケーションへの Python の埋め込み (<em class="dfn">embedding</em>) と呼びます。</p>
+<p>拡張モジュールの作成は比較的わかりやすいプロセスで、 &quot;手引書 (cookbook)&quot; 的なアプローチでうまく実現できます。作業をある程度まで自動化してくれるツールもいくつかあります。一方、他のアプリケーションへの Python の埋め込みは、Python ができてから早い時期から行われてきましたが、拡張モジュールの作成に比べるとやや難解です。</p>
+<p>多くの API 関数は、Python の埋め込みであるか拡張であるかに関わらず役立ちます; とはいえ、Python を埋め込んでいるほとんどのアプリケーションは、同時に自作の拡張モジュールも提供する必要が生じることになるでしょうから、Python を実際にアプリケーションに埋め込んでみる前に拡張モジュールの書き方に詳しくなっておくのはよい考えだと思います。</p>
+<div class="section" id="coding-standards">
+<h2>コーディング基準<a class="headerlink" href="#coding-standards" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>CPython に含める C コードを書いている場合は、 <span class="target" id="index-44"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0007"><strong>PEP 7</strong></a> のガイドラインと基準に従わなければ <strong>なりません</strong> 。
+このガイドラインは、コントリビュート対象の Python のバージョンに関係無く適用されます。
+自身のサードパーティーのモジュールでは、それをいつか Python にコントリビュートするつもりでなければ、この慣習に従う必要はありません。</p>
+</div>
+<div class="section" id="include-files">
+<span id="api-includes"></span><h2>インクルードファイル<a class="headerlink" href="#include-files" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python/C API を使うために必要な、関数、型およびマクロの全ての定義をインクルードするには、以下の行:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#define PY_SSIZE_T_CLEAN</span>
+<span class="cp">#include</span> <span class="cpf">&lt;Python.h&gt;</span><span class="cp"></span>
+</pre></div>
+</div>
+<p>をソースコードに記述します。この行を記述すると、標準ヘッダ: <code class="docutils literal notranslate"><span class="pre">&lt;stdio.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;string.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;errno.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;limits.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;assert.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;stdlib.h&gt;</span></code> を (利用できれば) インクルードします。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>Python は、システムによっては標準ヘッダの定義に影響するようなプリプロセッサ定義を行っているので、 <code class="file docutils literal notranslate"><span class="pre">Python.h</span></code> をいずれの標準ヘッダよりも前にインクルード <em>せねばなりません</em> 。</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">Python.h</span></code> をインクルードする前に、常に <code class="docutils literal notranslate"><span class="pre">PY_SSIZE_T_CLEAN</span></code> を定義することが推奨されます。
+このマクロの解説については <a class="reference internal" href="arg.html#arg-parsing"><span class="std std-ref">引数の解釈と値の構築</span></a> を参照してください。</p>
+</div>
+<p>Python.h で定義されている、ユーザから見える名前全て (Python.h がインクルードしている標準ヘッダの名前は除きます) には、接頭文字列 <code class="docutils literal notranslate"><span class="pre">Py</span></code> または <code class="docutils literal notranslate"><span class="pre">_Py</span></code> が付きます。<code class="docutils literal notranslate"><span class="pre">_Py</span></code> で始まる名前は Python 実装で内部使用するための名前で、拡張モジュールの作者は使ってはなりません。構造体のメンバには予約済みの接頭文字列はありません。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">API のユーザは、<code class="docutils literal notranslate"><span class="pre">Py</span></code> や <code class="docutils literal notranslate"><span class="pre">_Py</span></code> で始まる名前を定義するコードを絶対に書いてはなりません。
+後からコードを読む人を混乱させたり、将来の Python のバージョンで同じ名前が定義されて、ユーザの書いたコードの可搬性を危うくする可能性があります。</p>
+</div>
+<p>ヘッダファイル群は通常 Python と共にインストールされます。 Unixでは <code class="file docutils literal notranslate"><em><span class="pre">prefix</span></em><span class="pre">/include/pythonversion/</span></code> および <code class="file docutils literal notranslate"><em><span class="pre">exec_prefix</span></em><span class="pre">/include/pythonversion/</span></code> に置かれます。 <span class="target" id="index-45"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">prefix</span></code> と <span class="target" id="index-46"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">exec_prefix</span></code> は Python をビルドする際の <strong class="program">configure</strong> スクリプトに与えたパラメタに対応し、 <em>version</em> は <code class="docutils literal notranslate"><span class="pre">'%d.%d'</span> <span class="pre">%</span> <span class="pre">sys.version_info[:2]</span></code> に対応します。 Windows では、ヘッダは <code class="file docutils literal notranslate"><em><span class="pre">prefix</span></em><span class="pre">/include</span></code> に置かれます。 <span class="target" id="index-47"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">prefix</span></code> はインストーラに指定したインストールディレクトリです。</p>
+<p>ヘッダをインクルードするには、各ヘッダの入ったディレクトリ (別々のディレクトリの場合は両方) を、コンパイラがインクルードファイルを検索するためのパスに入れます。親ディレクトリをサーチパスに入れて、 <code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;pythonX.Y/Python.h&gt;</span></code> のようにしては <em>なりません</em> ; <span class="target" id="index-48"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">prefix</span></code> 内のプラットフォームに依存しないヘッダは、 <span class="target" id="index-49"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">exec_prefix</span></code> からプラットフォーム依存のヘッダをインクルードしているので、このような操作を行うと複数のプラットフォームでのビルドができなくなります。</p>
+<p>C++ users should note that although the API is defined entirely using C, the
+header files properly declare the entry points to be <code class="docutils literal notranslate"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span></code>. As a result,
+there is no need to do anything special to use the API from C++.</p>
+</div>
+<div class="section" id="useful-macros">
+<h2>便利なマクロ<a class="headerlink" href="#useful-macros" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python のヘッダーファイルには便利なマクロがいくつか定義されています。
+多くのマクロは、それが役に立つところ (例えば、 <a class="reference internal" href="none.html#c.Py_RETURN_NONE" title="Py_RETURN_NONE"><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_RETURN_NONE</span></code></a>) の近くに定義があります。
+より一般的な使われかたをする他のマクロはこれらのヘッダーファイルに定義されています。
+ただし、ここで完全に列挙されているとは限りません。</p>
+<dl class="macro">
+<dt id="c.Py_UNREACHABLE">
+<code class="descname">Py_UNREACHABLE</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.Py_UNREACHABLE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>到達するはずがないと考えているコードパスがあるときに使います。
+例えば、 <code class="docutils literal notranslate"><span class="pre">case</span></code> 節が全ての起こり得る値をカバーしている <code class="docutils literal notranslate"><span class="pre">switch</span></code> 文の <code class="docutils literal notranslate"><span class="pre">default:</span></code> 節です。
+<code class="docutils literal notranslate"><span class="pre">assert(0)</span></code> や <code class="docutils literal notranslate"><span class="pre">abort()</span></code> の呼び出しを置きたくなる場所で使ってください。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_ABS">
+<code class="descname">Py_ABS</code><span class="sig-paren">(</span>x<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_ABS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">x</span></code> の絶対値を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_MIN">
+<code class="descname">Py_MIN</code><span class="sig-paren">(</span>x, y<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_MIN" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">x</span></code> と <code class="docutils literal notranslate"><span class="pre">y</span></code> の最小値を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_MAX">
+<code class="descname">Py_MAX</code><span class="sig-paren">(</span>x, y<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_MAX" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">x</span></code> と <code class="docutils literal notranslate"><span class="pre">y</span></code> の最大値を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_STRINGIFY">
+<code class="descname">Py_STRINGIFY</code><span class="sig-paren">(</span>x<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_STRINGIFY" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">x</span></code> を C 文字列へ変換します。
+例えば、 <code class="docutils literal notranslate"><span class="pre">Py_STRINGIFY(123)</span></code> は <code class="docutils literal notranslate"><span class="pre">&quot;123&quot;</span></code> を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_MEMBER_SIZE">
+<code class="descname">Py_MEMBER_SIZE</code><span class="sig-paren">(</span>type, member<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_MEMBER_SIZE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(<code class="docutils literal notranslate"><span class="pre">type</span></code>) 構造体の <code class="docutils literal notranslate"><span class="pre">member</span></code> のサイズをバイト単位で返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_CHARMASK">
+<code class="descname">Py_CHARMASK</code><span class="sig-paren">(</span>c<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_CHARMASK" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>引数は文字か、[-128, 127] あるいは [0, 255] の範囲の整数でなければなりません。
+このマクロは <code class="docutils literal notranslate"><span class="pre">符号なし文字</span></code> にキャストした <code class="docutils literal notranslate"><span class="pre">c</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_GETENV">
+<code class="descname">Py_GETENV</code><span class="sig-paren">(</span>s<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_GETENV" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">getenv(s)</span></code> に似ていますが、コマンドラインで <a class="reference internal" href="../using/cmdline.html#cmdoption-e"><code class="xref std std-option docutils literal notranslate"><span class="pre">-E</span></code></a> が渡された場合 (つまり <code class="docutils literal notranslate"><span class="pre">Py_IgnoreEnvironmentFlag</span></code> が設定された場合) <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_UNUSED">
+<code class="descname">Py_UNUSED</code><span class="sig-paren">(</span>arg<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_UNUSED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Use this for unused arguments in a function definition to silence compiler
+warnings. Example: <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">func(int</span> <span class="pre">a,</span> <span class="pre">int</span> <span class="pre">Py_UNUSED(b))</span> <span class="pre">{</span> <span class="pre">return</span> <span class="pre">a;</span> <span class="pre">}</span></code>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_DEPRECATED">
+<code class="descname">Py_DEPRECATED</code><span class="sig-paren">(</span>version<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_DEPRECATED" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Use this for deprecated declarations.  The macro must be placed before the
+symbol name.</p>
+<p>以下はプログラム例です:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">Py_DEPRECATED</span><span class="p">(</span><span class="mf">3.8</span><span class="p">)</span> <span class="n">PyAPI_FUNC</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">Py_OldFunction</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>MSVC サポートが追加されました。</p>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.PyDoc_STRVAR">
+<code class="descname">PyDoc_STRVAR</code><span class="sig-paren">(</span>name, str<span class="sig-paren">)</span><a class="headerlink" href="#c.PyDoc_STRVAR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Creates a variable with name <code class="docutils literal notranslate"><span class="pre">name</span></code> that can be used in docstrings.
+If Python is built without docstrings, the value will be empty.</p>
+<p>Use <a class="reference internal" href="#c.PyDoc_STRVAR" title="PyDoc_STRVAR"><code class="xref c c-macro docutils literal notranslate"><span class="pre">PyDoc_STRVAR</span></code></a> for docstrings to support building
+Python without docstrings, as specified in <span class="target" id="index-6"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0007"><strong>PEP 7</strong></a>.</p>
+<p>以下はプログラム例です:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyDoc_STRVAR</span><span class="p">(</span><span class="n">pop_doc</span><span class="p">,</span> <span class="s">&quot;Remove and return the rightmost element.&quot;</span><span class="p">);</span>
+
+<span class="k">static</span> <span class="n">PyMethodDef</span> <span class="n">deque_methods</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="p">{</span><span class="s">&quot;pop&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">PyCFunction</span><span class="p">)</span><span class="n">deque_pop</span><span class="p">,</span> <span class="n">METH_NOARGS</span><span class="p">,</span> <span class="n">pop_doc</span><span class="p">},</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.PyDoc_STR">
+<code class="descname">PyDoc_STR</code><span class="sig-paren">(</span>str<span class="sig-paren">)</span><a class="headerlink" href="#c.PyDoc_STR" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Creates a docstring for the given input string or an empty string
+if docstrings are disabled.</p>
+<p>Use <a class="reference internal" href="#c.PyDoc_STR" title="PyDoc_STR"><code class="xref c c-macro docutils literal notranslate"><span class="pre">PyDoc_STR</span></code></a> in specifying docstrings to support
+building Python without docstrings, as specified in <span class="target" id="index-7"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0007"><strong>PEP 7</strong></a>.</p>
+<p>以下はプログラム例です:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="n">PyMethodDef</span> <span class="n">pysqlite_row_methods</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">{</span><span class="s">&quot;keys&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">PyCFunction</span><span class="p">)</span><span class="n">pysqlite_row_keys</span><span class="p">,</span> <span class="n">METH_NOARGS</span><span class="p">,</span>
+        <span class="n">PyDoc_STR</span><span class="p">(</span><span class="s">&quot;Returns the keys of the row.&quot;</span><span class="p">)},</span>
+    <span class="p">{</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="objects-types-and-reference-counts">
+<span id="api-objects"></span><h2>オブジェクト、型および参照カウント<a class="headerlink" href="#objects-types-and-reference-counts" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-8">Python/C API 関数は、 <a class="reference internal" href="structures.html#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> 型の一つ以上の引数と戻り値を持ちます。この型は、任意の Python オブジェクトを表現する不透明 (opaque) なデータ型へのポインタです。 Python 言語は、全ての Python オブジェクト型をほとんどの状況 (例えば代入、スコープ規則 (scope rule)、引数渡し) で同様に扱います。ほとんど全ての Python オブジェクトはヒープ (heap) 上に置かれます: このため、 <a class="reference internal" href="structures.html#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> 型のオブジェクトは、自動記憶 (automatic) としても静的記憶 (static) としても宣言できません。 <a class="reference internal" href="structures.html#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> 型のポインタ変数のみ宣言できます。唯一の例外は、型オブジェクトです; 型オブジェクトはメモリ解放 (deallocate) してはならないので、通常は静的記憶の <a class="reference internal" href="type.html#c.PyTypeObject" title="PyTypeObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyTypeObject</span></code></a> オブジェクトにします。</p>
+<p>全ての Python オブジェクトには (Python 整数型ですら) 型 (<em class="dfn">type</em>)  と参照カウント (<em class="dfn">reference count</em>) があります。あるオブジェクトの型は、そのオブジェクトがどの種類のオブジェクトか (例えば整数、リスト、ユーザ定義関数、など; その他多数については <a class="reference internal" href="../reference/datamodel.html#types"><span class="std std-ref">標準型の階層</span></a> で説明しています) を決定します。よく知られている型については、各々マクロが存在して、あるオブジェクトがその型かどうか調べられます; 例えば、 <code class="docutils literal notranslate"><span class="pre">PyList_Check(a)</span></code> は、 <em>a</em> で示されたオブジェクトが Python リスト型のとき (かつそのときに限り) 真値を返します。</p>
+<div class="section" id="reference-counts">
+<span id="api-refcounts"></span><h3>参照カウント法<a class="headerlink" href="#reference-counts" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>今日の計算機は有限の (しばしば非常に限られた) メモリサイズしか持たないので、参照カウントは重要な概念です; 参照カウントは、あるオブジェクトに対して参照を行っている場所が何箇所あるかを数える値です。参照を行っている場所とは、別のオブジェクトであったり、グローバルな (あるいは静的な) C 変数であったり、何らかの C 関数内にあるローカルな変数だったりします。あるオブジェクトの参照カウントがゼロになると、そのオブジェクトは解放されます。そのオブジェクトに他のオブジェクトへの参照が入っていれば、他のオブジェクトの参照カウントはデクリメントされます。デクリメントの結果、他のオブジェクトの参照カウントがゼロになると、今度はそのオブジェクトが解放される、といった具合に以後続きます。(言うまでもなく、互いを参照しあうオブジェクトについて問題があります; 現状では、解決策は &quot;何もしない&quot; です。)</p>
+<p id="index-9">参照カウントは、常に明示的なやり方で操作されます。通常の方法では、 <a class="reference internal" href="refcounting.html#c.Py_INCREF" title="Py_INCREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_INCREF()</span></code></a> マクロでオブジェクトの参照を 1 インクリメントし、 <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> マクロで 1 デクリメントします。 <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> マクロは、incref よりもかなり複雑です。というのは、 Py_DECREF マクロは参照カウントがゼロになったかどうかを調べて、なった場合にはオブジェクトのメモリ解放関数 (deallocator) を呼び出さなければならないからです。メモリ解放関数とは、オブジェクトの型を定義している構造体内にある関数へのポインタです。型固有のメモリ解放関数は、その型が複合オブジェクト (compound object) 型である場合には、オブジェクト内の他のオブジェクトに対する参照カウントをデクリメントするよう気を配るとともに、その他の必要なファイナライズ (finalize) 処理を実行します。参照カウントがオーバフローすることはありません; というのも、仮想メモリ空間には、(<code class="docutils literal notranslate"><span class="pre">sizeof(Py_ssize_t)</span> <span class="pre">&gt;=</span> <span class="pre">sizeof(void*)</span></code> と仮定した場合) 少なくとも参照カウントの記憶に使われるビット数と同じだけのメモリ上の位置があるからです。従って、参照カウントのインクリメントは単純な操作になります。</p>
+<p>オブジェクトへのポインタが入っているローカルな変数全てについて、オブジェクトの参照カウントを必ずインクリメントしなければならないわけではありません。理論上は、オブジェクトの参照カウントは、オブジェクトを指し示す変数が生成されたときに 1 増やされ、その変数がスコープから出て行った際に 1 減らされます。しかしこの場合、二つの操作は互いに相殺するので、結果的に参照カウントは変化しません。参照カウントを使う真の意義とは、手持ちの何らかの変数がオブジェクトを指している間はオブジェクトがデアロケートされないようにすることにあります。オブジェクトに対して、一つでも別の参照が行われていて、その参照が手持ちの変数と同じ間維持されるのなら、参照カウントを一時的に増やす必要はありません。参照カウント操作の必要性が浮き彫りになる重要な局面とは、Python から呼び出された拡張モジュール内の C 関数にオブジェクトを引数として渡すときです; 呼び出しメカニズムは、呼び出しの間全ての引数に対する参照を保証します。</p>
+<p>しかしながら、よく陥る過ちとして、あるオブジェクトをリストから得たときに、参照カウントをインクリメントせずにしばらく放っておくというのがあります。他の操作がオブジェクトをリストから除去してしまい、参照カウントがデクリメントされてデアロケートされてしまうことが考えられます。本当に危険なのは、まったく無害そうにみえる操作が、上記の動作を引き起こす何らかの Python コードを呼び出しかねないということです; <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> からユーザへ制御を戻せるようなコードパスが存在するため、ほとんど全ての操作が潜在的に危険をはらむことになります。</p>
+<p>安全に参照カウントを操作するアプローチは、汎用の操作 (関数名が  <code class="docutils literal notranslate"><span class="pre">PyObject_</span></code>, <code class="docutils literal notranslate"><span class="pre">PyNumber_</span></code>, <code class="docutils literal notranslate"><span class="pre">PySequence_</span></code>, および  <code class="docutils literal notranslate"><span class="pre">PyMapping_</span></code> で始まる関数) の利用です。これらの操作は常に戻り値となるオブジェクトの参照カウントをインクリメントします。ユーザには戻り値が不要になったら <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> を呼ぶ責任が残されています; とはいえ、すぐにその習慣は身に付くでしょう。</p>
+<div class="section" id="reference-count-details">
+<span id="api-refcountdetails"></span><h4>参照カウントの詳細<a class="headerlink" href="#reference-count-details" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>Python/C API の各関数における参照カウントの振る舞いは、説明するには、 <em>参照の所有権 (ownership of references)</em> という言葉でうまく説明できます。所有権は参照に対するもので、オブジェクトに対するものではありません (オブジェクトは誰にも所有されず、常に共有されています)。ある &quot;参照の所有&quot; は、その参照が必要なくなった時点で Py_DECREF を呼び出す役割を担うことを意味します。所有権は委譲でき、あるコードが委譲によって所有権を得ると、今度はそのコードが参照が必要なくなった際に最終的に <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> や <a class="reference internal" href="refcounting.html#c.Py_XDECREF" title="Py_XDECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_XDECREF()</span></code></a> を呼び出して、参照カウンタを1つ減らす役割を担います --- あるいは、その役割を (通常はコードを呼び出した元に) 受け渡します。ある関数が、関数の呼び出し側に対して参照の所有権を渡すと、呼び出し側は <em>新たな</em> 参照 (new reference) を得る、と言います。所有権が渡されない場合、呼び出し側は参照を <em>借りる</em> (borrow) といいます。借りた参照に対しては、何もする必要はありません。</p>
+<p>逆に、ある関数呼び出しで、あるオブジェクトへの参照を呼び出される関数に渡す際には、二つの可能性: 関数がオブジェクトへの参照を <em>盗み取る</em> (steal) 場合と、そうでない場合があります。<em>参照を盗む</em> とは、関数に参照を渡したときに、参照の所有者がその関数になったと仮定し、関数の呼び出し元には所有権がなくなるということです。</p>
+<p id="index-10">参照を盗み取る関数はほとんどありません; 例外としてよく知られているのは、 <a class="reference internal" href="list.html#c.PyList_SetItem" title="PyList_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_SetItem()</span></code></a> と <a class="reference internal" href="tuple.html#c.PyTuple_SetItem" title="PyTuple_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_SetItem()</span></code></a> で、これらはシーケンスに入れる要素に対する参照を盗み取ります (しかし、要素の入る先のタプルやリストの参照は盗み取りません!)。これらの関数は、リストやタプルの中に新たに作成されたオブジェクトを入れていく際の常套的な書き方をしやすくするために、参照を盗み取るように設計されています; 例えば、 <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">&quot;three&quot;)</span></code> というタプルを生成するコードは以下のようになります (とりあえず例外処理のことは忘れておきます; もっとよい書き方を後で示します):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyObject</span> <span class="o">*</span><span class="n">t</span><span class="p">;</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">PyTuple_New</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+<span class="n">PyTuple_SetItem</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">PyLong_FromLong</span><span class="p">(</span><span class="mi">1L</span><span class="p">));</span>
+<span class="n">PyTuple_SetItem</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">PyLong_FromLong</span><span class="p">(</span><span class="mi">2L</span><span class="p">));</span>
+<span class="n">PyTuple_SetItem</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">PyUnicode_FromString</span><span class="p">(</span><span class="s">&quot;three&quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>ここで、 <a class="reference internal" href="long.html#c.PyLong_FromLong" title="PyLong_FromLong"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyLong_FromLong()</span></code></a> は新しい参照を返し、すぐに <a class="reference internal" href="tuple.html#c.PyTuple_SetItem" title="PyTuple_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_SetItem()</span></code></a> に盗まれます。参照が盗まれた後もそのオブジェクトを利用したい場合は、参照盗む関数を呼び出す前に、 <a class="reference internal" href="refcounting.html#c.Py_INCREF" title="Py_INCREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_INCREF()</span></code></a> を利用してもう一つの参照を取得してください。</p>
+<p>ちなみに、 <a class="reference internal" href="tuple.html#c.PyTuple_SetItem" title="PyTuple_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_SetItem()</span></code></a> はタプルに値をセットするための <em>唯一の</em> 方法です; タプルは変更不能なデータ型なので、 <a class="reference internal" href="sequence.html#c.PySequence_SetItem" title="PySequence_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PySequence_SetItem()</span></code></a> や <a class="reference internal" href="object.html#c.PyObject_SetItem" title="PyObject_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyObject_SetItem()</span></code></a> を使うと上の操作は拒否されてしまいます。自分でタプルの値を入れていくつもりなら、 <a class="reference internal" href="tuple.html#c.PyTuple_SetItem" title="PyTuple_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyTuple_SetItem()</span></code></a> だけしか使えません。</p>
+<p>同じく、リストに値を入れていくコードは <a class="reference internal" href="list.html#c.PyList_New" title="PyList_New"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_New()</span></code></a> と <a class="reference internal" href="list.html#c.PyList_SetItem" title="PyList_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_SetItem()</span></code></a> で書けます。</p>
+<p>しかし実際には、タプルやリストを生成して値を入れる際には、上記のような方法はほとんど使いません。より汎用性のある関数、 <a class="reference internal" href="arg.html#c.Py_BuildValue" title="Py_BuildValue"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_BuildValue()</span></code></a> があり、ほとんどの主要なオブジェクトをフォーマット文字列 <em class="dfn">format string</em> の指定に基づいて C の値から生成できます。例えば、上の二種類のコードブロックは、以下のように置き換えられます (エラーチェックにも配慮しています):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyObject</span> <span class="o">*</span><span class="n">tuple</span><span class="p">,</span> <span class="o">*</span><span class="n">list</span><span class="p">;</span>
+
+<span class="n">tuple</span> <span class="o">=</span> <span class="n">Py_BuildValue</span><span class="p">(</span><span class="s">&quot;(iis)&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;three&quot;</span><span class="p">);</span>
+<span class="n">list</span> <span class="o">=</span> <span class="n">Py_BuildValue</span><span class="p">(</span><span class="s">&quot;[iis]&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;three&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>自作の関数に渡す引数のように、単に参照を借りるだけの要素に対しては、 <a class="reference internal" href="object.html#c.PyObject_SetItem" title="PyObject_SetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyObject_SetItem()</span></code></a> とその仲間を使うのがはるかに一般的です。その場合、参照カウントをインクリメントする必要がなく、参照を引き渡せる (&quot;参照を盗み取らせられる&quot;) ので、参照カウントに関する動作はより健全になります。例えば、以下の関数は与えられた要素をリスト中の全ての要素の値にセットします:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<span class="nf">set_all</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">target</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">item</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Py_ssize_t</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">PyObject_Length</span><span class="p">(</span><span class="n">target</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">PyObject</span> <span class="o">*</span><span class="n">index</span> <span class="o">=</span> <span class="n">PyLong_FromSsize_t</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">PyObject_SetItem</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">index</span><span class="p">);</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">index</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p id="index-11">関数の戻り値の場合には、状況は少し異なります。ほとんどの関数については、参照を渡してもその参照に対する所有権が変わることがない一方で、あるオブジェクトに対する参照を返すような多くの関数は、参照に対する所有権を呼び出し側に与えます。理由は簡単です: 多くの場合、関数が返すオブジェクトはその場で (on the fly) 生成されるため、呼び出し側が得る参照は生成されたオブジェクトに対する唯一の参照になるからです。従って、 <a class="reference internal" href="object.html#c.PyObject_GetItem" title="PyObject_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyObject_GetItem()</span></code></a> や <a class="reference internal" href="sequence.html#c.PySequence_GetItem" title="PySequence_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PySequence_GetItem()</span></code></a> のように、オブジェクトに対する参照を返す汎用の関数は、常に新たな参照を返します (呼び出し側が参照の所有者になります)。</p>
+<p>重要なのは、関数が返す参照の所有権を持てるかどうかは、どの関数を呼び出すかだけによる、と理解することです --- 関数呼び出し時の <em>お飾り</em> (関数に引数として渡したオブジェクトの型) は <em>この問題には関係ありません!</em> 従って、 <a class="reference internal" href="list.html#c.PyList_GetItem" title="PyList_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_GetItem()</span></code></a> を使ってリスト内の要素を得た場合には、参照の所有者にはなりません --- が、同じ要素を同じリストから <a class="reference internal" href="sequence.html#c.PySequence_GetItem" title="PySequence_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PySequence_GetItem()</span></code></a> (図らずもこの関数は全く同じ引数をとります) を使って取り出すと、返されたオブジェクトに対する参照を得ます。</p>
+<p id="index-12">以下は、整数からなるリストに対して各要素の合計を計算する関数をどのようにして書けるかを示した例です; 一つは <a class="reference internal" href="list.html#c.PyList_GetItem" title="PyList_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyList_GetItem()</span></code></a> を使っていて、もう一つは <a class="reference internal" href="sequence.html#c.PySequence_GetItem" title="PySequence_GetItem"><code class="xref c c-func docutils literal notranslate"><span class="pre">PySequence_GetItem()</span></code></a> を使っています。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">long</span>
+<span class="nf">sum_list</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">list</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Py_ssize_t</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">;</span>
+    <span class="n">PyObject</span> <span class="o">*</span><span class="n">item</span><span class="p">;</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">PyList_Size</span><span class="p">(</span><span class="n">list</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="cm">/* Not a list */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">PyList_GetItem</span><span class="p">(</span><span class="n">list</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span> <span class="cm">/* Can&#39;t fail */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PyLong_Check</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span> <span class="cm">/* Skip non-integers */</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">PyLong_AsLong</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">PyErr_Occurred</span><span class="p">())</span>
+            <span class="cm">/* Integer too big to fit in a C long, bail out */</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate" id="index-13"><div class="highlight"><pre><span></span><span class="kt">long</span>
+<span class="nf">sum_sequence</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">sequence</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">Py_ssize_t</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">;</span>
+    <span class="n">PyObject</span> <span class="o">*</span><span class="n">item</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">PySequence_Length</span><span class="p">(</span><span class="n">sequence</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="cm">/* Has no length */</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">PySequence_GetItem</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="cm">/* Not a sequence, or other failure */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">PyLong_Check</span><span class="p">(</span><span class="n">item</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">PyLong_AsLong</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+            <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">PyErr_Occurred</span><span class="p">())</span>
+                <span class="cm">/* Integer too big to fit in a C long, bail out */</span>
+                <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="n">Py_DECREF</span><span class="p">(</span><span class="n">item</span><span class="p">);</span> <span class="cm">/* Discard reference ownership */</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="types">
+<span id="api-types"></span><span id="index-14"></span><h3>型<a class="headerlink" href="#types" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>他にも Python/C API において重要な役割を持つデータ型がいくつかあります; ほとんどは <code class="xref c c-type docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref c c-type docutils literal notranslate"><span class="pre">long</span></code>,  <code class="xref c c-type docutils literal notranslate"><span class="pre">double</span></code>, および <code class="xref c c-type docutils literal notranslate"><span class="pre">char*</span></code> といった、単なる C のデータ型です。また、モジュールで公開している関数を列挙する際に用いられる静的なテーブルや、新しいオブジェクト型におけるデータ属性を記述したり、複素数の値を記述したりするために構造体をいくつか使っています。これらの型については、その型を使う関数とともに説明してゆきます。</p>
+</div>
+</div>
+<div class="section" id="exceptions">
+<span id="api-exceptions"></span><h2>例外<a class="headerlink" href="#exceptions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python プログラマは、特定のエラー処理が必要なときだけしか例外を扱う必要はありません; 処理しなかった例外は、処理の呼び出し側、そのまた呼び出し側、といった具合に、トップレベルのインタプリタ層まで自動的に伝播します。インタプリタ層は、スタックトレースバックと合わせて例外をユーザに報告します。</p>
+<p id="index-15">ところが、 C プログラマの場合、エラーチェックは常に明示的に行わねばなりません。 Python/C API の全ての関数は、関数のドキュメントで明確に説明がない限り例外を発行する可能性があります。一般的な話として、ある関数が何らかのエラーに遭遇すると、関数は例外を設定して、関数内における参照の所有権を全て放棄し、エラー値 (error indicator) を返します。ドキュメントに書かれてない場合、このエラー値は関数の戻り値の型によって、 <code class="docutils literal notranslate"><span class="pre">NULL</span></code> か <code class="docutils literal notranslate"><span class="pre">-1</span></code> のどちらかになります。いくつかの関数ではブール型で真/偽を返し、偽はエラーを示します。きわめて少数の関数では明確なエラー指標を返さなかったり、あいまいな戻り値を返したりするので、 <a class="reference internal" href="exceptions.html#c.PyErr_Occurred" title="PyErr_Occurred"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Occurred()</span></code></a> で明示的にエラーテストを行う必要があります。これらの例外は常に明示的にドキュメント化されます。</p>
+<p id="index-16">例外時の状態情報 (exception state)は、スレッド単位に用意された記憶領域 (per-thread storage) 内で管理されます (この記憶領域は、スレッドを使わないアプリケーションではグローバルな記憶領域と同じです)。一つのスレッドは二つの状態のどちらか: 例外が発生したか、まだ発生していないか、をとります。関数 <a class="reference internal" href="exceptions.html#c.PyErr_Occurred" title="PyErr_Occurred"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Occurred()</span></code></a> を使うと、この状態を調べられます: この関数は例外が発生した際にはその例外型オブジェクトに対する借用参照 (borrowed reference) を返し、そうでないときには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。例外状態を設定する関数は数多くあります: <a class="reference internal" href="exceptions.html#c.PyErr_SetString" title="PyErr_SetString"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetString()</span></code></a> はもっともよく知られている (が、もっとも汎用性のない) 例外を設定するための関数で、 <a class="reference internal" href="exceptions.html#c.PyErr_Clear" title="PyErr_Clear"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Clear()</span></code></a> は例外状態情報を消し去る関数です。</p>
+<p>完全な例外状態情報は、3 つのオブジェクト: 例外の型、例外の値、そしてトレースバック、からなります  (どのオブジェクトも <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を取り得ます)。これらの情報は、 Python の <code class="docutils literal notranslate"><span class="pre">sys.exc_info()</span></code> の結果と同じ意味を持ちます; とはいえ、 C と Python の例外状態情報は全く同じではありません: Python における例外オブジェクトは、Python の <a class="reference internal" href="../reference/compound_stmts.html#try"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">try</span></code></a> ...  <a class="reference internal" href="../reference/compound_stmts.html#except"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">except</span></code></a> 文で最近処理したオブジェクトを表す一方、 C レベルの例外状態情報が存続するのは、渡された例外情報を <code class="docutils literal notranslate"><span class="pre">sys.exc_info()</span></code> その他に転送するよう取り計らう Python のバイトコードインタプリタのメインループに到達するまで、例外が関数の間で受け渡しされている間だけです。</p>
+<p id="index-17">Python 1.5 からは、Python で書かれたコードから例外状態情報にアクセスする方法として、推奨されていてスレッドセーフな方法は <a class="reference internal" href="../library/sys.html#sys.exc_info" title="sys.exc_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.exc_info()</span></code></a> になっているので注意してください。この関数は Python コードの実行されているスレッドにおける例外状態情報を返します。また、これらの例外状態情報に対するアクセス手段は、両方とも意味づけ (semantics) が変更され、ある関数が例外を捕捉すると、その関数を実行しているスレッドの例外状態情報を保存して、呼び出し側の例外状態情報を維持するようになりました。この変更によって、無害そうに見える関数が現在扱っている例外を上書きすることで引き起こされる、例外処理コードでよくおきていたバグを抑止しています; また、トレースバック内のスタックフレームで参照されているオブジェクトがしばしば不必要に寿命を永らえていたのをなくしています。</p>
+<p>一般的な原理として、ある関数が別の関数を呼び出して何らかの作業をさせるとき、呼び出し先の関数が例外を送出していないか調べなくてはならず、もし送出していれば、その例外状態情報は呼び出し側に渡されなければなりません。呼び出し元の関数はオブジェクト参照の所有権をすべて放棄し、エラー指標を返さなくてはなりませんが、余計に例外を設定する必要は <em>ありません</em> --- そんなことをすれば、たった今送出されたばかりの例外を上書きしてしまい、エラーの原因そのものに関する重要な情報を失うことになります。</p>
+<p id="index-18">例外を検出して渡す例は、上の <code class="xref c c-func docutils literal notranslate"><span class="pre">sum_sequence()</span></code> で示しています。偶然にも、この例ではエラーを検出した際に何ら参照を放棄する必要がありません。以下の関数の例では、エラーに対する後始末について示しています。まず、どうして Python で書くのが好きか思い出してもらうために、等価な Python コードを示します:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">def</span> <span class="n">incr_item</span><span class="p">(</span><span class="n">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">:</span>
+    <span class="nl">try</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="n">except</span> <span class="nl">KeyError</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p id="index-19">以下は対応するコードを C で完璧に書いたものです:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<span class="nf">incr_item</span><span class="p">(</span><span class="n">PyObject</span> <span class="o">*</span><span class="n">dict</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="n">key</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cm">/* Objects all initialized to NULL for Py_XDECREF */</span>
+    <span class="n">PyObject</span> <span class="o">*</span><span class="n">item</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">const_one</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">*</span><span class="n">incremented_item</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">rv</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="cm">/* Return value initialized to -1 (failure) */</span>
+
+    <span class="n">item</span> <span class="o">=</span> <span class="n">PyObject_GetItem</span><span class="p">(</span><span class="n">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="cm">/* Handle KeyError only: */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PyErr_ExceptionMatches</span><span class="p">(</span><span class="n">PyExc_KeyError</span><span class="p">))</span>
+            <span class="k">goto</span> <span class="n">error</span><span class="p">;</span>
+
+        <span class="cm">/* Clear the error and use zero: */</span>
+        <span class="n">PyErr_Clear</span><span class="p">();</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">PyLong_FromLong</span><span class="p">(</span><span class="mi">0L</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">item</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+            <span class="k">goto</span> <span class="n">error</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">const_one</span> <span class="o">=</span> <span class="n">PyLong_FromLong</span><span class="p">(</span><span class="mi">1L</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">const_one</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">error</span><span class="p">;</span>
+
+    <span class="n">incremented_item</span> <span class="o">=</span> <span class="n">PyNumber_Add</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">const_one</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">incremented_item</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">error</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">PyObject_SetItem</span><span class="p">(</span><span class="n">dict</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">incremented_item</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">error</span><span class="p">;</span>
+    <span class="n">rv</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* Success */</span>
+    <span class="cm">/* Continue with cleanup code */</span>
+
+ <span class="nl">error</span><span class="p">:</span>
+    <span class="cm">/* Cleanup code, shared by success and failure path */</span>
+
+    <span class="cm">/* Use Py_XDECREF() to ignore NULL references */</span>
+    <span class="n">Py_XDECREF</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+    <span class="n">Py_XDECREF</span><span class="p">(</span><span class="n">const_one</span><span class="p">);</span>
+    <span class="n">Py_XDECREF</span><span class="p">(</span><span class="n">incremented_item</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">rv</span><span class="p">;</span> <span class="cm">/* -1 for error, 0 for success */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<span class="target" id="index-20"></span><p id="index-21">なんとこの例は C で <code class="docutils literal notranslate"><span class="pre">goto</span></code> 文を使うお勧めの方法まで示していますね! この例では、特定の例外を処理するために <a class="reference internal" href="exceptions.html#c.PyErr_ExceptionMatches" title="PyErr_ExceptionMatches"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_ExceptionMatches()</span></code></a>  および <a class="reference internal" href="exceptions.html#c.PyErr_Clear" title="PyErr_Clear"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Clear()</span></code></a> をどう使うかを示しています。また、所有権を持っている参照で、値が <code class="docutils literal notranslate"><span class="pre">NULL</span></code> になるかもしれないものを捨てるために  <a class="reference internal" href="refcounting.html#c.Py_XDECREF" title="Py_XDECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_XDECREF()</span></code></a> をどう使うかも示しています (関数名に <code class="docutils literal notranslate"><span class="pre">'X'</span></code> が付いていることに注意してください; <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> 参照に出くわすとクラッシュします)。正しく動作させるためには、所有権を持つ参照を保持するための変数を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> で初期化することが重要です; 同様に、あらかじめ戻り値を定義する際には値を <code class="docutils literal notranslate"><span class="pre">-1</span></code> (失敗) で初期化しておいて、最後の関数呼び出しまでうまくいった場合にのみ <code class="docutils literal notranslate"><span class="pre">0</span></code> (成功) に設定します。</p>
+</div>
+<div class="section" id="embedding-python">
+<span id="api-embedding"></span><h2>Python の埋め込み<a class="headerlink" href="#embedding-python" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python インタプリタの埋め込みを行う人 (いわば拡張モジュールの書き手の対極) が気にかけなければならない重要なタスクは、Python インタプリタの初期化処理 (initialization)、そしておそらくは終了処理 (finalization) です。インタプリタのほとんどの機能は、インタプリタの起動後しか使えません。</p>
+<p id="index-22">基本的な初期化処理を行う関数は <a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> です。この関数はロード済みのモジュールからなるテーブルを作成し、土台となるモジュール <a class="reference internal" href="../library/builtins.html#module-builtins" title="builtins: The module that provides the built-in namespace."><code class="xref py py-mod docutils literal notranslate"><span class="pre">builtins</span></code></a>, <a class="reference internal" href="../library/__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a>, および <a class="reference internal" href="../library/sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> を作成します。また、モジュール検索パス (<code class="docutils literal notranslate"><span class="pre">sys.path</span></code>)    の初期化も行います。</p>
+<p id="index-23"><a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> の中では、 &quot;スクリプトへの引数リスト&quot; (script argument list, <code class="docutils literal notranslate"><span class="pre">sys.argv</span></code> のこと) を設定しません。この変数が後に実行される Python コード中で必要なら、 <a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> の後で <code class="docutils literal notranslate"><span class="pre">PySys_SetArgvEx(argc,</span> <span class="pre">argv,</span> <span class="pre">updatepath)</span></code> を呼び出して明示的に設定しなければなりません。</p>
+<p>ほとんどのシステムでは (特に Unix と Windows は、詳細がわずかに異なりはしますが)、 <a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> は標準の Python インタプリタ実行形式の場所に対する推定結果に基づいて、 Python のライブラリが Python インタプリタ実行形式からの相対パスで見つかるという仮定の下にモジュール検索パスを計算します。とりわけこの検索では、シェルコマンド検索パス (環境変数 <span class="target" id="index-50"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PATH</span></code>) 上に見つかった <code class="file docutils literal notranslate"><span class="pre">python</span></code> という名前の実行ファイルの置かれているディレクトリの親ディレクトリからの相対で、 <code class="file docutils literal notranslate"><span class="pre">lib/python</span><em><span class="pre">X.Y</span></em></code> という名前のディレクトリを探します。</p>
+<p>例えば、 Python 実行形式が <code class="file docutils literal notranslate"><span class="pre">/usr/local/bin/python</span></code> で見つかったとすると、 <a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> はライブラリが <code class="file docutils literal notranslate"><span class="pre">/usr/local/lib/python</span><em><span class="pre">X.Y</span></em></code> にあるものと仮定します。 (実際には、このパスは &quot;フォールバック (fallback)&quot; のライブラリ位置でもあり、 <code class="file docutils literal notranslate"><span class="pre">python</span></code> が <span class="target" id="index-51"></span><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PATH</span></code> 上に無い場合に使われます。) ユーザは <span class="target" id="index-52"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONHOME"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONHOME</span></code></a> を設定することでこの動作をオーバライドしたり、 <span class="target" id="index-53"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONPATH"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></a> を設定して追加のディレクトリを標準モジュール検索パスの前に挿入したりできます。</p>
+<p id="index-28">埋め込みを行うアプリケーションでは、 <a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> を呼び出す <em>前に</em> <code class="docutils literal notranslate"><span class="pre">Py_SetProgramName(file)</span></code>  を呼び出すことで、上記の検索を操作できます。この埋め込みアプリケーションでの設定は依然として <span class="target" id="index-54"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONHOME"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONHOME</span></code></a>  でオーバライドでき、標準のモジュール検索パスの前には以前として <span class="target" id="index-55"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONPATH"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></a> が挿入されるので注意してください。アプリケーションでモジュール検索パスを完全に制御したいのなら、独自に <a class="reference internal" href="init.html#c.Py_GetPath" title="Py_GetPath"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_GetPath()</span></code></a>, <a class="reference internal" href="init.html#c.Py_GetPrefix" title="Py_GetPrefix"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_GetPrefix()</span></code></a>, <a class="reference internal" href="init.html#c.Py_GetExecPrefix" title="Py_GetExecPrefix"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_GetExecPrefix()</span></code></a>,  および <a class="reference internal" href="init.html#c.Py_GetProgramFullPath" title="Py_GetProgramFullPath"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_GetProgramFullPath()</span></code></a>  の実装を提供しなければなりません (これらは全て <code class="file docutils literal notranslate"><span class="pre">Modules/getpath.c</span></code> で定義されています)。</p>
+<p id="index-31">たまに、 Python を初期化前の状態にもどしたいことがあります。例えば、あるアプリケーションでは実行を最初からやりなおし (start over) させる (<a class="reference internal" href="init.html#c.Py_Initialize" title="Py_Initialize"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_Initialize()</span></code></a> をもう一度呼び出させる) ようにしたいかもしれません。あるいは、アプリケーションが Python を一旦使い終えて、Python が確保したメモリを解放させたいかもしれません。 <a class="reference internal" href="init.html#c.Py_FinalizeEx" title="Py_FinalizeEx"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_FinalizeEx()</span></code></a> を使うとこうした処理を実現できます。また、関数 <a class="reference internal" href="init.html#c.Py_IsInitialized" title="Py_IsInitialized"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_IsInitialized()</span></code></a>  は、Python が現在初期化済みの状態にある場合に真を返します。これらの関数についてのさらなる情報は、後の章で説明します。 <a class="reference internal" href="init.html#c.Py_FinalizeEx" title="Py_FinalizeEx"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_FinalizeEx()</span></code></a> がPythonインタプリタに確保された全てのメモリを <em>解放するわけではない</em> ことに注意してください。例えば、拡張モジュールによって確保されたメモリは、現在のところ解放する事ができません。</p>
+</div>
+<div class="section" id="debugging-builds">
+<span id="api-debugging"></span><h2>デバッグ版ビルド (Debugging Builds)<a class="headerlink" href="#debugging-builds" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>インタプリタと拡張モジュールに対しての追加チェックをするためのいくつかのマクロを有効にしてPythonをビルドすることができます。これらのチェックは、実行時に大きなオーバーヘッドを生じる傾向があります。なので、デフォルトでは有効にされていません。</p>
+<p>Pythonデバッグ版ビルドの全ての種類のリストが、Pythonソース配布(source distribution)の中の <code class="file docutils literal notranslate"><span class="pre">Misc/SpecialBuilds.txt</span></code> にあります。参照カウントのトレース、メモリアロケータのデバッグ、インタプリタのメインループの低レベルプロファイリングが利用可能です。よく使われるビルドについてのみ、この節の残りの部分で説明します。</p>
+<p>インタプリタを <code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_DEBUG</span></code> マクロを有効にしてコンパイルすると、一般的に「デバッグビルド」といわれるPythonができます。 Unix では、 <code class="file docutils literal notranslate"><span class="pre">./configure</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">--with-pydebug</span></code> を追加することで、 <code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_DEBUG</span></code> が有効になります。その場合、暗黙的にPython専用ではない <code class="xref c c-macro docutils literal notranslate"><span class="pre">_DEBUG</span></code> も有効になります。 Unix ビルドでは、 <code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_DEBUG</span></code> が有効な場合、コンパイラの最適化が無効になります。</p>
+<p>あとで説明する参照カウントデバッグの他に、以下の追加チェックも有効になります:</p>
+<ul class="simple">
+<li>object allocator に対する追加チェック。</li>
+<li>パーサーとコンパイラに対する追加チェック。</li>
+<li>情報損失のために、大きい型から小さい型へのダウンキャストに対するチェック。</li>
+<li>辞書(dict)と集合(set)の実装に対する、いくつもの assertion の追加。加えて、集合オブジェクトに <code class="xref py py-meth docutils literal notranslate"><span class="pre">test_c_api()</span></code> メソッドが追加されます。</li>
+<li>フレームを作成する時の、引数の健全性チェック。</li>
+<li>初期化されていない数に対する参照を検出するために、整数のストレージが特定の妥当でないパターンで初期化されます。</li>
+<li>低レベルトレースと追加例外チェックがVM runtimeに追加されます。</li>
+<li>メモリアリーナ(memory arena)の実装に対する追加チェック。</li>
+<li>threadモジュールに対する追加デバッグ機能.</li>
+</ul>
+<p>ここで言及されていない追加チェックもあるでしょう。</p>
+<p><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_TRACE_REFS</span></code> を宣言すると、参照トレースが有効になります。全ての <a class="reference internal" href="structures.html#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> に二つのフィールドを追加することで、使用中のオブジェクトの循環二重連結リストが管理されます。全ての割り当て(allocation)がトレースされます。終了時に、全ての残っているオブジェクトが表示されます。 (インタラクティブモードでは、インタプリタによる文の実行のたびに表示されます) Py_TRACE_REFS は <code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_DEBUG</span></code> によって暗黙的に有効になります。</p>
+<p>より詳しい情報については、Pythonのソース配布(source distribution)の中の <code class="file docutils literal notranslate"><span class="pre">Misc/SpecialBuilds.txt</span></code> を参照してください。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">はじめに</a><ul>
+<li><a class="reference internal" href="#coding-standards">コーディング基準</a></li>
+<li><a class="reference internal" href="#include-files">インクルードファイル</a></li>
+<li><a class="reference internal" href="#useful-macros">便利なマクロ</a></li>
+<li><a class="reference internal" href="#objects-types-and-reference-counts">オブジェクト、型および参照カウント</a><ul>
+<li><a class="reference internal" href="#reference-counts">参照カウント法</a><ul>
+<li><a class="reference internal" href="#reference-count-details">参照カウントの詳細</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types">型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exceptions">例外</a></li>
+<li><a class="reference internal" href="#embedding-python">Python の埋め込み</a></li>
+<li><a class="reference internal" href="#debugging-builds">デバッグ版ビルド (Debugging Builds)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">Python/C API リファレンスマニュアル</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="stable.html"
+                        title="次の章へ">安定 ABI (Stable Appliction Binary Interface)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/c-api/intro.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="stable.html" title="安定 ABI (Stable Appliction Binary Interface)"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Python/C API リファレンスマニュアル"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 12, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>
