@@ -1,0 +1,452 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>6. distutils の例 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="7. Distutilsの拡張" href="extending.html" />
+    <link rel="prev" title="5. ビルド済み配布物を作成する" href="builtdist.html" />
+    <link rel="canonical" href="https://docs.python.org/3/distutils/examples.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="extending.html" title="7. Distutilsの拡張"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="builtdist.html" title="5. ビルド済み配布物を作成する"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python モジュールの配布 (レガシーバージョン)</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="distutils-examples">
+<span id="id1"></span><h1>6. distutils の例<a class="headerlink" href="#distutils-examples" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">このドキュメントは、 <a class="reference external" href="https://setuptools.readthedocs.io/en/latest/setuptools.html">https://setuptools.readthedocs.io/en/latest/setuptools.html</a> にある <code class="docutils literal notranslate"><span class="pre">setuptools</span></code> のドキュメントが現時点でここにある関連情報を全て網羅するまで、単独でここに載せておかれます。</p>
+</div>
+<p>この章は distutils を使い始めるのに役立つ幾つかの基本的な例を提供します。distutils を使うための追加の情報は Distutils Cookbook で見つけることができます。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><a class="reference external" href="https://wiki.python.org/moin/Distutils/Cookbook">Distutils Cookbook</a></dt>
+<dd>distutils をもっと制御するためのレシピ集。</dd>
+</dl>
+</div>
+<div class="section" id="pure-python-distribution-by-module">
+<span id="pure-mod"></span><h2>6.1. pure Python 配布物 (モジュール形式)<a class="headerlink" href="#pure-python-distribution-by-module" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>単に二つのモジュール、特定のパッケージに属しないモジュールを配布するだけなら、setup スクリプト中で <code class="docutils literal notranslate"><span class="pre">py_modules</span></code> オプションを使って個別に指定できます。</p>
+<p>もっとも単純なケースでは、二つのファイル: setup スクリプト自体と、配布したい単一のモジュール、この例では <code class="file docutils literal notranslate"><span class="pre">foo.py</span></code> について考えなければなりません:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>(この節の全ての図において、<em>&lt;root&gt;</em> は配布物ルートディレクトリを参照します。) この状況を扱うための最小の setup スクリプトは以下のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">py_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>配布物の名前は <code class="docutils literal notranslate"><span class="pre">name</span></code> オプションで個々に指定し、配布されるモジュールの一つと配布物を同じ名前にする必要はないことに注意してください (とはいえ、この命名方法はよいならわしでしょう)。ただし、配布物名はファイル名を作成するときに使われるので、文字、数字、アンダースコア、ハイフンだけで構成しなければなりません。</p>
+<p><code class="docutils literal notranslate"><span class="pre">py_modules</span></code> はリストなので、もちろん複数のモジュールを指定できます。例えば、モジュール <code class="xref py py-mod docutils literal notranslate"><span class="pre">foo</span></code> と <code class="xref py py-mod docutils literal notranslate"><span class="pre">bar</span></code> を配布しようとしているのなら、 setup スクリプトは以下のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>また、セットアップスクリプトは以下のようになります</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">py_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>モジュールのソースファイルは他のディレクトリに置けますが、そうしなければならないようなモジュールを沢山持っているのなら、モジュールを個別に列挙するよりもパッケージを指定した方が簡単でしょう。</p>
+</div>
+<div class="section" id="pure-python-distribution-by-package">
+<span id="pure-pkg"></span><h2>6.2. pure Python 配布物 (パッケージ形式)<a class="headerlink" href="#pure-python-distribution-by-package" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>二つ以上のモジュールを配布する場合、とりわけ二つのパッケージに分かれている場合、おそらく個々のモジュールよりもパッケージ全体を指定する方が簡単です。たとえモジュールがパッケージ内に入っていなくても状況は同じで、その場合はルートパッケージにモジュールが入っていると Distutils に教えることができ、他のパッケージと同様にうまく処理されます (ただし、 <code class="file docutils literal notranslate"><span class="pre">__init__.py</span></code> があってはなりません)。</p>
+<p>最後の例で挙げた setup スクリプトは</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>のようにも書けます (空文字はルートパッケージを意味します)</p>
+<p>これら二つのファイルをサブディレクトリ下に移動しておいて、インストール先はルートパッケージのままにしておきたい、例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">src</span><span class="o">/</span>      <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+                  <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>のような場合には、パッケージ名にはルートパッケージをそのまま指定しておきますが、ルートパッケージに置くソースファイルがどこにあるかを Distutils に教えなければなりません:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">package_dir</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;&#39;</span><span class="p">:</span> <span class="s1">&#39;src&#39;</span><span class="p">},</span>
+      <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>もっと典型的なケースでは、複数のモジュールを同じパッケージ  (またはサブパッケージ) に入れて配布しようと思うでしょう。例えば、 <code class="xref py py-mod docutils literal notranslate"><span class="pre">foo</span></code> と <code class="xref py py-mod docutils literal notranslate"><span class="pre">bar</span></code> モジュールがパッケージ <code class="xref py py-mod docutils literal notranslate"><span class="pre">foobar</span></code> に属する場合、ソースツリーをレイアウトする一案として、以下が考えられます</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">foobar</span><span class="o">/</span>
+                 <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>実際、Distutils ではこれをデフォルトのレイアウトとして想定していて、setup スクリプトを書く際にも最小限の作業しか必要ありません:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foobar&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>モジュールを入れるディレクトリをパッケージの名前にしたくない場合、ここでも <code class="docutils literal notranslate"><span class="pre">package_dir</span></code> オプションを使う必要があります。例えば、パッケージ <code class="xref py py-mod docutils literal notranslate"><span class="pre">foobar</span></code> のモジュールが <code class="file docutils literal notranslate"><span class="pre">src</span></code> に入っているとします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">src</span><span class="o">/</span>
+                 <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>適切な setup スクリプトは、以下のようになるでしょう</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">package_dir</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;foobar&#39;</span><span class="p">:</span> <span class="s1">&#39;src&#39;</span><span class="p">},</span>
+      <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foobar&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>また、メインパッケージ内のモジュールを配布物ルート下に置くことがあるかもしれません:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>この場合、setup スクリプトは</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">package_dir</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;foobar&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">},</span>
+      <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foobar&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>のようになるでしょう。(空文字列も現在のディレクトリを表します。)</p>
+<p>サブパッケージがある場合、 <code class="docutils literal notranslate"><span class="pre">packages</span></code> で明示的に列挙しなければなりませんが、 <code class="docutils literal notranslate"><span class="pre">package_dir</span></code> はサブパッケージへのパスを自動的に展開します。 (別の言い方をすれば、 Distutils はソースツリーを <em>走査せず</em> 、どのディレクトリが Python パッケージに相当するのかを <code class="file docutils literal notranslate"><span class="pre">__init__.py</span></code> files. を探して調べようとします。) このようにして、デフォルトのレイアウトはサブパッケージ形式に展開されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">foobar</span><span class="o">/</span>
+                 <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">foo</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">bar</span><span class="o">.</span><span class="n">py</span>
+                 <span class="n">subfoo</span><span class="o">/</span>
+                           <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+                           <span class="n">blah</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>対応する setup スクリプトは以下のようになります</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">packages</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="s1">&#39;foobar.subfoo&#39;</span><span class="p">],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="single-extension-module">
+<span id="single-ext"></span><h2>6.3. 単体の拡張モジュール<a class="headerlink" href="#single-extension-module" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>拡張モジュールは、<code class="docutils literal notranslate"><span class="pre">ext_modules</span></code> オプションを使って指定します。<code class="docutils literal notranslate"><span class="pre">package_dir</span></code> は、拡張モジュールのソースファイルをどこで探すかには影響しません; pure Python モジュールのソースのみに影響します。もっとも単純なケースでは、単一の C ソースファイルで書かれた単一の拡張モジュールは以下のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span><span class="o">&gt;/</span>
+        <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">foo</span><span class="o">.</span><span class="n">c</span>
+</pre></div>
+</div>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">foo</span></code> 拡張モジュールがルートパッケージに属している場合は、 setup スクリプトは次のように書けます</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">distutils.extension</span> <span class="kn">import</span> <span class="n">Extension</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span><span class="n">Extension</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;foo.c&#39;</span><span class="p">])],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+<p>同じソースツリーレイアウトで、この拡張モジュールを <code class="xref py py-mod docutils literal notranslate"><span class="pre">foopkg</span></code> の下に置き、拡張モジュールの名前を変えるには</p>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">foopkg</span></code> 拡張をルートパッケージ下に所属させたい場合、 setup スクリプトは以下のようにします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+<span class="kn">from</span> <span class="nn">distutils.extension</span> <span class="kn">import</span> <span class="n">Extension</span>
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span>
+      <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1.0&#39;</span><span class="p">,</span>
+      <span class="n">ext_modules</span><span class="o">=</span><span class="p">[</span><span class="n">Extension</span><span class="p">(</span><span class="s1">&#39;foopkg.foo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;foo.c&#39;</span><span class="p">])],</span>
+      <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="checking-a-package">
+<h2>6.4. パッケージのチェック<a class="headerlink" href="#checking-a-package" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">check</span></code> コマンドで、パッケージのメタデータが配布物をビルドするための最低限の条件を満たしているかの検証が行えます。</p>
+<p>コマンドを実行するには、単純に <code class="file docutils literal notranslate"><span class="pre">setup.py</span></code> スクリプトを使って呼び出してください。何かが不足していた場合は、 <code class="docutils literal notranslate"><span class="pre">check</span></code> で警告が表示されるでしょう。</p>
+<p>簡単なスクリプトを例に取ってみましょう:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">check</span></code> コマンドを走らせると、いくつかの警告が表示されます:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python setup.py check
+<span class="go">running check</span>
+<span class="go">warning: check: missing required meta-data: version, url</span>
+<span class="go">warning: check: missing meta-data: either (author and author_email) or</span>
+<span class="go">         (maintainer and maintainer_email) must be supplied</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">long_description</span></code> フィールドで reStructuredText の構文を使用し、<a class="reference external" href="http://docutils.sourceforge.net">docutils</a> がインストールされている場合は、<code class="docutils literal notranslate"><span class="pre">check</span></code> コマンドに <code class="docutils literal notranslate"><span class="pre">restructuredtext</span></code> オプションを使用して、その構文が正しいかどうかチェックできます。</p>
+<p>例えば、 <code class="file docutils literal notranslate"><span class="pre">setup.py</span></code> スクリプトを次のように変えたとします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">distutils.core</span> <span class="kn">import</span> <span class="n">setup</span>
+
+<span class="n">desc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">My description</span>
+<span class="s2">==============</span>
+
+<span class="s2">This is the description of the ``foobar`` package.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">setup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;foobar&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s1">&#39;tarek&#39;</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="s1">&#39;tarek@ziade.org&#39;</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;http://example.com&#39;</span><span class="p">,</span> <span class="n">long_description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>long description の壊れている箇所を、 <code class="xref py py-mod docutils literal notranslate"><span class="pre">docutils</span></code> 構文解析器を使い <code class="docutils literal notranslate"><span class="pre">check</span></code> で検出できます:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python setup.py check --restructuredtext
+<span class="go">running check</span>
+<span class="go">warning: check: Title underline too short. (line 2)</span>
+<span class="go">warning: check: Could not finish the parsing.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="reading-the-metadata">
+<h2>6.5. メタデータの読み込み<a class="headerlink" href="#reading-the-metadata" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="apiref.html#distutils.core.setup" title="distutils.core.setup"><code class="xref py py-func docutils literal notranslate"><span class="pre">distutils.core.setup()</span></code></a> 関数は、プロジェクトの <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> スクリプトを通して、プロジェクトのメタデータフィールドの値を調べることのできるコマンドライン・インターフェイスを提供します:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python setup.py --name
+<span class="go">distribute</span>
+</pre></div>
+</div>
+<p>この呼び出しは、 <a class="reference internal" href="apiref.html#distutils.core.setup" title="distutils.core.setup"><code class="xref py py-func docutils literal notranslate"><span class="pre">distutils.core.setup()</span></code></a> 関数を実行して <code class="docutils literal notranslate"><span class="pre">name</span></code> メタデータを読み取っています。ソース配布物もしくはバイナリ配布物が Distutils で作られていたとしても、メタデータフィールドは <code class="file docutils literal notranslate"><span class="pre">PKG-INFO</span></code> という静的なファイルに書かれます。Distutils ベースのプロジェクトが Python にインストールされるとき、 <code class="file docutils literal notranslate"><span class="pre">NAME-VERSION-pyX.X.egg-info</span></code> 以下にある配布物のモジュールやパッケージと一緒に <code class="file docutils literal notranslate"><span class="pre">PKG-INFO</span></code> がコピーされます。ここで <code class="docutils literal notranslate"><span class="pre">NAME</span></code> はプロジェクト名、 <code class="docutils literal notranslate"><span class="pre">VERSION</span></code> はメタデータで定義されたバージョン、 <code class="docutils literal notranslate"><span class="pre">pyX.X</span></code> は <code class="docutils literal notranslate"><span class="pre">2.7</span></code> や <code class="docutils literal notranslate"><span class="pre">3.2</span></code> のような Python のメジャーバージョンとマイナーバージョンです。</p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">distutils.dist.DistributionMetadata</span></code> クラスとその <code class="xref py py-func docutils literal notranslate"><span class="pre">read_pkg_file()</span></code>  メソッドを使って、この静的ファイルを読むことができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">distutils.dist</span> <span class="kn">import</span> <span class="n">DistributionMetadata</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span> <span class="o">=</span> <span class="n">DistributionMetadata</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span><span class="o">.</span><span class="n">read_pkg_file</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;distribute-0.6.8-py2.7.egg-info&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;distribute&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span>
+<span class="go">&#39;0.6.8&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metadata</span><span class="o">.</span><span class="n">description</span>
+<span class="go">&#39;Easily download, build, install, upgrade, and uninstall Python packages&#39;</span>
+</pre></div>
+</div>
+<p>このクラスは、値を読み取るメタデータのファイルパスを引数に取ってインスタンス化することもできることに注意してください:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pkg_info_path</span> <span class="o">=</span> <span class="s1">&#39;distribute-0.6.8-py2.7.egg-info&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DistributionMetadata</span><span class="p">(</span><span class="n">pkg_info_path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+<span class="go">&#39;distribute&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">6. distutils の例</a><ul>
+<li><a class="reference internal" href="#pure-python-distribution-by-module">6.1. pure Python 配布物 (モジュール形式)</a></li>
+<li><a class="reference internal" href="#pure-python-distribution-by-package">6.2. pure Python 配布物 (パッケージ形式)</a></li>
+<li><a class="reference internal" href="#single-extension-module">6.3. 単体の拡張モジュール</a></li>
+<li><a class="reference internal" href="#checking-a-package">6.4. パッケージのチェック</a></li>
+<li><a class="reference internal" href="#reading-the-metadata">6.5. メタデータの読み込み</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="builtdist.html"
+                        title="前の章へ">5. ビルド済み配布物を作成する</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="extending.html"
+                        title="次の章へ">7. Distutilsの拡張</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/distutils/examples.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="extending.html" title="7. Distutilsの拡張"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="builtdist.html" title="5. ビルド済み配布物を作成する"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python モジュールの配布 (レガシーバージョン)</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

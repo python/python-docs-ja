@@ -1,0 +1,879 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>tracemalloc --- メモリ割り当ての追跡 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="ソフトウェア・パッケージと配布" href="distribution.html" />
+    <link rel="prev" title="trace --- Python 文実行のトレースと追跡" href="trace.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/tracemalloc.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="distribution.html" title="ソフトウェア・パッケージと配布"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="trace.html" title="trace --- Python 文実行のトレースと追跡"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="debug.html" accesskey="U">デバッグとプロファイル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-tracemalloc">
+<span id="tracemalloc-trace-memory-allocations"></span><h1><a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> --- メモリ割り当ての追跡<a class="headerlink" href="#module-tracemalloc" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/tracemalloc.py">Lib/tracemalloc.py</a></p>
+<hr class="docutils" />
+<p>tracemallocモジュールは、Python が割り当てたメモリブロックをトレースするためのデバッグツールです。このモジュールは以下の情報を提供します。</p>
+<ul class="simple">
+<li>オブジェクトが割り当てられた場所のトレースバック</li>
+<li>ファイル名ごと、及び行ごとに割り当てられたメモリブロックの以下の統計を取ります：総サイズ、ブロック数、割り当てられたブロックの平均サイズ</li>
+<li>メモリリークを検出するために2つのスナップショットの差を計算します。</li>
+</ul>
+<p>Python が割り当てたメモリブロックの大半をトレースするには、 <span class="target" id="index-6"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONTRACEMALLOC"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONTRACEMALLOC</span></code></a> 環境変数を <code class="docutils literal notranslate"><span class="pre">1</span></code> に設定して可能な限り早くモジュールを開始させるか、<a class="reference internal" href="../using/cmdline.html#id5"><code class="xref std std-option docutils literal notranslate"><span class="pre">-X</span></code></a> <code class="docutils literal notranslate"><span class="pre">tracemalloc</span></code> コマンドラインオプションを使用してください。実行時に <a class="reference internal" href="#tracemalloc.start" title="tracemalloc.start"><code class="xref py py-func docutils literal notranslate"><span class="pre">tracemalloc.start()</span></code></a> を呼んで Python のメモリ割り当てのトレースを開始することが出来ます。</p>
+<p>デフォルトでは、割り当てられたメモリブロック1つのトレースは最新1フレームを保存します。開始時に25フレームを保存するには、<span class="target" id="index-7"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONTRACEMALLOC"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONTRACEMALLOC</span></code></a> 環境変数を <code class="docutils literal notranslate"><span class="pre">25</span></code> に設定するか、<a class="reference internal" href="../using/cmdline.html#id5"><code class="xref std std-option docutils literal notranslate"><span class="pre">-X</span></code></a> <code class="docutils literal notranslate"><span class="pre">tracemalloc=25</span></code> コマンドラインオプションを使用してください。</p>
+<div class="section" id="examples">
+<h2>使用例<a class="headerlink" href="#examples" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="display-the-top-10">
+<h3>上位10を表示する<a class="headerlink" href="#display-the-top-10" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>最も多くのメモリを割り当てているファイル10を表示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tracemalloc</span>
+
+<span class="n">tracemalloc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># ... run your application ...</span>
+
+<span class="n">snapshot</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+<span class="n">top_stats</span> <span class="o">=</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">statistics</span><span class="p">(</span><span class="s1">&#39;lineno&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[ Top 10 ]&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">top_stats</span><span class="p">[:</span><span class="mi">10</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">stat</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Python テストスイートの出力例です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="p">[</span> <span class="n">Top</span> <span class="mi">10</span> <span class="p">]</span>
+<span class="o">&lt;</span><span class="n">frozen</span> <span class="n">importlib</span><span class="o">.</span><span class="n">_bootstrap</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">716</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">4855</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">39328</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">126</span> <span class="n">B</span>
+<span class="o">&lt;</span><span class="n">frozen</span> <span class="n">importlib</span><span class="o">.</span><span class="n">_bootstrap</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">284</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">521</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">3199</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">167</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">collections</span><span class="o">/</span><span class="fm">__init__</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">368</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">244</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">2315</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">108</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">unittest</span><span class="o">/</span><span class="n">case</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">381</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">185</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">779</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">243</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">unittest</span><span class="o">/</span><span class="n">case</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">402</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">154</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">378</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">416</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">abc</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">133</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">88.7</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">347</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">262</span> <span class="n">B</span>
+<span class="o">&lt;</span><span class="n">frozen</span> <span class="n">importlib</span><span class="o">.</span><span class="n">_bootstrap</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1446</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">70.4</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">911</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">79</span> <span class="n">B</span>
+<span class="o">&lt;</span><span class="n">frozen</span> <span class="n">importlib</span><span class="o">.</span><span class="n">_bootstrap</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1454</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">52.0</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">2131</span> <span class="n">B</span>
+<span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">49.7</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">148</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mi">344</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">sysconfig</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">411</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">48.0</span> <span class="n">KiB</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="mf">48.0</span> <span class="n">KiB</span>
+</pre></div>
+</div>
+<p>We can see that Python loaded <code class="docutils literal notranslate"><span class="pre">4855</span> <span class="pre">KiB</span></code> data (bytecode and constants) from
+modules and that the <a class="reference internal" href="collections.html#module-collections" title="collections: Container datatypes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">collections</span></code></a> module allocated <code class="docutils literal notranslate"><span class="pre">244</span> <span class="pre">KiB</span></code> to build
+<a class="reference internal" href="collections.html#collections.namedtuple" title="collections.namedtuple"><code class="xref py py-class docutils literal notranslate"><span class="pre">namedtuple</span></code></a> types.</p>
+<p>オプションの詳細については <a class="reference internal" href="#tracemalloc.Snapshot.statistics" title="tracemalloc.Snapshot.statistics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.statistics()</span></code></a> を参照してください。</p>
+</div>
+<div class="section" id="compute-differences">
+<h3>差を計算する<a class="headerlink" href="#compute-differences" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>スナップショットを2つ取り、差を表示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tracemalloc</span>
+<span class="n">tracemalloc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="c1"># ... start your application ...</span>
+
+<span class="n">snapshot1</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+<span class="c1"># ... call the function leaking memory ...</span>
+<span class="n">snapshot2</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+
+<span class="n">top_stats</span> <span class="o">=</span> <span class="n">snapshot2</span><span class="o">.</span><span class="n">compare_to</span><span class="p">(</span><span class="n">snapshot1</span><span class="p">,</span> <span class="s1">&#39;lineno&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[ Top 10 differences ]&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">top_stats</span><span class="p">[:</span><span class="mi">10</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">stat</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Python テストスイートのテストを実行する前後の出力例です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="p">[</span> <span class="n">Top</span> <span class="mi">10</span> <span class="n">differences</span> <span class="p">]</span>
+<span class="o">&lt;</span><span class="n">frozen</span> <span class="n">importlib</span><span class="o">.</span><span class="n">_bootstrap</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">716</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">8173</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mi">4428</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">71332</span> <span class="p">(</span><span class="o">+</span><span class="mi">39369</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">117</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">linecache</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">127</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">940</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mi">940</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">8106</span> <span class="p">(</span><span class="o">+</span><span class="mi">8106</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">119</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">unittest</span><span class="o">/</span><span class="n">case</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">571</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">298</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mi">298</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">589</span> <span class="p">(</span><span class="o">+</span><span class="mi">589</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">519</span> <span class="n">B</span>
+<span class="o">&lt;</span><span class="n">frozen</span> <span class="n">importlib</span><span class="o">.</span><span class="n">_bootstrap</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">284</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">1005</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mi">166</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">7423</span> <span class="p">(</span><span class="o">+</span><span class="mi">1526</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">139</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">mimetypes</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">217</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mi">112</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mi">112</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1334</span> <span class="p">(</span><span class="o">+</span><span class="mi">1334</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">86</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">http</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">848</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">96.0</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mf">96.0</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span> <span class="p">(</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mf">96.0</span> <span class="n">KiB</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">inspect</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">1465</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">83.5</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mf">83.5</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">109</span> <span class="p">(</span><span class="o">+</span><span class="mi">109</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">784</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">unittest</span><span class="o">/</span><span class="n">mock</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">491</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">77.7</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mf">77.7</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">143</span> <span class="p">(</span><span class="o">+</span><span class="mi">143</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">557</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">urllib</span><span class="o">/</span><span class="n">parse</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">476</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">71.8</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mf">71.8</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">969</span> <span class="p">(</span><span class="o">+</span><span class="mi">969</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">76</span> <span class="n">B</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="o">.</span><span class="mi">4</span><span class="o">/</span><span class="n">contextlib</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">38</span><span class="p">:</span> <span class="n">size</span><span class="o">=</span><span class="mf">67.2</span> <span class="n">KiB</span> <span class="p">(</span><span class="o">+</span><span class="mf">67.2</span> <span class="n">KiB</span><span class="p">),</span> <span class="n">count</span><span class="o">=</span><span class="mi">126</span> <span class="p">(</span><span class="o">+</span><span class="mi">126</span><span class="p">),</span> <span class="n">average</span><span class="o">=</span><span class="mi">546</span> <span class="n">B</span>
+</pre></div>
+</div>
+<p>We can see that Python has loaded <code class="docutils literal notranslate"><span class="pre">8173</span> <span class="pre">KiB</span></code> of module data (bytecode and
+constants), and that this is <code class="docutils literal notranslate"><span class="pre">4428</span> <span class="pre">KiB</span></code> more than had been loaded before the
+tests, when the previous snapshot was taken. Similarly, the <a class="reference internal" href="linecache.html#module-linecache" title="linecache: Provides random access to individual lines from text files."><code class="xref py py-mod docutils literal notranslate"><span class="pre">linecache</span></code></a>
+module has cached <code class="docutils literal notranslate"><span class="pre">940</span> <span class="pre">KiB</span></code> of Python source code to format tracebacks, all
+of it since the previous snapshot.</p>
+<p>システムに空きメモリがほとんどない場合、スナップショットをオフラインで解析するための <a class="reference internal" href="#tracemalloc.Snapshot.dump" title="tracemalloc.Snapshot.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.dump()</span></code></a> メソッドを使用して、スナップショットをディスクに書き込むことが出来ます。
+そして <a class="reference internal" href="#tracemalloc.Snapshot.load" title="tracemalloc.Snapshot.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.load()</span></code></a> メソッドを使用してスナップショットを再読み込みします。</p>
+</div>
+<div class="section" id="get-the-traceback-of-a-memory-block">
+<h3>メモリブロックのトレースバックを取得する<a class="headerlink" href="#get-the-traceback-of-a-memory-block" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>最大のメモリブロックのトレースバックを表示するコードです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tracemalloc</span>
+
+<span class="c1"># Store 25 frames</span>
+<span class="n">tracemalloc</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="c1"># ... run your application ...</span>
+
+<span class="n">snapshot</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+<span class="n">top_stats</span> <span class="o">=</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">statistics</span><span class="p">(</span><span class="s1">&#39;traceback&#39;</span><span class="p">)</span>
+
+<span class="c1"># pick the biggest memory block</span>
+<span class="n">stat</span> <span class="o">=</span> <span class="n">top_stats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> memory blocks: </span><span class="si">%.1f</span><span class="s2"> KiB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stat</span><span class="o">.</span><span class="n">traceback</span><span class="o">.</span><span class="n">format</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Python テストスイートの出力例です (トレースバックは 25 フレームに制限されています):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="mi">903</span> <span class="n">memory</span> <span class="n">blocks</span><span class="p">:</span> <span class="mf">870.1</span> <span class="n">KiB</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">716</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1036</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">934</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1068</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">619</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1581</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1614</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/doctest.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">101</span>
+    <span class="kn">import</span> <span class="nn">pdb</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">284</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">938</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1068</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">619</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1581</span>
+  <span class="n">File</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1614</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/support/__init__.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1728</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/test_pickletools.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">21</span>
+    <span class="n">support</span><span class="o">.</span><span class="n">run_doctest</span><span class="p">(</span><span class="n">pickletools</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/regrtest.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1276</span>
+    <span class="n">test_runner</span><span class="p">()</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/regrtest.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">976</span>
+    <span class="n">display_failure</span><span class="o">=</span><span class="ow">not</span> <span class="n">verbose</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/regrtest.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">761</span>
+    <span class="n">match_tests</span><span class="o">=</span><span class="n">ns</span><span class="o">.</span><span class="n">match_tests</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/regrtest.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1563</span>
+    <span class="n">main</span><span class="p">()</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/test/__main__.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">3</span>
+    <span class="n">regrtest</span><span class="o">.</span><span class="n">main_in_temp_cwd</span><span class="p">()</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/runpy.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">73</span>
+    <span class="n">exec</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">run_globals</span><span class="p">)</span>
+  <span class="n">File</span> <span class="s2">&quot;/usr/lib/python3.4/runpy.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">160</span>
+    <span class="s2">&quot;__main__&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">loader</span><span class="p">,</span> <span class="n">pkg_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can see that the most memory was allocated in the <a class="reference internal" href="importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a> module to
+load data (bytecode and constants) from modules: <code class="docutils literal notranslate"><span class="pre">870.1</span> <span class="pre">KiB</span></code>. The traceback is
+where the <a class="reference internal" href="importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a> loaded data most recently: on the <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">pdb</span></code>
+line of the <a class="reference internal" href="doctest.html#module-doctest" title="doctest: Test pieces of code within docstrings."><code class="xref py py-mod docutils literal notranslate"><span class="pre">doctest</span></code></a> module. The traceback may change if a new module is
+loaded.</p>
+</div>
+<div class="section" id="pretty-top">
+<h3>top を整形化する<a class="headerlink" href="#pretty-top" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;frozen</span> <span class="pre">importlib._bootstrap&gt;</span></code> および <code class="docutils literal notranslate"><span class="pre">&lt;unknown&gt;</span></code> ファイルを無視して、
+メモリ割り当て量の上位10を整形化して表示するコードです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">linecache</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tracemalloc</span>
+
+<span class="k">def</span> <span class="nf">display_top</span><span class="p">(</span><span class="n">snapshot</span><span class="p">,</span> <span class="n">key_type</span><span class="o">=</span><span class="s1">&#39;lineno&#39;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">snapshot</span> <span class="o">=</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">filter_traces</span><span class="p">((</span>
+        <span class="n">tracemalloc</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;&lt;frozen importlib._bootstrap&gt;&quot;</span><span class="p">),</span>
+        <span class="n">tracemalloc</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;&lt;unknown&gt;&quot;</span><span class="p">),</span>
+    <span class="p">))</span>
+    <span class="n">top_stats</span> <span class="o">=</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">statistics</span><span class="p">(</span><span class="n">key_type</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Top </span><span class="si">%s</span><span class="s2"> lines&quot;</span> <span class="o">%</span> <span class="n">limit</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">stat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top_stats</span><span class="p">[:</span><span class="n">limit</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">stat</span><span class="o">.</span><span class="n">traceback</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;#</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">: </span><span class="si">%.1f</span><span class="s2"> KiB&quot;</span>
+              <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">))</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">linecache</span><span class="o">.</span><span class="n">getline</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">lineno</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;    </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">line</span><span class="p">)</span>
+
+    <span class="n">other</span> <span class="o">=</span> <span class="n">top_stats</span><span class="p">[</span><span class="n">limit</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="n">other</span><span class="p">:</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">other</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> other: </span><span class="si">%.1f</span><span class="s2"> KiB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">),</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">))</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">size</span> <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">top_stats</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total allocated size: </span><span class="si">%.1f</span><span class="s2"> KiB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">total</span> <span class="o">/</span> <span class="mi">1024</span><span class="p">))</span>
+
+<span class="n">tracemalloc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># ... run your application ...</span>
+
+<span class="n">snapshot</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">take_snapshot</span><span class="p">()</span>
+<span class="n">display_top</span><span class="p">(</span><span class="n">snapshot</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Python テストスイートの出力例です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">Top</span> <span class="mi">10</span> <span class="n">lines</span>
+<span class="c1">#1: Lib/base64.py:414: 419.8 KiB</span>
+    <span class="n">_b85chars2</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">_b85chars</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">_b85chars</span><span class="p">]</span>
+<span class="c1">#2: Lib/base64.py:306: 419.8 KiB</span>
+    <span class="n">_a85chars2</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">_a85chars</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">_a85chars</span><span class="p">]</span>
+<span class="c1">#3: collections/__init__.py:368: 293.6 KiB</span>
+    <span class="n">exec</span><span class="p">(</span><span class="n">class_definition</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+<span class="c1">#4: Lib/abc.py:133: 115.2 KiB</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">mcls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">namespace</span><span class="p">)</span>
+<span class="c1">#5: unittest/case.py:574: 103.1 KiB</span>
+    <span class="n">testMethod</span><span class="p">()</span>
+<span class="c1">#6: Lib/linecache.py:127: 95.4 KiB</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+<span class="c1">#7: urllib/parse.py:476: 71.8 KiB</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">_hexdig</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">_hexdig</span><span class="p">}</span>
+<span class="c1">#8: &lt;string&gt;:5: 62.0 KiB</span>
+<span class="c1">#9: Lib/_weakrefset.py:37: 60.0 KiB</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="c1">#10: Lib/base64.py:142: 59.8 KiB</span>
+    <span class="n">_b32tab2</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">_b32tab</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">_b32tab</span><span class="p">]</span>
+<span class="mi">6220</span> <span class="n">other</span><span class="p">:</span> <span class="mf">3602.8</span> <span class="n">KiB</span>
+<span class="n">Total</span> <span class="n">allocated</span> <span class="n">size</span><span class="p">:</span> <span class="mf">5303.1</span> <span class="n">KiB</span>
+</pre></div>
+</div>
+<p>オプションの詳細については <a class="reference internal" href="#tracemalloc.Snapshot.statistics" title="tracemalloc.Snapshot.statistics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.statistics()</span></code></a> を参照してください。</p>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="functions">
+<h3>関数<a class="headerlink" href="#functions" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="function">
+<dt id="tracemalloc.clear_traces">
+<code class="descclassname">tracemalloc.</code><code class="descname">clear_traces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.clear_traces" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python が割り当てたメモリブロックのトレースを消去します。</p>
+<p><a class="reference internal" href="#tracemalloc.stop" title="tracemalloc.stop"><code class="xref py py-func docutils literal notranslate"><span class="pre">stop()</span></code></a> を参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.get_object_traceback">
+<code class="descclassname">tracemalloc.</code><code class="descname">get_object_traceback</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.get_object_traceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python オブジェクト <em>obj</em> が割り当てられたトレースバックを取得します。<a class="reference internal" href="#tracemalloc.Traceback" title="tracemalloc.Traceback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traceback</span></code></a> インスタンスか、<a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールがメモリ割り当てをトレースしていない場合かオブジェクトの割り当てをトレースしていない場合は、<code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+<p><a class="reference internal" href="gc.html#gc.get_referrers" title="gc.get_referrers"><code class="xref py py-func docutils literal notranslate"><span class="pre">gc.get_referrers()</span></code></a> や <a class="reference internal" href="sys.html#sys.getsizeof" title="sys.getsizeof"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.getsizeof()</span></code></a> 関数も参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.get_traceback_limit">
+<code class="descclassname">tracemalloc.</code><code class="descname">get_traceback_limit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.get_traceback_limit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>トレースのトレースバック内に格納されている最大フレーム数を取得します。</p>
+<p><a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールは上限を取得するためにメモリ割り当てをトレースしていなければなりません。そうでなければ例外が送出されます。</p>
+<p><a class="reference internal" href="#tracemalloc.start" title="tracemalloc.start"><code class="xref py py-func docutils literal notranslate"><span class="pre">start()</span></code></a> 関数で上限を設定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.get_traced_memory">
+<code class="descclassname">tracemalloc.</code><code class="descname">get_traced_memory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.get_traced_memory" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールがトレースするメモリブロックの現在のサイズと最大時のサイズをタプルとして取得します: <code class="docutils literal notranslate"><span class="pre">(current:</span> <span class="pre">int,</span> <span class="pre">peak:</span> <span class="pre">int)</span></code>。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.get_tracemalloc_memory">
+<code class="descclassname">tracemalloc.</code><code class="descname">get_tracemalloc_memory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.get_tracemalloc_memory" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールがメモリブロックのトレースを保存するのに使用しているメモリ使用量をバイト単位で取得します。<a class="reference internal" href="functions.html#int" title="int"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.is_tracing">
+<code class="descclassname">tracemalloc.</code><code class="descname">is_tracing</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.is_tracing" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールが Python のメモリ割り当てをトレースしていれば <code class="docutils literal notranslate"><span class="pre">True</span></code> を、そうでなければ <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</p>
+<p><a class="reference internal" href="#tracemalloc.start" title="tracemalloc.start"><code class="xref py py-func docutils literal notranslate"><span class="pre">start()</span></code></a> ならびに <a class="reference internal" href="#tracemalloc.stop" title="tracemalloc.stop"><code class="xref py py-func docutils literal notranslate"><span class="pre">stop()</span></code></a> 関数も参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.start">
+<code class="descclassname">tracemalloc.</code><code class="descname">start</code><span class="sig-paren">(</span><em>nframe: int=1</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.start" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python のメモリ割り当てのトレースを開始します: Python メモリアロケータにフックします。
+トレースの収集されたトレースバックは <em>nframe</em> フレームに制限されます。
+デフォルトでは、あるブロックのトレースは最新のフレームのみを保存します、つまり上限は <code class="docutils literal notranslate"><span class="pre">1</span></code> です。
+<em>nframe</em> は <code class="docutils literal notranslate"><span class="pre">1</span></code> 以上でなければなりません。</p>
+<p><code class="docutils literal notranslate"><span class="pre">1</span></code> より多くのフレームを保存するのは <code class="docutils literal notranslate"><span class="pre">'traceback'</span></code> でグループ化された統計や累積的な統計を計算する場合にのみ有用です。
+<a class="reference internal" href="#tracemalloc.Snapshot.compare_to" title="tracemalloc.Snapshot.compare_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.compare_to()</span></code></a> および <a class="reference internal" href="#tracemalloc.Snapshot.statistics" title="tracemalloc.Snapshot.statistics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.statistics()</span></code></a> メソッドを参照してください。</p>
+<p>保存するフレーム数を増やすと <a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールのメモリと CPU のオーバーヘッドは増加します。
+<a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールが使用しているメモリ量を調べるには <a class="reference internal" href="#tracemalloc.get_tracemalloc_memory" title="tracemalloc.get_tracemalloc_memory"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_tracemalloc_memory()</span></code></a> 関数を使用してください。</p>
+<p><span class="target" id="index-8"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONTRACEMALLOC"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONTRACEMALLOC</span></code></a> 環境変数 (<code class="docutils literal notranslate"><span class="pre">PYTHONTRACEMALLOC=NFRAME</span></code>) と  <a class="reference internal" href="../using/cmdline.html#id5"><code class="xref std std-option docutils literal notranslate"><span class="pre">-X</span></code></a> <code class="docutils literal notranslate"><span class="pre">tracemalloc=NFRAME</span></code> コマンドラインオプションを使って実行開始時にトレースを始めることが出来ます。</p>
+<p><a class="reference internal" href="#tracemalloc.stop" title="tracemalloc.stop"><code class="xref py py-func docutils literal notranslate"><span class="pre">stop()</span></code></a>、<a class="reference internal" href="#tracemalloc.is_tracing" title="tracemalloc.is_tracing"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_tracing()</span></code></a>、<a class="reference internal" href="#tracemalloc.get_traceback_limit" title="tracemalloc.get_traceback_limit"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_traceback_limit()</span></code></a> 関数を参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.stop">
+<code class="descclassname">tracemalloc.</code><code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.stop" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python のメモリ割り当てのトレースを停止します。つまり、Python のメモリ割り当てへのフックをアンインストールします。 Python が割り当てたメモリブロックについてこれまで集めたトレースも全てクリアします。</p>
+<p>トレースが全部クリアされる前にスナップショットを取りたい場合は <a class="reference internal" href="#tracemalloc.take_snapshot" title="tracemalloc.take_snapshot"><code class="xref py py-func docutils literal notranslate"><span class="pre">take_snapshot()</span></code></a> 関数を呼んでください。</p>
+<p><a class="reference internal" href="#tracemalloc.start" title="tracemalloc.start"><code class="xref py py-func docutils literal notranslate"><span class="pre">start()</span></code></a>、<a class="reference internal" href="#tracemalloc.is_tracing" title="tracemalloc.is_tracing"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_tracing()</span></code></a>、<a class="reference internal" href="#tracemalloc.clear_traces" title="tracemalloc.clear_traces"><code class="xref py py-func docutils literal notranslate"><span class="pre">clear_traces()</span></code></a> 関数も参照してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="tracemalloc.take_snapshot">
+<code class="descclassname">tracemalloc.</code><code class="descname">take_snapshot</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.take_snapshot" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python が割り当てたメモリブロックのトレースのスナップショットを取ります。新しい <a class="reference internal" href="#tracemalloc.Snapshot" title="tracemalloc.Snapshot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snapshot</span></code></a> インスタンスを返します。</p>
+<p>スナップショットは <a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールがメモリ割り当てのトレースを始める前に割り当てられたメモリブロックを含みません。</p>
+<p>トレースのトレースバックは <a class="reference internal" href="#tracemalloc.get_traceback_limit" title="tracemalloc.get_traceback_limit"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_traceback_limit()</span></code></a> フレームに制限されています。より多くのフレームを保存するには <a class="reference internal" href="#tracemalloc.start" title="tracemalloc.start"><code class="xref py py-func docutils literal notranslate"><span class="pre">start()</span></code></a> 関数の <em>nframe</em> 引数を使用してください。</p>
+<p>スナップショットを取るには <a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールはメモリ割り当てをトレースしていなければなりません。 <a class="reference internal" href="#tracemalloc.start" title="tracemalloc.start"><code class="xref py py-func docutils literal notranslate"><span class="pre">start()</span></code></a> 関数を参照してください。</p>
+<p><a class="reference internal" href="#tracemalloc.get_object_traceback" title="tracemalloc.get_object_traceback"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_object_traceback()</span></code></a> 関数を参照してください。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="domainfilter">
+<h3>DomainFilter<a class="headerlink" href="#domainfilter" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.DomainFilter">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">DomainFilter</code><span class="sig-paren">(</span><em>inclusive: bool</em>, <em>domain: int</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.DomainFilter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Filter traces of memory blocks by their address space (domain).</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="tracemalloc.DomainFilter.inclusive">
+<code class="descname">inclusive</code><a class="headerlink" href="#tracemalloc.DomainFilter.inclusive" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>If <em>inclusive</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code> (include), match memory blocks allocated
+in the address space <a class="reference internal" href="#tracemalloc.DomainFilter.domain" title="tracemalloc.DomainFilter.domain"><code class="xref py py-attr docutils literal notranslate"><span class="pre">domain</span></code></a>.</p>
+<p>If <em>inclusive</em> is <code class="docutils literal notranslate"><span class="pre">False</span></code> (exclude), match memory blocks not allocated
+in the address space <a class="reference internal" href="#tracemalloc.DomainFilter.domain" title="tracemalloc.DomainFilter.domain"><code class="xref py py-attr docutils literal notranslate"><span class="pre">domain</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.DomainFilter.domain">
+<code class="descname">domain</code><a class="headerlink" href="#tracemalloc.DomainFilter.domain" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Address space of a memory block (<code class="docutils literal notranslate"><span class="pre">int</span></code>). Read-only property.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="filter">
+<h3>Filter<a class="headerlink" href="#filter" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.Filter">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>inclusive: bool</em>, <em>filename_pattern: str</em>, <em>lineno: int=None</em>, <em>all_frames: bool=False</em>, <em>domain: int=None</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Filter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックのトレースをフィルターします。</p>
+<p><em>filename_pattern</em> のシンタックスについては <a class="reference internal" href="fnmatch.html#fnmatch.fnmatch" title="fnmatch.fnmatch"><code class="xref py py-func docutils literal notranslate"><span class="pre">fnmatch.fnmatch()</span></code></a> 関数を参照してください。<code class="docutils literal notranslate"><span class="pre">'.pyc'</span></code> 拡張子は <code class="docutils literal notranslate"><span class="pre">'.py'</span></code> に置換されます。</p>
+<p>例:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">Filter(True,</span> <span class="pre">subprocess.__file__)</span></code> は <a class="reference internal" href="subprocess.html#module-subprocess" title="subprocess: Subprocess management."><code class="xref py py-mod docutils literal notranslate"><span class="pre">subprocess</span></code></a> モジュールのみを含みます</li>
+<li><code class="docutils literal notranslate"><span class="pre">Filter(False,</span> <span class="pre">tracemalloc.__file__)</span></code> は <a class="reference internal" href="#module-tracemalloc" title="tracemalloc: Trace memory allocations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">tracemalloc</span></code></a> モジュールのトレースを除外します</li>
+<li><code class="docutils literal notranslate"><span class="pre">Filter(False,</span> <span class="pre">&quot;&lt;unknown&gt;&quot;)</span></code> は空のトレースバックを除外します</li>
+</ul>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><code class="docutils literal notranslate"><span class="pre">'.pyo'</span></code> ファイル拡張子が <code class="docutils literal notranslate"><span class="pre">'.py'</span></code> に置換されることはもうありません。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>Added the <a class="reference internal" href="#tracemalloc.Filter.domain" title="tracemalloc.Filter.domain"><code class="xref py py-attr docutils literal notranslate"><span class="pre">domain</span></code></a> attribute.</p>
+</div>
+<dl class="attribute">
+<dt id="tracemalloc.Filter.domain">
+<code class="descname">domain</code><a class="headerlink" href="#tracemalloc.Filter.domain" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Address space of a memory block (<code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p>
+<p>tracemalloc uses the domain <code class="docutils literal notranslate"><span class="pre">0</span></code> to trace memory allocations made by
+Python. C extensions can use other domains to trace other resources.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Filter.inclusive">
+<code class="descname">inclusive</code><a class="headerlink" href="#tracemalloc.Filter.inclusive" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>If <em>inclusive</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code> (include), only match memory blocks allocated
+in a file with a name matching <a class="reference internal" href="#tracemalloc.Filter.filename_pattern" title="tracemalloc.Filter.filename_pattern"><code class="xref py py-attr docutils literal notranslate"><span class="pre">filename_pattern</span></code></a> at line number
+<a class="reference internal" href="#tracemalloc.Filter.lineno" title="tracemalloc.Filter.lineno"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code></a>.</p>
+<p>If <em>inclusive</em> is <code class="docutils literal notranslate"><span class="pre">False</span></code> (exclude), ignore memory blocks allocated in
+a file with a name matching <a class="reference internal" href="#tracemalloc.Filter.filename_pattern" title="tracemalloc.Filter.filename_pattern"><code class="xref py py-attr docutils literal notranslate"><span class="pre">filename_pattern</span></code></a> at line number
+<a class="reference internal" href="#tracemalloc.Filter.lineno" title="tracemalloc.Filter.lineno"><code class="xref py py-attr docutils literal notranslate"><span class="pre">lineno</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Filter.lineno">
+<code class="descname">lineno</code><a class="headerlink" href="#tracemalloc.Filter.lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フィルタの行番号です (<code class="docutils literal notranslate"><span class="pre">int</span></code>)。<em>lineno</em> が <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合フィルタはあらゆる行番号にマッチします。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Filter.filename_pattern">
+<code class="descname">filename_pattern</code><a class="headerlink" href="#tracemalloc.Filter.filename_pattern" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Filename pattern of the filter (<code class="docutils literal notranslate"><span class="pre">str</span></code>). Read-only property.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Filter.all_frames">
+<code class="descname">all_frames</code><a class="headerlink" href="#tracemalloc.Filter.all_frames" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>all_frames</em> が <code class="docutils literal notranslate"><span class="pre">True</span></code> の場合トレースバックの全てのフレームをチェックします。<em>all_frames</em> が <code class="docutils literal notranslate"><span class="pre">False</span></code> の場合最新のフレームをチェックします。</p>
+<p>トレースバックの上限が <code class="docutils literal notranslate"><span class="pre">1</span></code> の場合この属性の影響はありません。
+<a class="reference internal" href="#tracemalloc.get_traceback_limit" title="tracemalloc.get_traceback_limit"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_traceback_limit()</span></code></a> 関数と <a class="reference internal" href="#tracemalloc.Snapshot.traceback_limit" title="tracemalloc.Snapshot.traceback_limit"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Snapshot.traceback_limit</span></code></a> 属性を参照してください。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="frame">
+<h3>Frame<a class="headerlink" href="#frame" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.Frame">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">Frame</code><a class="headerlink" href="#tracemalloc.Frame" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>トレースバックのフレームです。</p>
+<p><a class="reference internal" href="#tracemalloc.Traceback" title="tracemalloc.Traceback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traceback</span></code></a> クラスは <a class="reference internal" href="#tracemalloc.Frame" title="tracemalloc.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a> インスタンスのシークエンスです。</p>
+<dl class="attribute">
+<dt id="tracemalloc.Frame.filename">
+<code class="descname">filename</code><a class="headerlink" href="#tracemalloc.Frame.filename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル名 (<code class="docutils literal notranslate"><span class="pre">str</span></code>)。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Frame.lineno">
+<code class="descname">lineno</code><a class="headerlink" href="#tracemalloc.Frame.lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>行番号 (<code class="docutils literal notranslate"><span class="pre">int</span></code>)。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="snapshot">
+<h3>Snapshot<a class="headerlink" href="#snapshot" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.Snapshot">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">Snapshot</code><a class="headerlink" href="#tracemalloc.Snapshot" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python が割り当てたメモリブロックのトレースのスナップショットです。</p>
+<p><a class="reference internal" href="#tracemalloc.take_snapshot" title="tracemalloc.take_snapshot"><code class="xref py py-func docutils literal notranslate"><span class="pre">take_snapshot()</span></code></a> 関数はスナップショットのインスタンスを作ります。</p>
+<dl class="method">
+<dt id="tracemalloc.Snapshot.compare_to">
+<code class="descname">compare_to</code><span class="sig-paren">(</span><em>old_snapshot: Snapshot</em>, <em>key_type: str</em>, <em>cumulative: bool=False</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Snapshot.compare_to" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Compute the differences with an old snapshot. Get statistics as a sorted
+list of <a class="reference internal" href="#tracemalloc.StatisticDiff" title="tracemalloc.StatisticDiff"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatisticDiff</span></code></a> instances grouped by <em>key_type</em>.</p>
+<p>See the <a class="reference internal" href="#tracemalloc.Snapshot.statistics" title="tracemalloc.Snapshot.statistics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.statistics()</span></code></a> method for <em>key_type</em> and <em>cumulative</em>
+parameters.</p>
+<p>結果は降順でソートされます: キーは <a class="reference internal" href="#tracemalloc.StatisticDiff.size_diff" title="tracemalloc.StatisticDiff.size_diff"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StatisticDiff.size_diff</span></code></a> の絶対値、 <a class="reference internal" href="#tracemalloc.StatisticDiff.size" title="tracemalloc.StatisticDiff.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StatisticDiff.size</span></code></a>、 <a class="reference internal" href="#tracemalloc.StatisticDiff.count_diff" title="tracemalloc.StatisticDiff.count_diff"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StatisticDiff.count_diff</span></code></a> の絶対置、 <a class="reference internal" href="#tracemalloc.Statistic.count" title="tracemalloc.Statistic.count"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Statistic.count</span></code></a>、そして <a class="reference internal" href="#tracemalloc.StatisticDiff.traceback" title="tracemalloc.StatisticDiff.traceback"><code class="xref py py-attr docutils literal notranslate"><span class="pre">StatisticDiff.traceback</span></code></a> です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracemalloc.Snapshot.dump">
+<code class="descname">dump</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Snapshot.dump" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>スナップショットをファイルに書き込みます。</p>
+<p>スナップショットをリロードするには <a class="reference internal" href="#tracemalloc.Snapshot.load" title="tracemalloc.Snapshot.load"><code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code></a> を使用します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracemalloc.Snapshot.filter_traces">
+<code class="descname">filter_traces</code><span class="sig-paren">(</span><em>filters</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Snapshot.filter_traces" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Create a new <a class="reference internal" href="#tracemalloc.Snapshot" title="tracemalloc.Snapshot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snapshot</span></code></a> instance with a filtered <a class="reference internal" href="#tracemalloc.Snapshot.traces" title="tracemalloc.Snapshot.traces"><code class="xref py py-attr docutils literal notranslate"><span class="pre">traces</span></code></a>
+sequence, <em>filters</em> is a list of <a class="reference internal" href="#tracemalloc.DomainFilter" title="tracemalloc.DomainFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">DomainFilter</span></code></a> and
+<a class="reference internal" href="#tracemalloc.Filter" title="tracemalloc.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a> instances.  If <em>filters</em> is an empty list, return a new
+<a class="reference internal" href="#tracemalloc.Snapshot" title="tracemalloc.Snapshot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snapshot</span></code></a> instance with a copy of the traces.</p>
+<p>All inclusive filters are applied at once, a trace is ignored if no
+inclusive filters match it. A trace is ignored if at least one exclusive
+filter matches it.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><a class="reference internal" href="#tracemalloc.DomainFilter" title="tracemalloc.DomainFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">DomainFilter</span></code></a> instances are now also accepted in <em>filters</em>.</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="tracemalloc.Snapshot.load">
+<em class="property">classmethod </em><code class="descname">load</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Snapshot.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>スナップショットをファイルからロードします。</p>
+<p><a class="reference internal" href="#tracemalloc.Snapshot.dump" title="tracemalloc.Snapshot.dump"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dump()</span></code></a> を参照してください。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tracemalloc.Snapshot.statistics">
+<code class="descname">statistics</code><span class="sig-paren">(</span><em>key_type: str</em>, <em>cumulative: bool=False</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Snapshot.statistics" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Get statistics as a sorted list of <a class="reference internal" href="#tracemalloc.Statistic" title="tracemalloc.Statistic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statistic</span></code></a> instances grouped
+by <em>key_type</em>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">key_type</th>
+<th class="head">description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'filename'</span></code></td>
+<td>ファイル名</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'lineno'</span></code></td>
+<td>ファイル名と行番号</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'traceback'</span></code></td>
+<td>traceback</td>
+</tr>
+</tbody>
+</table>
+<p>If <em>cumulative</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, cumulate size and count of memory blocks of
+all frames of the traceback of a trace, not only the most recent frame.
+The cumulative mode can only be used with <em>key_type</em> equals to
+<code class="docutils literal notranslate"><span class="pre">'filename'</span></code> and <code class="docutils literal notranslate"><span class="pre">'lineno'</span></code>.</p>
+<p>結果は降順でソートされます: キーは <a class="reference internal" href="#tracemalloc.Statistic.size" title="tracemalloc.Statistic.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Statistic.size</span></code></a>, <a class="reference internal" href="#tracemalloc.Statistic.count" title="tracemalloc.Statistic.count"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Statistic.count</span></code></a>, <a class="reference internal" href="#tracemalloc.Statistic.traceback" title="tracemalloc.Statistic.traceback"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Statistic.traceback</span></code></a> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Snapshot.traceback_limit">
+<code class="descname">traceback_limit</code><a class="headerlink" href="#tracemalloc.Snapshot.traceback_limit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#tracemalloc.Snapshot.traces" title="tracemalloc.Snapshot.traces"><code class="xref py py-attr docutils literal notranslate"><span class="pre">traces</span></code></a> のトレースバック内に保存されるフレーム数の最大値です。
+スナップショットが取られたときの <a class="reference internal" href="#tracemalloc.get_traceback_limit" title="tracemalloc.get_traceback_limit"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_traceback_limit()</span></code></a> の結果です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Snapshot.traces">
+<code class="descname">traces</code><a class="headerlink" href="#tracemalloc.Snapshot.traces" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python が割り当てた全メモリブロックのトレースで、 <a class="reference internal" href="#tracemalloc.Trace" title="tracemalloc.Trace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a> インスタンスのシークェンスです。</p>
+<p>シークェンスの順序は未定義です。統計のソート済みリストを取得するには <a class="reference internal" href="#tracemalloc.Snapshot.statistics" title="tracemalloc.Snapshot.statistics"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Snapshot.statistics()</span></code></a> を使用してください。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="statistic">
+<h3>Statistic<a class="headerlink" href="#statistic" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.Statistic">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">Statistic</code><a class="headerlink" href="#tracemalloc.Statistic" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリ割り当ての統計です。</p>
+<p><a class="reference internal" href="#tracemalloc.Snapshot.statistics" title="tracemalloc.Snapshot.statistics"><code class="xref py py-func docutils literal notranslate"><span class="pre">Snapshot.statistics()</span></code></a> は <a class="reference internal" href="#tracemalloc.Statistic" title="tracemalloc.Statistic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statistic</span></code></a> インスタンスの一覧を返します。</p>
+<p><a class="reference internal" href="#tracemalloc.StatisticDiff" title="tracemalloc.StatisticDiff"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatisticDiff</span></code></a> クラスも参照してください。</p>
+<dl class="attribute">
+<dt id="tracemalloc.Statistic.count">
+<code class="descname">count</code><a class="headerlink" href="#tracemalloc.Statistic.count" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロック数 (<code class="docutils literal notranslate"><span class="pre">int</span></code>)。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Statistic.size">
+<code class="descname">size</code><a class="headerlink" href="#tracemalloc.Statistic.size" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックのバイト単位の総サイズ (<code class="docutils literal notranslate"><span class="pre">int</span></code>)。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Statistic.traceback">
+<code class="descname">traceback</code><a class="headerlink" href="#tracemalloc.Statistic.traceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックが割り当てられているトレースバック。<a class="reference internal" href="#tracemalloc.Traceback" title="tracemalloc.Traceback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traceback</span></code></a> インスタンス。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="statisticdiff">
+<h3>StatisticDiff<a class="headerlink" href="#statisticdiff" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.StatisticDiff">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">StatisticDiff</code><a class="headerlink" href="#tracemalloc.StatisticDiff" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新旧 <a class="reference internal" href="#tracemalloc.Snapshot" title="tracemalloc.Snapshot"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snapshot</span></code></a> インスタンスのメモリ割り当ての統計差です。</p>
+<p><a class="reference internal" href="#tracemalloc.Snapshot.compare_to" title="tracemalloc.Snapshot.compare_to"><code class="xref py py-func docutils literal notranslate"><span class="pre">Snapshot.compare_to()</span></code></a> は <a class="reference internal" href="#tracemalloc.StatisticDiff" title="tracemalloc.StatisticDiff"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatisticDiff</span></code></a> インスタンスのリストを返します。 <a class="reference internal" href="#tracemalloc.Statistic" title="tracemalloc.Statistic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statistic</span></code></a> クラスも参照してください。</p>
+<dl class="attribute">
+<dt id="tracemalloc.StatisticDiff.count">
+<code class="descname">count</code><a class="headerlink" href="#tracemalloc.StatisticDiff.count" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新しいスナップショット内のメモリブロックの数 (<code class="docutils literal notranslate"><span class="pre">int</span></code>) です。新しいスナップショット内でメモリブロックが解放された場合は <code class="docutils literal notranslate"><span class="pre">0</span></code> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.StatisticDiff.count_diff">
+<code class="descname">count_diff</code><a class="headerlink" href="#tracemalloc.StatisticDiff.count_diff" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新旧スナップショットのメモリブロック数の差 (<code class="docutils literal notranslate"><span class="pre">int</span></code>) です。メモリブロックが新しいスナップショット内で割り当てられた場合は <code class="docutils literal notranslate"><span class="pre">0</span></code> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.StatisticDiff.size">
+<code class="descname">size</code><a class="headerlink" href="#tracemalloc.StatisticDiff.size" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新しいスナップショット内のメモリブロックのバイト単位での総サイズ (<code class="docutils literal notranslate"><span class="pre">int</span></code>) です。新しいスナップショット内でメモリブロックが解放された場合は <code class="docutils literal notranslate"><span class="pre">0</span></code> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.StatisticDiff.size_diff">
+<code class="descname">size_diff</code><a class="headerlink" href="#tracemalloc.StatisticDiff.size_diff" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新旧スナップショットのバイト単位での総サイズの差 (<code class="docutils literal notranslate"><span class="pre">int</span></code>) です。メモリブロックが新しいスナップショット内で割り当てられた場合は <code class="docutils literal notranslate"><span class="pre">0</span></code> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.StatisticDiff.traceback">
+<code class="descname">traceback</code><a class="headerlink" href="#tracemalloc.StatisticDiff.traceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックが割り当てられたトレースバックで、 <a class="reference internal" href="#tracemalloc.Traceback" title="tracemalloc.Traceback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traceback</span></code></a> のインスタンスです。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="trace">
+<h3>Trace<a class="headerlink" href="#trace" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.Trace">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">Trace</code><a class="headerlink" href="#tracemalloc.Trace" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックをトレースします。</p>
+<p><a class="reference internal" href="#tracemalloc.Snapshot.traces" title="tracemalloc.Snapshot.traces"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Snapshot.traces</span></code></a> 属性は <a class="reference internal" href="#tracemalloc.Trace" title="tracemalloc.Trace"><code class="xref py py-class docutils literal notranslate"><span class="pre">Trace</span></code></a> インスタンスのシークエンスです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>Added the <a class="reference internal" href="#tracemalloc.Trace.domain" title="tracemalloc.Trace.domain"><code class="xref py py-attr docutils literal notranslate"><span class="pre">domain</span></code></a> attribute.</p>
+</div>
+<dl class="attribute">
+<dt id="tracemalloc.Trace.domain">
+<code class="descname">domain</code><a class="headerlink" href="#tracemalloc.Trace.domain" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Address space of a memory block (<code class="docutils literal notranslate"><span class="pre">int</span></code>). Read-only property.</p>
+<p>tracemalloc uses the domain <code class="docutils literal notranslate"><span class="pre">0</span></code> to trace memory allocations made by
+Python. C extensions can use other domains to trace other resources.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Trace.size">
+<code class="descname">size</code><a class="headerlink" href="#tracemalloc.Trace.size" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックのバイト単位のサイズ (<code class="docutils literal notranslate"><span class="pre">int</span></code>)。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tracemalloc.Trace.traceback">
+<code class="descname">traceback</code><a class="headerlink" href="#tracemalloc.Trace.traceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メモリブロックが割り当てられているトレースバック。<a class="reference internal" href="#tracemalloc.Traceback" title="tracemalloc.Traceback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traceback</span></code></a> インスタンス。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="traceback">
+<h3>Traceback<a class="headerlink" href="#traceback" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="class">
+<dt id="tracemalloc.Traceback">
+<em class="property">class </em><code class="descclassname">tracemalloc.</code><code class="descname">Traceback</code><a class="headerlink" href="#tracemalloc.Traceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Sequence of <a class="reference internal" href="#tracemalloc.Frame" title="tracemalloc.Frame"><code class="xref py py-class docutils literal notranslate"><span class="pre">Frame</span></code></a> instances sorted from the oldest frame to the
+most recent frame.</p>
+<p>A traceback contains at least <code class="docutils literal notranslate"><span class="pre">1</span></code> frame. If the <code class="docutils literal notranslate"><span class="pre">tracemalloc</span></code> module
+failed to get a frame, the filename <code class="docutils literal notranslate"><span class="pre">&quot;&lt;unknown&gt;&quot;</span></code> at line number <code class="docutils literal notranslate"><span class="pre">0</span></code> is
+used.</p>
+<p>When a snapshot is taken, tracebacks of traces are limited to
+<a class="reference internal" href="#tracemalloc.get_traceback_limit" title="tracemalloc.get_traceback_limit"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_traceback_limit()</span></code></a> frames. See the <a class="reference internal" href="#tracemalloc.take_snapshot" title="tracemalloc.take_snapshot"><code class="xref py py-func docutils literal notranslate"><span class="pre">take_snapshot()</span></code></a> function.</p>
+<p>The <a class="reference internal" href="#tracemalloc.Trace.traceback" title="tracemalloc.Trace.traceback"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Trace.traceback</span></code></a> attribute is an instance of <a class="reference internal" href="#tracemalloc.Traceback" title="tracemalloc.Traceback"><code class="xref py py-class docutils literal notranslate"><span class="pre">Traceback</span></code></a>
+instance.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Frames are now sorted from the oldest to the most recent, instead of most recent to oldest.</p>
+</div>
+<dl class="method">
+<dt id="tracemalloc.Traceback.format">
+<code class="descname">format</code><span class="sig-paren">(</span><em>limit=None</em>, <em>most_recent_first=False</em><span class="sig-paren">)</span><a class="headerlink" href="#tracemalloc.Traceback.format" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Format the traceback as a list of lines with newlines. Use the
+<a class="reference internal" href="linecache.html#module-linecache" title="linecache: Provides random access to individual lines from text files."><code class="xref py py-mod docutils literal notranslate"><span class="pre">linecache</span></code></a> module to retrieve lines from the source code.
+If <em>limit</em> is set, format the <em>limit</em> most recent frames if <em>limit</em>
+is positive. Otherwise, format the <code class="docutils literal notranslate"><span class="pre">abs(limit)</span></code> oldest frames.
+If <em>most_recent_first</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the order of the formatted frames
+is reversed, returning the most recent frame first instead of last.</p>
+<p>Similar to the <a class="reference internal" href="traceback.html#traceback.format_tb" title="traceback.format_tb"><code class="xref py py-func docutils literal notranslate"><span class="pre">traceback.format_tb()</span></code></a> function, except that
+<a class="reference internal" href="#tracemalloc.Traceback.format" title="tracemalloc.Traceback.format"><code class="xref py py-meth docutils literal notranslate"><span class="pre">format()</span></code></a> does not include newlines.</p>
+<p>以下はプログラム例です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Traceback (most recent call first):&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">traceback</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>出力:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">first</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s2">&quot;test.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">9</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">Object</span><span class="p">()</span>
+  <span class="n">File</span> <span class="s2">&quot;test.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">12</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="n">tracemalloc</span><span class="o">.</span><span class="n">get_object_traceback</span><span class="p">(</span><span class="n">f</span><span class="p">())</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">tracemalloc</span></code> --- メモリ割り当ての追跡</a><ul>
+<li><a class="reference internal" href="#examples">使用例</a><ul>
+<li><a class="reference internal" href="#display-the-top-10">上位10を表示する</a></li>
+<li><a class="reference internal" href="#compute-differences">差を計算する</a></li>
+<li><a class="reference internal" href="#get-the-traceback-of-a-memory-block">メモリブロックのトレースバックを取得する</a></li>
+<li><a class="reference internal" href="#pretty-top">top を整形化する</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api">API</a><ul>
+<li><a class="reference internal" href="#functions">関数</a></li>
+<li><a class="reference internal" href="#domainfilter">DomainFilter</a></li>
+<li><a class="reference internal" href="#filter">Filter</a></li>
+<li><a class="reference internal" href="#frame">Frame</a></li>
+<li><a class="reference internal" href="#snapshot">Snapshot</a></li>
+<li><a class="reference internal" href="#statistic">Statistic</a></li>
+<li><a class="reference internal" href="#statisticdiff">StatisticDiff</a></li>
+<li><a class="reference internal" href="#trace">Trace</a></li>
+<li><a class="reference internal" href="#traceback">Traceback</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="trace.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">trace</span></code> --- Python 文実行のトレースと追跡</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="distribution.html"
+                        title="次の章へ">ソフトウェア・パッケージと配布</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/tracemalloc.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="distribution.html" title="ソフトウェア・パッケージと配布"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="trace.html" title="trace --- Python 文実行のトレースと追跡"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="debug.html" >デバッグとプロファイル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

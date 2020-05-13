@@ -1,0 +1,666 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dataclasses --- データクラス &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="contextlib --- Utilities for with-statement contexts" href="contextlib.html" />
+    <link rel="prev" title="warnings --- 警告の制御" href="warnings.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/dataclasses.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="contextlib.html" title="contextlib --- Utilities for with-statement contexts"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="warnings.html" title="warnings --- 警告の制御"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" accesskey="U">Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dataclasses">
+<span id="dataclasses-data-classes"></span><h1><a class="reference internal" href="#module-dataclasses" title="dataclasses: Generate special methods on user-defined classes."><code class="xref py py-mod docutils literal notranslate"><span class="pre">dataclasses</span></code></a> --- データクラス<a class="headerlink" href="#module-dataclasses" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/dataclasses.py">Lib/dataclasses.py</a></p>
+<hr class="docutils" />
+<p>このモジュールは、<a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> や <a class="reference internal" href="../reference/datamodel.html#object.__repr__" title="object.__repr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__repr__()</span></code></a> のような <a class="reference internal" href="../glossary.html#term-special-method"><span class="xref std std-term">special method</span></a> を生成し、ユーザー定義のクラスに自動的に追加するデコレータや関数を提供します。このモジュールは <span class="target" id="index-6"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0557"><strong>PEP 557</strong></a> に記載されました。</p>
+<p>これらの生成されたメソッドで利用されるメンバー変数は <span class="target" id="index-7"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0526"><strong>PEP 526</strong></a> 型アノテーションを用いて定義されます。例えば、このコードでは:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">InventoryItem</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Class for keeping track of an item in inventory.&#39;&#39;&#39;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">unit_price</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">quantity_on_hand</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">total_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_price</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity_on_hand</span>
+</pre></div>
+</div>
+<p>とりわけ、以下のような <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> が追加されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unit_price</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">quantity_on_hand</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">unit_price</span> <span class="o">=</span> <span class="n">unit_price</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">quantity_on_hand</span> <span class="o">=</span> <span class="n">quantity_on_hand</span>
+</pre></div>
+</div>
+<p>このメソッドは自動的にクラスに追加される点に留意して下さい。上記の <code class="docutils literal notranslate"><span class="pre">InventoryItem</span></code> クラスの定義中にこのメソッドが直接明記されるわけではありません。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+<div class="section" id="module-level-decorators-classes-and-functions">
+<h2>モジュールレベルのデコレータ、クラス、関数<a class="headerlink" href="#module-level-decorators-classes-and-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="dataclasses.dataclass">
+<code class="descclassname">&#64;</code><code class="descclassname">dataclasses.</code><code class="descname">dataclass</code><span class="sig-paren">(</span><em>*</em>, <em>init=True</em>, <em>repr=True</em>, <em>eq=True</em>, <em>order=False</em>, <em>unsafe_hash=False</em>, <em>frozen=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.dataclass" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この関数は、後述する <a class="reference internal" href="../glossary.html#term-special-method"><span class="xref std std-term">special method</span></a> を生成し、クラスに追加する <a class="reference internal" href="../glossary.html#term-decorator"><span class="xref std std-term">decorator</span></a> です。</p>
+<p><a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> デコレータは、<code class="docutils literal notranslate"><span class="pre">フィールド</span></code> を探すためにクラスを検査します。
+<code class="docutils literal notranslate"><span class="pre">フィールド</span></code> は <a class="reference internal" href="../glossary.html#term-variable-annotation"><span class="xref std std-term">型アノテーション</span></a> を持つクラス変数として定義されます。
+後述する２つの例外を除き、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> は変数アノテーションで指定した型を検査しません。</p>
+<p>生成されるすべてのメソッドの中でのフィールドの順序は、それらのフィールドがクラス定義に現れた順序です。</p>
+<p><a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> デコレータは、後述する様々な &quot;ダンダー&quot; メソッド (訳注：dunderはdouble underscoreの略で、メソッド名の前後にアンダースコアが2つ付いているメソッド) をクラスに追加します。クラスに既にこれらのメソッドが存在する場合の動作は、後述する引数によって異なります。デコレータは呼び出した際に指定したクラスと同じクラスを返します。新しいクラスは生成されません。</p>
+<p><a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> が引数を指定しない単純なデコレータとして使用された場合、ドキュメントに記載されているシグネチャのデフォルト値のとおりに動作します。つまり、以下の３つの <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> の用例は同等です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="nd">@dataclass</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="o">...</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">unsafe_hash</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+   <span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> の引数は以下の通りです:</p>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">init</span></code>: (デフォルトの)真の場合、 <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドが生成されます。</p>
+<p>もしクラスに <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> が既に定義されていた場合は、この引数は無視されます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">repr</span></code>: (デフォルトの)真の場合、 <a class="reference internal" href="../reference/datamodel.html#object.__repr__" title="object.__repr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__repr__()</span></code></a> メソッドが生成されます。
+生成された repr 文字列には、クラス名、各フィールドの名前および repr 文字列が、クラス上での定義された順序で並びます。
+repr から除外するように印が付けられたフィールドは、 repr 文字列には含まれません。
+例えば、このようになります: <code class="docutils literal notranslate"><span class="pre">InventoryItem(name='widget',</span> <span class="pre">unit_price=3.0,</span> <span class="pre">quantity_on_hand=10)</span></code> 。</p>
+<p>もしクラスに <a class="reference internal" href="../reference/datamodel.html#object.__repr__" title="object.__repr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__repr__()</span></code></a> が既に定義されていた場合は、この引数は無視されます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">eq</span></code>: (デフォルトの)真の場合、 <a class="reference internal" href="../reference/datamodel.html#object.__eq__" title="object.__eq__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__eq__()</span></code></a> メソッドが生成されます。このメソッドはクラスの比較を、そのクラスのフィールドからなるタプルを比較するように行います。比較する2つのインスタンスのクラスは同一でなければなりません。</p>
+<p>もしクラスに <a class="reference internal" href="../reference/datamodel.html#object.__eq__" title="object.__eq__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__eq__()</span></code></a> が既に定義されていた場合は、この引数は無視されます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">order</span></code>: 真 (デフォルト値は <code class="docutils literal notranslate"><span class="pre">False</span></code>) の場合、 <a class="reference internal" href="../reference/datamodel.html#object.__lt__" title="object.__lt__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__lt__()</span></code></a>、<a class="reference internal" href="../reference/datamodel.html#object.__le__" title="object.__le__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__le__()</span></code></a>、<a class="reference internal" href="../reference/datamodel.html#object.__gt__" title="object.__gt__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__gt__()</span></code></a>、<a class="reference internal" href="../reference/datamodel.html#object.__ge__" title="object.__ge__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__ge__()</span></code></a> メソッドが生成されます。これらの比較は、クラスをそのフィールドからなるタプルであるかのように取り扱います。比較される2つのインスタンスは、同一の型でなければなりません。もし <code class="docutils literal notranslate"><span class="pre">order</span></code> が true で、 <code class="docutils literal notranslate"><span class="pre">eq</span></code> に falseを指定すすると、<a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます。</p>
+<p>もし、クラスで既に <a class="reference internal" href="../reference/datamodel.html#object.__lt__" title="object.__lt__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__lt__()</span></code></a>, <a class="reference internal" href="../reference/datamodel.html#object.__le__" title="object.__le__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__le__()</span></code></a>, <a class="reference internal" href="../reference/datamodel.html#object.__gt__" title="object.__gt__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__gt__()</span></code></a>, <a class="reference internal" href="../reference/datamodel.html#object.__ge__" title="object.__ge__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__ge__()</span></code></a> のうちいずれかが定義されていると <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> が送出されます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">unsafe_hash</span></code>: (デフォルトの)``False`` の場合、 <code class="docutils literal notranslate"><span class="pre">eq</span></code> と <code class="docutils literal notranslate"><span class="pre">frozen</span></code> がどう設定されているかに従って <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドが生成されます。</p>
+<p><a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> は、組み込みの <a class="reference internal" href="functions.html#hash" title="hash"><code class="xref py py-meth docutils literal notranslate"><span class="pre">hash()</span></code></a> から使われたり、 dict や set のようなハッシュ化されたコレクションにオブジェクトを追加するときに使われます。
+<a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> があるということはそのクラスのインスタンスが不変 (イミュータブル) であることを意味します。
+可変性というのは複雑な性質で、プログラマの意図、 <a class="reference internal" href="../reference/datamodel.html#object.__eq__" title="object.__eq__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__eq__()</span></code></a> が存在しているかどうかとその振る舞い、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> デコレータの <code class="docutils literal notranslate"><span class="pre">eq</span></code> フラグと <code class="docutils literal notranslate"><span class="pre">frozen</span></code> フラグの値に依存します。</p>
+<p>デフォルトでは、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> は追加しても安全でない限り <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドを暗黙的には追加しません。
+また、明示的に定義され存在している <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドに追加したり変更したりはしません。
+クラスの属性の <code class="docutils literal notranslate"><span class="pre">__hash__</span> <span class="pre">=</span> <span class="pre">None</span></code> という設定は、 Python にとって <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> のドキュメントにあるような特別な意味があります。</p>
+<p><a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> が明示的に定義されていなかったり、 <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定されていた場合は、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> は暗黙的に <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドを追加する <em>かもしれません</em> 。
+推奨はできませんが、 <code class="docutils literal notranslate"><span class="pre">unsafe_hash=True</span></code> とすることで <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> に <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドを作成させられます。
+こうしてしまうと、クラスが論理的には不変だがそれにもかかわらず変更できてしまう場合、問題になり得ます。
+こうするのは特別なユースケースで、慎重に検討するべきです。</p>
+<p><a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドが暗黙的に作られるかどうかを決定する規則は次の通りです。
+データクラスに明示的な <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドを持たせた上で、 <code class="docutils literal notranslate"><span class="pre">unsafe_hash=True</span></code> と設定することはできません; こうすると <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> になります。</p>
+<p><code class="docutils literal notranslate"><span class="pre">eq</span></code> と <code class="docutils literal notranslate"><span class="pre">frozen</span></code> が両方とも真だった場合、デフォルトでは <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> は <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドを生成します。
+<code class="docutils literal notranslate"><span class="pre">eq</span></code> が真で <code class="docutils literal notranslate"><span class="pre">frozen</span></code> が偽の場合、<a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> は <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定され、(可変なので) ハッシュ化不可能とされます。
+<code class="docutils literal notranslate"><span class="pre">eq</span></code> が偽の場合は、 <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> は手を付けないまま、つまりスーパークラスの <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドが使われることになります (スーパークラスが <a class="reference internal" href="functions.html#object" title="object"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a> だった場合は、 id に基づいたハッシュ化にフォールバックするということになります)。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">frozen</span></code>: 真 (デフォルト値は <code class="docutils literal notranslate"><span class="pre">False</span></code>) の場合、フィールドへの代入は例外を生成します。
+これにより読み出し専用の凍結されたインスタンスを模倣します。
+<a class="reference internal" href="../reference/datamodel.html#object.__setattr__" title="object.__setattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__setattr__()</span></code></a> あるいは <a class="reference internal" href="../reference/datamodel.html#object.__delattr__" title="object.__delattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__delattr__()</span></code></a> がクラスに定義されていた場合は、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> が送出されます。
+後にある議論を参照してください。</p>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">フィールド</span></code> には、通常の Python の文法でデフォルト値を指定できます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">a</span><span class="p">:</span> <span class="nb">int</span>       <span class="c1"># &#39;a&#39; has no default value</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># assign a default value for &#39;b&#39;</span>
+</pre></div>
+</div>
+<p>この例では、生成された <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドには <code class="docutils literal notranslate"><span class="pre">a</span></code> と <code class="docutils literal notranslate"><span class="pre">b</span></code> の両方が含まれ、以下のように定義されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>デフォルト値を指定しないフィールドを、デフォルト値を指定したフィールドの後ろに定義すると、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> が送出されます。これは、単一のクラスであっても、クラス継承の結果でも起きえます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.field">
+<code class="descclassname">dataclasses.</code><code class="descname">field</code><span class="sig-paren">(</span><em>*</em>, <em>default=MISSING</em>, <em>default_factory=MISSING</em>, <em>repr=True</em>, <em>hash=None</em>, <em>init=True</em>, <em>compare=True</em>, <em>metadata=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.field" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>通常の単純なユースケースでは、この他の機能は必要ありません。
+しかし、データクラスには、フィールドごとの情報を必要とする機能もあります。
+追加の情報の必要性に応えるために、デフォルトのフィールドの値をモジュールから提供されている <a class="reference internal" href="#dataclasses.field" title="dataclasses.field"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a> 関数の呼び出しに置き換えられます。
+例えば次のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">mylist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">mylist</span> <span class="o">+=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>上にあるように、 <code class="docutils literal notranslate"><span class="pre">MISSING</span></code> 値は <code class="docutils literal notranslate"><span class="pre">default</span></code> パラメータと <code class="docutils literal notranslate"><span class="pre">default_factory</span></code> パラメータが提供されたかどうかを検出するのに使われる番兵オブジェクトです。
+この番兵が使われるのは、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が <code class="docutils literal notranslate"><span class="pre">default</span></code> の有効な値だからです。
+どんなコードでも <code class="docutils literal notranslate"><span class="pre">MISSING</span></code> 値を直接使うべきではありません。</p>
+<p><a class="reference internal" href="#dataclasses.field" title="dataclasses.field"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a> の引数は次の通りです:</p>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">default</span></code>: 与えられた場合、このフィールドのデフォルト値になります。
+これが必要なのは、 <a class="reference internal" href="#dataclasses.field" title="dataclasses.field"><code class="xref py py-meth docutils literal notranslate"><span class="pre">field()</span></code></a> の呼び出しそのものが通常ではデフォルト値がいる位置を横取りしているからです。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">default_factory</span></code>: 提供されていた場合、0 引数の呼び出し可能オブジェクトでなければならず、このフィールドの初期値が必要になったときに呼び出されます。
+他の目的も含めて、下で議論されているように、フィールドに可変なデフォルト値を指定するのに使えます。
+<code class="docutils literal notranslate"><span class="pre">default</span></code> と <code class="docutils literal notranslate"><span class="pre">default_factory</span></code> の両方を指定するとエラーになります。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">init</span></code>: (デフォルトの)真の場合、 生成される <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドの引数にこのフィールドを含めます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">repr</span></code>: (デフォルトの)真の場合、生成される <a class="reference internal" href="../reference/datamodel.html#object.__repr__" title="object.__repr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__repr__()</span></code></a> メソッドによって返される文字列に、このフィールドを含めます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">compare</span></code>: (デフォルトの) 真の場合、生成される等価関数と比較関数( <a class="reference internal" href="../reference/datamodel.html#object.__eq__" title="object.__eq__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__eq__()</span></code></a> 、<a class="reference internal" href="../reference/datamodel.html#object.__gt__" title="object.__gt__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__gt__()</span></code></a> など)にこのフィールドを含めます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">hash</span></code>: これは真偽値あるいは <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定できます。
+真の場合、このフィールドは、生成された <a class="reference internal" href="../reference/datamodel.html#object.__hash__" title="object.__hash__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__hash__()</span></code></a> メソッドに含まれます。
+(デフォルトの) <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、 <code class="docutils literal notranslate"><span class="pre">compare</span></code> の値を使います: こうすることは普通は期待通りの振る舞いになります。
+比較で使われるフィールドはハッシュに含まれるものと考えるべきです。
+この値を <code class="docutils literal notranslate"><span class="pre">None</span></code> 以外に設定することは推奨されません。</p>
+<p>フィールドのハッシュ値を計算するコストが高い場合に、 <code class="docutils literal notranslate"><span class="pre">hash=False</span></code> だが <code class="docutils literal notranslate"><span class="pre">compare=True</span></code> と設定する理由が 1 つあるとすれば、フィールドが等価検査に必要かつ、その型のハッシュ値を計算するのに他のフィールドも使われることです。
+フィールドがハッシュから除外されていたとしても、比較には使えます。</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">metadata</span></code>: これはマッピングあるいは <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定できます。
+<code class="docutils literal notranslate"><span class="pre">None</span></code> は空の辞書として扱われます。
+この値は <a class="reference internal" href="types.html#types.MappingProxyType" title="types.MappingProxyType"><code class="xref py py-func docutils literal notranslate"><span class="pre">MappingProxyType()</span></code></a> でラップされ、読み出し専用になり、 <a class="reference internal" href="#dataclasses.Field" title="dataclasses.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> オブジェクトに公開されます。
+これはデータクラスから使われることはなく、サードパーティーの拡張機構として提供されます。
+複数のサードパーティーが各々のキーを持て、メタデータの名前空間として使えます。</p>
+</li>
+</ul>
+<p><a class="reference internal" href="#dataclasses.field" title="dataclasses.field"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a> の呼び出しでフィールドのデフォルト値が指定されている場合は、このフィールドのクラス属性は、その指定された <code class="docutils literal notranslate"><span class="pre">default</span></code> 値で置き換えられます。
+<code class="docutils literal notranslate"><span class="pre">default</span></code> が提供されていない場合は、そのクラス属性は削除されます。
+こうする意図は、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> デコレータが実行された後には、ちょうどデフォルト値そのものが指定されたかのように、クラス属性がデフォルト値を全て持っているようにすることです。
+例えば、次のような場合:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">z</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+</pre></div>
+</div>
+<p>クラス属性 <code class="docutils literal notranslate"><span class="pre">C.z</span></code> は <code class="docutils literal notranslate"><span class="pre">10</span></code> 、クラス属性 <code class="docutils literal notranslate"><span class="pre">C.t</span></code> は <code class="docutils literal notranslate"><span class="pre">20</span></code> になり、クラス属性 <code class="docutils literal notranslate"><span class="pre">C.x</span></code> と <code class="docutils literal notranslate"><span class="pre">C.y</span></code> には値が設定されません。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dataclasses.Field">
+<em class="property">class </em><code class="descclassname">dataclasses.</code><code class="descname">Field</code><a class="headerlink" href="#dataclasses.Field" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#dataclasses.Field" title="dataclasses.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> オブジェクトはそれぞれの定義されたフィールドを記述します。
+このオブジェクトは内部で作られ、モジュールレベル関数の <a class="reference internal" href="#dataclasses.fields" title="dataclasses.fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">fields()</span></code></a> によって返されます (下の解説を見てください)。
+ユーザーは絶対に <a class="reference internal" href="#dataclasses.Field" title="dataclasses.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> オブジェクトを直接インスタンス化すべきではありません。
+ドキュメント化されている属性は次の通りです:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">name</span></code>: フィールド名</li>
+<li><code class="docutils literal notranslate"><span class="pre">type</span></code>: フィールドの型</li>
+<li><code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">default_factory</span></code>, <code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">repr</span></code>, <code class="docutils literal notranslate"><span class="pre">hash</span></code>, <code class="docutils literal notranslate"><span class="pre">compare</span></code>, <code class="docutils literal notranslate"><span class="pre">metadata</span></code> は <a class="reference internal" href="#dataclasses.field" title="dataclasses.field"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a> の宣言と同じ意味と値を持ちます。</li>
+</ul>
+</div></blockquote>
+<p>他の属性があることもありますが、それらはプライベートであり、調べたり、依存したりしてはなりません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.fields">
+<code class="descclassname">dataclasses.</code><code class="descname">fields</code><span class="sig-paren">(</span><em>class_or_instance</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.fields" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このデータクラスのフィールドを定義する <a class="reference internal" href="#dataclasses.Field" title="dataclasses.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> オブジェクトをタプルで返します。
+データクラスあるいはデータクラスのインスタンスを受け付けます。
+データクラスやデータクラスのインスタンスが渡されなかった場合は、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。
+<code class="docutils literal notranslate"><span class="pre">ClassVar</span></code> や <code class="docutils literal notranslate"><span class="pre">InitVar</span></code> といった疑似フィールドは返しません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.asdict">
+<code class="descclassname">dataclasses.</code><code class="descname">asdict</code><span class="sig-paren">(</span><em>instance</em>, <em>*</em>, <em>dict_factory=dict</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.asdict" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>データクラスの <code class="docutils literal notranslate"><span class="pre">instance</span></code> を (ファクトリ関数 <code class="docutils literal notranslate"><span class="pre">dict_factory</span></code> を使い) 辞書に変換します。
+それぞれのデータクラスは、 <code class="docutils literal notranslate"><span class="pre">name:</span> <span class="pre">value</span></code> という組になっている、フィールドの辞書に変換されます。
+データクラス、辞書、リスト、タプルは再帰的に処理されます。
+例えば、次のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Point</span><span class="p">:</span>
+     <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
+     <span class="n">y</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+     <span class="n">mylist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">]</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">asdict</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">([</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span>
+<span class="k">assert</span> <span class="n">asdict</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s1">&#39;mylist&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">instance</span></code> がデータクラスのインスタンスでなかった場合、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.astuple">
+<code class="descclassname">dataclasses.</code><code class="descname">astuple</code><span class="sig-paren">(</span><em>instance</em>, <em>*</em>, <em>tuple_factory=tuple</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.astuple" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>データクラスの <code class="docutils literal notranslate"><span class="pre">instance</span></code> を (ファクトリ関数 <code class="docutils literal notranslate"><span class="pre">tuple_factory</span></code> を使い) タプルに変換します。
+それぞれのデータクラスは、フィールドの値のタプルに変換されます。
+データクラス、辞書、リスト、タプルは再帰的に処理されます。</p>
+<p>1つ前の例の続きです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">astuple</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">astuple</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">==</span> <span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">instance</span></code> がデータクラスのインスタンスでなかった場合、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.make_dataclass">
+<code class="descclassname">dataclasses.</code><code class="descname">make_dataclass</code><span class="sig-paren">(</span><em>cls_name</em>, <em>fields</em>, <em>*</em>, <em>bases=()</em>, <em>namespace=None</em>, <em>init=True</em>, <em>repr=True</em>, <em>eq=True</em>, <em>order=False</em>, <em>unsafe_hash=False</em>, <em>frozen=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.make_dataclass" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">cls_name</span></code> という名前、 <code class="docutils literal notranslate"><span class="pre">fields</span></code> で定義されるフィールド、 <code class="docutils literal notranslate"><span class="pre">bases</span></code> で与えられた基底クラス、 <code class="docutils literal notranslate"><span class="pre">namespace</span></code> で与えられた名前空間付きで初期化されたデータクラスを作成します。
+<code class="docutils literal notranslate"><span class="pre">fields</span></code> はイテラブルで、要素が <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">type)</span></code>, <code class="docutils literal notranslate"><span class="pre">(name,</span> <span class="pre">type,</span> <span class="pre">Field)</span></code> のうちのどれかです。
+単に <code class="docutils literal notranslate"><span class="pre">name</span></code> だけが与えられた場合は、 <code class="docutils literal notranslate"><span class="pre">typing.Any</span></code> が <code class="docutils literal notranslate"><span class="pre">type</span></code> として使われます。
+<code class="docutils literal notranslate"><span class="pre">init</span></code>, <code class="docutils literal notranslate"><span class="pre">repr</span></code>, <code class="docutils literal notranslate"><span class="pre">eq</span></code>, <code class="docutils literal notranslate"><span class="pre">order</span></code>, <code class="docutils literal notranslate"><span class="pre">unsafe_hash</span></code>, <code class="docutils literal notranslate"><span class="pre">frozen</span></code> の値は、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> のときと同じ意味を持ちます。</p>
+<p>厳密にはこの関数は必須ではありません。というのは、 <code class="docutils literal notranslate"><span class="pre">__annotations__</span></code> 付きのクラスを新しく作成するどの Python の機構でも、 <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> 関数を適用してそのクラスをデータクラスに変換できるからです。
+この関数は便利さのために提供されています。
+例えば次のように使います:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">C</span> <span class="o">=</span> <span class="n">make_dataclass</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>
+                   <span class="p">[(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+                     <span class="s1">&#39;y&#39;</span><span class="p">,</span>
+                    <span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">))],</span>
+                   <span class="n">namespace</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;add_one&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>は、次のコードと等しいです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">y</span><span class="p">:</span> <span class="s1">&#39;typing.Any&#39;</span>
+    <span class="n">z</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="k">def</span> <span class="nf">add_one</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.replace">
+<code class="descclassname">dataclasses.</code><code class="descname">replace</code><span class="sig-paren">(</span><em>instance</em>, <em>**changes</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.replace" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">instance</span></code> と同じ型のオブジェクトを新しく作成し、フィールドを <code class="docutils literal notranslate"><span class="pre">changes</span></code> にある値で置き換えます。
+<code class="docutils literal notranslate"><span class="pre">instance</span></code> がデータクラスではなかった場合、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。
+<code class="docutils literal notranslate"><span class="pre">changes</span></code> にある値がフィールドを指定していなかった場合も、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。</p>
+<p>新しく返されるオブジェクトは、データクラスの <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドを呼び出して作成されます。
+これにより、もしあれば <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> も呼び出されることが保証されます。</p>
+<p>初期化限定変数でデフォルト値を持たないものがもしあれば、 <a class="reference internal" href="#dataclasses.replace" title="dataclasses.replace"><code class="xref py py-func docutils literal notranslate"><span class="pre">replace()</span></code></a> の呼び出し時に初期値が指定され、 <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> と <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> に渡せるようにしなければなりません。</p>
+<p><code class="docutils literal notranslate"><span class="pre">changes</span></code> に、 <code class="docutils literal notranslate"><span class="pre">init=False</span></code> と定義されたフィールドが含まれているとエラーになります。
+この場合 <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます。</p>
+<p><a class="reference internal" href="#dataclasses.replace" title="dataclasses.replace"><code class="xref py py-func docutils literal notranslate"><span class="pre">replace()</span></code></a> を呼び出しているときに <code class="docutils literal notranslate"><span class="pre">init=False</span></code> であるフィールドがどのように働くかに気を付けてください。
+そのフィールドは元のオブジェクトからコピーされるのではなく、仮に初期化されたとしても結局は <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> で初期化されます。
+<code class="docutils literal notranslate"><span class="pre">init=False</span></code> であるフィールドは滅多に使いませんし、使うとしたら注意深く使用します。
+そのようなフィールドが使われている場合は、代わりのクラスコンストラクタ、あるいは、インスタンスのコピー処理をする独自実装の <code class="docutils literal notranslate"><span class="pre">replace()</span></code> (もしくは似た名前の) メソッドを持たせるのが賢明でしょう。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dataclasses.is_dataclass">
+<code class="descclassname">dataclasses.</code><code class="descname">is_dataclass</code><span class="sig-paren">(</span><em>class_or_instance</em><span class="sig-paren">)</span><a class="headerlink" href="#dataclasses.is_dataclass" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>引数がデータクラスかデータクラスのインスタンスだった場合に <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。それ以外の場合は <code class="docutils literal notranslate"><span class="pre">False</span></code> を返します。</p>
+<p>引数がデータクラスのインスタンスである (そして、データクラスそのものではない) かどうかを知る必要がある場合は、 <code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">isinstance(obj,</span> <span class="pre">type)</span></code> で追加のチェックをしてください:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">is_dataclass_instance</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">is_dataclass</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="post-init-processing">
+<h2>初期化後の処理<a class="headerlink" href="#post-init-processing" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>生成された <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> のコードは、 <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> という名前のメソッドがクラスに定義されていたら、それを呼び出します。
+通常は <code class="docutils literal notranslate"><span class="pre">self.__post_init__()</span></code> のように呼び出されます。
+しかし <code class="docutils literal notranslate"><span class="pre">InitVar</span></code> フィールドが定義されていた場合、それらもクラスに定義された順序で <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> に渡されます。
+<a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドが生成されなかった場合は、 <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> は自動的には呼び出されません。</p>
+<p>他の機能と組み合わせることで、他の 1 つ以上のフィールドに依存しているフィールドが初期化できます。
+例えば次のようにできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">a</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">b</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span>
+</pre></div>
+</div>
+<p>下にある初期化限定変数についての節で、 <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> にパラメータを渡す方法を参照してください。
+<a class="reference internal" href="#dataclasses.replace" title="dataclasses.replace"><code class="xref py py-func docutils literal notranslate"><span class="pre">replace()</span></code></a> が <code class="docutils literal notranslate"><span class="pre">init=False</span></code> であるフィールドをどう取り扱うかについての警告も参照してください。</p>
+</div>
+<div class="section" id="class-variables">
+<h2>クラス変数<a class="headerlink" href="#class-variables" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> が実際にフィールドの型の検査を行う 2 箇所のうち 1 つは、フィールドが <span class="target" id="index-8"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0526"><strong>PEP 526</strong></a> で定義されたクラス変数かどうかの判定です。
+その判定はフィールドの型が <code class="docutils literal notranslate"><span class="pre">typing.ClassVar</span></code> かどうかで行います。
+フィールドが <code class="docutils literal notranslate"><span class="pre">ClassVar</span></code> の場合、フィールドとは見なされなくなり、データクラスの機構からは無視されます。
+そのような <code class="docutils literal notranslate"><span class="pre">ClassVar</span></code> 疑似フィールドは、モジュールレベル関数 <a class="reference internal" href="#dataclasses.fields" title="dataclasses.fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">fields()</span></code></a> の返り値には含まれません。</p>
+</div>
+<div class="section" id="init-only-variables">
+<h2>初期化限定変数<a class="headerlink" href="#init-only-variables" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-func docutils literal notranslate"><span class="pre">dataclass()</span></code></a> が型アノテーションの検査を行うもう 1 つの箇所は、フィールドが初期化限定変数かどうかの判定です。
+その判定はフィールドの型が <code class="docutils literal notranslate"><span class="pre">dataclasses.InitVar</span></code> 型であるかどうかで行います。
+フィールドが <code class="docutils literal notranslate"><span class="pre">InitVar</span></code> の場合、初期化限定フィールドと呼ばれる疑似フィールドと見なされます。
+これは本物のフィールドではないので、モジュールレベル関数 <a class="reference internal" href="#dataclasses.fields" title="dataclasses.fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">fields()</span></code></a> の返り値には含まれません。
+初期化限定フィールドは生成された <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドに引数として追加され、オプションの <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code> メソッドにも渡されます。
+初期化限定フィールドは、データクラスからはそれ以外では使われません。</p>
+<p>例えば、あるフィールドがデータベースから初期化されると仮定して、クラスを作成するときには値が与えられない次の場合を考えます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">j</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">database</span><span class="p">:</span> <span class="n">InitVar</span><span class="p">[</span><span class="n">DatabaseType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">database</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="n">database</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;j&#39;</span><span class="p">)</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="n">my_database</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このケースでは、 <a class="reference internal" href="#dataclasses.fields" title="dataclasses.fields"><code class="xref py py-func docutils literal notranslate"><span class="pre">fields()</span></code></a> は <code class="docutils literal notranslate"><span class="pre">i</span></code> と <code class="docutils literal notranslate"><span class="pre">j</span></code> の <a class="reference internal" href="#dataclasses.Field" title="dataclasses.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> オブジェクトは返しますが、 <code class="docutils literal notranslate"><span class="pre">database</span></code> の <a class="reference internal" href="#dataclasses.Field" title="dataclasses.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> オブジェクトは返しません。</p>
+</div>
+<div class="section" id="frozen-instances">
+<h2>凍結されたインスタンス<a class="headerlink" href="#frozen-instances" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>真に不変な Python のオブジェクトを作成するのは不可能です。
+しかし、 <code class="docutils literal notranslate"><span class="pre">frozen=True</span></code> を <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dataclass()</span></code></a> デコレータに渡すことで、不変性の模倣はできます。
+このケースでは、データクラスは <a class="reference internal" href="../reference/datamodel.html#object.__setattr__" title="object.__setattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__setattr__()</span></code></a> メソッドと <a class="reference internal" href="../reference/datamodel.html#object.__delattr__" title="object.__delattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__delattr__()</span></code></a> メソッドをクラスに追加します。
+これらのメソッドは起動すると <a class="reference internal" href="#dataclasses.FrozenInstanceError" title="dataclasses.FrozenInstanceError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FrozenInstanceError</span></code></a> を送出します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">frozen=True</span></code> を使うとき、実行する上でのわずかな代償があります: <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> でフィールドを初期化するのに単純に割り当てることはできず、 <a class="reference internal" href="../reference/datamodel.html#object.__setattr__" title="object.__setattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">object.__setattr__()</span></code></a> を使わなくてはなりません。</p>
+</div>
+<div class="section" id="inheritance">
+<h2>継承<a class="headerlink" href="#inheritance" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>データクラスが <a class="reference internal" href="#dataclasses.dataclass" title="dataclasses.dataclass"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dataclass()</span></code></a> デコレータで作成されるとき、 MRO を逆向きに (すなわち、 <a class="reference internal" href="functions.html#object" title="object"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a> を出発点として) 全ての基底クラスを調べていき、見付かったデータクラスそれぞれについて、その基底クラスが持っているフィールドを順序付きマッピングオブジェクトに追加します。
+全ての基底クラスのフィールドが追加し終わったら、自分自身のフィールドを順序付きマッピングオブジェクトに追加します。
+生成された全てのメソッドは、このフィールドが集められ整列された順序付きのマッピングオブジェクトを利用します。
+フィールドは挿入順序で並んでいるので、派生クラスは基底クラスをオーバーライドします。
+例えば次のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Base</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="mf">15.0</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">C</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="n">z</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span>
+</pre></div>
+</div>
+<p>最終的に出来上がるフィールドのリストは <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code> の順番になります。
+最終的な <code class="docutils literal notranslate"><span class="pre">x</span></code> の型は、 クラス <code class="docutils literal notranslate"><span class="pre">C</span></code> で指定されている通り <code class="docutils literal notranslate"><span class="pre">int</span></code> です。</p>
+<p><code class="docutils literal notranslate"><span class="pre">C</span></code> の生成された <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> メソッドは次のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-factory-functions">
+<h2>デフォルトファクトリ関数<a class="headerlink" href="#default-factory-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<blockquote>
+<div><p><a class="reference internal" href="#dataclasses.field" title="dataclasses.field"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a> に <code class="docutils literal notranslate"><span class="pre">default_factory</span></code> を指定した場合、そのフィールドのデフォルト値が必要とされたときに、引数無しで呼び出されます。
+これは例えば、リストの新しいインスタンスを作成するために使います:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">mylist</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>あるフィールドが (<code class="docutils literal notranslate"><span class="pre">init=False</span></code> を使って) <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> から除外され、かつ、 <code class="docutils literal notranslate"><span class="pre">default_factory</span></code> が指定されていた場合、デフォルトファクトリ関数は生成された <a class="reference internal" href="../reference/datamodel.html#object.__init__" title="object.__init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></a> 関数から常に呼び出されます。
+フィールドに初期値を与える方法が他に無いので、このような動きになります。</p>
+</div></blockquote>
+</div>
+<div class="section" id="mutable-default-values">
+<h2>可変なデフォルト値<a class="headerlink" href="#mutable-default-values" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<blockquote>
+<div><p>Python はメンバ変数のデフォルト値をクラス属性に保持します。
+データクラスを使っていない、この例を考えてみましょう:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">C</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+<span class="n">o1</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
+<span class="n">o2</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
+<span class="n">o1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">o2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">o1</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="k">assert</span> <span class="n">o1</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="n">o2</span><span class="o">.</span><span class="n">x</span>
+</pre></div>
+</div>
+<p>クラス <code class="docutils literal notranslate"><span class="pre">C</span></code> の 2 つのインスタンスが、予想通り同じクラス変数 <code class="docutils literal notranslate"><span class="pre">x</span></code> を共有していることに注意してください。</p>
+<p>データクラスを使っているこのコードが <em>もし仮に</em> 有効なものだとしたら:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">D</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">element</span>
+</pre></div>
+</div>
+<p>データクラスは次のようなコードを生成するでしょう:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">D</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">element</span>
+
+<span class="k">assert</span> <span class="n">D</span><span class="p">()</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="n">D</span><span class="p">()</span><span class="o">.</span><span class="n">x</span>
+</pre></div>
+</div>
+<p>これには、クラス <code class="docutils literal notranslate"><span class="pre">C</span></code> を使ったさっきの例と同じ問題があります。
+すなわち、クラス <code class="docutils literal notranslate"><span class="pre">D</span></code> の 2 つのインスタンスは、クラスインスタンスを作成するときに <code class="docutils literal notranslate"><span class="pre">x</span></code> の具体的な値を指定しておらず、同じ <code class="docutils literal notranslate"><span class="pre">x</span></code> のコピーを共有します。
+データクラスは Python の通常のクラス作成の仕組みを使っているだけなので、この同じ問題を抱えています。
+データクラスがこの問題を検出する一般的な方法を持たない代わりに、データクラスは型が <code class="docutils literal notranslate"><span class="pre">list</span></code> や <code class="docutils literal notranslate"><span class="pre">dict</span></code> や <code class="docutils literal notranslate"><span class="pre">set</span></code> のデフォルトパラメーターを検出した場合、 <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を送出します。
+これは完全ではない解決法ですが、よくあるエラーの多くを防げます。</p>
+<p>デフォルトファクトリ関数を使うのが、フィールドのデフォルト値として可変な型の新しいインスタンスを作成する手段です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">D</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">D</span><span class="p">()</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">D</span><span class="p">()</span><span class="o">.</span><span class="n">x</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="exceptions">
+<h2>例外<a class="headerlink" href="#exceptions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="exception">
+<dt id="dataclasses.FrozenInstanceError">
+<em class="property">exception </em><code class="descclassname">dataclasses.</code><code class="descname">FrozenInstanceError</code><a class="headerlink" href="#dataclasses.FrozenInstanceError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">frozen=True</span></code> 付きで定義されたデータクラスで、暗黙的に定義された <a class="reference internal" href="../reference/datamodel.html#object.__setattr__" title="object.__setattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__setattr__()</span></code></a> または <a class="reference internal" href="../reference/datamodel.html#object.__delattr__" title="object.__delattr__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__delattr__()</span></code></a> が呼び出されたときに送出されます。</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dataclasses</span></code> --- データクラス</a><ul>
+<li><a class="reference internal" href="#module-level-decorators-classes-and-functions">モジュールレベルのデコレータ、クラス、関数</a></li>
+<li><a class="reference internal" href="#post-init-processing">初期化後の処理</a></li>
+<li><a class="reference internal" href="#class-variables">クラス変数</a></li>
+<li><a class="reference internal" href="#init-only-variables">初期化限定変数</a></li>
+<li><a class="reference internal" href="#frozen-instances">凍結されたインスタンス</a></li>
+<li><a class="reference internal" href="#inheritance">継承</a></li>
+<li><a class="reference internal" href="#default-factory-functions">デフォルトファクトリ関数</a></li>
+<li><a class="reference internal" href="#mutable-default-values">可変なデフォルト値</a></li>
+<li><a class="reference internal" href="#exceptions">例外</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="warnings.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">warnings</span></code> --- 警告の制御</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="contextlib.html"
+                        title="次の章へ"><code class="xref py py-mod docutils literal notranslate"><span class="pre">contextlib</span></code> --- Utilities for <code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code>-statement contexts</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/dataclasses.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="contextlib.html" title="contextlib --- Utilities for with-statement contexts"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="warnings.html" title="warnings --- 警告の制御"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" >Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

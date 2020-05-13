@@ -1,0 +1,455 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>selectors --- 高水準の I/O 多重化 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="asyncore --- 非同期ソケットハンドラ" href="asyncore.html" />
+    <link rel="prev" title="select --- I/O 処理の完了を待機する" href="select.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/selectors.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="asyncore.html" title="asyncore --- 非同期ソケットハンドラ"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="select.html" title="select --- I/O 処理の完了を待機する"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="ipc.html" accesskey="U">ネットワーク通信とプロセス間通信</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-selectors">
+<span id="selectors-high-level-i-o-multiplexing"></span><h1><a class="reference internal" href="#module-selectors" title="selectors: High-level I/O multiplexing."><code class="xref py py-mod docutils literal notranslate"><span class="pre">selectors</span></code></a> --- 高水準の I/O 多重化<a class="headerlink" href="#module-selectors" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/selectors.py">Lib/selectors.py</a></p>
+<hr class="docutils" />
+<div class="section" id="introduction">
+<h2>はじめに<a class="headerlink" href="#introduction" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このモジュールにより、<a class="reference internal" href="select.html#module-select" title="select: Wait for I/O completion on multiple streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">select</span></code></a> モジュールプリミティブに基づく高水準かつ効率的な I/O の多重化が行えます。OS 水準のプリミティブを使用した正確な制御を求めない限り、このモジュールの使用が推奨されます。</p>
+<p>このモジュールは <a class="reference internal" href="#selectors.BaseSelector" title="selectors.BaseSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSelector</span></code></a> 抽象基底クラスと、いくつかの具象実装 (<a class="reference internal" href="#selectors.KqueueSelector" title="selectors.KqueueSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">KqueueSelector</span></code></a>, <a class="reference internal" href="#selectors.EpollSelector" title="selectors.EpollSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">EpollSelector</span></code></a>...) を定義しており、これらは複数のファイルオブジェクトの I/O の準備状況の通知の待機に使用できます。以下では、 &quot;ファイルオブジェクト&quot; は、<code class="xref py py-meth docutils literal notranslate"><span class="pre">fileno()</span></code> メソッドを持つあらゆるオブジェクトか、あるいは Raw ファイル記述子を意味します。<a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">ファイルオブジェクト</span></a> を参照してください。</p>
+<p><a class="reference internal" href="#selectors.DefaultSelector" title="selectors.DefaultSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultSelector</span></code></a> は、現在のプラットフォームで利用できる、もっとも効率的な実装の別名になります: これはほとんどのユーザーにとってのデフォルトの選択になるはずです。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">プラットフォームごとにサポートされているファイルオブジェクトのタイプは異なります: Windows ではソケットはサポートされますが、パイプはされません。Unix では両方がサポートされます (その他の fifo やスペシャルファイルデバイスなどのタイプもサポートされます)。</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="select.html#module-select" title="select: Wait for I/O completion on multiple streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">select</span></code></a></dt>
+<dd>低水準の I/O 多重化モジュールです。</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="classes">
+<h2>クラス<a class="headerlink" href="#classes" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>クラス階層:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">BaseSelector</span>
+<span class="o">+--</span> <span class="n">SelectSelector</span>
+<span class="o">+--</span> <span class="n">PollSelector</span>
+<span class="o">+--</span> <span class="n">EpollSelector</span>
+<span class="o">+--</span> <span class="n">DevpollSelector</span>
+<span class="o">+--</span> <span class="n">KqueueSelector</span>
+</pre></div>
+</div>
+<p>以下では、<em>events</em> は与えられたファイルオブジェクトを待機すべき I/O イベントを示すビット単位のマスクになります。これには以下のモジュール定数の組み合わせを設定できます:</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EVENT_READ</span></code></td>
+<td>読み込み可能</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">EVENT_WRITE</span></code></td>
+<td>書き込み可能</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<dl class="class">
+<dt id="selectors.SelectorKey">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">SelectorKey</code><a class="headerlink" href="#selectors.SelectorKey" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> はそれの下層のファイルディスクリプタ、選択したイベントマスク、および付属データへのファイルオブジェクトの関連付けに使用される <a class="reference internal" href="collections.html#collections.namedtuple" title="collections.namedtuple"><code class="xref py py-class docutils literal notranslate"><span class="pre">namedtuple</span></code></a> です。いくつかの <a class="reference internal" href="#selectors.BaseSelector" title="selectors.BaseSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSelector</span></code></a> メソッドを返します。</p>
+<dl class="attribute">
+<dt id="selectors.SelectorKey.fileobj">
+<code class="descname">fileobj</code><a class="headerlink" href="#selectors.SelectorKey.fileobj" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたファイルオブジェクトです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="selectors.SelectorKey.fd">
+<code class="descname">fd</code><a class="headerlink" href="#selectors.SelectorKey.fd" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>下層のファイル記述子です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="selectors.SelectorKey.events">
+<code class="descname">events</code><a class="headerlink" href="#selectors.SelectorKey.events" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このファイルオブジェクトで待機しなければならないイベントです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="selectors.SelectorKey.data">
+<code class="descname">data</code><a class="headerlink" href="#selectors.SelectorKey.data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このファイルオブジェクトに関連付けられたオプションの不透明型 (Opaque) データです。例えば、これはクライアントごとのセッション ID を格納するために使用できます。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.BaseSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">BaseSelector</code><a class="headerlink" href="#selectors.BaseSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#selectors.BaseSelector" title="selectors.BaseSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSelector</span></code></a> は複数のファイルオブジェクトの I/O イベントの準備状況の待機に使用されます。これはファイルストリームを登録、登録解除、およびこれらのストリームでの I/O イベントを待機 (オプションでタイムアウト) するメソッドをサポートします。これは抽象基底クラスであるため、インスタンスを作成できません。使用する実装を明示的に指定したい、そしてプラットフォームがそれをサポートしている場合は、代わりに <a class="reference internal" href="#selectors.DefaultSelector" title="selectors.DefaultSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultSelector</span></code></a> を使用するか、<a class="reference internal" href="#selectors.SelectSelector" title="selectors.SelectSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectSelector</span></code></a> や  <a class="reference internal" href="#selectors.KqueueSelector" title="selectors.KqueueSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">KqueueSelector</span></code></a> などの一つを使用します。<a class="reference internal" href="#selectors.BaseSelector" title="selectors.BaseSelector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSelector</span></code></a> とその具象実装は <a class="reference internal" href="../glossary.html#term-context-manager"><span class="xref std std-term">コンテキストマネージャー</span></a> プロトコルをサポートしています。</p>
+<dl class="method">
+<dt id="selectors.BaseSelector.register">
+<em class="property">abstractmethod </em><code class="descname">register</code><span class="sig-paren">(</span><em>fileobj</em>, <em>events</em>, <em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.register" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>I/O イベントを監視するファイルオブジェクトをセレクションに登録します。</p>
+<p><em>fileobj</em> は監視するファイルオブジェクトです。これは整数のファイル記述子か、<code class="docutils literal notranslate"><span class="pre">fileno()</span></code> メソッドを持つオブジェクトのどちらかになります。<em>events</em> は監視するイベントのビット幅マスクになります。<em>data</em> は不透明型 (Opaque) オブジェクトです。</p>
+<p>これは新しい <a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> インスタンスを返します。不正なイベントマスク化ファイル記述子のときは <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が、ファイルオブジェクトがすでに登録済みのときは <a class="reference internal" href="exceptions.html#KeyError" title="KeyError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="selectors.BaseSelector.unregister">
+<em class="property">abstractmethod </em><code class="descname">unregister</code><span class="sig-paren">(</span><em>fileobj</em><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.unregister" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルオブジェクトのセレクション登録を解除し、監視対象から外します。ファイルオブジェクトの登録解除はそのクローズより前に行われます。</p>
+<p><em>fileobj</em> は登録済みのファイルオブジェクトでなければなりません。</p>
+<p>関連付けられた <a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> インスタンスを返します。<em>fileobj</em> が登録されていない場合 <a class="reference internal" href="exceptions.html#KeyError" title="KeyError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a> を送出します。<em>fileobj</em> が不正な場合 (例えば <em>fileobj</em> に <code class="docutils literal notranslate"><span class="pre">fileno()</span></code> メソッドが無い場合や <code class="docutils literal notranslate"><span class="pre">fileno()</span></code> メソッドの戻り値が不正な場合) <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を送出します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="selectors.BaseSelector.modify">
+<code class="descname">modify</code><span class="sig-paren">(</span><em>fileobj</em>, <em>events</em>, <em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.modify" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたファイルオブジェクトの監視されたイベントや付属データを変更します。</p>
+<p>より効率的に実装できる点を除けば、 <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseSelector.unregister(fileobj)()</span></code> に続けて <code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseSelector.register(fileobj,</span> <span class="pre">events,</span> <span class="pre">data)()</span></code> を行うのと等価です。</p>
+<p>新たな <a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> インスタンスを返します。
+イベントマスクやファイル記述子が不正な場合は <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を、ファイルオブジェクトが登録されていない場合は <a class="reference internal" href="exceptions.html#KeyError" title="KeyError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a> を送出します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="selectors.BaseSelector.select">
+<em class="property">abstractmethod </em><code class="descname">select</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.select" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたいくつかのファイルオブジェクトが準備できたか、タイムアウトするまで待機します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">timeout</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> の場合、最大待機時間を秒で指定します。 <code class="docutils literal notranslate"><span class="pre">timeout</span> <span class="pre">&lt;=</span> <span class="pre">0</span></code> の場合、この関数の呼び出しはブロックせず、 現在準備できているファイルオブジェクトを報告します。 <em>timeout</em> が <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、監視しているファイルオブジェクトの一つが準備できるまでブロックします。</p>
+<p>この関数は <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">events)</span></code> タプルのリストを返します。準備できたファイルオブジェクトにつき1タプルです。</p>
+<p><em>key</em> は準備状態のファイルオブジェクトに対応する <a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> インスタンスです。 <em>events</em> はそのファイルオブジェクトで準備が完了したイベントのビットマスクです。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">このメソッドは、現在のプロセスで信号を受信した場合、どのファイルオブジェクトも準備完了にならないうちに、またはタイムアウトが経過する前に返ることがあります。その場合、空のリストが返されます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>このセレクタは、シグナルによって中断された時に、シグナルハンドラが例外を起こさなかった場合、空のイベントリストを返すのではなく、再計算されたタイムアウトによってリトライするようになりました (この論拠については <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0475"><strong>PEP 475</strong></a> を参照してください)。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="selectors.BaseSelector.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.close" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>セレクタを閉じます。</p>
+<p>下層のリソースがすべて解放されたことを確かめるために呼ばれなければなりません。一旦閉じられたセレクタは使ってはいけません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="selectors.BaseSelector.get_key">
+<code class="descname">get_key</code><span class="sig-paren">(</span><em>fileobj</em><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.get_key" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>登録されたファイルオブジェクトに関連付けられたキーを返します。</p>
+<p>そのファイルオブジェクトに関連付けられた <a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> インスタンスを返します。そのファイルオブジェクトが登録されていない場合 <a class="reference internal" href="exceptions.html#KeyError" title="KeyError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a> を送出します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="selectors.BaseSelector.get_map">
+<em class="property">abstractmethod </em><code class="descname">get_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#selectors.BaseSelector.get_map" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルオブジェクトからセレクタキーへのマッピングを返します。</p>
+<p>これは、登録済みのファイルオブジェクトを、それらに関連づけられた <a class="reference internal" href="#selectors.SelectorKey" title="selectors.SelectorKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">SelectorKey</span></code></a> インスタンスにマッピングする <a class="reference internal" href="collections.abc.html#collections.abc.Mapping" title="collections.abc.Mapping"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a> のインスタンスを返します。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.DefaultSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">DefaultSelector</code><a class="headerlink" href="#selectors.DefaultSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>デフォルトの selector クラスで、現在のプラットフォームで利用できる最も効率的な実装を使用しています。大半のユーザはこれをデフォルトにすべきです。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.SelectSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">SelectSelector</code><a class="headerlink" href="#selectors.SelectSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="select.html#select.select" title="select.select"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.select()</span></code></a> を基底とするセレクタです。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.PollSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">PollSelector</code><a class="headerlink" href="#selectors.PollSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="select.html#select.poll" title="select.poll"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.poll()</span></code></a> を基底とするセレクタです。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.EpollSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">EpollSelector</code><a class="headerlink" href="#selectors.EpollSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="select.html#select.epoll" title="select.epoll"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.epoll()</span></code></a> を基底とするセレクタです。</p>
+<dl class="method">
+<dt id="selectors.EpollSelector.fileno">
+<code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#selectors.EpollSelector.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>下層の <a class="reference internal" href="select.html#select.epoll" title="select.epoll"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.epoll()</span></code></a> オブジェクトが使用しているファイル記述子を返します。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.DevpollSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">DevpollSelector</code><a class="headerlink" href="#selectors.DevpollSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="select.html#select.devpoll" title="select.devpoll"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.devpoll()</span></code></a> を基底とするセレクタです。</p>
+<dl class="method">
+<dt id="selectors.DevpollSelector.fileno">
+<code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#selectors.DevpollSelector.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>下層の <a class="reference internal" href="select.html#select.devpoll" title="select.devpoll"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.devpoll()</span></code></a> オブジェクトが使用しているファイル記述子を返します。</p>
+</dd></dl>
+
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="selectors.KqueueSelector">
+<em class="property">class </em><code class="descclassname">selectors.</code><code class="descname">KqueueSelector</code><a class="headerlink" href="#selectors.KqueueSelector" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="select.html#select.kqueue" title="select.kqueue"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.kqueue()</span></code></a> を基底とするセレクタです。</p>
+<dl class="method">
+<dt id="selectors.KqueueSelector.fileno">
+<code class="descname">fileno</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#selectors.KqueueSelector.fileno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>下層の <a class="reference internal" href="select.html#select.kqueue" title="select.kqueue"><code class="xref py py-func docutils literal notranslate"><span class="pre">select.kqueue()</span></code></a> オブジェクトが使用しているファイル記述子を返します。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<h2>使用例<a class="headerlink" href="#examples" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>簡単なエコーサーバの実装です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">selectors</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="n">sel</span> <span class="o">=</span> <span class="n">selectors</span><span class="o">.</span><span class="n">DefaultSelector</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">sock</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>  <span class="c1"># Should be ready</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;accepted&#39;</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="s1">&#39;from&#39;</span><span class="p">,</span> <span class="n">addr</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">setblocking</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">sel</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">selectors</span><span class="o">.</span><span class="n">EVENT_READ</span><span class="p">,</span> <span class="n">read</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">mask</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Should be ready</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;echoing&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># Hope it won&#39;t block</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;closing&#39;</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+        <span class="n">sel</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">sock</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">()</span>
+<span class="n">sock</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="mi">1234</span><span class="p">))</span>
+<span class="n">sock</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">sock</span><span class="o">.</span><span class="n">setblocking</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">sel</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">sock</span><span class="p">,</span> <span class="n">selectors</span><span class="o">.</span><span class="n">EVENT_READ</span><span class="p">,</span> <span class="n">accept</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="n">sel</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">callback</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">selectors</span></code> --- 高水準の I/O 多重化</a><ul>
+<li><a class="reference internal" href="#introduction">はじめに</a></li>
+<li><a class="reference internal" href="#classes">クラス</a></li>
+<li><a class="reference internal" href="#examples">使用例</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="select.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">select</span></code> --- I/O 処理の完了を待機する</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="asyncore.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">asyncore</span></code> --- 非同期ソケットハンドラ</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/selectors.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="asyncore.html" title="asyncore --- 非同期ソケットハンドラ"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="select.html" title="select --- I/O 処理の完了を待機する"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="ipc.html" >ネットワーク通信とプロセス間通信</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

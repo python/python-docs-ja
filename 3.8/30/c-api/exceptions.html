@@ -1,0 +1,1169 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>例外処理 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="ユーティリティ" href="utilities.html" />
+    <link rel="prev" title="参照カウント" href="refcounting.html" />
+    <link rel="canonical" href="https://docs.python.org/3/c-api/exceptions.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="ユーティリティ"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="refcounting.html" title="参照カウント"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python/C API リファレンスマニュアル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="exception-handling">
+<span id="exceptionhandling"></span><h1>例外処理<a class="headerlink" href="#exception-handling" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>この章で説明する関数を使うと、 Python の例外の処理や例外の送出ができるようになります。 Python の例外処理の基本をいくらか理解することが大切です。例外は POSIX <code class="xref c c-data docutils literal notranslate"><span class="pre">errno</span></code> 変数にやや似た機能を果たします: 発生した中で最も新しいエラーの (スレッド毎の) グローバルなインジケータがあります。実行に成功した場合にはほとんどの C API 関数がこれをクリアしませんが、失敗したときにはエラーの原因を示すために設定します。ほとんどの C API 関数はエラーインジケータも返し、通常は関数がポインタを返すことになっている場合は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であり、関数が整数を返す場合は <code class="docutils literal notranslate"><span class="pre">-1</span></code> です。(例外: <code class="xref c c-func docutils literal notranslate"><span class="pre">PyArg_*()</span></code> 関数は実行に成功したときに <code class="docutils literal notranslate"><span class="pre">1</span></code> を返し、失敗したときに <code class="docutils literal notranslate"><span class="pre">0</span></code> を返します).</p>
+<p>Concretely, the error indicator consists of three object pointers: the
+exception's type, the exception's value, and the traceback object.  Any
+of those pointers can be <code class="docutils literal notranslate"><span class="pre">NULL</span></code> if non-set (although some combinations are
+forbidden, for example you can't have a non-<code class="docutils literal notranslate"><span class="pre">NULL</span></code> traceback if the exception
+type is <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p>
+<p>ある関数が呼び出した関数がいくつか失敗したために、その関数が失敗しなければならないとき、一般的にエラーインジケータを設定しません。呼び出した関数がすでに設定しています。エラーを処理して例外をクリアするか、あるいは (オブジェクト参照またはメモリ割り当てのような)それが持つどんなリソースも取り除いた後に戻るかのどちらか一方を行う責任があります。エラーを処理する準備をしていなければ、普通に続けるべきでは <em>ありません</em>。エラーのために戻る場合は、エラーが設定されていると呼び出し元に知らせることが大切です。エラーが処理されていない場合または丁寧に伝えられている場合には、Python/C APIのさらなる呼び出しは意図した通りには動かない可能性があり、不可解な形で失敗するかもしれません。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">エラー識別子は <a class="reference internal" href="../library/sys.html#sys.exc_info" title="sys.exc_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.exc_info()</span></code></a> の結果 <strong>ではありません</strong>。エラー識別子はまだ捕捉されていない例外 (したがってまだ伝播します) に対応しているのに対し、 sys.exc_info() の結果は捕捉された後の例外を返します (したがってもう伝播しません)。</p>
+</div>
+<div class="section" id="printing-and-clearing">
+<h2>出力とクリア<a class="headerlink" href="#printing-and-clearing" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="c.PyErr_Clear">
+void <code class="descname">PyErr_Clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_Clear" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーインジケータをクリアします。エラーインジケータが設定されていないならば、効果はありません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_PrintEx">
+void <code class="descname">PyErr_PrintEx</code><span class="sig-paren">(</span>int<em>&nbsp;set_sys_last_vars</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_PrintEx" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Print a standard traceback to <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> and clear the error indicator.
+<strong>Unless</strong> the error is a <code class="docutils literal notranslate"><span class="pre">SystemExit</span></code>, in that case no traceback is
+printed and the Python process will exit with the error code specified by
+the <code class="docutils literal notranslate"><span class="pre">SystemExit</span></code> instance.</p>
+<p>エラーインジケータが設定されているときに <strong>だけ</strong>、この関数を呼び出してください。
+それ以外の場合、致命的なエラーを引き起こすでしょう!</p>
+<p><em>set_sys_last_vars</em> が非ゼロであれば、 <a class="reference internal" href="../library/sys.html#sys.last_type" title="sys.last_type"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.last_type</span></code></a>, <a class="reference internal" href="../library/sys.html#sys.last_value" title="sys.last_value"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.last_value</span></code></a>, <a class="reference internal" href="../library/sys.html#sys.last_traceback" title="sys.last_traceback"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.last_traceback</span></code></a> 変数が、表示される例外のタイプ、値、トレースバックそれぞれに反映されます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_Print">
+void <code class="descname">PyErr_Print</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_Print" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">PyErr_PrintEx(1)</span></code> のエイリアスです。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_WriteUnraisable">
+void <code class="descname">PyErr_WriteUnraisable</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*obj</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_WriteUnraisable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Call <a class="reference internal" href="../library/sys.html#sys.unraisablehook" title="sys.unraisablehook"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.unraisablehook()</span></code></a> using the current exception and <em>obj</em>
+argument.</p>
+<p>例外が設定されているがインタプリタが実際に例外を発生させることができないときに、このユーティリティ関数は警告メッセージを <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> へ出力します。例えば、例外が <a class="reference internal" href="../reference/datamodel.html#object.__del__" title="object.__del__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__del__()</span></code></a> メソッドで発生したときに使われます。</p>
+<p>発生させられない例外が起きたコンテキストを指し示す単一の引数 <em>obj</em> で関数が呼び出されます。
+可能な場合は、 <em>obj</em> の repr 文字列が警告メッセージに出力されます。</p>
+<p>この関数を呼び出すときには、例外がセットされていなければなりません。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="raising-exceptions">
+<h2>例外の送出<a class="headerlink" href="#raising-exceptions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>These functions help you set the current thread's error indicator.
+For convenience, some of these functions will always return a
+<code class="docutils literal notranslate"><span class="pre">NULL</span></code> pointer for use in a <code class="docutils literal notranslate"><span class="pre">return</span></code> statement.</p>
+<dl class="function">
+<dt id="c.PyErr_SetString">
+void <code class="descname">PyErr_SetString</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, const char<em>&nbsp;*message</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetString" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>これはエラーインジケータを設定するための最も一般的な方法です。第一引数は例外の型を指定します。通常は標準例外の一つ、例えば <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_RuntimeError</span></code> です。その参照カウントを増加させる必要はありません。第二引数はエラーメッセージで、 <code class="docutils literal notranslate"><span class="pre">'utf-8'</span></code> からデコードされます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetObject">
+void <code class="descname">PyErr_SetObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*value</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この関数は <a class="reference internal" href="#c.PyErr_SetString" title="PyErr_SetString"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetString()</span></code></a> に似ていますが、例外の &quot;値(value)&quot; として任意のPythonオブジェクトを指定することができます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_Format">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_Format</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exception</em>, const char<em>&nbsp;*format</em>, ...<span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_Format" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p>この関数はエラーインジケータを設定し <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。 <em>exception</em> はPython例外クラスであるべきです。 <em>format</em> と以降の引数はエラーメッセージを作るためのもので, <a class="reference internal" href="unicode.html#c.PyUnicode_FromFormat" title="PyUnicode_FromFormat"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyUnicode_FromFormat()</span></code></a> の引数と同じ意味を持っています。 <em>format</em> は ASCII エンコードされた文字列です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_FormatV">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_FormatV</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exception</em>, const char<em>&nbsp;*format</em>, va_list<em>&nbsp;vargs</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_FormatV" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_Format" title="PyErr_Format"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Format()</span></code></a> と同じですが、可変長引数の代わりに <code class="xref c c-type docutils literal notranslate"><span class="pre">va_list</span></code> 引数を受け取ります。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetNone">
+void <code class="descname">PyErr_SetNone</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetNone" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>これは <code class="docutils literal notranslate"><span class="pre">PyErr_SetObject(type,</span> <span class="pre">Py_None)</span></code> を省略したものです。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_BadArgument">
+int <code class="descname">PyErr_BadArgument</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_BadArgument" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>これは <code class="docutils literal notranslate"><span class="pre">PyErr_SetString(PyExc_TypeError,</span> <span class="pre">message)</span></code> を省略したもので、ここで <em>message</em> は組み込み操作が不正な引数で呼び出されたということを表しています。主に内部で使用するためのものです。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_NoMemory">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_NoMemory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_NoMemory" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p>これは <code class="docutils literal notranslate"><span class="pre">PyErr_SetNone(PyExc_MemoryError)</span></code> を省略したもので、<code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。したがって、メモリ不足になったとき、オブジェクト割り当て関数は <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">PyErr_NoMemory();</span></code> と書くことができます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetFromErrno">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetFromErrno</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetFromErrno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p id="index-0">Cライブラリ関数がエラーを返してC変数 <code class="xref c c-data docutils literal notranslate"><span class="pre">errno</span></code> を設定したときに、これは例外を発生させるために便利な関数です。第一要素が整数 <code class="xref c c-data docutils literal notranslate"><span class="pre">errno</span></code> 値で、第二要素が (<code class="xref c c-func docutils literal notranslate"><span class="pre">strerror()</span></code> から得られる)対応するエラーメッセージであるタプルオブジェクトを構成します。それから、 <code class="docutils literal notranslate"><span class="pre">PyErr_SetObject(type,</span> <span class="pre">object)</span></code> を呼び出します。 Unixでは、 <code class="xref c c-data docutils literal notranslate"><span class="pre">errno</span></code> 値が <code class="xref py py-const docutils literal notranslate"><span class="pre">EINTR</span></code> であるとき、すなわち割り込まれたシステムコールを表しているとき、これは <a class="reference internal" href="#c.PyErr_CheckSignals" title="PyErr_CheckSignals"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_CheckSignals()</span></code></a> を呼び出し、それがエラーインジケータを設定した場合は設定されたままにしておきます。関数は常に <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。したがって、システムコールがエラーを返したとき、システムコールのラッパー関数は <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">PyErr_SetFromErrno(type);</span></code> と書くことができます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetFromErrnoWithFilenameObject">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetFromErrnoWithFilenameObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filenameObject</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetFromErrnoWithFilenameObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetFromErrno" title="PyErr_SetFromErrno"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromErrno()</span></code></a> に似ていますが、 <em>filenameObject</em> が <code class="docutils literal notranslate"><span class="pre">NULL</span></code> でない場合に、 <em>type</em> のコンストラクタに第三引数として渡すというふるまいが追加されています。
+<a class="reference internal" href="../library/exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> 例外の場合では、 <em>filenameObject</em> が例外インスタンスの <code class="xref py py-attr docutils literal notranslate"><span class="pre">filename</span></code> 属性を定義するのに使われます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetFromErrnoWithFilenameObjects">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetFromErrnoWithFilenameObjects</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filenameObject</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filenameObject2</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetFromErrnoWithFilenameObjects" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetFromErrnoWithFilenameObject" title="PyErr_SetFromErrnoWithFilenameObject"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromErrnoWithFilenameObject()</span></code></a> に似てますが、ファイル名を2つ取る関数が失敗したときに例外を送出するために、2つ目のファイル名オブジェクトを受け取ります。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetFromErrnoWithFilename">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetFromErrnoWithFilename</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, const char<em>&nbsp;*filename</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetFromErrnoWithFilename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetFromErrnoWithFilenameObject" title="PyErr_SetFromErrnoWithFilenameObject"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromErrnoWithFilenameObject()</span></code></a> に似ていますが、ファイル名は C 文字列として与えられます。
+<em>filename</em> はファイルシステムのエンコーディング (<a class="reference internal" href="../library/os.html#os.fsdecode" title="os.fsdecode"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.fsdecode()</span></code></a>) でデコードされます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetFromWindowsErr">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetFromWindowsErr</code><span class="sig-paren">(</span>int<em>&nbsp;ierr</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetFromWindowsErr" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p>これは <a class="reference internal" href="../library/exceptions.html#WindowsError" title="WindowsError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">WindowsError</span></code></a> を発生させるために便利な関数です。 <code class="xref c c-data docutils literal notranslate"><span class="pre">0</span></code> の <em>ierr</em> とともに呼び出された場合、 <code class="xref c c-func docutils literal notranslate"><span class="pre">GetLastError()</span></code> が返すエラーコードが代りに使われます。 <em>ierr</em> あるいは <code class="xref c c-func docutils literal notranslate"><span class="pre">GetLastError()</span></code> によって与えられるエラーコードのWindows用の説明を取り出すために、Win32関数 <code class="xref c c-func docutils literal notranslate"><span class="pre">FormatMessage()</span></code> を呼び出します。それから、第一要素が <em>ierr</em> 値で第二要素が(<code class="xref c c-func docutils literal notranslate"><span class="pre">FormatMessage()</span></code> から得られる) 対応するエラーメッセージであるタプルオブジェクトを構成します。そして、 <code class="docutils literal notranslate"><span class="pre">PyErr_SetObject(PyExc_WindowsError,</span> <span class="pre">object)</span></code> を呼び出します。この関数は常に <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。</p>
+<p class="availability"><a class="reference internal" href="../library/intro.html#availability"><span class="std std-ref">利用可能な環境</span></a>: Windows 。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetExcFromWindowsErr">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetExcFromWindowsErr</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, int<em>&nbsp;ierr</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetExcFromWindowsErr" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetFromWindowsErr" title="PyErr_SetFromWindowsErr"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromWindowsErr()</span></code></a> に似ていますが、送出する例外の型を指定する引数が追加されています。</p>
+<p class="availability"><a class="reference internal" href="../library/intro.html#availability"><span class="std std-ref">利用可能な環境</span></a>: Windows 。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetFromWindowsErrWithFilename">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetFromWindowsErrWithFilename</code><span class="sig-paren">(</span>int<em>&nbsp;ierr</em>, const char<em>&nbsp;*filename</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetFromWindowsErrWithFilename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromWindowsErrWithFilenameObject()</span></code> に似ていますが、ファイル名は C 文字列として与えられます。
+<em>filename</em> はファイルシステムのエンコーディング (<a class="reference internal" href="../library/os.html#os.fsdecode" title="os.fsdecode"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.fsdecode()</span></code></a>) でデコードされます。</p>
+<p class="availability"><a class="reference internal" href="../library/intro.html#availability"><span class="std std-ref">利用可能な環境</span></a>: Windows 。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetExcFromWindowsErrWithFilenameObject">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetExcFromWindowsErrWithFilenameObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, int<em>&nbsp;ierr</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filename</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetExcFromWindowsErrWithFilenameObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromWindowsErrWithFilenameObject()</span></code> に似ていますが、送出する例外の型を指定する引数が追加されています。</p>
+<p class="availability"><a class="reference internal" href="../library/intro.html#availability"><span class="std std-ref">利用可能な環境</span></a>: Windows 。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetExcFromWindowsErrWithFilenameObjects">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetExcFromWindowsErrWithFilenameObjects</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, int<em>&nbsp;ierr</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filename</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filename2</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetExcFromWindowsErrWithFilenameObjects" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetExcFromWindowsErrWithFilenameObject" title="PyErr_SetExcFromWindowsErrWithFilenameObject"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetExcFromWindowsErrWithFilenameObject()</span></code></a> に似てますが、2つ目のファイル名オブジェクトを受け取ります。</p>
+<p class="availability"><a class="reference internal" href="../library/intro.html#availability"><span class="std std-ref">利用可能な環境</span></a>: Windows 。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetExcFromWindowsErrWithFilename">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetExcFromWindowsErrWithFilename</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, int<em>&nbsp;ierr</em>, const char<em>&nbsp;*filename</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetExcFromWindowsErrWithFilename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetFromWindowsErrWithFilename" title="PyErr_SetFromWindowsErrWithFilename"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetFromWindowsErrWithFilename()</span></code></a> に似ていますが、送出する例外の型を指定する引数が追加されています。</p>
+<p class="availability"><a class="reference internal" href="../library/intro.html#availability"><span class="std std-ref">利用可能な環境</span></a>: Windows 。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetImportError">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetImportError</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*msg</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*name</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*path</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetImportError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を簡単に送出するための関数です。 <em>msg</em> は例外のメッセージ文字列としてセットされます。 <em>name</em> と <em>path</em> はどちらも <code class="docutils literal notranslate"><span class="pre">NULL</span></code> にしてよく、それぞれ <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> の <code class="docutils literal notranslate"><span class="pre">name</span></code> 属性と <code class="docutils literal notranslate"><span class="pre">path</span></code> 属性としてセットされます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SyntaxLocationObject">
+void <code class="descname">PyErr_SyntaxLocationObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filename</em>, int<em>&nbsp;lineno</em>, int<em>&nbsp;col_offset</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SyntaxLocationObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在の例外のファイル、行、オフセットの情報をセットします。
+現在の例外が <a class="reference internal" href="../library/exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> でない場合は、例外を表示するサブシステムが、例外が <a class="reference internal" href="../library/exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> であると思えるように属性を追加します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SyntaxLocationEx">
+void <code class="descname">PyErr_SyntaxLocationEx</code><span class="sig-paren">(</span>const char<em>&nbsp;*filename</em>, int<em>&nbsp;lineno</em>, int<em>&nbsp;col_offset</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SyntaxLocationEx" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.PyErr_SyntaxLocationObject" title="PyErr_SyntaxLocationObject"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SyntaxLocationObject()</span></code></a> と似ていますが、 <em>filename</em> はファイルシステムのエンコーディングでデコードされた (<a class="reference internal" href="../library/os.html#os.fsdecode" title="os.fsdecode"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.fsdecode()</span></code></a>) バイト文字列です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SyntaxLocation">
+void <code class="descname">PyErr_SyntaxLocation</code><span class="sig-paren">(</span>const char<em>&nbsp;*filename</em>, int<em>&nbsp;lineno</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SyntaxLocation" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.PyErr_SyntaxLocationEx" title="PyErr_SyntaxLocationEx"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SyntaxLocationEx()</span></code></a> と似ていますが、 col_offset 引数が除去されています。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_BadInternalCall">
+void <code class="descname">PyErr_BadInternalCall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_BadInternalCall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">PyErr_SetString(PyExc_SystemError,</span> <span class="pre">message)</span></code> を省略したものです。ここで <em>message</em> は内部操作(例えば、Python/C API関数)が不正な引数とともに呼び出されたということを示しています。主に内部で使用するためのものです。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="issuing-warnings">
+<h2>警告<a class="headerlink" href="#issuing-warnings" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下の関数を使い、 C コードで起きた警告を報告します。
+Python の <a class="reference internal" href="../library/warnings.html#module-warnings" title="warnings: Issue warning messages and control their disposition."><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> モジュールで公開されている同様の関数とよく似てます。
+これらの関数は通常警告メッセージを <em>sys.stderr</em> へ出力しますが、ユーザが警告をエラーへ変更するように指定することもでき、その場合は、関数は例外を送出します。
+警告機構がもつ問題のためにその関数が例外を送出するということも有り得ます。
+例外が送出されない場合は戻り値は <code class="docutils literal notranslate"><span class="pre">0</span></code> で、例外が送出された場合は <code class="docutils literal notranslate"><span class="pre">-1</span></code> です。
+(警告メッセージが実際に出力されるか、およびその例外の原因が何かについては判断できません; これは意図的なものです。)
+例外が送出された場合、呼び出し元は通常の例外処理を行います (例えば、保持していた参照に対し <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> を行い、エラー値を返します)。</p>
+<dl class="function">
+<dt id="c.PyErr_WarnEx">
+int <code class="descname">PyErr_WarnEx</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*category</em>, const char<em>&nbsp;*message</em>, Py_ssize_t<em>&nbsp;stack_level</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_WarnEx" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>警告メッセージを発行します。 <em>category</em> 引数は警告カテゴリ(以下を参照) かまたは <code class="docutils literal notranslate"><span class="pre">NULL</span></code> で、 <em>message</em> 引数は UTF-8 エンコードされた文字列です。 <em>stacklevel</em> はスタックフレームの数を示す正の整数です; 警告はそのスタックフレームの中の実行している行から発行されます。 <em>stacklevel</em> が 1 だと <a class="reference internal" href="#c.PyErr_WarnEx" title="PyErr_WarnEx"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_WarnEx()</span></code></a> を呼び出している関数が、2 だとその上の関数が Warning の発行元になります。</p>
+<p>警告カテゴリは <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_Warning</span></code> のサブクラスでなければなりません。 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_Warning</span></code> は <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_Exception</span></code> のサブクラスです。
+デフォルトの警告カテゴリは <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_RuntimeWarning</span></code> です。
+標準の Python 警告カテゴリは、 <a class="reference internal" href="#standardwarningcategories"><span class="std std-ref">標準警告カテゴリ</span></a> で名前が列挙されているグローバル変数として利用可能です。</p>
+<p>警告をコントロールするための情報については、 <a class="reference internal" href="../library/warnings.html#module-warnings" title="warnings: Issue warning messages and control their disposition."><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> モジュールのドキュメンテーションとコマンドライン・ドキュメンテーションの <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span></code></a> オプションを参照してください。警告コントロールのためのC APIはありません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetImportErrorSubclass">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_SetImportErrorSubclass</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exception</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*msg</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*name</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*path</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetImportErrorSubclass" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Always NULL.</em><p><a class="reference internal" href="#c.PyErr_SetImportError" title="PyErr_SetImportError"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetImportError()</span></code></a> とよく似ていますが、この関数は送出する例外として、 <a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> のサブクラスを指定できます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_WarnExplicitObject">
+int <code class="descname">PyErr_WarnExplicitObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*category</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*message</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*filename</em>, int<em>&nbsp;lineno</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*module</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*registry</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_WarnExplicitObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>すべての警告の属性を明示的に制御した警告メッセージを出します。これは Python 関数 <a class="reference internal" href="../library/warnings.html#warnings.warn_explicit" title="warnings.warn_explicit"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn_explicit()</span></code></a> の直接的なラッパで、さらに情報を得るにはそちらを参照してください。そこに説明されているデフォルトの効果を得るために、 <em>module</em> と <em>registry</em> 引数は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> に設定することができます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_WarnExplicit">
+int <code class="descname">PyErr_WarnExplicit</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*category</em>, const char<em>&nbsp;*message</em>, const char<em>&nbsp;*filename</em>, int<em>&nbsp;lineno</em>, const char<em>&nbsp;*module</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*registry</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_WarnExplicit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.PyErr_WarnExplicitObject" title="PyErr_WarnExplicitObject"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_WarnExplicitObject()</span></code></a> に似ていますが、 <em>message</em> と <em>module</em> が UTF-8 エンコードされた文字列であるところが異なり、 <em>filename</em> はファイルシステムのエンコーディング (<a class="reference internal" href="../library/os.html#os.fsdecode" title="os.fsdecode"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.fsdecode()</span></code></a>) でデコードされます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_WarnFormat">
+int <code class="descname">PyErr_WarnFormat</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*category</em>, Py_ssize_t<em>&nbsp;stack_level</em>, const char<em>&nbsp;*format</em>, ...<span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_WarnFormat" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.PyErr_WarnEx" title="PyErr_WarnEx"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_WarnEx()</span></code></a> に似たような関数ですが、警告メッセージをフォーマットするのに <a class="reference internal" href="unicode.html#c.PyUnicode_FromFormat" title="PyUnicode_FromFormat"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyUnicode_FromFormat()</span></code></a> を使用します。 <em>format</em> は ASCII にエンコードされた文字列です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_ResourceWarning">
+int <code class="descname">PyErr_ResourceWarning</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*source</em>, Py_ssize_t<em>&nbsp;stack_level</em>, const char<em>&nbsp;*format</em>, ...<span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_ResourceWarning" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Function similar to <a class="reference internal" href="#c.PyErr_WarnFormat" title="PyErr_WarnFormat"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_WarnFormat()</span></code></a>, but <em>category</em> is
+<a class="reference internal" href="../library/exceptions.html#ResourceWarning" title="ResourceWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ResourceWarning</span></code></a> and it passes <em>source</em> to <code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.WarningMessage()</span></code>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="querying-the-error-indicator">
+<h2>エラーインジケータの問い合わせ<a class="headerlink" href="#querying-the-error-indicator" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="c.PyErr_Occurred">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_Occurred</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_Occurred" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: Borrowed reference.</em><p>エラーインジケータが設定されているかテストします。設定されている場合は、例外の <em>型</em> (<code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Set*()</span></code> 関数の一つあるいは <a class="reference internal" href="#c.PyErr_Restore" title="PyErr_Restore"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Restore()</span></code></a> への最も新しい呼び出しに対する第一引数)を返します。設定されていない場合は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。あなたは戻り値への参照を持っていませんので、それに <a class="reference internal" href="refcounting.html#c.Py_DECREF" title="Py_DECREF"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_DECREF()</span></code></a> する必要はありません。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">戻り値を特定の例外と比較しないでください。その代わりに、下に示す <a class="reference internal" href="#c.PyErr_ExceptionMatches" title="PyErr_ExceptionMatches"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_ExceptionMatches()</span></code></a> を使ってください。(比較は簡単に失敗するでしょう。なぜなら、例外はクラスではなくインスタンスかもしれないし、あるいは、クラス例外の場合は期待される例外のサブクラスかもしれないからです。)</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_ExceptionMatches">
+int <code class="descname">PyErr_ExceptionMatches</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_ExceptionMatches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">PyErr_GivenExceptionMatches(PyErr_Occurred(),</span> <span class="pre">exc)</span></code> と同じ。例外が実際に設定されたときにだけ、これを呼び出だすべきです。例外が発生していないならば、メモリアクセス違反が起きるでしょう。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_GivenExceptionMatches">
+int <code class="descname">PyErr_GivenExceptionMatches</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*given</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_GivenExceptionMatches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>例外 <em>given</em> が <em>exc</em> の例外型と適合する場合に真を返します。
+<em>exc</em> がクラスオブジェクトである場合も、 <em>given</em> がサブクラスのインスタンスであるときに真を返します。
+<em>exc</em> がタプルの場合は、タプルにある (およびそのサブタプルに再帰的にある) すべての例外型が適合するか調べられます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_Fetch">
+void <code class="descname">PyErr_Fetch</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;**ptype</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;**pvalue</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;**ptraceback</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_Fetch" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エラーインジケータをアドレスを渡す三つの変数の中へ取り出します。エラーインジケータが設定されていない場合は、三つすべての変数を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> に設定します。エラーインジケータが設定されている場合はクリアされ、あなたは取り出されたそれぞれのオブジェクトへの参照を持つことになります。型オブジェクトが <code class="docutils literal notranslate"><span class="pre">NULL</span></code> でないときでさえ、その値とトレースバックオブジェクトは <code class="docutils literal notranslate"><span class="pre">NULL</span></code> かもしれません。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>通常、この関数は例外を捕捉する必要のあるコードや、エラーインジケータを一時的に保存して復元する必要のあるコードでのみ使います。</p>
+<div class="last highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="n">PyObject</span> <span class="o">*</span><span class="n">type</span><span class="p">,</span> <span class="o">*</span><span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">traceback</span><span class="p">;</span>
+   <span class="n">PyErr_Fetch</span><span class="p">(</span><span class="o">&amp;</span><span class="n">type</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">traceback</span><span class="p">);</span>
+
+   <span class="cm">/* ... code that might produce other errors ... */</span>
+
+   <span class="n">PyErr_Restore</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_Restore">
+void <code class="descname">PyErr_Restore</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*value</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*traceback</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_Restore" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>三つのオブジェクトからエラーインジケータを設定します。エラーインジケータがすでに設定されている場合は、最初にクリアされます。オブジェクトが <code class="docutils literal notranslate"><span class="pre">NULL</span></code> ならば、エラーインジケータがクリアされます。<code class="docutils literal notranslate"><span class="pre">NULL</span></code> のtypeと非 <code class="docutils literal notranslate"><span class="pre">NULL</span></code> のvalueあるいは tracebackを渡してはいけません。例外の型(type)はクラスであるべきです。無効な例外の型(type)あるいは値(value)を渡してはいけません。(これらの規則を破ると後で気付きにくい問題の原因となるでしょう。) この呼び出しはそれぞれのオブジェクトへの参照を取り除きます: あなたは呼び出しの前にそれぞれのオブジェクトへの参照を持たなければならないのであり、また呼び出しの後にはもはやこれらの参照を持っていません。(これを理解していない場合は、この関数を使ってはいけません。注意しておきます。)</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">通常、この関数はエラーインジケータを一時的に保存し復元する必要のあるコードでのみ使います。
+現在のエラーインジケータを保存するためには <a class="reference internal" href="#c.PyErr_Fetch" title="PyErr_Fetch"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Fetch()</span></code></a> を使ってください。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_NormalizeException">
+void <code class="descname">PyErr_NormalizeException</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>**exc, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>**val, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>**tb<span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_NormalizeException" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ある状況では、以下の <a class="reference internal" href="#c.PyErr_Fetch" title="PyErr_Fetch"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Fetch()</span></code></a> が返す値は &quot;正規化されていない&quot; 可能性があります。つまり、 <code class="docutils literal notranslate"><span class="pre">*exc</span></code> はクラスオブジェクトだが <code class="docutils literal notranslate"><span class="pre">*val</span></code> は同じクラスのインスタンスではないという意味です。この関数はそのような場合にそのクラスをインスタンス化するために使われます。その値がすでに正規化されている場合は何も起きません。遅延正規化はパフォーマンスを改善するために実装されています。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>この関数は例外値に暗黙的に <code class="docutils literal notranslate"><span class="pre">__traceback__</span></code> 属性を設定 <em>しません</em> 。
+トレースバックを適切に設定する必要がある場合は、次の追加のコード片が必要です:</p>
+<div class="last highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">tb</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">PyException_SetTraceback</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">tb</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_GetExcInfo">
+void <code class="descname">PyErr_GetExcInfo</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;**ptype</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;**pvalue</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;**ptraceback</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_GetExcInfo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">sys.exc_info()</span></code> で得られる例外情報を取得します。
+これは <em>既に捕まえた</em> 例外を参照するもので、新たに送出された例外への参照は持っていません。
+新しい3つのオブジェクトへの参照を返しますが、その中には <code class="docutils literal notranslate"><span class="pre">NULL</span></code> があるかもしれません。この関数は例外情報の状態を変更しません。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">この関数は、通常は例外を扱うコードでは使用されません。正確に言うと、これは例外の状態を一時的に保存し、元に戻す必要があるコードで使用することができます。例外の状態を元に戻す、もしくはクリアするには <a class="reference internal" href="#c.PyErr_SetExcInfo" title="PyErr_SetExcInfo"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_SetExcInfo()</span></code></a> を使ってください。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetExcInfo">
+void <code class="descname">PyErr_SetExcInfo</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*type</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*value</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*traceback</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetExcInfo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">sys.exc_info()</span></code> で得られる例外情報を設定します。
+これは <em>既に捕まえた</em> 例外を参照するもので、新たに送出された例外への参照は持っていません。
+この関数は引数への参照を盗みます。
+例外の状態をクリアしたい場合は、3 つ全ての引数に <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を渡してください。
+3 つの引数についての一般的な規則は、 <a class="reference internal" href="#c.PyErr_Restore" title="PyErr_Restore"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_Restore()</span></code></a> を参照してください。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">この関数は、通常は例外を扱うコードでは使用されません。正確に言うと、これは例外の状態を一時的に保存し、元に戻す必要があるコードで使用することができます。例外の状態を取得するには <a class="reference internal" href="#c.PyErr_GetExcInfo" title="PyErr_GetExcInfo"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_GetExcInfo()</span></code></a> を使ってください。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="signal-handling">
+<h2>シグナルハンドリング<a class="headerlink" href="#signal-handling" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="c.PyErr_CheckSignals">
+int <code class="descname">PyErr_CheckSignals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_CheckSignals" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-1">この関数はPythonのシグナル処理とやりとりすることができます。シグナルがそのプロセスへ送られたかどうかチェックし、そうならば対応するシグナルハンドラを呼び出します。 <a class="reference internal" href="../library/signal.html#module-signal" title="signal: Set handlers for asynchronous events."><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal</span></code></a> モジュールがサポートされている場合は、これはPythonで書かれたシグナルハンドラを呼び出せます。すべての場合で、 <code class="xref py py-const docutils literal notranslate"><span class="pre">SIGINT</span></code> のデフォルトの効果は <a class="reference internal" href="../library/exceptions.html#KeyboardInterrupt" title="KeyboardInterrupt"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code></a> 例外を発生させることです。例外が発生した場合、エラーインジケータが設定され、関数は <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。そうでなければ、関数は <code class="docutils literal notranslate"><span class="pre">0</span></code> を返します。エラーインジケータが以前に設定されている場合は、それがクリアされるかどうかわからない。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_SetInterrupt">
+void <code class="descname">PyErr_SetInterrupt</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_SetInterrupt" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-2"><code class="xref py py-const docutils literal notranslate"><span class="pre">SIGINT</span></code> シグナルが到達した効果をシミュレートします。
+次に <a class="reference internal" href="#c.PyErr_CheckSignals" title="PyErr_CheckSignals"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_CheckSignals()</span></code></a> が呼ばれたとき、 <code class="xref py py-const docutils literal notranslate"><span class="pre">SIGINT</span></code> 用の Python のシグナルハンドラが呼び出されます。</p>
+<p><code class="xref py py-const docutils literal notranslate"><span class="pre">SIGINT</span></code> が Python に対処されなかった (<a class="reference internal" href="../library/signal.html#signal.SIG_DFL" title="signal.SIG_DFL"><code class="xref py py-data docutils literal notranslate"><span class="pre">signal.SIG_DFL</span></code></a> または <a class="reference internal" href="../library/signal.html#signal.SIG_IGN" title="signal.SIG_IGN"><code class="xref py py-data docutils literal notranslate"><span class="pre">signal.SIG_IGN</span></code></a> に設定されていた) 場合、この関数は何もしません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PySignal_SetWakeupFd">
+int <code class="descname">PySignal_SetWakeupFd</code><span class="sig-paren">(</span>int<em>&nbsp;fd</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PySignal_SetWakeupFd" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このユーティリティ関数は、シグナルを受け取ったときにシグナル番号をバイトとして書き込むファイル記述子を指定します。
+<em>fd</em> はノンブロッキングでなければなりません。
+この関数は、1つ前のファイル記述子を返します。</p>
+<p>値 <code class="docutils literal notranslate"><span class="pre">-1</span></code> を渡すと、この機能を無効にします; これが初期状態です。
+この関数は Python の <a class="reference internal" href="../library/signal.html#signal.set_wakeup_fd" title="signal.set_wakeup_fd"><code class="xref py py-func docutils literal notranslate"><span class="pre">signal.set_wakeup_fd()</span></code></a> と同等ですが、どんなエラーチェックも行いません。
+<em>fd</em> は有効なファイル記述子であるべきです。
+この関数はメインスレッドからのみ呼び出されるべきです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>Windowsで、この関数はソケットハンドルをサポートするようになりました。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="exception-classes">
+<h2>例外クラス<a class="headerlink" href="#exception-classes" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="c.PyErr_NewException">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_NewException</code><span class="sig-paren">(</span>const char<em>&nbsp;*name</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*base</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*dict</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_NewException" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>このユーティリティ関数は新しい例外クラスを作成して返します。 <em>name</em> 引数は新しい例外の名前、 <code class="docutils literal notranslate"><span class="pre">module.classname</span></code> 形式の C文字列でなければならない。 <em>base</em> と <em>dict</em> 引数は通常 <code class="docutils literal notranslate"><span class="pre">NULL</span></code> です。これはすべての例外のためのルート、組み込み名 <a class="reference internal" href="../library/exceptions.html#Exception" title="Exception"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code></a> (Cでは <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_Exception</span></code> としてアクセス可能)をルートとして派生したクラスオブジェクトを作成します。</p>
+<p>新しいクラスの <code class="xref py py-attr docutils literal notranslate"><span class="pre">__module__</span></code> 属性は <em>name</em> 引数の前半部分(最後のドットまで)に設定され、クラス名は後半部分(最後のドットの後)に設定されます。 <em>base</em> 引数は代わりのベースクラスを指定するために使えます; 一つのクラスでも、クラスのタプルでも構いません。 <em>dict</em> 引数はクラス変数とメソッドの辞書を指定するために使えます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyErr_NewExceptionWithDoc">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyErr_NewExceptionWithDoc</code><span class="sig-paren">(</span>const char<em>&nbsp;*name</em>, const char<em>&nbsp;*doc</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*base</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*dict</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyErr_NewExceptionWithDoc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><a class="reference internal" href="#c.PyErr_NewException" title="PyErr_NewException"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_NewException()</span></code></a> とほぼ同じですが、新しい例外クラスに簡単に docstring を設定できます。 <em>doc</em> が <code class="docutils literal notranslate"><span class="pre">NULL</span></code> で無い場合、それが例外クラスの docstring になります。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="exception-objects">
+<h2>例外オブジェクト<a class="headerlink" href="#exception-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="c.PyException_GetTraceback">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyException_GetTraceback</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ex</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyException_GetTraceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>Python で <code class="xref py py-attr docutils literal notranslate"><span class="pre">__traceback__</span></code> 属性からアクセスできるものと同じ、例外に関する traceback の新しい参照を返します。関係する traceback が無い場合は、 <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyException_SetTraceback">
+int <code class="descname">PyException_SetTraceback</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ex</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*tb</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyException_SetTraceback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>その例外に関する traceback に <em>tb</em> をセットします。クリアするには <code class="docutils literal notranslate"><span class="pre">Py_None</span></code> を使用してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyException_GetContext">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyException_GetContext</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ex</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyException_GetContext" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>Python で <code class="xref py py-attr docutils literal notranslate"><span class="pre">__context__</span></code> 属性からアクセスできるものと同じ、例外に関するコンテキスト (<em>ex</em> が送出されたときに処理していた別の例外インスタンス) の新しい参照を返します。関係するコンテキストが無い場合は、 <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyException_SetContext">
+void <code class="descname">PyException_SetContext</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ex</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ctx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyException_SetContext" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>例外に関するコンテキストに <em>ctx</em> をセットします。クリアするには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を使用してください。<em>ctx</em> が例外インスタンスかどうかを確かめる型チェックは行われません。これは <em>ctx</em> への参照を盗みます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyException_GetCause">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyException_GetCause</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ex</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyException_GetCause" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>Python で <code class="xref py py-attr docutils literal notranslate"><span class="pre">__cause__</span></code> 属性からアクセスできるものと同じ、例外に関する原因 (<code class="docutils literal notranslate"><span class="pre">raise</span> <span class="pre">...</span> <span class="pre">from</span> <span class="pre">...</span></code> によってセットされる例外インスタンス、もしくは <a class="reference internal" href="../library/constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a>) の新しい参照を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyException_SetCause">
+void <code class="descname">PyException_SetCause</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*ex</em>, <a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*cause</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyException_SetCause" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>例外に関係する原因に <em>cause</em> をセットします。
+クリアするには <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を使用してください。
+<em>cause</em> が例外インスタンスか <a class="reference internal" href="../library/constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> のどちらかであることを確かめる型チェックは行われません。
+これは <em>cause</em> への参照を盗みます。</p>
+<p>この関数によって暗黙的に <code class="xref py py-attr docutils literal notranslate"><span class="pre">__suppress_context__</span></code> に <code class="docutils literal notranslate"><span class="pre">True</span></code> がセットされます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="unicode-exception-objects">
+<span id="unicodeexceptions"></span><h2>Unicode 例外オブジェクト<a class="headerlink" href="#unicode-exception-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下の関数は C言語から Unicode 例外を作ったり修正したりするために利用します。</p>
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_Create">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeDecodeError_Create</code><span class="sig-paren">(</span>const char<em>&nbsp;*encoding</em>, const char<em>&nbsp;*object</em>, Py_ssize_t<em>&nbsp;length</em>, Py_ssize_t<em>&nbsp;start</em>, Py_ssize_t<em>&nbsp;end</em>, const char<em>&nbsp;*reason</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_Create" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><em>encoding</em>, <em>object</em>, <em>length</em>, <em>start</em>, <em>end</em>, <em>reason</em> 属性をもった <a class="reference internal" href="../library/exceptions.html#UnicodeDecodeError" title="UnicodeDecodeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code></a> オブジェクトを作成します。 <em>encoding</em> および <em>reason</em> は UTF-8 エンコードされた文字列です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeEncodeError_Create">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeEncodeError_Create</code><span class="sig-paren">(</span>const char<em>&nbsp;*encoding</em>, const <a class="reference internal" href="unicode.html#c.Py_UNICODE" title="Py_UNICODE">Py_UNICODE</a><em>&nbsp;*object</em>, Py_ssize_t<em>&nbsp;length</em>, Py_ssize_t<em>&nbsp;start</em>, Py_ssize_t<em>&nbsp;end</em>, const char<em>&nbsp;*reason</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_Create" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><em>encoding</em>, <em>object</em>, <em>length</em>, <em>start</em>, <em>end</em>, <em>reason</em> 属性を持った <a class="reference internal" href="../library/exceptions.html#UnicodeEncodeError" title="UnicodeEncodeError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnicodeEncodeError</span></code></a> オブジェクトを作成します。 <em>encoding</em> および <em>reason</em> は UTF-8 エンコードされた文字列です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeTranslateError_Create">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeTranslateError_Create</code><span class="sig-paren">(</span>const <a class="reference internal" href="unicode.html#c.Py_UNICODE" title="Py_UNICODE">Py_UNICODE</a><em>&nbsp;*object</em>, Py_ssize_t<em>&nbsp;length</em>, Py_ssize_t<em>&nbsp;start</em>, Py_ssize_t<em>&nbsp;end</em>, const char<em>&nbsp;*reason</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_Create" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p><em>object</em>, <em>length</em>, <em>start</em>, <em>end</em>, <em>reason</em> 属性を持った <a class="reference internal" href="../library/exceptions.html#UnicodeTranslateError" title="UnicodeTranslateError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnicodeTranslateError</span></code></a> オブジェクトを作成します。
+<em>reason</em> は UTF-8 エンコードされた文字列です。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_GetEncoding">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeDecodeError_GetEncoding</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_GetEncoding" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_GetEncoding">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeEncodeError_GetEncoding</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_GetEncoding" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>与えられた例外オブジェクトの <em>encoding</em> 属性を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_GetObject">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeDecodeError_GetObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_GetObject" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_GetObject">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeEncodeError_GetObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_GetObject" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_GetObject">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeTranslateError_GetObject</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_GetObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>与えられた例外オブジェクトの <em>object</em> 属性を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_GetStart">
+int <code class="descname">PyUnicodeDecodeError_GetStart</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;*start</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_GetStart" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_GetStart">
+int <code class="descname">PyUnicodeEncodeError_GetStart</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;*start</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_GetStart" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_GetStart">
+int <code class="descname">PyUnicodeTranslateError_GetStart</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;*start</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_GetStart" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>渡された例外オブジェクトから <em>start</em> 属性を取得して <em>*start</em> に格納します。<em>start</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。成功したら <code class="docutils literal notranslate"><span class="pre">0</span></code> を、失敗したら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_SetStart">
+int <code class="descname">PyUnicodeDecodeError_SetStart</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;start</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_SetStart" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_SetStart">
+int <code class="descname">PyUnicodeEncodeError_SetStart</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;start</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_SetStart" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_SetStart">
+int <code class="descname">PyUnicodeTranslateError_SetStart</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;start</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_SetStart" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>渡された例外オブジェクトの <em>start</em> 属性を <em>start</em> に設定します。成功したら <code class="docutils literal notranslate"><span class="pre">0</span></code> を、失敗したら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_GetEnd">
+int <code class="descname">PyUnicodeDecodeError_GetEnd</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;*end</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_GetEnd" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_GetEnd">
+int <code class="descname">PyUnicodeEncodeError_GetEnd</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;*end</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_GetEnd" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_GetEnd">
+int <code class="descname">PyUnicodeTranslateError_GetEnd</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;*end</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_GetEnd" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>渡された例外オブジェクトから <em>end</em> 属性を取得して <em>*end</em> に格納します。<em>end</em> は <code class="docutils literal notranslate"><span class="pre">NULL</span></code> であってはなりません。成功したら <code class="docutils literal notranslate"><span class="pre">0</span></code> を、失敗したら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_SetEnd">
+int <code class="descname">PyUnicodeDecodeError_SetEnd</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;end</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_SetEnd" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_SetEnd">
+int <code class="descname">PyUnicodeEncodeError_SetEnd</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;end</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_SetEnd" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_SetEnd">
+int <code class="descname">PyUnicodeTranslateError_SetEnd</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, Py_ssize_t<em>&nbsp;end</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_SetEnd" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>渡された例外オブジェクトの <em>end</em> 属性を <em>end</em> に設定します。成功したら <code class="docutils literal notranslate"><span class="pre">0</span></code> を、失敗したら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_GetReason">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeDecodeError_GetReason</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_GetReason" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_GetReason">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeEncodeError_GetReason</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_GetReason" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_GetReason">
+<a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a>* <code class="descname">PyUnicodeTranslateError_GetReason</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_GetReason" title="この定義へのパーマリンク">¶</a></dt>
+<dd><em class="refcount">Return value: New reference.</em><p>渡された例外オブジェクトの <em>reason</em> 属性を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.PyUnicodeDecodeError_SetReason">
+int <code class="descname">PyUnicodeDecodeError_SetReason</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, const char<em>&nbsp;*reason</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeDecodeError_SetReason" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeEncodeError_SetReason">
+int <code class="descname">PyUnicodeEncodeError_SetReason</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, const char<em>&nbsp;*reason</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeEncodeError_SetReason" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="c.PyUnicodeTranslateError_SetReason">
+int <code class="descname">PyUnicodeTranslateError_SetReason</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*exc</em>, const char<em>&nbsp;*reason</em><span class="sig-paren">)</span><a class="headerlink" href="#c.PyUnicodeTranslateError_SetReason" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>渡された例外オブジェクトの <em>reason</em> 属性を <em>reason</em> に設定します。成功したら <code class="docutils literal notranslate"><span class="pre">0</span></code> を、失敗したら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="recursion-control">
+<h2>再帰の管理<a class="headerlink" href="#recursion-control" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>これら2つの関数は C レベルの再帰呼び出しを安全に実行する方法を、コアモジュールにも拡張モジュールにも提供します。再帰を使ったコードが必ずしも Python コードを実行するわけではない場合 (Python コードは再帰の深さを自動的に追跡します)、これらの関数が必要となります。</p>
+<dl class="function">
+<dt id="c.Py_EnterRecursiveCall">
+int <code class="descname">Py_EnterRecursiveCall</code><span class="sig-paren">(</span>const char<em>&nbsp;*where</em><span class="sig-paren">)</span><a class="headerlink" href="#c.Py_EnterRecursiveCall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>C レベルの再帰呼び出しをしようとしているところに印を付けます。</p>
+<p><code class="xref py py-const docutils literal notranslate"><span class="pre">USE_STACKCHECK</span></code> が定義されている場合、 OS のスタックがオーバーフローがしたかどうかを <a class="reference internal" href="sys.html#c.PyOS_CheckStack" title="PyOS_CheckStack"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyOS_CheckStack()</span></code></a> を使ってチェックします。もしオーバーフローしているなら、 <a class="reference internal" href="../library/exceptions.html#MemoryError" title="MemoryError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">MemoryError</span></code></a> をセットしゼロでない値を返します。</p>
+<p>次にこの関数は再帰の上限に達していないかをチェックします。
+上限に達している場合、 <a class="reference internal" href="../library/exceptions.html#RecursionError" title="RecursionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RecursionError</span></code></a> をセットしゼロでない値を返します。
+そうでない場合はゼロを返します。</p>
+<p><em>where</em> は <code class="docutils literal notranslate"><span class="pre">&quot;</span> <span class="pre">in</span> <span class="pre">instance</span> <span class="pre">check&quot;</span></code> のような文字列にして、再帰の深さの限界に達したことで送出される <a class="reference internal" href="../library/exceptions.html#RecursionError" title="RecursionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RecursionError</span></code></a> のメッセージに連結できるようにすべきです。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.Py_LeaveRecursiveCall">
+void <code class="descname">Py_LeaveRecursiveCall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#c.Py_LeaveRecursiveCall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.Py_EnterRecursiveCall" title="Py_EnterRecursiveCall"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_EnterRecursiveCall()</span></code></a> を終了させます。 <a class="reference internal" href="#c.Py_EnterRecursiveCall" title="Py_EnterRecursiveCall"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_EnterRecursiveCall()</span></code></a> の <em>成功した</em> 呼び出しに対し 1 回呼ばなければなりません。</p>
+</dd></dl>
+
+<p>コンテナ型に対し <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_repr" title="PyTypeObject.tp_repr"><code class="xref c c-member docutils literal notranslate"><span class="pre">tp_repr</span></code></a> を適切に実装するには、特殊な再帰の処理が求められます。スタックの防護に加え、 <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_repr" title="PyTypeObject.tp_repr"><code class="xref c c-member docutils literal notranslate"><span class="pre">tp_repr</span></code></a> は循環処理を避けるためにオブジェクトを辿っていく必要があります。次の 2 つの関数はその機能を容易にします。実質的には、これらは <a class="reference internal" href="../library/reprlib.html#reprlib.recursive_repr" title="reprlib.recursive_repr"><code class="xref py py-func docutils literal notranslate"><span class="pre">reprlib.recursive_repr()</span></code></a> と同等な C の実装です。</p>
+<dl class="function">
+<dt id="c.Py_ReprEnter">
+int <code class="descname">Py_ReprEnter</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*object</em><span class="sig-paren">)</span><a class="headerlink" href="#c.Py_ReprEnter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>循環処理を検知するために、 <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_repr" title="PyTypeObject.tp_repr"><code class="xref c c-member docutils literal notranslate"><span class="pre">tp_repr</span></code></a> の実装の先頭で呼び出します。</p>
+<p>そのオブジェクトが既に処理されたものだった場合、この関数は正の整数を返します。その場合、 <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_repr" title="PyTypeObject.tp_repr"><code class="xref c c-member docutils literal notranslate"><span class="pre">tp_repr</span></code></a> の実装は、循環を示す文字列オブジェクトを返すべきです。例えば、 <a class="reference internal" href="../library/stdtypes.html#dict" title="dict"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> オブジェクトは <code class="docutils literal notranslate"><span class="pre">{...}</span></code> を返しますし、  <a class="reference internal" href="../library/stdtypes.html#list" title="list"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> オブジェクトは <code class="docutils literal notranslate"><span class="pre">[...]</span></code> を返します。</p>
+<p>再帰回数の上限に達した場合は、この関数は負の整数を返します。この場合、 <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_repr" title="PyTypeObject.tp_repr"><code class="xref c c-member docutils literal notranslate"><span class="pre">tp_repr</span></code></a> の実装は一般的には <code class="docutils literal notranslate"><span class="pre">NULL</span></code> を返すべきです。</p>
+<p>それ以外の場合は、関数はゼロを返し、 <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_repr" title="PyTypeObject.tp_repr"><code class="xref c c-member docutils literal notranslate"><span class="pre">tp_repr</span></code></a> の実装は通常どおり処理を続けてかまいません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.Py_ReprLeave">
+void <code class="descname">Py_ReprLeave</code><span class="sig-paren">(</span><a class="reference internal" href="structures.html#c.PyObject" title="PyObject">PyObject</a><em>&nbsp;*object</em><span class="sig-paren">)</span><a class="headerlink" href="#c.Py_ReprLeave" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.Py_ReprEnter" title="Py_ReprEnter"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_ReprEnter()</span></code></a> を終了させます。 0 を返した <a class="reference internal" href="#c.Py_ReprEnter" title="Py_ReprEnter"><code class="xref c c-func docutils literal notranslate"><span class="pre">Py_ReprEnter()</span></code></a> の呼び出しに対し 1 回呼ばなければなりません。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="standard-exceptions">
+<span id="standardexceptions"></span><h2>標準例外<a class="headerlink" href="#standard-exceptions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">PyExc_</span></code> の後ろにPythonの例外名が続く名前をもつグローバル変数として、すべての標準Python例外が利用可能です。これらは型 <a class="reference internal" href="structures.html#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> を持ち、すべてクラスオブジェクトです。完璧を期するために、すべての変数を以下に列挙します:</p>
+<table border="1" class="docutils" id="index-3">
+<colgroup>
+<col width="49%" />
+<col width="39%" />
+<col width="12%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">C名</th>
+<th class="head">Python名</th>
+<th class="head">注釈</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BaseException</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#BaseException" title="BaseException"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BaseException</span></code></a></td>
+<td>(1)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_Exception</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#Exception" title="Exception"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code></a></td>
+<td>(1)</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ArithmeticError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ArithmeticError" title="ArithmeticError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ArithmeticError</span></code></a></td>
+<td>(1)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_AssertionError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#AssertionError" title="AssertionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AssertionError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_AttributeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#AttributeError" title="AttributeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BlockingIOError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#BlockingIOError" title="BlockingIOError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BlockingIOError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BrokenPipeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#BrokenPipeError" title="BrokenPipeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BrokenPipeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BufferError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#BufferError" title="BufferError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BufferError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ChildProcessError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ChildProcessError" title="ChildProcessError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ChildProcessError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionAbortedError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ConnectionAbortedError" title="ConnectionAbortedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ConnectionAbortedError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ConnectionError" title="ConnectionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ConnectionError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionRefusedError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ConnectionRefusedError" title="ConnectionRefusedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ConnectionRefusedError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionResetError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ConnectionResetError" title="ConnectionResetError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ConnectionResetError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_EOFError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#EOFError" title="EOFError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">EOFError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_FileExistsError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#FileExistsError" title="FileExistsError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileExistsError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_FileNotFoundError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#FileNotFoundError" title="FileNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileNotFoundError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_FloatingPointError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#FloatingPointError" title="FloatingPointError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FloatingPointError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_GeneratorExit</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#GeneratorExit" title="GeneratorExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GeneratorExit</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ImportError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_IndentationError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#IndentationError" title="IndentationError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndentationError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_IndexError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#IndexError" title="IndexError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndexError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_InterruptedError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#InterruptedError" title="InterruptedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">InterruptedError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_IsADirectoryError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#IsADirectoryError" title="IsADirectoryError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IsADirectoryError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_KeyError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#KeyError" title="KeyError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_KeyboardInterrupt</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#KeyboardInterrupt" title="KeyboardInterrupt"><code class="xref py py-exc docutils literal notranslate"><span class="pre">KeyboardInterrupt</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_LookupError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#LookupError" title="LookupError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">LookupError</span></code></a></td>
+<td>(1)</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_MemoryError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#MemoryError" title="MemoryError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">MemoryError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ModuleNotFoundError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_NameError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#NameError" title="NameError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NameError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_NotADirectoryError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#NotADirectoryError" title="NotADirectoryError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotADirectoryError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_NotImplementedError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_OSError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a></td>
+<td>(1)</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_OverflowError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#OverflowError" title="OverflowError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OverflowError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_PermissionError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#PermissionError" title="PermissionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PermissionError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ProcessLookupError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ProcessLookupError" title="ProcessLookupError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ProcessLookupError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_RecursionError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#RecursionError" title="RecursionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RecursionError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ReferenceError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ReferenceError" title="ReferenceError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ReferenceError</span></code></a></td>
+<td>(2)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_RuntimeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#RuntimeError" title="RuntimeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_StopAsyncIteration</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#StopAsyncIteration" title="StopAsyncIteration"><code class="xref py py-exc docutils literal notranslate"><span class="pre">StopAsyncIteration</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_StopIteration</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#StopIteration" title="StopIteration"><code class="xref py py-exc docutils literal notranslate"><span class="pre">StopIteration</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_SyntaxError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_SystemError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#SystemError" title="SystemError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SystemError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_SystemExit</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#SystemExit" title="SystemExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SystemExit</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_TabError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#TabError" title="TabError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TabError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_TimeoutError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#TimeoutError" title="TimeoutError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TimeoutError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_TypeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UnboundLocalError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UnboundLocalError" title="UnboundLocalError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnboundLocalError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UnicodeDecodeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UnicodeDecodeError" title="UnicodeDecodeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UnicodeEncodeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UnicodeEncodeError" title="UnicodeEncodeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeEncodeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UnicodeError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UnicodeError" title="UnicodeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UnicodeTranslateError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UnicodeTranslateError" title="UnicodeTranslateError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeTranslateError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ValueError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ZeroDivisionError</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ZeroDivisionError" title="ZeroDivisionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ZeroDivisionError</span></code></a></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加: </span><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BlockingIOError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BrokenPipeError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ChildProcessError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionAbortedError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionRefusedError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ConnectionResetError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_FileExistsError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_FileNotFoundError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_InterruptedError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_IsADirectoryError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_NotADirectoryError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_PermissionError</span></code> 、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ProcessLookupError</span></code>  、 <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_TimeoutError</span></code> は <span class="target" id="index-8"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3151"><strong>PEP 3151</strong></a> により導入されました。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加: </span><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_StopAsyncIteration</span></code> および <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_RecursionError</span></code> 。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加: </span><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ModuleNotFoundError</span></code>.</p>
+</div>
+<p>これらは互換性のある <code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_OSError</span></code> のエイリアスです:</p>
+<table border="1" class="docutils" id="index-5">
+<colgroup>
+<col width="79%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">C名</th>
+<th class="head">注釈</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_EnvironmentError</span></code></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_IOError</span></code></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_WindowsError</span></code></td>
+<td>(3)</td>
+</tr>
+</tbody>
+</table>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>これらのエイリアスは例外の種類を分けるために使われます。</p>
+</div>
+<p>注釈:</p>
+<ol class="arabic simple">
+<li>これは別の標準例外のためのベースクラスです。</li>
+<li>Windowsでのみ定義されています。プリプロセッサマクロ <code class="docutils literal notranslate"><span class="pre">MS_WINDOWS</span></code> が定義されているかテストすることで、これを使うコードを保護してください。</li>
+</ol>
+</div>
+<div class="section" id="standard-warning-categories">
+<span id="standardwarningcategories"></span><h2>標準警告カテゴリ<a class="headerlink" href="#standard-warning-categories" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">PyExc_</span></code> の後ろにPythonの例外名が続く名前をもつグローバル変数として、すべての標準Python警告カテゴリが利用可能です。これらは型 <a class="reference internal" href="structures.html#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> を持ち、すべてクラスオブジェクトです。完璧を期するために、すべての変数を以下に列挙します:</p>
+<table border="1" class="docutils" id="index-6">
+<colgroup>
+<col width="49%" />
+<col width="39%" />
+<col width="12%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">C名</th>
+<th class="head">Python名</th>
+<th class="head">注釈</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_Warning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a></td>
+<td>(1)</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_BytesWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#BytesWarning" title="BytesWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BytesWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_DeprecationWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_FutureWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#FutureWarning" title="FutureWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FutureWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ImportWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ImportWarning" title="ImportWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_PendingDeprecationWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#PendingDeprecationWarning" title="PendingDeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PendingDeprecationWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ResourceWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#ResourceWarning" title="ResourceWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ResourceWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_RuntimeWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#RuntimeWarning" title="RuntimeWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_SyntaxWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#SyntaxWarning" title="SyntaxWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UnicodeWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UnicodeWarning" title="UnicodeWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_UserWarning</span></code></td>
+<td><a class="reference internal" href="../library/exceptions.html#UserWarning" title="UserWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UserWarning</span></code></a></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加: </span><code class="xref c c-data docutils literal notranslate"><span class="pre">PyExc_ResourceWarning</span></code>.</p>
+</div>
+<p>注釈:</p>
+<ol class="arabic simple">
+<li>これは別の標準警告カテゴリのためのベースクラスです。</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">例外処理</a><ul>
+<li><a class="reference internal" href="#printing-and-clearing">出力とクリア</a></li>
+<li><a class="reference internal" href="#raising-exceptions">例外の送出</a></li>
+<li><a class="reference internal" href="#issuing-warnings">警告</a></li>
+<li><a class="reference internal" href="#querying-the-error-indicator">エラーインジケータの問い合わせ</a></li>
+<li><a class="reference internal" href="#signal-handling">シグナルハンドリング</a></li>
+<li><a class="reference internal" href="#exception-classes">例外クラス</a></li>
+<li><a class="reference internal" href="#exception-objects">例外オブジェクト</a></li>
+<li><a class="reference internal" href="#unicode-exception-objects">Unicode 例外オブジェクト</a></li>
+<li><a class="reference internal" href="#recursion-control">再帰の管理</a></li>
+<li><a class="reference internal" href="#standard-exceptions">標準例外</a></li>
+<li><a class="reference internal" href="#standard-warning-categories">標準警告カテゴリ</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="refcounting.html"
+                        title="前の章へ">参照カウント</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="utilities.html"
+                        title="次の章へ">ユーティリティ</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/c-api/exceptions.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="ユーティリティ"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="refcounting.html" title="参照カウント"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

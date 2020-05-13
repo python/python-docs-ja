@@ -1,0 +1,616 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>共通のオブジェクト構造体 (common object structure) &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="型オブジェクト" href="typeobj.html" />
+    <link rel="prev" title="オブジェクトをヒープ上にメモリ確保する" href="allocation.html" />
+    <link rel="canonical" href="https://docs.python.org/3/c-api/structures.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="typeobj.html" title="型オブジェクト"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="allocation.html" title="オブジェクトをヒープ上にメモリ確保する"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="objimpl.html" accesskey="U">オブジェクト実装サポート (object implementation support)</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="common-object-structures">
+<span id="common-structs"></span><h1>共通のオブジェクト構造体 (common object structure)<a class="headerlink" href="#common-object-structures" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Python では、オブジェクト型を定義する上で数多くの構造体が使われます。この節では三つの構造体とその利用方法について説明します。</p>
+<p>全ての Python オブジェクトは、オブジェクトのメモリ内表現の先頭部分にある少数のフィールドを完全に共有しています。
+このフィールドは <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> 型および <a class="reference internal" href="#c.PyVarObject" title="PyVarObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyVarObject</span></code></a> 型で表現されます。
+これらの型もまた、他の全ての Python  オブジェクトの定義で直接または間接的に使われているマクロを使って定義されています。</p>
+<dl class="type">
+<dt id="c.PyObject">
+<code class="descname">PyObject</code><a class="headerlink" href="#c.PyObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>全てのオブジェクト型はこの型を拡張したものです。
+この型には、あるオブジェクトを指すポインタをオブジェクトとして Python から扱うのに必要な情報が入っています。
+通常の &quot;リリース&quot; ビルドでは、この構造体にはオブジェクトの参照カウントとオブジェクトに対応する型オブジェクトだけが入っています。
+実際には <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> であることは宣言されていませんが、全ての Python オブジェクトへのポインタは <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> へキャストできます。
+メンバにアクセスするには <a class="reference internal" href="#c.Py_REFCNT" title="Py_REFCNT"><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_REFCNT</span></code></a> マクロと <a class="reference internal" href="#c.Py_TYPE" title="Py_TYPE"><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_TYPE</span></code></a> マクロを使わなければなりません。</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c.PyVarObject">
+<code class="descname">PyVarObject</code><a class="headerlink" href="#c.PyVarObject" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> を拡張して、 <code class="xref py py-attr docutils literal notranslate"><span class="pre">ob_size</span></code> フィールドを追加したものです。
+この構造体は、 <em>長さ (length)</em> の概念を持つオブジェクトだけに対して使います。
+この型が Python/C API で使われることはほとんどありません。
+メンバにアクセスするには <a class="reference internal" href="#c.Py_REFCNT" title="Py_REFCNT"><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_REFCNT</span></code></a> マクロ、 <a class="reference internal" href="#c.Py_TYPE" title="Py_TYPE"><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_TYPE</span></code></a> マクロ、 <a class="reference internal" href="#c.Py_SIZE" title="Py_SIZE"><code class="xref c c-macro docutils literal notranslate"><span class="pre">Py_SIZE</span></code></a> マクロを使わなければなりません。</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.PyObject_HEAD">
+<code class="descname">PyObject_HEAD</code><a class="headerlink" href="#c.PyObject_HEAD" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>可変な長さを持たないオブジェクトを表現する新しい型を宣言するときに使うマクロです。
+PyObject_HEAD マクロは次のように展開されます:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyObject</span> <span class="n">ob_base</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>上にある <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> のドキュメントを参照してください。</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.PyObject_VAR_HEAD">
+<code class="descname">PyObject_VAR_HEAD</code><a class="headerlink" href="#c.PyObject_VAR_HEAD" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>インスタンスごとに異なる長さを持つオブジェクトを表現する新しい型を宣言するときに使うマクロです。
+PyObject_VAR_HEAD マクロは次のように展開されます:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">PyVarObject</span> <span class="n">ob_base</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>上にある <a class="reference internal" href="#c.PyVarObject" title="PyVarObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyVarObject</span></code></a> のドキュメントを参照してください。</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_TYPE">
+<code class="descname">Py_TYPE</code><span class="sig-paren">(</span>o<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_TYPE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python オブジェクトの <code class="xref py py-attr docutils literal notranslate"><span class="pre">ob_type</span></code> メンバにアクセスするのに使うマクロです。
+これは次のように展開されます:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">(((</span><span class="n">PyObject</span><span class="o">*</span><span class="p">)(</span><span class="n">o</span><span class="p">))</span><span class="o">-&gt;</span><span class="n">ob_type</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_REFCNT">
+<code class="descname">Py_REFCNT</code><span class="sig-paren">(</span>o<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_REFCNT" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python オブジェクトの <code class="xref py py-attr docutils literal notranslate"><span class="pre">ob_refcnt</span></code> メンバにアクセスするのに使うマクロです。
+これは次のように展開されます:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">(((</span><span class="n">PyObject</span><span class="o">*</span><span class="p">)(</span><span class="n">o</span><span class="p">))</span><span class="o">-&gt;</span><span class="n">ob_refcnt</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.Py_SIZE">
+<code class="descname">Py_SIZE</code><span class="sig-paren">(</span>o<span class="sig-paren">)</span><a class="headerlink" href="#c.Py_SIZE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python オブジェクトの <code class="xref py py-attr docutils literal notranslate"><span class="pre">ob_size</span></code> メンバにアクセスするのに使うマクロです。
+これは次のように展開されます:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="p">(((</span><span class="n">PyVarObject</span><span class="o">*</span><span class="p">)(</span><span class="n">o</span><span class="p">))</span><span class="o">-&gt;</span><span class="n">ob_size</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.PyObject_HEAD_INIT">
+<code class="descname">PyObject_HEAD_INIT</code><span class="sig-paren">(</span>type<span class="sig-paren">)</span><a class="headerlink" href="#c.PyObject_HEAD_INIT" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新しい <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject</span></code></a> 型のための初期値に展開するマクロです。このマクロは次のように展開されます。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">_PyObject_EXTRA_INIT</span>
+<span class="mi">1</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.PyVarObject_HEAD_INIT">
+<code class="descname">PyVarObject_HEAD_INIT</code><span class="sig-paren">(</span>type, size<span class="sig-paren">)</span><a class="headerlink" href="#c.PyVarObject_HEAD_INIT" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新しい、 <code class="xref py py-attr docutils literal notranslate"><span class="pre">ob_size</span></code> フィールドを含む <a class="reference internal" href="#c.PyVarObject" title="PyVarObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyVarObject</span></code></a> 型のための初期値に展開するマクロです。このマクロは次のように展開されます。</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">_PyObject_EXTRA_INIT</span>
+<span class="mi">1</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="type">
+<dt id="c.PyCFunction">
+<code class="descname">PyCFunction</code><a class="headerlink" href="#c.PyCFunction" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ほとんどの Python の呼び出し可能オブジェクトを C で実装する際に用いられている関数の型です。この型の関数は 2 つの <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> 型のパラメータを取り、 PyObject* 型の値を返します。戻り値を <code class="docutils literal notranslate"><span class="pre">NULL</span></code> にする場合、例外をセットしておかなければなりません。 <code class="docutils literal notranslate"><span class="pre">NULL</span></code> でない値を返す場合、戻り値は Python に関数の戻り値として公開される値として解釈されます。この型の関数は新たな参照を返さなければなりません。</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c.PyCFunctionWithKeywords">
+<code class="descname">PyCFunctionWithKeywords</code><a class="headerlink" href="#c.PyCFunctionWithKeywords" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Type of the functions used to implement Python callables in C
+with signature <code class="xref py py-const docutils literal notranslate"><span class="pre">METH_VARARGS</span> <span class="pre">|</span> <span class="pre">METH_KEYWORDS</span></code>.</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c._PyCFunctionFast">
+<code class="descname">_PyCFunctionFast</code><a class="headerlink" href="#c._PyCFunctionFast" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Type of the functions used to implement Python callables in C
+with signature <a class="reference internal" href="#METH_FASTCALL" title="METH_FASTCALL"><code class="xref py py-const docutils literal notranslate"><span class="pre">METH_FASTCALL</span></code></a>.</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c._PyCFunctionFastWithKeywords">
+<code class="descname">_PyCFunctionFastWithKeywords</code><a class="headerlink" href="#c._PyCFunctionFastWithKeywords" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Type of the functions used to implement Python callables in C
+with signature <code class="xref py py-const docutils literal notranslate"><span class="pre">METH_FASTCALL</span> <span class="pre">|</span> <span class="pre">METH_KEYWORDS</span></code>.</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c.PyMethodDef">
+<code class="descname">PyMethodDef</code><a class="headerlink" href="#c.PyMethodDef" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>拡張型のメソッドを記述する際に用いる構造体です。この構造体には 4 つのフィールドがあります:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="23%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">フィールド</th>
+<th class="head">C の型</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">ml_name</span></code></td>
+<td>const char *</td>
+<td>メソッド名</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">ml_meth</span></code></td>
+<td>PyCFunction</td>
+<td>C 実装へのポインタ</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">ml_flags</span></code></td>
+<td>int</td>
+<td>呼び出しをどのように行うかを示すフラグビット</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">ml_doc</span></code></td>
+<td>const char *</td>
+<td>docstring の内容を指すポインタ</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">ml_meth</span></code> は C の関数ポインタです。関数は別の型で定義されていてもかまいませんが、常に  <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> を返します。関数が <code class="xref c c-type docutils literal notranslate"><span class="pre">PyFunction</span></code> でない場合、メソッドテーブル内でキャストを行うようコンパイラが要求することになるでしょう。 <a class="reference internal" href="#c.PyCFunction" title="PyCFunction"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyCFunction</span></code></a> では最初のパラメタが <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> 型であると定義していますが、固有の C 型を <em>self</em> オブジェクトに使う実装はよく行われています。</p>
+<p>The <code class="xref py py-attr docutils literal notranslate"><span class="pre">ml_flags</span></code> field is a bitfield which can include the following flags.
+The individual flags indicate either a calling convention or a binding
+convention.</p>
+<p>There are four basic calling conventions for positional arguments
+and two of them can be combined with <code class="xref py py-const docutils literal notranslate"><span class="pre">METH_KEYWORDS</span></code> to support
+also keyword arguments.  So there are a total of 6 calling conventions:</p>
+<dl class="data">
+<dt id="METH_VARARGS">
+<code class="descname">METH_VARARGS</code><a class="headerlink" href="#METH_VARARGS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#c.PyCFunction" title="PyCFunction"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyCFunction</span></code></a> 型のメソッドで典型的に使われる呼び出し規約です。関数は <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> 型の引数値を二つ要求します。最初の引数はメソッドの <em>self</em> オブジェクトです; モジュール関数の場合、これはモジュールオブジェクトです。第二のパラメタ (よく <em>args</em> と呼ばれます) は、全ての引数を表現するタプルオブジェクトです。パラメタは通常、 <a class="reference internal" href="arg.html#c.PyArg_ParseTuple" title="PyArg_ParseTuple"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyArg_ParseTuple()</span></code></a> や <a class="reference internal" href="arg.html#c.PyArg_UnpackTuple" title="PyArg_UnpackTuple"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyArg_UnpackTuple()</span></code></a> で処理されます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descname">METH_VARARGS | METH_KEYWORDS</code></dt>
+<dd><p>Methods with these flags must be of type <a class="reference internal" href="#c.PyCFunctionWithKeywords" title="PyCFunctionWithKeywords"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyCFunctionWithKeywords</span></code></a>.
+The function expects three parameters: <em>self</em>, <em>args</em>, <em>kwargs</em> where
+<em>kwargs</em> is a dictionary of all the keyword arguments or possibly <code class="docutils literal notranslate"><span class="pre">NULL</span></code>
+if there are no keyword arguments.  The parameters are typically processed
+using <a class="reference internal" href="arg.html#c.PyArg_ParseTupleAndKeywords" title="PyArg_ParseTupleAndKeywords"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyArg_ParseTupleAndKeywords()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="METH_FASTCALL">
+<code class="descname">METH_FASTCALL</code><a class="headerlink" href="#METH_FASTCALL" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Fast calling convention supporting only positional arguments.
+The methods have the type <a class="reference internal" href="#c._PyCFunctionFast" title="_PyCFunctionFast"><code class="xref c c-type docutils literal notranslate"><span class="pre">_PyCFunctionFast</span></code></a>.
+The first parameter is <em>self</em>, the second parameter is a C array
+of <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> values indicating the arguments and the third
+parameter is the number of arguments (the length of the array).</p>
+<p>This is not part of the <a class="reference internal" href="stable.html#stable"><span class="std std-ref">limited API</span></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt>
+<code class="descname">METH_FASTCALL | METH_KEYWORDS</code></dt>
+<dd><p>Extension of <a class="reference internal" href="#METH_FASTCALL" title="METH_FASTCALL"><code class="xref py py-const docutils literal notranslate"><span class="pre">METH_FASTCALL</span></code></a> supporting also keyword arguments,
+with methods of type <a class="reference internal" href="#c._PyCFunctionFastWithKeywords" title="_PyCFunctionFastWithKeywords"><code class="xref c c-type docutils literal notranslate"><span class="pre">_PyCFunctionFastWithKeywords</span></code></a>.
+Keyword arguments are passed the same way as in the vectorcall protocol:
+there is an additional fourth <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> parameter
+which is a tuple representing the names of the keyword arguments
+or possibly <code class="docutils literal notranslate"><span class="pre">NULL</span></code> if there are no keywords.  The values of the keyword
+arguments are stored in the <em>args</em> array, after the positional arguments.</p>
+<p>This is not part of the <a class="reference internal" href="stable.html#stable"><span class="std std-ref">limited API</span></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="METH_NOARGS">
+<code class="descname">METH_NOARGS</code><a class="headerlink" href="#METH_NOARGS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>引数のないメソッドは、 <a class="reference internal" href="#METH_NOARGS" title="METH_NOARGS"><code class="xref py py-const docutils literal notranslate"><span class="pre">METH_NOARGS</span></code></a> フラグをつけた場合、必要な引数が指定されているかをチェックしなくなります。こうしたメソッドは <a class="reference internal" href="#c.PyCFunction" title="PyCFunction"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyCFunction</span></code></a> 型でなくてはなりません。第一のパラメタは <em>self</em> になり、モジュールかオブジェクトインスタンスへの参照を保持することになります。いずれにせよ、第二のパラメタは <code class="docutils literal notranslate"><span class="pre">NULL</span></code> になります。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="METH_O">
+<code class="descname">METH_O</code><a class="headerlink" href="#METH_O" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>単一のオブジェクト引数だけをとるメソッドは、 <a class="reference internal" href="arg.html#c.PyArg_ParseTuple" title="PyArg_ParseTuple"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyArg_ParseTuple()</span></code></a> を引数 <code class="docutils literal notranslate"><span class="pre">&quot;O&quot;</span></code> にして呼び出す代わりに、 <a class="reference internal" href="#METH_O" title="METH_O"><code class="xref py py-const docutils literal notranslate"><span class="pre">METH_O</span></code></a> フラグつきで指定できます。メソッドは <a class="reference internal" href="#c.PyCFunction" title="PyCFunction"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyCFunction</span></code></a> 型で、 <em>self</em> パラメタと単一の引数を表現する <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> パラメタを伴います。</p>
+</dd></dl>
+
+<p>以下の二つの定数は、呼び出し規約を示すものではなく、クラスのメソッドとして使う際の束縛方式を示すものです。モジュールに対して定義された関数で用いてはなりません。メソッドに対しては、最大で一つしかこのフラグをセットできません。</p>
+<dl class="data">
+<dt id="METH_CLASS">
+<code class="descname">METH_CLASS</code><a class="headerlink" href="#METH_CLASS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-0">メソッドの最初の引数には、型のインスタンスではなく型オブジェクトが渡されます。このフラグは組み込み関数 <a class="reference internal" href="../library/functions.html#classmethod" title="classmethod"><code class="xref py py-func docutils literal notranslate"><span class="pre">classmethod()</span></code></a> を使って生成するのと同じ <em>クラスメソッド (class method)</em> を生成するために使われます。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="METH_STATIC">
+<code class="descname">METH_STATIC</code><a class="headerlink" href="#METH_STATIC" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-1">メソッドの最初の引数には、型のインスタンスではなく <code class="docutils literal notranslate"><span class="pre">NULL</span></code> が渡されます。このフラグは、 <a class="reference internal" href="../library/functions.html#staticmethod" title="staticmethod"><code class="xref py py-func docutils literal notranslate"><span class="pre">staticmethod()</span></code></a> を使って生成するのと同じ <em>静的メソッド (static method)</em> を生成するために使われます。</p>
+</dd></dl>
+
+<p>もう一つの定数は、あるメソッドを同名の別のメソッド定義と置き換えるかどうかを制御します。</p>
+<dl class="data">
+<dt id="METH_COEXIST">
+<code class="descname">METH_COEXIST</code><a class="headerlink" href="#METH_COEXIST" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>メソッドを既存の定義を置き換える形でロードします。 <em>METH_COEXIST</em> を指定しなければ、デフォルトの設定にしたがって、定義が重複しないようスキップします。スロットラッパはメソッドテーブルよりも前にロードされるので、例えば <em>sq_contains</em> スロットはラップしているメソッド <a class="reference internal" href="../reference/datamodel.html#object.__contains__" title="object.__contains__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__contains__()</span></code></a> を生成し、同名の PyCFunction のロードを阻止します。このフラグを定義すると、 PyCFunction はラッパオブジェクトを置き換える形でロードされ、スロットと連立します。 PyCFunctions の呼び出しはラッパオブジェクトの呼び出しよりも最適化されているので、こうした仕様が便利になります。</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c.PyMemberDef">
+<code class="descname">PyMemberDef</code><a class="headerlink" href="#c.PyMemberDef" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>type の C 構造体のメンバとして格納されている、ある型の属性を表す構造体です。この構造体のフィールドは以下のとおりです:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="23%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">フィールド</th>
+<th class="head">C の型</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code></td>
+<td>const char *</td>
+<td>メンバ名</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">type</span></code></td>
+<td>int</td>
+<td>C 構造体の中のメンバの型</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">offset</span></code></td>
+<td>Py_ssize_t</td>
+<td>そのメンバの type object 構造体中の場所の offset バイト数</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">flags</span></code></td>
+<td>int</td>
+<td>フィールドが読み出し専用か書込み可能なのかを示すビットフラグ</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-attr docutils literal notranslate"><span class="pre">doc</span></code></td>
+<td>const char *</td>
+<td>docstring の内容を指すポインタ</td>
+</tr>
+</tbody>
+</table>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">type</span></code> はたくさんのCの型を意味する <code class="docutils literal notranslate"><span class="pre">T_</span></code> マクロのうちの1つです。メンバが Python からアクセスされるとき、そのメンバは対応する Python の型に変換されます。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="45%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">マクロ名</th>
+<th class="head">C の型</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>T_SHORT</td>
+<td>short</td>
+</tr>
+<tr class="row-odd"><td>T_INT</td>
+<td>int</td>
+</tr>
+<tr class="row-even"><td>T_LONG</td>
+<td>long</td>
+</tr>
+<tr class="row-odd"><td>T_FLOAT</td>
+<td>浮動小数点数</td>
+</tr>
+<tr class="row-even"><td>T_DOUBLE</td>
+<td>double</td>
+</tr>
+<tr class="row-odd"><td>T_STRING</td>
+<td>const char *</td>
+</tr>
+<tr class="row-even"><td>T_OBJECT</td>
+<td>PyObject *</td>
+</tr>
+<tr class="row-odd"><td>T_OBJECT_EX</td>
+<td>PyObject *</td>
+</tr>
+<tr class="row-even"><td>T_CHAR</td>
+<td>char</td>
+</tr>
+<tr class="row-odd"><td>T_BYTE</td>
+<td>char</td>
+</tr>
+<tr class="row-even"><td>T_UBYTE</td>
+<td>unsigned char</td>
+</tr>
+<tr class="row-odd"><td>T_UINT</td>
+<td>unsigned int</td>
+</tr>
+<tr class="row-even"><td>T_USHORT</td>
+<td>unsigned short</td>
+</tr>
+<tr class="row-odd"><td>T_ULONG</td>
+<td>unsigned long</td>
+</tr>
+<tr class="row-even"><td>T_BOOL</td>
+<td>char</td>
+</tr>
+<tr class="row-odd"><td>T_LONGLONG</td>
+<td>long long</td>
+</tr>
+<tr class="row-even"><td>T_ULONGLONG</td>
+<td>unsigned long long</td>
+</tr>
+<tr class="row-odd"><td>T_PYSSIZET</td>
+<td>Py_ssize_t</td>
+</tr>
+</tbody>
+</table>
+<p><code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT</span></code> と <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT_EX</span></code> が異なっているのは、 <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT</span></code> はメンバが <code class="docutils literal notranslate"><span class="pre">NULL</span></code> だったときに <code class="docutils literal notranslate"><span class="pre">None</span></code> を返すのに対し、 <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT_EX</span></code> は <a class="reference internal" href="../library/exceptions.html#AttributeError" title="AttributeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code></a> を送出する点です。
+<code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT_EX</span></code> は <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT</span></code> より属性に対する <a class="reference internal" href="../reference/simple_stmts.html#del"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">del</span></code></a> 文を正しくあつかうので、できれば <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT</span></code> ではなく <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT_EX</span></code> を使ってください。</p>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">flags</span></code> can be <code class="docutils literal notranslate"><span class="pre">0</span></code> for write and read access or <code class="xref c c-macro docutils literal notranslate"><span class="pre">READONLY</span></code> for
+read-only access.  Using <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_STRING</span></code> for <a class="reference internal" href="../library/functions.html#type" title="type"><code class="xref py py-attr docutils literal notranslate"><span class="pre">type</span></code></a> implies
+<code class="xref c c-macro docutils literal notranslate"><span class="pre">READONLY</span></code>.  <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_STRING</span></code> data is interpreted as UTF-8.
+Only <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT</span></code> and <code class="xref c c-macro docutils literal notranslate"><span class="pre">T_OBJECT_EX</span></code>
+members can be deleted.  (They are set to <code class="docutils literal notranslate"><span class="pre">NULL</span></code>).</p>
+</dd></dl>
+
+<dl class="type">
+<dt id="c.PyGetSetDef">
+<code class="descname">PyGetSetDef</code><a class="headerlink" href="#c.PyGetSetDef" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Structure to define property-like access for a type. See also description of
+the <a class="reference internal" href="typeobj.html#c.PyTypeObject.tp_getset" title="PyTypeObject.tp_getset"><code class="xref c c-member docutils literal notranslate"><span class="pre">PyTypeObject.tp_getset</span></code></a> slot.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="27%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">フィールド</th>
+<th class="head">C の型</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>名前</td>
+<td>const char *</td>
+<td>attribute name</td>
+</tr>
+<tr class="row-odd"><td>get</td>
+<td>getter</td>
+<td>C Function to get the attribute</td>
+</tr>
+<tr class="row-even"><td>集合</td>
+<td>setter</td>
+<td>optional C function to set or
+delete the attribute, if omitted
+the attribute is readonly</td>
+</tr>
+<tr class="row-odd"><td>doc</td>
+<td>const char *</td>
+<td>optional docstring</td>
+</tr>
+<tr class="row-even"><td>closure</td>
+<td>void *</td>
+<td>optional function pointer,
+providing additional data for
+getter and setter</td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">get</span></code> function takes one <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> parameter (the
+instance) and a function pointer (the associated <code class="docutils literal notranslate"><span class="pre">closure</span></code>):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="n">PyObject</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">getter</span><span class="p">)(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>It should return a new reference on success or <code class="docutils literal notranslate"><span class="pre">NULL</span></code> with a set exception
+on failure.</p>
+<p><code class="docutils literal notranslate"><span class="pre">set</span></code> functions take two <a class="reference internal" href="#c.PyObject" title="PyObject"><code class="xref c c-type docutils literal notranslate"><span class="pre">PyObject*</span></code></a> parameters (the instance and
+the value to be set) and a function pointer (the associated <code class="docutils literal notranslate"><span class="pre">closure</span></code>):</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="n">setter</span><span class="p">)(</span><span class="n">PyObject</span> <span class="o">*</span><span class="p">,</span> <span class="n">PyObject</span> <span class="o">*</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In case the attribute should be deleted the second parameter is <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.
+Should return <code class="docutils literal notranslate"><span class="pre">0</span></code> on success or <code class="docutils literal notranslate"><span class="pre">-1</span></code> with a set exception on failure.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="allocation.html"
+                        title="前の章へ">オブジェクトをヒープ上にメモリ確保する</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="typeobj.html"
+                        title="次の章へ">型オブジェクト</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/c-api/structures.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="typeobj.html" title="型オブジェクト"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="allocation.html" title="オブジェクトをヒープ上にメモリ確保する"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="objimpl.html" >オブジェクト実装サポート (object implementation support)</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

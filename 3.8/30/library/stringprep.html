@@ -1,0 +1,316 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>stringprep --- インターネットのための文字列調製 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="readline --- GNU readline のインタフェース" href="readline.html" />
+    <link rel="prev" title="unicodedata --- Unicode データベース" href="unicodedata.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/stringprep.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="readline.html" title="readline --- GNU readline のインタフェース"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="unicodedata.html" title="unicodedata --- Unicode データベース"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="text.html" accesskey="U">テキスト処理サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-stringprep">
+<span id="stringprep-internet-string-preparation"></span><h1><a class="reference internal" href="#module-stringprep" title="stringprep: String preparation, as per RFC 3453"><code class="xref py py-mod docutils literal notranslate"><span class="pre">stringprep</span></code></a> --- インターネットのための文字列調製<a class="headerlink" href="#module-stringprep" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/stringprep.py">Lib/stringprep.py</a></p>
+<hr class="docutils" />
+<p>(ホスト名のような) インターネット上にある存在に識別名をつける際、しばしば識別名間の &quot;等価性&quot; 比較を行う必要があります。厳密には、例えば大小文字の区別をするかしないかいったように、比較をどのように行うかはアプリケーションの領域に依存します。また、例えば &quot;印字可能な&quot; 文字で構成された識別名だけを許可するといったように、可能な識別名を制限することも必要となるかもしれません。</p>
+<p><span class="target" id="index-4"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3454.html"><strong>RFC 3454</strong></a> では、インターネットプロトコル上で Unicode 文字列を &quot;調製 (prepare)&quot; するためのプロシジャを定義しています。文字列は通信路に載せられる前に調製プロシジャで処理され、その結果ある正規化された形式になります。RFC ではあるテーブルの集合を定義しており、それらはプロファイルにまとめられています。各プロファイルでは、どのテーブルを使い、 <code class="docutils literal notranslate"><span class="pre">stringprep</span></code> プロシジャのどのオプション部分がプロファイルの一部になっているかを定義しています。 <code class="docutils literal notranslate"><span class="pre">stringprep</span></code> プロファイルの一つの例は <code class="docutils literal notranslate"><span class="pre">nameprep</span></code> で、国際化されたドメイン名に使われます。</p>
+<p><a class="reference internal" href="#module-stringprep" title="stringprep: String preparation, as per RFC 3453"><code class="xref py py-mod docutils literal notranslate"><span class="pre">stringprep</span></code></a> は <span class="target" id="index-5"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3454.html"><strong>RFC 3454</strong></a> のテーブルを公開しているに過ぎません。これらのテーブルは辞書やリストとして表現するにはバリエーションが大きすぎるので、このモジュールでは Unicode 文字データベースを内部的に利用しています。モジュールソースコード自体は <code class="docutils literal notranslate"><span class="pre">mkstringprep.py</span></code> ユーティリティを使って生成されました。</p>
+<p>その結果、これらのテーブルはデータ構造体ではなく、関数として公開されています。RFC には 2 種類のテーブル: 集合およびマップ、が存在します。集合については、 <a class="reference internal" href="#module-stringprep" title="stringprep: String preparation, as per RFC 3453"><code class="xref py py-mod docutils literal notranslate"><span class="pre">stringprep</span></code></a> は &quot;特性関数 (characteristic function)&quot; 、すなわち引数が集合の一部である場合に <code class="docutils literal notranslate"><span class="pre">True</span></code> を返す関数を提供します。マッピングについては、マップ関数: キーが与えられると、それに関連付けられた値を返す関数を提供します。以下はこのモジュールで利用可能な全ての関数を列挙したものです。</p>
+<dl class="function">
+<dt id="stringprep.in_table_a1">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_a1</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_a1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル A.1 (Unicode 3.2 における未割り当てコードポイント: unassigned code point) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_b1">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_b1</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_b1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル B.1 (一般には何にも対応付けられていない: commonly mapped to nothing) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.map_table_b2">
+<code class="descclassname">stringprep.</code><code class="descname">map_table_b2</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.map_table_b2" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テーブル B.2 (NFKC で用いられる大小文字の対応付け) に従って、<em>code</em> に対応付けられた値を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.map_table_b3">
+<code class="descclassname">stringprep.</code><code class="descname">map_table_b3</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.map_table_b3" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テーブル B.3 (正規化を伴わない大小文字の対応付け) に従って、<em>code</em> に対応付けられた値を返します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c11">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c11</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c11" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.1.1 (ASCII スペース文字) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c12">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c12</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c12" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.1.2 (非 ASCII スペース文字) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c11_c12">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c11_c12</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c11_c12" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.1  (スペース文字、C.1.1 および C.1.2 の和集合) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c21">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c21</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c21" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.2.1 (ASCII 制御文字) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c22">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c22</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c22" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.2.2 (非 ASCII 制御文字) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c21_c22">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c21_c22</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c21_c22" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.2  (制御文字、C.2.1 および C.2.2 の和集合) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c3">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c3</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c3" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.3 (プライベート利用) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c4">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c4</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c4" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.4 (非文字コードポイント: non-character code points) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c5">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c5</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c5" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.5 (サロゲーションコード) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c6">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c6</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c6" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.6 (平文:plain text として不適切) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c7">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c7</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c7" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.7 (標準表現:canonical representation  として不適切) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c8">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c8</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c8" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.8 (表示プロパティの変更または撤廃) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_c9">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_c9</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_c9" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル C.9 (タグ文字) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_d1">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_d1</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_d1" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル D.1 (双方向プロパティ &quot;R&quot; または &quot;AL&quot;  を持つ文字) かどうか判定します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="stringprep.in_table_d2">
+<code class="descclassname">stringprep.</code><code class="descname">in_table_d2</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#stringprep.in_table_d2" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>code</em> がテーブル D.2 (双方向プロパティ &quot;L&quot; を持つ文字)  かどうか判定します。</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="unicodedata.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">unicodedata</span></code> --- Unicode データベース</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="readline.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">readline</span></code> --- GNU readline のインタフェース</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/stringprep.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="readline.html" title="readline --- GNU readline のインタフェース"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="unicodedata.html" title="unicodedata --- Unicode データベース"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="text.html" >テキスト処理サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,1782 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>importlib --- import の実装 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="Using importlib.metadata" href="importlib.metadata.html" />
+    <link rel="prev" title="runpy --- Python モジュールの位置特定と実行" href="runpy.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/importlib.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="importlib.metadata.html" title="Using importlib.metadata"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="runpy.html" title="runpy --- Python モジュールの位置特定と実行"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">モジュールのインポート</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-importlib">
+<span id="importlib-the-implementation-of-import"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code> --- <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> の実装<a class="headerlink" href="#module-importlib" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.1 で追加.</span></p>
+</div>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/importlib/__init__.py">Lib/importlib/__init__.py</a></p>
+<hr class="docutils" />
+<div class="section" id="introduction">
+<h2>はじめに<a class="headerlink" href="#introduction" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a> パッケージの目的は2つあります。1つ目は Python ソースコード中にある <a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文の(そして、拡張として、 <a class="reference internal" href="functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> 関数の)実装を提供することです。このパッケージは <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> 文の、どの Python インタープリターでも動作する実装を提供します。また、 Python 以外の言語で実装されたどの実装よりも把握しやすい実装を提供します。</p>
+<p>2つ目の目的は、このパッケージが公開している <a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> を実装するための要素を利用して、(<a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">インポーター</span></a> として知られる) インポートプロセスで動作するカスタムのオブジェクトを実装しやすくすることです。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="../reference/simple_stmts.html#import"><span class="std std-ref">import 文</span></a></dt>
+<dd><a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文の言語リファレンス。</dd>
+<dt><a class="reference external" href="https://www.python.org/doc/essays/packages/">Packages specification</a></dt>
+<dd>パッケージの元の仕様。幾つかの動作はこの仕様が書かれた頃から変更されています (例: <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> で <code class="docutils literal notranslate"><span class="pre">None</span></code> に基づくリダイレクト)。</dd>
+<dt><a class="reference internal" href="#importlib.__import__" title="importlib.__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> 関数</dt>
+<dd><a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> 文はこの関数のシンタックスシュガーです。</dd>
+<dt><span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0235"><strong>PEP 235</strong></a></dt>
+<dd>大文字小文字を区別しないプラットフォームでのインポート</dd>
+<dt><span class="target" id="index-1"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0263"><strong>PEP 263</strong></a></dt>
+<dd>Python のソースコードのエンコーディング</dd>
+<dt><span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a></dt>
+<dd>新しいインポートフック</dd>
+<dt><span class="target" id="index-3"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0328"><strong>PEP 328</strong></a></dt>
+<dd>複数行のインポートと、絶対/相対インポート</dd>
+<dt><span class="target" id="index-4"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0366"><strong>PEP 366</strong></a></dt>
+<dd>main モジュールの明示的な相対インポート</dd>
+<dt><span class="target" id="index-5"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0420"><strong>PEP 420</strong></a></dt>
+<dd>暗黙的な名前空間パッケージ</dd>
+<dt><span class="target" id="index-6"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0451"><strong>PEP 451</strong></a></dt>
+<dd>インポートシステムのための ModuleSpec 型</dd>
+<dt><span class="target" id="index-7"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0488"><strong>PEP 488</strong></a></dt>
+<dd>PYO ファイルの撤廃</dd>
+<dt><span class="target" id="index-8"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0489"><strong>PEP 489</strong></a></dt>
+<dd>複数フェーズでの拡張モジュールの初期化</dd>
+<dt><span class="target" id="index-9"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0552"><strong>PEP 552</strong></a></dt>
+<dd>決定論的 pyc</dd>
+<dt><span class="target" id="index-10"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3120"><strong>PEP 3120</strong></a></dt>
+<dd>デフォルトのソースエンコーディングとして UTF-8 を使用</dd>
+<dt><span class="target" id="index-11"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3147"><strong>PEP 3147</strong></a></dt>
+<dd>PYC リポジトリディレクトリ</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="functions">
+<h2>関数<a class="headerlink" href="#functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="importlib.__import__">
+<code class="descclassname">importlib.</code><code class="descname">__import__</code><span class="sig-paren">(</span><em>name</em>, <em>globals=None</em>, <em>locals=None</em>, <em>fromlist=()</em>, <em>level=0</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.__import__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>組み込みの <a class="reference internal" href="functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> 関数の実装です。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">プログラムからモジュールをインポートする場合はこの関数の代わりに <a class="reference internal" href="#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code></a> を使ってください。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.import_module">
+<code class="descclassname">importlib.</code><code class="descname">import_module</code><span class="sig-paren">(</span><em>name</em>, <em>package=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.import_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールをインポートします。<em>name</em> 引数は、インポートするモジュールを絶対または相対表現 (例えば <code class="docutils literal notranslate"><span class="pre">pkg.mod</span></code> または <code class="docutils literal notranslate"><span class="pre">..mod</span></code>) で指定します。name が相対表現で与えられたら、<em>package</em> 引数を、パッケージ名を解決するためのアンカーとなるパッケージの名前に設定する必要があります (例えば <code class="docutils literal notranslate"><span class="pre">import_module('..mod',</span> <span class="pre">'pkg.subpkg')</span></code> は <code class="docutils literal notranslate"><span class="pre">pkg.mod</span></code> をインポートします)。</p>
+<p><a class="reference internal" href="#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code></a> 関数は <a class="reference internal" href="#importlib.__import__" title="importlib.__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.__import__()</span></code></a> を単純化するラッパーとして働きます。つまり、この関数のすべての意味は <a class="reference internal" href="#importlib.__import__" title="importlib.__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.__import__()</span></code></a> から受け継いでいます。これらの2つの関数の最も重要な違いは、 <a class="reference internal" href="#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code></a> が指定されたパッケージやモジュール (例えば <code class="docutils literal notranslate"><span class="pre">pkg.mod</span></code>) を返すのに対し、 <a class="reference internal" href="functions.html#__import__" title="__import__"><code class="xref py py-func docutils literal notranslate"><span class="pre">__import__()</span></code></a> はトップレベルのパッケージやモジュール (例えば <code class="docutils literal notranslate"><span class="pre">pkg</span></code>) を返すことです。</p>
+<p>もしモジュールを動的にインポートしていて、インタープリタの実行開始後にモジュールが作成された (例えば、 Python ソースファイルを作成した) 場合、インポートシステムが新しいモジュールを見つけられるように、 <a class="reference internal" href="#importlib.invalidate_caches" title="importlib.invalidate_caches"><code class="xref py py-func docutils literal notranslate"><span class="pre">invalidate_caches()</span></code></a> を呼ぶ必要があるでしょう。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>親パッケージは自動的にインポートされます。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.find_loader">
+<code class="descclassname">importlib.</code><code class="descname">find_loader</code><span class="sig-paren">(</span><em>name</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.find_loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールのローダーを、オプションで指定された <em>path</em> 内から、検索します。モジュールが <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.modules</span></code></a> にあれば、 <code class="docutils literal notranslate"><span class="pre">sys.modules[name].__loader__</span></code> が返されます (ただしローダーが <code class="docutils literal notranslate"><span class="pre">None</span></code> であるか設定されていなければ <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます)。なければ、 <a class="reference internal" href="sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> を使った検索がなされます。ローダーが見つからなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> が返ります。</p>
+<p>ドットのついた名前表記は、親モジュールのロードが必要なときに暗黙にインポートしないので、望ましくありません。
+サブモジュールを適切にインポートするには、そのサブモジュールの全ての親パッケージをインポートし、 <em>path</em> に正しい引数を使ってください。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><code class="docutils literal notranslate"><span class="pre">__loader__</span></code> が set でない場合、<code class="docutils literal notranslate"><span class="pre">None</span></code> に設定されているときと同様に <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> を送出します。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.util.find_spec" title="importlib.util.find_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.find_spec()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.invalidate_caches">
+<code class="descclassname">importlib.</code><code class="descname">invalidate_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.invalidate_caches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> に保存されたファインダーの内部キャッシュを無効にします。ファインダーが <code class="docutils literal notranslate"><span class="pre">invalidate_caches()</span></code> を実装していれば、無効化を行うためにそれが呼び出されます。すべてのファインダーが新しいモジュールの存在に気づくことを保証しているプログラムの実行中に、モジュールが作成またはインストールされたなら、この関数が呼び出されるべきです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.reload">
+<code class="descclassname">importlib.</code><code class="descname">reload</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.reload" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>以前にインポートされた <em>module</em> をリロードします。引数はモジュールオブジェクトでなければならず、したがってそれ以前に必ずインポートに成功していなければなりません。この関数は、モジュールのソースファイルを外部エディタで編集していて Python インタープリタから離れることなく新しいバージョンを試したい際に便利です。戻り値はモジュールオブジェクトです。 (もし再インポートが異なるオブジェクトを <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に配置したら、元の <em>module</em> とは異なるかもしれません。)</p>
+<p><a class="reference internal" href="#importlib.reload" title="importlib.reload"><code class="xref py py-func docutils literal notranslate"><span class="pre">reload()</span></code></a> が実行された場合:</p>
+<ul class="simple">
+<li>Python モジュールのコードは再コンパイルされ、モジュールレベルのコードが再度実行されます。モジュールの辞書中にある何らかの名前に結び付けられたオブジェクトは、そのモジュールを最初にロードしたときの <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> を再利用して新たに定義されます。拡張モジュールの <code class="docutils literal notranslate"><span class="pre">init</span></code> 関数が二度呼び出されることはありません。</li>
+<li>Python における他のオブジェクトと同様、以前のオブジェクトのメモリ領域は、参照カウントがゼロにならないかぎり再利用されません。</li>
+<li>モジュール名前空間内の名前は新しいオブジェクト (または更新されたオブジェクト) を指すよう更新されます。</li>
+<li>以前のオブジェクトが (外部の他のモジュールなどからの) 参照を受けている場合、それらを新たなオブジェクトに再束縛し直すことはないので、必要なら自分で名前空間を更新しなければなりません。</li>
+</ul>
+<p>いくつか補足説明があります:</p>
+<p>モジュールが再ロードされた際、その辞書 (モジュールのグローバル変数を含みます) はそのまま残ります。名前の再定義を行うと、以前の定義を上書きするので、一般的には問題はありません。新たなバージョンのモジュールが古いバージョンで定義された名前を定義していない場合、古い定義がそのまま残ります。辞書がグローバルテーブルやオブジェクトのキャッシュを維持していれば、この機能をモジュールを有効性を引き出すために使うことができます --- つまり、 <a class="reference internal" href="../reference/compound_stmts.html#try"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">try</span></code></a> 文を使えば、必要に応じてテーブルがあるかどうかをテストし、その初期化を飛ばすことができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">cache</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>組み込みモジュールや動的にロードされるモジュールを再ロードすることは、一般的にそれほど便利ではありません。 <a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a>, <a class="reference internal" href="__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a>, <a class="reference internal" href="builtins.html#module-builtins" title="builtins: The module that provides the built-in namespace."><code class="xref py py-mod docutils literal notranslate"><span class="pre">builtins</span></code></a> やその他重要なモジュールの再ロードはお勧め出来ません。多くの場合、拡張モジュールは 1 度以上初期化されるようには設計されておらず、再ロードされた場合には何らかの理由で失敗するかもしれません。</p>
+<p>一方のモジュールが <a class="reference internal" href="../reference/simple_stmts.html#from"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">from</span></code></a> ... <a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> ... を使って、オブジェクトを他方のモジュールからインポートしているなら、他方のモジュールを <a class="reference internal" href="#importlib.reload" title="importlib.reload"><code class="xref py py-func docutils literal notranslate"><span class="pre">reload()</span></code></a> で呼び出しても、そのモジュールからインポートされたオブジェクトを再定義することはできません --- この問題を回避する一つの方法は、 <a class="reference internal" href="../reference/simple_stmts.html#from"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">from</span></code></a> 文を再度実行することで、もう一つの方法は <code class="xref std std-keyword docutils literal notranslate"><span class="pre">from</span></code> 文の代わりに <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> と限定的な名前 (<em>module.name</em>) を使うことです。</p>
+<p>あるモジュールがクラスのインスタンスを生成している場合、そのクラスを定義しているモジュールの再ロードはそれらインスタンスのメソッド定義に影響しません --- それらは古いクラス定義を使い続けます。これは派生クラスの場合でも同じです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>リロードされたモジュールの <code class="xref py py-class docutils literal notranslate"><span class="pre">ModuleSpec</span></code> が欠けていたときは <a class="reference internal" href="exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> が送出されます。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-importlib.abc">
+<span id="importlib-abc-abstract-base-classes-related-to-import"></span><h2><a class="reference internal" href="#module-importlib.abc" title="importlib.abc: Abstract base classes related to import"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib.abc</span></code></a> -- インポートに関連する抽象基底クラス<a class="headerlink" href="#module-importlib.abc" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/importlib/abc.py">Lib/importlib/abc.py</a></p>
+<hr class="docutils" />
+<p><a class="reference internal" href="#module-importlib.abc" title="importlib.abc: Abstract base classes related to import"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib.abc</span></code></a> モジュールは、 <a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> に使われるすべてのコア抽象基底クラス含みます。コア抽象基底クラスの実装を助けるために、コア抽象基底クラスのサブクラスもいくつか提供されています。</p>
+<p>抽象基底クラス階層:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nb">object</span>
+ <span class="o">+--</span> <span class="n">Finder</span> <span class="p">(</span><span class="n">deprecated</span><span class="p">)</span>
+ <span class="o">|</span>    <span class="o">+--</span> <span class="n">MetaPathFinder</span>
+ <span class="o">|</span>    <span class="o">+--</span> <span class="n">PathEntryFinder</span>
+ <span class="o">+--</span> <span class="n">Loader</span>
+      <span class="o">+--</span> <span class="n">ResourceLoader</span> <span class="o">--------+</span>
+      <span class="o">+--</span> <span class="n">InspectLoader</span>          <span class="o">|</span>
+           <span class="o">+--</span> <span class="n">ExecutionLoader</span> <span class="o">--+</span>
+                                 <span class="o">+--</span> <span class="n">FileLoader</span>
+                                 <span class="o">+--</span> <span class="n">SourceLoader</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="importlib.abc.Finder">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">Finder</code><a class="headerlink" href="#importlib.abc.Finder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-finder"><span class="xref std std-term">finder</span></a> を表す抽象基底クラスです。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.3 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.MetaPathFinder" title="importlib.abc.MetaPathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaPathFinder</span></code></a> または <a class="reference internal" href="#importlib.abc.PathEntryFinder" title="importlib.abc.PathEntryFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathEntryFinder</span></code></a> を使ってください。</p>
+</div>
+<dl class="method">
+<dt id="importlib.abc.Finder.find_module">
+<em class="property">abstractmethod </em><code class="descname">find_module</code><span class="sig-paren">(</span><em>fullname</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.Finder.find_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されたモジュールの <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> を検索するための抽象メソッドです。もとは <span class="target" id="index-36"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> で仕様が定められ、このメソッドは <a class="reference internal" href="sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> の中およびパスに基づくインポートサブシステムの中で使用することを意図されています。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>呼び出されたときに <a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> を送出する代わりに <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.MetaPathFinder">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">MetaPathFinder</code><a class="headerlink" href="#importlib.abc.MetaPathFinder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-meta-path-finder"><span class="xref std std-term">meta path finder</span></a> を表す抽象基底クラスです。互換性のため、これは <a class="reference internal" href="#importlib.abc.Finder" title="importlib.abc.Finder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finder</span></code></a> のサブクラスです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="method">
+<dt id="importlib.abc.MetaPathFinder.find_spec">
+<code class="descname">find_spec</code><span class="sig-paren">(</span><em>fullname</em>, <em>path</em>, <em>target=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.MetaPathFinder.find_spec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>An abstract method for finding a <a class="reference internal" href="../glossary.html#term-module-spec"><span class="xref std std-term">spec</span></a> for
+the specified module.  If this is a top-level import, <em>path</em> will
+be <code class="docutils literal notranslate"><span class="pre">None</span></code>.  Otherwise, this is a search for a subpackage or
+module and <em>path</em> will be the value of <a class="reference internal" href="../reference/import.html#__path__" title="__path__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__path__</span></code></a> from the
+parent package. If a spec cannot be found, <code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.
+When passed in, <code class="docutils literal notranslate"><span class="pre">target</span></code> is a module object that the finder may
+use to make a more educated guess about what spec to return.
+<a class="reference internal" href="#importlib.util.spec_from_loader" title="importlib.util.spec_from_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.spec_from_loader()</span></code></a> may be useful for implementing
+concrete <code class="docutils literal notranslate"><span class="pre">MetaPathFinders</span></code>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.MetaPathFinder.find_module">
+<code class="descname">find_module</code><span class="sig-paren">(</span><em>fullname</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.MetaPathFinder.find_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されたモジュールの <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> を検索するためのレガシーなメソッドです。これがトップレベルのインポートなら、 <em>path</em> は <code class="docutils literal notranslate"><span class="pre">None</span></code> になります。そうでなければ、これはサブパッケージまたはモジュールの検索で、 <em>path</em> は親パッケージの <a class="reference internal" href="../reference/import.html#__path__" title="__path__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__path__</span></code></a> の値になります。ローダーが見つからなければ、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が返されます。</p>
+<p><a class="reference internal" href="#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> が定義された場合、後方互換な機能が提供されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>このメソッドが呼ばれた場合 <a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> を投げる代わりに <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。この機能を提供するのに <a class="reference internal" href="#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> を使用できます。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.MetaPathFinder.find_spec" title="importlib.abc.MetaPathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.MetaPathFinder.invalidate_caches">
+<code class="descname">invalidate_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.MetaPathFinder.invalidate_caches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このファインダーで使われている内部キャッシュがあれば無効にするオプションのメソッドです。 <a class="reference internal" href="sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> 上のすべてのファインダーのキャッシュを無効化する際、 <a class="reference internal" href="#importlib.invalidate_caches" title="importlib.invalidate_caches"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.invalidate_caches()</span></code></a> によって使われます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>呼び出されたときに <code class="docutils literal notranslate"><span class="pre">NotImplemented</span></code> を送出する代わりに <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.PathEntryFinder">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">PathEntryFinder</code><a class="headerlink" href="#importlib.abc.PathEntryFinder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> を表す抽象基底クラスです。 <a class="reference internal" href="#importlib.abc.MetaPathFinder" title="importlib.abc.MetaPathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">MetaPathFinder</span></code></a> と似ているところがありますが、 <code class="docutils literal notranslate"><span class="pre">PathEntryFinder</span></code> は <code class="xref py py-class docutils literal notranslate"><span class="pre">PathFinder</span></code> の与えるパスに基づくインポートサブシステムの中でのみ使うことが意図されています。この抽象基底クラスは互換性の理由だけのために、 <a class="reference internal" href="#importlib.abc.Finder" title="importlib.abc.Finder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finder</span></code></a> のサブクラスにしてあります。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="method">
+<dt id="importlib.abc.PathEntryFinder.find_spec">
+<code class="descname">find_spec</code><span class="sig-paren">(</span><em>fullname</em>, <em>target=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.PathEntryFinder.find_spec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>An abstract method for finding a <a class="reference internal" href="../glossary.html#term-module-spec"><span class="xref std std-term">spec</span></a> for
+the specified module.  The finder will search for the module only
+within the <a class="reference internal" href="../glossary.html#term-path-entry"><span class="xref std std-term">path entry</span></a> to which it is assigned.  If a spec
+cannot be found, <code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.  When passed in, <code class="docutils literal notranslate"><span class="pre">target</span></code>
+is a module object that the finder may use to make a more educated
+guess about what spec to return. <a class="reference internal" href="#importlib.util.spec_from_loader" title="importlib.util.spec_from_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.spec_from_loader()</span></code></a>
+may be useful for implementing concrete <code class="docutils literal notranslate"><span class="pre">PathEntryFinders</span></code>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.PathEntryFinder.find_loader">
+<code class="descname">find_loader</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.PathEntryFinder.find_loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されたモジュールの <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> を検索する抽象メソッドです。 <code class="docutils literal notranslate"><span class="pre">(loader,</span> <span class="pre">portion)</span></code> の 2-タプルを返します。ただし <code class="docutils literal notranslate"><span class="pre">portion</span></code> は名前空間パッケージの部分に寄与するファイルシステム上の場所のシーケンスです。 loader は名前空間パッケージへのファイルシステム上の場所の寄与を表す <code class="docutils literal notranslate"><span class="pre">portion</span></code> を明記するとき <code class="docutils literal notranslate"><span class="pre">None</span></code> にできます。loader が名前空間パッケージの一部ではないことを明記するとき <code class="docutils literal notranslate"><span class="pre">portion</span></code> に空のリストが使えます。 <code class="docutils literal notranslate"><span class="pre">loader</span></code> が <code class="docutils literal notranslate"><span class="pre">None</span></code> で <code class="docutils literal notranslate"><span class="pre">portion</span></code> が空のリストなら、名前空間パッケージのローダーや場所が見つかりませんでした (すなわち、モジュールの何も見つかりませんでした)。</p>
+<p><a class="reference internal" href="#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> が定義された場合、後方互換な機能が提供されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> を送出する代わりに <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">[])</span></code> を返します。機能を提供できる場合 <a class="reference internal" href="#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> を使用します。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.PathEntryFinder.find_module">
+<code class="descname">find_module</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.PathEntryFinder.find_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.Finder.find_module" title="importlib.abc.Finder.find_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Finder.find_module()</span></code></a> の具象実装で、 <code class="docutils literal notranslate"><span class="pre">self.find_loader(fullname)[0]</span></code> と等価です。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.PathEntryFinder.find_spec" title="importlib.abc.PathEntryFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.PathEntryFinder.invalidate_caches">
+<code class="descname">invalidate_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.PathEntryFinder.invalidate_caches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このファインダーで使われている内部キャッシュがあれば無効にするオプションのメソッドです。キャッシュされたすべてのファインダーの無効化する際、 <code class="xref py py-meth docutils literal notranslate"><span class="pre">PathFinder.invalidate_caches()</span></code> によって使われます。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.Loader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">Loader</code><a class="headerlink" href="#importlib.abc.Loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">loader</span></a> の抽象基底クラスです。ローダーの厳密な定義は <span class="target" id="index-37"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> を参照してください。</p>
+<p>リソースの読み出しをサポートさせたいローダーには、 <a class="reference internal" href="#importlib.abc.ResourceReader" title="importlib.abc.ResourceReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.ResourceReader</span></code></a> で指定されている <code class="docutils literal notranslate"><span class="pre">get_resource_reader(fullname)</span></code> を実装してください。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>オプションの <code class="docutils literal notranslate"><span class="pre">get_resource_reader()</span></code> メソッドが導入されました。</p>
+</div>
+<dl class="method">
+<dt id="importlib.abc.Loader.create_module">
+<code class="descname">create_module</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.Loader.create_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールをインポートする際に使用されるモジュールオブジェクトを返すメソッド。このメソッドは <code class="docutils literal notranslate"><span class="pre">None</span></code> を戻すことができ、その場合はデフォルトのモジュール作成のセマンティクスが適用されることを示します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>Python 3.6 からは、 <a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> が定義されている場合は、このメソッドはオプションではなくなります。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.Loader.exec_module">
+<code class="descname">exec_module</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.Loader.exec_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールがインポートまたはリロードされる際に、そのモジュールをモジュール自身の名前空間の中で実行する抽象的なメソッド。
+<code class="docutils literal notranslate"><span class="pre">exec_module()</span></code> が呼ばれる時点で、モジュールはすでに初期設定されている必要があります。
+このメソッドが存在するときは、 <a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a> の定義が必須です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a> の定義が必須となりました。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.Loader.load_module">
+<code class="descname">load_module</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.Loader.load_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールをロードするためのレガシーなメソッドです。モジュールがロードできなければ <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出し、ロードできればロードされたモジュールを返します。</p>
+<p>要求されたモジュールが既に <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に存在したなら、そのモジュールが使われリロードされる必要があります。存在しなければ、インポートからの再帰を防ぐため、ローダーはロードが始まる前に新しいモジュールを作成して <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に挿入する必要があります。ローダーがモジュールを挿入した後にロードが失敗したなら、ローダーはそのモジュールを <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> から削除する必要があります。ローダーが実行を始める前に既に <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> にあったモジュールは、そのままにします (<a class="reference internal" href="#importlib.util.module_for_loader" title="importlib.util.module_for_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.module_for_loader()</span></code></a> を参照してください)。</p>
+<p>ローダーはモジュールにいくつかの属性を設定する必要があります。(なお、これらの属性には、モジュールがリロードされた際に変化するものがあります):</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../reference/import.html#__name__" title="__name__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__name__</span></code></a></dt>
+<dd>モジュールの名前です。</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../reference/import.html#__file__" title="__file__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__file__</span></code></a></dt>
+<dd>モジュールのデータが保存されている場所へのパスです (組み込みモジュールには設定されません)。</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../reference/import.html#__cached__" title="__cached__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__cached__</span></code></a></dt>
+<dd>モジュールのコンパイルされた版が保存されている (べき) 場所へのパスです (この属性が適切でないときには設定されません)。</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../reference/import.html#__path__" title="__path__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__path__</span></code></a></dt>
+<dd>パッケージ内の検索パスを指定する文字列のリストです。この属性はモジュールには設定されません。</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a></dt>
+<dd>モジュールやパッケージの親パッケージです。そのモジュールがトップレベルなら、空文字列の値をとります。 <a class="reference internal" href="#importlib.util.module_for_loader" title="importlib.util.module_for_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.module_for_loader()</span></code></a> デコレータで、<a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> の詳細を扱えます。</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="../reference/import.html#__loader__" title="__loader__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__loader__</span></code></a></dt>
+<dd>モジュールをロードするのに使われたローダーです。 <a class="reference internal" href="#importlib.util.module_for_loader" title="importlib.util.module_for_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.module_for_loader()</span></code></a> デコレータで、 <a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> の詳細を扱えます。</dd>
+</dl>
+</li>
+</ul>
+<p><a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> が利用可能な場合、後方互換な機能が提供されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>このメソッドが呼ばれた時に、 <a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。 <a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> が利用可能な時は、この機能は提供されます。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>モジュールをロードするための推奨される API は、 <a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> (および <a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a>) です。ローダーは load_module() の代わりにそれを実装するべきです。 exec_module() が実装されている場合、インポート機構は load_module() の他のすべての責任を肩代わりします。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.Loader.module_repr">
+<code class="descname">module_repr</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.Loader.module_repr" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>実装されていた場合、与えられたモジュールの repr を計算して文字列として返すためのレガシーなメソッドです。モジュール型のデフォルトの repr() は、必要に応じてこのメソッドの結果を使います。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>抽象メソッドではなくオプショナルになりました。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>インポート機構はこれを自動的に考慮するようになりました。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.ResourceReader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">ResourceReader</code><a class="headerlink" href="#importlib.abc.ResourceReader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>resources</em> の読み出し機能を提供する <a class="reference internal" href="../glossary.html#term-abstract-base-class"><span class="xref std std-term">抽象基底クラス (abstract base class, ABC)</span></a> です。</p>
+<p>From the perspective of this ABC, a <em>resource</em> is a binary
+artifact that is shipped within a package. Typically this is
+something like a data file that lives next to the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>
+file of the package. The purpose of this class is to help abstract
+out the accessing of such data files so that it does not matter if
+the package and its data file(s) are stored in a e.g. zip file
+versus on the file system.</p>
+<p>For any of methods of this class, a <em>resource</em> argument is
+expected to be a <a class="reference internal" href="../glossary.html#term-path-like-object"><span class="xref std std-term">path-like object</span></a> which represents
+conceptually just a file name. This means that no subdirectory
+paths should be included in the <em>resource</em> argument. This is
+because the location of the package the reader is for, acts as the
+&quot;directory&quot;. Hence the metaphor for directories and file
+names is packages and resources, respectively. This is also why
+instances of this class are expected to directly correlate to
+a specific package (instead of potentially representing multiple
+packages or a module).</p>
+<p>Loaders that wish to support resource reading are expected to
+provide a method called <code class="docutils literal notranslate"><span class="pre">get_resource_reader(fullname)</span></code> which
+returns an object implementing this ABC's interface. If the module
+specified by fullname is not a package, this method should return
+<a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a>. An object compatible with this ABC should only be
+returned when the specified module is a package.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+<dl class="method">
+<dt id="importlib.abc.ResourceReader.open_resource">
+<em class="property">abstractmethod </em><code class="descname">open_resource</code><span class="sig-paren">(</span><em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.ResourceReader.open_resource" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Returns an opened, <a class="reference internal" href="../glossary.html#term-file-like-object"><span class="xref std std-term">file-like object</span></a> for binary reading
+of the <em>resource</em>.</p>
+<p>リソースが見付からない場合は、 <a class="reference internal" href="exceptions.html#FileNotFoundError" title="FileNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileNotFoundError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.ResourceReader.resource_path">
+<em class="property">abstractmethod </em><code class="descname">resource_path</code><span class="sig-paren">(</span><em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.ResourceReader.resource_path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>resource</em> へのファイルシステムパスを返します。</p>
+<p>リソースの実体がファイルシステムに存在しない場合、 <a class="reference internal" href="exceptions.html#FileNotFoundError" title="FileNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileNotFoundError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.ResourceReader.is_resource">
+<em class="property">abstractmethod </em><code class="descname">is_resource</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.ResourceReader.is_resource" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>name</em> という名前がリソースだと見なせるなら <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。
+<em>name</em> が存在しない場合は <a class="reference internal" href="exceptions.html#FileNotFoundError" title="FileNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FileNotFoundError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.ResourceReader.contents">
+<em class="property">abstractmethod </em><code class="descname">contents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.ResourceReader.contents" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Returns an <a class="reference internal" href="../glossary.html#term-iterable"><span class="xref std std-term">iterable</span></a> of strings over the contents of
+the package. Do note that it is not required that all names
+returned by the iterator be actual resources, e.g. it is
+acceptable to return names for which <a class="reference internal" href="#importlib.abc.ResourceReader.is_resource" title="importlib.abc.ResourceReader.is_resource"><code class="xref py py-meth docutils literal notranslate"><span class="pre">is_resource()</span></code></a> would
+be false.</p>
+<p>Allowing non-resource names to be returned is to allow for
+situations where how a package and its resources are stored
+are known a priori and the non-resource names would be useful.
+For instance, returning subdirectory names is allowed so that
+when it is known that the package and resources are stored on
+the file system then those subdirectory names can be used
+directly.</p>
+<p>The abstract method returns an iterable of no items.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.ResourceLoader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">ResourceLoader</code><a class="headerlink" href="#importlib.abc.ResourceLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">loader</span></a> の抽象基底クラスで、ストレージバックエンドから任意のリソースをロードするオプションの <span class="target" id="index-38"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> プロトコルを実装します。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.7 で非推奨: </span>This ABC is deprecated in favour of supporting resource loading
+through <a class="reference internal" href="#importlib.abc.ResourceReader" title="importlib.abc.ResourceReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.ResourceReader</span></code></a>.</p>
+</div>
+<dl class="method">
+<dt id="importlib.abc.ResourceLoader.get_data">
+<em class="property">abstractmethod </em><code class="descname">get_data</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.ResourceLoader.get_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>path</em> に割り当てられたデータのバイト列を返す抽象メソッドです。任意のデータを保管できるファイル的なストレージバックエンドをもつローダーは、この抽象メソッドを実装して、保管されたデータに直接アクセスさせるようにできます。 <em>path</em> が見つからなければ <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出する必要があります。 <em>path</em> は、モジュールの <a class="reference internal" href="../reference/import.html#__file__" title="__file__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__file__</span></code></a> 属性を使って、またはパッケージの <a class="reference internal" href="../reference/import.html#__path__" title="__path__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__path__</span></code></a> の要素を使って、構成されることが期待されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出します。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.InspectLoader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">InspectLoader</code><a class="headerlink" href="#importlib.abc.InspectLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">loader</span></a> の抽象基底クラスで、ローダーがモジュールを検査するためのオプションの <span class="target" id="index-39"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> プロトコルを実装します。</p>
+<dl class="method">
+<dt id="importlib.abc.InspectLoader.get_code">
+<code class="descname">get_code</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.InspectLoader.get_code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールの <a class="reference internal" href="code.html#module-code" title="code: Facilities to implement read-eval-print loops."><code class="xref py py-class docutils literal notranslate"><span class="pre">code</span></code></a> オブジェクトを返すか、 (例えば組み込みモジュールの場合に) モジュールがコードオブジェクトを持たなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。要求されたモジュールをローダーが見つけられなかった場合は <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">このメソッドにはデフォルト実装がありますが、とはいえパフォーマンスのために、可能ならばオーバライドしたほうが良いです。</p>
+</div>
+<div class="versionchanged" id="index-16">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>このメソッドはもはや抽象メソッドではなく、具象実装が提供されます。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.InspectLoader.get_source">
+<em class="property">abstractmethod </em><code class="descname">get_source</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.InspectLoader.get_source" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールのソースを返す抽象メソッドです。これは認識されたすべての行セパレータを <code class="docutils literal notranslate"><span class="pre">'\n'</span></code> 文字に変換し、 <a class="reference internal" href="../glossary.html#term-universal-newlines"><span class="xref std std-term">universal newlines</span></a> を使ったテキスト文字列として返されます。利用できるソースがなければ (例えば組み込みモジュール)、 <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。指定されたモジュールが見つからなければ、 <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.InspectLoader.is_package">
+<code class="descname">is_package</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.InspectLoader.is_package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールがパッケージであれば True を返し、そうでなければ False を返す抽象メソッドです。 <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">ローダー</span></a> がモジュールを見つけられなかったなら <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> が送出されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。</p>
+</div>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="importlib.abc.InspectLoader.source_to_code">
+<em class="property">static </em><code class="descname">source_to_code</code><span class="sig-paren">(</span><em>data</em>, <em>path='&lt;string&gt;'</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.InspectLoader.source_to_code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Python のソースからコードオブジェクトを作ります。</p>
+<p><em>data</em> 引数は <a class="reference internal" href="functions.html#compile" title="compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> 関数がサポートするもの (すなわち文字列かバイト) なら何でも構いません。<em>path</em> 引数はソースコードの元々の場所への &quot;パス&quot; でなければなりませんが、抽象概念 (例えば zip ファイル内の場所) でも構いません。</p>
+<p>結果のコードオブジェクトを使って、 <code class="docutils literal notranslate"><span class="pre">exec(code,</span> <span class="pre">module.__dict__)</span></code> を呼ぶことでモジュール内でコードを実行できます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>スタティックメソッドになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.InspectLoader.exec_module">
+<code class="descname">exec_module</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.InspectLoader.exec_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.exec_module()</span></code></a> の実装です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.InspectLoader.load_module">
+<code class="descname">load_module</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.InspectLoader.load_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.load_module()</span></code></a> の実装です。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.InspectLoader.exec_module" title="importlib.abc.InspectLoader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.ExecutionLoader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">ExecutionLoader</code><a class="headerlink" href="#importlib.abc.ExecutionLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.InspectLoader" title="importlib.abc.InspectLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">InspectLoader</span></code></a> から継承された抽象基底クラスで、実装されていれば、モジュールをスクリプトとして実行する助けになります。この抽象基底クラスはオプションの <span class="target" id="index-40"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> プロトコルを表します。</p>
+<dl class="method">
+<dt id="importlib.abc.ExecutionLoader.get_filename">
+<em class="property">abstractmethod </em><code class="descname">get_filename</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.ExecutionLoader.get_filename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されたモジュールの <a class="reference internal" href="../reference/import.html#__file__" title="__file__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__file__</span></code></a> の値を返す抽象メソッドです。利用できるパスがなければ、 <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> が送出されます。</p>
+<p>ソースコードが利用できるなら、そのモジュールのロードにバイトコードが使われたかにかかわらず、このメソッドはそのソースファイルへのパスを返す必要があります。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> を送出します。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.FileLoader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">FileLoader</code><span class="sig-paren">(</span><em>fullname</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.FileLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.ResourceLoader" title="importlib.abc.ResourceLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceLoader</span></code></a> と <a class="reference internal" href="#importlib.abc.ExecutionLoader" title="importlib.abc.ExecutionLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionLoader</span></code></a> から継承された抽象基底クラスで、 <a class="reference internal" href="#importlib.abc.ResourceLoader.get_data" title="importlib.abc.ResourceLoader.get_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ResourceLoader.get_data()</span></code></a> および <a class="reference internal" href="#importlib.abc.ExecutionLoader.get_filename" title="importlib.abc.ExecutionLoader.get_filename"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExecutionLoader.get_filename()</span></code></a> の具象実装を提供します。</p>
+<p><em>fullname</em> 引数は、ローダーが解決しようとするモジュールの、完全に解決された名前です。<em>path</em> 引数は、モジュールのファイルへのパスです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="importlib.abc.FileLoader.name">
+<code class="descname">name</code><a class="headerlink" href="#importlib.abc.FileLoader.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ローダーが扱えるモジュールの名前です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.abc.FileLoader.path">
+<code class="descname">path</code><a class="headerlink" href="#importlib.abc.FileLoader.path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールのファイルへのパスです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.FileLoader.load_module">
+<code class="descname">load_module</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.FileLoader.load_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>親クラスの <code class="docutils literal notranslate"><span class="pre">load_module()</span></code> を呼び出します。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.exec_module()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.FileLoader.get_filename">
+<em class="property">abstractmethod </em><code class="descname">get_filename</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.FileLoader.get_filename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.FileLoader.path" title="importlib.abc.FileLoader.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.FileLoader.get_data">
+<em class="property">abstractmethod </em><code class="descname">get_data</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.FileLoader.get_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>path</em> をバイナリファイルとして読み込み、そのバイト列を返します。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.abc.SourceLoader">
+<em class="property">class </em><code class="descclassname">importlib.abc.</code><code class="descname">SourceLoader</code><a class="headerlink" href="#importlib.abc.SourceLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ソース (オプションでバイトコード) ファイルのロードを実装する抽象基底クラスです。このクラスは、 <a class="reference internal" href="#importlib.abc.ResourceLoader" title="importlib.abc.ResourceLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceLoader</span></code></a> と <a class="reference internal" href="#importlib.abc.ExecutionLoader" title="importlib.abc.ExecutionLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecutionLoader</span></code></a> の両方を継承し、以下の実装が必要です:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#importlib.abc.ResourceLoader.get_data" title="importlib.abc.ResourceLoader.get_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ResourceLoader.get_data()</span></code></a></li>
+<li><dl class="first docutils">
+<dt><a class="reference internal" href="#importlib.abc.ExecutionLoader.get_filename" title="importlib.abc.ExecutionLoader.get_filename"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExecutionLoader.get_filename()</span></code></a></dt>
+<dd>ソースファイルへのパスのみを返す必要があります。ソースなしのロードはサポートされていません。</dd>
+</dl>
+</li>
+</ul>
+<p>このクラスでこれらの抽象メソッドを定義することで、バイトコードファイルを追加でサポートします。これらのメソッドを定義しなければ (またはそのモジュールが <a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> を送出すれば)、このローダーはソースコードに対してのみ働きます。これらのメソッドを実装することで、ローダーはソースとバイトコードファイル <em>の組み合わせ</em> に対して働きます。バイトコードのみを与えた <em>ソースのない</em> ロードは認められません。バイトコードファイルは、 Python コンパイラによる解析の工程をなくして速度を上げる最適化です。ですから、バイトコード特有の API は公開されていません。</p>
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.path_stats">
+<code class="descname">path_stats</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.path_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されたパスについてのメタデータを含む <a class="reference internal" href="stdtypes.html#dict" title="dict"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> を返す、オプションの抽象メソッドです。サポートされる辞書のキーは:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">'mtime'</span></code> (必須): ソースコードの更新時刻を表す整数または浮動小数点数です。</li>
+<li><code class="docutils literal notranslate"><span class="pre">'size'</span></code> (任意): バイト数で表したソースコードのサイズです。</li>
+</ul>
+<p>未来の拡張のため、辞書内の他のキーは無視されます。パスが扱えなければ、 <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> が送出されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出します。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.path_mtime">
+<code class="descname">path_mtime</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.path_mtime" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されたパスの更新時刻を返す、オプションの抽象メソッドです。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.3 で非推奨: </span>このメソッドは廃止され、 <a class="reference internal" href="#importlib.abc.SourceLoader.path_stats" title="importlib.abc.SourceLoader.path_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_stats()</span></code></a> が推奨されます。このモジュールを実装する必要はありませんが、互換性のため現在も利用できます。パスが扱えなければ、 <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> が送出されます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> の代わりに <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> を送出します。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.set_data">
+<code class="descname">set_data</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.set_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルパスに指定されたバイト列を書き込むオプションの抽象メソッドです。存在しない中間ディレクトリがあれば、自動で作成されます。</p>
+<p>パスへの書き込みが読み出し専用のために失敗したとき (<a class="reference internal" href="errno.html#errno.EACCES" title="errno.EACCES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">errno.EACCES</span></code></a>/<a class="reference internal" href="exceptions.html#PermissionError" title="PermissionError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PermissionError</span></code></a>) 、その例外を伝播させません。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>呼ばれたときに <a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> を送出することは最早ありません。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.get_code">
+<code class="descname">get_code</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.get_code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.InspectLoader.get_code" title="importlib.abc.InspectLoader.get_code"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InspectLoader.get_code()</span></code></a> の具象実装です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.exec_module">
+<code class="descname">exec_module</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.exec_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.exec_module()</span></code></a> の具象実装です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.load_module">
+<code class="descname">load_module</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.load_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.load_module()</span></code></a> の具象実装です。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.SourceLoader.exec_module" title="importlib.abc.SourceLoader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.get_source">
+<code class="descname">get_source</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.get_source" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.InspectLoader.get_source" title="importlib.abc.InspectLoader.get_source"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InspectLoader.get_source()</span></code></a> の具象実装です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.abc.SourceLoader.is_package">
+<code class="descname">is_package</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.abc.SourceLoader.is_package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.InspectLoader.is_package" title="importlib.abc.InspectLoader.is_package"><code class="xref py py-meth docutils literal notranslate"><span class="pre">InspectLoader.is_package()</span></code></a> の具象実装です。モジュールは、次の <em>両方</em> を満たすならパッケージであると決定されます。モジュールの (<a class="reference internal" href="#importlib.abc.ExecutionLoader.get_filename" title="importlib.abc.ExecutionLoader.get_filename"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ExecutionLoader.get_filename()</span></code></a> で与えられる) ファイルパスが、ファイル拡張子を除くと <code class="docutils literal notranslate"><span class="pre">__init__</span></code> という名のファイルであること。モジュール名自体が <code class="docutils literal notranslate"><span class="pre">__init__</span></code> で終わらないこと。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-importlib.resources">
+<span id="importlib-resources-resources"></span><h2><a class="reference internal" href="#module-importlib.resources" title="importlib.resources: Package resource reading, opening, and access"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib.resources</span></code></a> -- Resources<a class="headerlink" href="#module-importlib.resources" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/importlib/resources.py">Lib/importlib/resources.py</a></p>
+<hr class="docutils" />
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+<p>This module leverages Python's import system to provide access to <em>resources</em>
+within <em>packages</em>.  If you can import a package, you can access resources
+within that package.  Resources can be opened or read, in either binary or
+text mode.</p>
+<p>Resources are roughly akin to files inside directories, though it's important
+to keep in mind that this is just a metaphor.  Resources and packages <strong>do
+not</strong> have to exist as physical files and directories on the file system.</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>This module provides functionality similar to <a class="reference external" href="https://setuptools.readthedocs.io/en/latest/pkg_resources.html">pkg_resources</a> <a class="reference external" href="http://setuptools.readthedocs.io/en/latest/pkg_resources.html#basic-resource-access">Basic
+Resource Access</a>
+without the performance overhead of that package.  This makes reading
+resources included in packages easier, with more stable and consistent
+semantics.</p>
+<p class="last">The standalone backport of this module provides more information
+on <a class="reference external" href="http://importlib-resources.readthedocs.io/en/latest/using.html">using importlib.resources</a> and
+<a class="reference external" href="http://importlib-resources.readthedocs.io/en/latest/migration.html">migrating from pkg_resources to importlib.resources</a>.</p>
+</div>
+<p>リソースの読み出しをサポートさせたいローダーには、 <a class="reference internal" href="#importlib.abc.ResourceReader" title="importlib.abc.ResourceReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.ResourceReader</span></code></a> で指定されている <code class="docutils literal notranslate"><span class="pre">get_resource_reader(fullname)</span></code> を実装してください。</p>
+<p>次の型が定義されています。</p>
+<dl class="data">
+<dt id="importlib.resources.Package">
+<code class="descclassname">importlib.resources.</code><code class="descname">Package</code><a class="headerlink" href="#importlib.resources.Package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">Package</span></code> type is defined as <code class="docutils literal notranslate"><span class="pre">Union[str,</span> <span class="pre">ModuleType]</span></code>.  This means
+that where the function describes accepting a <code class="docutils literal notranslate"><span class="pre">Package</span></code>, you can pass in
+either a string or a module.  Module objects must have a resolvable
+<code class="docutils literal notranslate"><span class="pre">__spec__.submodule_search_locations</span></code> that is not <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="importlib.resources.Resource">
+<code class="descclassname">importlib.resources.</code><code class="descname">Resource</code><a class="headerlink" href="#importlib.resources.Resource" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>This type describes the resource names passed into the various functions
+in this package.  This is defined as <code class="docutils literal notranslate"><span class="pre">Union[str,</span> <span class="pre">os.PathLike]</span></code>.</p>
+</dd></dl>
+
+<p>次の関数が利用可能です。</p>
+<dl class="function">
+<dt id="importlib.resources.open_binary">
+<code class="descclassname">importlib.resources.</code><code class="descname">open_binary</code><span class="sig-paren">(</span><em>package</em>, <em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.open_binary" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Open for binary reading the <em>resource</em> within <em>package</em>.</p>
+<p><em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.  <em>resource</em> is the name of the resource to open
+within <em>package</em>; it may not contain path separators and it may not have
+sub-resources (i.e. it cannot be a directory).  This function returns a
+<code class="docutils literal notranslate"><span class="pre">typing.BinaryIO</span></code> instance, a binary I/O stream open for reading.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.resources.open_text">
+<code class="descclassname">importlib.resources.</code><code class="descname">open_text</code><span class="sig-paren">(</span><em>package</em>, <em>resource</em>, <em>encoding='utf-8'</em>, <em>errors='strict'</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.open_text" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Open for text reading the <em>resource</em> within <em>package</em>.  By default, the
+resource is opened for reading as UTF-8.</p>
+<p><em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.  <em>resource</em> is the name of the resource to open
+within <em>package</em>; it may not contain path separators and it may not have
+sub-resources (i.e. it cannot be a directory).  <em>encoding</em> and <em>errors</em>
+have the same meaning as with built-in <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a>.</p>
+<p>This function returns a <code class="docutils literal notranslate"><span class="pre">typing.TextIO</span></code> instance, a text I/O stream open
+for reading.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.resources.read_binary">
+<code class="descclassname">importlib.resources.</code><code class="descname">read_binary</code><span class="sig-paren">(</span><em>package</em>, <em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.read_binary" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Read and return the contents of the <em>resource</em> within <em>package</em> as
+<code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</p>
+<p><em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.  <em>resource</em> is the name of the resource to open
+within <em>package</em>; it may not contain path separators and it may not have
+sub-resources (i.e. it cannot be a directory).  This function returns the
+contents of the resource as <a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.resources.read_text">
+<code class="descclassname">importlib.resources.</code><code class="descname">read_text</code><span class="sig-paren">(</span><em>package</em>, <em>resource</em>, <em>encoding='utf-8'</em>, <em>errors='strict'</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.read_text" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Read and return the contents of <em>resource</em> within <em>package</em> as a <code class="docutils literal notranslate"><span class="pre">str</span></code>.
+By default, the contents are read as strict UTF-8.</p>
+<p><em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.  <em>resource</em> is the name of the resource to open
+within <em>package</em>; it may not contain path separators and it may not have
+sub-resources (i.e. it cannot be a directory).  <em>encoding</em> and <em>errors</em>
+have the same meaning as with built-in <a class="reference internal" href="functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a>.  This function
+returns the contents of the resource as <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.resources.path">
+<code class="descclassname">importlib.resources.</code><code class="descname">path</code><span class="sig-paren">(</span><em>package</em>, <em>resource</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return the path to the <em>resource</em> as an actual file system path.  This
+function returns a context manager for use in a <a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> statement.
+The context manager provides a <a class="reference internal" href="pathlib.html#pathlib.Path" title="pathlib.Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">pathlib.Path</span></code></a> object.</p>
+<p>Exiting the context manager cleans up any temporary file created when the
+resource needs to be extracted from e.g. a zip file.</p>
+<p><em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.  <em>resource</em> is the name of the resource to open
+within <em>package</em>; it may not contain path separators and it may not have
+sub-resources (i.e. it cannot be a directory).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.resources.is_resource">
+<code class="descclassname">importlib.resources.</code><code class="descname">is_resource</code><span class="sig-paren">(</span><em>package</em>, <em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.is_resource" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if there is a resource named <em>name</em> in the package,
+otherwise <code class="docutils literal notranslate"><span class="pre">False</span></code>.  Remember that directories are <em>not</em> resources!
+<em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.resources.contents">
+<code class="descclassname">importlib.resources.</code><code class="descname">contents</code><span class="sig-paren">(</span><em>package</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.resources.contents" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return an iterable over the named items within the package.  The iterable
+returns <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> resources (e.g. files) and non-resources
+(e.g. directories).  The iterable does not recurse into subdirectories.</p>
+<p><em>package</em> is either a name or a module object which conforms to the
+<code class="docutils literal notranslate"><span class="pre">Package</span></code> requirements.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-importlib.machinery">
+<span id="importlib-machinery-importers-and-path-hooks"></span><h2><a class="reference internal" href="#module-importlib.machinery" title="importlib.machinery: Importers and path hooks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib.machinery</span></code></a> -- インポータおよびパスフック<a class="headerlink" href="#module-importlib.machinery" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/importlib/machinery.py">Lib/importlib/machinery.py</a></p>
+<hr class="docutils" />
+<p>このモジュールには、 <a class="reference internal" href="../reference/simple_stmts.html#import"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code></a> がモジュールを検索してロードするのに役立つ様々なオブジェクトがあります。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.SOURCE_SUFFIXES">
+<code class="descclassname">importlib.machinery.</code><code class="descname">SOURCE_SUFFIXES</code><a class="headerlink" href="#importlib.machinery.SOURCE_SUFFIXES" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>認識されているソースモジュールのファイル接尾辞を表す文字列のリストです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.DEBUG_BYTECODE_SUFFIXES">
+<code class="descclassname">importlib.machinery.</code><code class="descname">DEBUG_BYTECODE_SUFFIXES</code><a class="headerlink" href="#importlib.machinery.DEBUG_BYTECODE_SUFFIXES" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最適化されていないバイトコードモジュールのファイル接尾辞を表す文字列のリストです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.5 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.machinery.BYTECODE_SUFFIXES" title="importlib.machinery.BYTECODE_SUFFIXES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BYTECODE_SUFFIXES</span></code></a> を使ってください。</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.OPTIMIZED_BYTECODE_SUFFIXES">
+<code class="descclassname">importlib.machinery.</code><code class="descname">OPTIMIZED_BYTECODE_SUFFIXES</code><a class="headerlink" href="#importlib.machinery.OPTIMIZED_BYTECODE_SUFFIXES" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最適化されたバイトコードモジュールのファイル接尾辞を表す文字列のリストです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.5 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.machinery.BYTECODE_SUFFIXES" title="importlib.machinery.BYTECODE_SUFFIXES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BYTECODE_SUFFIXES</span></code></a> を使ってください。</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.BYTECODE_SUFFIXES">
+<code class="descclassname">importlib.machinery.</code><code class="descname">BYTECODE_SUFFIXES</code><a class="headerlink" href="#importlib.machinery.BYTECODE_SUFFIXES" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>認識されているバイトコードモジュールのファイル接尾辞を表す文字列のリストです (先頭のドットを含みます)。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>この値は <code class="docutils literal notranslate"><span class="pre">__debug__</span></code> に依存しなくなりました。</p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.EXTENSION_SUFFIXES">
+<code class="descclassname">importlib.machinery.</code><code class="descname">EXTENSION_SUFFIXES</code><a class="headerlink" href="#importlib.machinery.EXTENSION_SUFFIXES" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>認識されている最適化された拡張モジュールのファイル接尾辞を表す文字列のリストです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.machinery.all_suffixes">
+<code class="descclassname">importlib.machinery.</code><code class="descname">all_suffixes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.all_suffixes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>標準のインポート機構によって認識されているすべてのファイル接尾辞を表す文字列の組み合わせられたリストを返します。これが役立つのは、あるファイルシステムパスがモジュールを参照する可能性があるかだけを知りたくて、そのモジュールの種類を詳しく知る必要はないコード (例えば <a class="reference internal" href="inspect.html#inspect.getmodulename" title="inspect.getmodulename"><code class="xref py py-func docutils literal notranslate"><span class="pre">inspect.getmodulename()</span></code></a>) です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.BuiltinImporter">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">BuiltinImporter</code><a class="headerlink" href="#importlib.machinery.BuiltinImporter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>組み込みモジュールの <a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">importer</span></a> です。すべての既知のモジュールは <a class="reference internal" href="sys.html#sys.builtin_module_names" title="sys.builtin_module_names"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.builtin_module_names</span></code></a> に列挙されています。このクラスは <a class="reference internal" href="#importlib.abc.MetaPathFinder" title="importlib.abc.MetaPathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.MetaPathFinder</span></code></a> および <a class="reference internal" href="#importlib.abc.InspectLoader" title="importlib.abc.InspectLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.InspectLoader</span></code></a> 抽象基底クラスを実装します。</p>
+<p>インスタンス化の必要性を軽減するため、このクラスにはクラスメソッドだけが定義されています。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><span class="target" id="index-41"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0489"><strong>PEP 489</strong></a> の一環として、ビルトインインポーターは <code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.create_module()</span></code> と <code class="xref py py-meth docutils literal notranslate"><span class="pre">Loader.exec_module()</span></code> を実装しています。</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.FrozenImporter">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">FrozenImporter</code><a class="headerlink" href="#importlib.machinery.FrozenImporter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フリーズされたモジュールの <a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">インポーター</span></a> です。このクラスは <a class="reference internal" href="#importlib.abc.MetaPathFinder" title="importlib.abc.MetaPathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.MetaPathFinder</span></code></a> および <a class="reference internal" href="#importlib.abc.InspectLoader" title="importlib.abc.InspectLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.InspectLoader</span></code></a> 抽象基底クラスを実装します。</p>
+<p>インスタンス化の必要性を軽減するため、このクラスにはクラスメソッドだけが定義されています。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>Gained <code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code>
+methods.</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.WindowsRegistryFinder">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">WindowsRegistryFinder</code><a class="headerlink" href="#importlib.machinery.WindowsRegistryFinder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Windows レジストリで宣言されたモジュールの <a class="reference internal" href="../glossary.html#term-finder"><span class="xref std std-term">Finder</span></a> です。このクラスは <a class="reference internal" href="#importlib.abc.MetaPathFinder" title="importlib.abc.MetaPathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.MetaPathFinder</span></code></a> 抽象基底クラスを実装します。</p>
+<p>インスタンス化の必要性を軽減するため、このクラスにはクラスメソッドだけが定義されています。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.6 で非推奨: </span>代わりに <a class="reference internal" href="site.html#module-site" title="site: Module responsible for site-specific configuration."><code class="xref py py-mod docutils literal notranslate"><span class="pre">site</span></code></a> の設定を使ってください。
+Python の将来のバージョンでは、デフォルトでこのファインダーが使えなくなるかもしれません。</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.PathFinder">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">PathFinder</code><a class="headerlink" href="#importlib.machinery.PathFinder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> およびパッケージの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> 属性の <a class="reference internal" href="../glossary.html#term-finder"><span class="xref std std-term">Finder</span></a> です。このクラスは <a class="reference internal" href="#importlib.abc.MetaPathFinder" title="importlib.abc.MetaPathFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.MetaPathFinder</span></code></a> 抽象基底クラスを実装します。</p>
+<p>インスタンス化の必要性を軽減するため、このクラスにはクラスメソッドだけが定義されています。</p>
+<dl class="classmethod">
+<dt id="importlib.machinery.PathFinder.find_spec">
+<em class="property">classmethod </em><code class="descname">find_spec</code><span class="sig-paren">(</span><em>fullname</em>, <em>path=None</em>, <em>target=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.PathFinder.find_spec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="sys.html#sys.path" title="sys.path"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path</span></code></a> または定義されていれば <em>path</em> から、 <em>fullname</em> で指定されたモジュールの <a class="reference internal" href="../glossary.html#term-module-spec"><span class="xref std std-term">スペック</span></a> の検索を試みるクラスメソッドです。検索されるそれぞれのパスエントリに対して <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> が検査されます。偽でないオブジェクトが見つかれば、それが目的のモジュールを検索するための <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">パスエントリ・ファインダー</span></a> として使われます。 <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> に目的のエントリが見つからなければ、パスエントリに対するファインダーが <a class="reference internal" href="sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> から検索され、見つかれば、それが <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> に保管されるとともに、モジュールについて問い合わせられます。それでもファインダーが見つからなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> が保管され、また返されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>もしカレントワーキングディレクトリ -- 空の文字列によって表されている -- がすでに有効でなければ、 <code class="docutils literal notranslate"><span class="pre">None</span></code> が返されますが値は <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> にキャッシュされません。</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="importlib.machinery.PathFinder.find_module">
+<em class="property">classmethod </em><code class="descname">find_module</code><span class="sig-paren">(</span><em>fullname</em>, <em>path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.PathFinder.find_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.machinery.PathFinder.find_spec" title="importlib.machinery.PathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> まわりのレガシーなラッパです。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.machinery.PathFinder.find_spec" title="importlib.machinery.PathFinder.find_spec"><code class="xref py py-meth docutils literal notranslate"><span class="pre">find_spec()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="importlib.machinery.PathFinder.invalidate_caches">
+<em class="property">classmethod </em><code class="descname">invalidate_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.PathFinder.invalidate_caches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Calls <a class="reference internal" href="#importlib.abc.PathEntryFinder.invalidate_caches" title="importlib.abc.PathEntryFinder.invalidate_caches"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.PathEntryFinder.invalidate_caches()</span></code></a> on all
+finders stored in <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> that define the method.
+Otherwise entries in <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> set to <code class="docutils literal notranslate"><span class="pre">None</span></code> are
+deleted.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Entries of <code class="docutils literal notranslate"><span class="pre">None</span></code> in <a class="reference internal" href="sys.html#sys.path_importer_cache" title="sys.path_importer_cache"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_importer_cache</span></code></a> are deleted.</p>
+</div>
+</dd></dl>
+
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span><code class="docutils literal notranslate"><span class="pre">''</span></code> (すなわち空の文字列) に対してはカレントワーキングディレクトリとともに <a class="reference internal" href="sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> のオブジェクトを呼び出します。</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.FileFinder">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">FileFinder</code><span class="sig-paren">(</span><em>path</em>, <em>*loader_details</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.FileFinder" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルシステムからの結果をキャッシュする <a class="reference internal" href="#importlib.abc.PathEntryFinder" title="importlib.abc.PathEntryFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.PathEntryFinder</span></code></a> の具象実装です。</p>
+<p><em>path</em> 引数は検索を担当するファインダーのディレクトリです。</p>
+<p><em>loader_details</em> 引数は、可変個の 2 要素タプルで、それぞれがローダーとローダーが認識するファイル接尾辞のシーケンスとを含みます。ローダーは、呼び出し可能でモジュール名と見つかったファイルのパスとの 2 引数を受け付けることを期待されます。</p>
+<p>ファインダーはモジュール検索のたびに stat を呼び出し、必要に応じてディレクトリの内容をキャッシュすることで、コードキャッシュが古くなっていないことを確かめます。キャッシュの古さはオペレーティングシステムのファイルシステムのステート情報の粒度に依存しますから、モジュールを検索し、新しいファイルを作成し、その後に新しいファイルが表すモジュールを検索する、という競合状態の可能性があります。この操作が stat の呼び出しの粒度に収まるほど速く起こると、モジュールの検索が失敗します。これを防ぐためには、モジュールを動的に作成する際に、必ず <a class="reference internal" href="#importlib.invalidate_caches" title="importlib.invalidate_caches"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.invalidate_caches()</span></code></a> を呼び出してください。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="importlib.machinery.FileFinder.path">
+<code class="descname">path</code><a class="headerlink" href="#importlib.machinery.FileFinder.path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファインダーが検索されるパスです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.FileFinder.find_spec">
+<code class="descname">find_spec</code><span class="sig-paren">(</span><em>fullname</em>, <em>target=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.FileFinder.find_spec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.machinery.FileFinder.path" title="importlib.machinery.FileFinder.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> 内で <em>fullname</em> を扱うスペックの探索を試みます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.FileFinder.find_loader">
+<code class="descname">find_loader</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.FileFinder.find_loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.machinery.FileFinder.path" title="importlib.machinery.FileFinder.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> 内で <em>fullname</em> を扱うローダーの検索を試みます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.FileFinder.invalidate_caches">
+<code class="descname">invalidate_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.FileFinder.invalidate_caches" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>内部キャッシュを完全に消去します。</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="importlib.machinery.FileFinder.path_hook">
+<em class="property">classmethod </em><code class="descname">path_hook</code><span class="sig-paren">(</span><em>*loader_details</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.FileFinder.path_hook" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> で使用するクロージャを返すクラスメソッドです。クロージャに直接渡された path 引数を直接的に、 <em>loader_details</em> を間接的に使って、 <a class="reference internal" href="#importlib.machinery.FileFinder" title="importlib.machinery.FileFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileFinder</span></code></a> のインスタンスが返されます。</p>
+<p>クロージャへの引数が存在するディレクトリでなければ、 <a class="reference internal" href="exceptions.html#ImportError" title="ImportError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportError</span></code></a> が送出されます。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.SourceFileLoader">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">SourceFileLoader</code><span class="sig-paren">(</span><em>fullname</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourceFileLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.FileLoader" title="importlib.abc.FileLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.FileLoader</span></code></a> を継承し、その他いくつかのメソッドの具象実装を提供する、 <a class="reference internal" href="#importlib.abc.SourceLoader" title="importlib.abc.SourceLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.SourceLoader</span></code></a> の具象実装です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="importlib.machinery.SourceFileLoader.name">
+<code class="descname">name</code><a class="headerlink" href="#importlib.machinery.SourceFileLoader.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このローダーが扱うモジュールの名前です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.SourceFileLoader.path">
+<code class="descname">path</code><a class="headerlink" href="#importlib.machinery.SourceFileLoader.path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ソースファイルへのパスです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourceFileLoader.is_package">
+<code class="descname">is_package</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourceFileLoader.is_package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if <a class="reference internal" href="#importlib.machinery.SourceFileLoader.path" title="importlib.machinery.SourceFileLoader.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> appears to be for a package.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourceFileLoader.path_stats">
+<code class="descname">path_stats</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourceFileLoader.path_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.SourceLoader.path_stats" title="importlib.abc.SourceLoader.path_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.SourceLoader.path_stats()</span></code></a> の具象実装です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourceFileLoader.set_data">
+<code class="descname">set_data</code><span class="sig-paren">(</span><em>path</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourceFileLoader.set_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.abc.SourceLoader.set_data" title="importlib.abc.SourceLoader.set_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.SourceLoader.set_data()</span></code></a> の具象実装です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourceFileLoader.load_module">
+<code class="descname">load_module</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourceFileLoader.load_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ロードするモジュールの名前指定がオプションの、 <a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.load_module()</span></code></a> の具象実装です。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.6 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.exec_module()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.SourcelessFileLoader">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">SourcelessFileLoader</code><span class="sig-paren">(</span><em>fullname</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バイトコードファイル (すなわちソースコードファイルが存在しない) をインポートできる <a class="reference internal" href="#importlib.abc.FileLoader" title="importlib.abc.FileLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.FileLoader</span></code></a> の具象実装です。</p>
+<p>注意として、バイトコードを直接使う (つまりソースコードファイルがない) と、そのモジュールはすべての Python 実装では使用できないし、新しいバージョンの Python ではバイトコードフォーマットが変更されていたら使用できません。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="importlib.machinery.SourcelessFileLoader.name">
+<code class="descname">name</code><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ローダーが扱うモジュールの名前です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.SourcelessFileLoader.path">
+<code class="descname">path</code><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader.path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バイトコードファイルへのパスです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourcelessFileLoader.is_package">
+<code class="descname">is_package</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader.is_package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>そのモジュールがパッケージであるかを <a class="reference internal" href="#importlib.machinery.SourcelessFileLoader.path" title="importlib.machinery.SourcelessFileLoader.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> に基づいて決定します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourcelessFileLoader.get_code">
+<code class="descname">get_code</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader.get_code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.machinery.SourcelessFileLoader.path" title="importlib.machinery.SourcelessFileLoader.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> から作成された <a class="reference internal" href="#importlib.machinery.SourcelessFileLoader.name" title="importlib.machinery.SourcelessFileLoader.name"><code class="xref py py-attr docutils literal notranslate"><span class="pre">name</span></code></a> のコードオブジェクトを返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourcelessFileLoader.get_source">
+<code class="descname">get_source</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader.get_source" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このローダーが使われたとき、バイトコードファイルのソースがなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.SourcelessFileLoader.load_module">
+<code class="descname">load_module</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.SourcelessFileLoader.load_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>ロードするモジュールの名前指定がオプションの、 <a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.load_module()</span></code></a> の具象実装です。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.6 で非推奨: </span>代わりに <a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.exec_module()</span></code></a> を使用してください。</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.ExtensionFileLoader">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">ExtensionFileLoader</code><span class="sig-paren">(</span><em>fullname</em>, <em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>拡張モジュールのための <a class="reference internal" href="#importlib.abc.ExecutionLoader" title="importlib.abc.ExecutionLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.ExecutionLoader</span></code></a> の具象実装です。</p>
+<p><em>fullname</em> 引数はローダーがサポートするモジュールの名前を指定します。<em>path</em> 引数は拡張モジュールのファイルへのパスです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="importlib.machinery.ExtensionFileLoader.name">
+<code class="descname">name</code><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ローダーがサポートするモジュールの名前です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="importlib.machinery.ExtensionFileLoader.path">
+<code class="descname">path</code><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>拡張モジュールへのパスです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.ExtensionFileLoader.create_module">
+<code class="descname">create_module</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.create_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられたスペックから <span class="target" id="index-42"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0489"><strong>PEP 489</strong></a> に従ってモジュールオブジェクトを作成します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.ExtensionFileLoader.exec_module">
+<code class="descname">exec_module</code><span class="sig-paren">(</span><em>module</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.exec_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられたモジュールオブジェクトを <span class="target" id="index-43"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0489"><strong>PEP 489</strong></a> に従って初期化します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.ExtensionFileLoader.is_package">
+<code class="descname">is_package</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.is_package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.machinery.EXTENSION_SUFFIXES" title="importlib.machinery.EXTENSION_SUFFIXES"><code class="xref py py-attr docutils literal notranslate"><span class="pre">EXTENSION_SUFFIXES</span></code></a> に基づいて、ファイルパスがパッケージの <code class="docutils literal notranslate"><span class="pre">__init__</span></code> モジュールを指していれば <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.ExtensionFileLoader.get_code">
+<code class="descname">get_code</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.get_code" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>拡張モジュールにコードオブジェクトがなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.ExtensionFileLoader.get_source">
+<code class="descname">get_source</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.get_source" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>拡張モジュールにソースコードがなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="importlib.machinery.ExtensionFileLoader.get_filename">
+<code class="descname">get_filename</code><span class="sig-paren">(</span><em>fullname</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ExtensionFileLoader.get_filename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#importlib.machinery.ExtensionFileLoader.path" title="importlib.machinery.ExtensionFileLoader.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">path</span></code></a> を返します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.machinery.ModuleSpec">
+<em class="property">class </em><code class="descclassname">importlib.machinery.</code><code class="descname">ModuleSpec</code><span class="sig-paren">(</span><em>name</em>, <em>loader</em>, <em>*</em>, <em>origin=None</em>, <em>loader_state=None</em>, <em>is_package=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.machinery.ModuleSpec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールのインポートシステムに関する状態の仕様。
+これは通常はモジュールの <code class="docutils literal notranslate"><span class="pre">__spec__</span></code> 属性として公開されています。
+この後の解説では、モジュールオブジェクトから直接利用できる属性で、それぞれの仕様に対応しているものの名前が括弧書きで書かれています。
+例えば、 <code class="docutils literal notranslate"><span class="pre">module.__spec__.origin</span> <span class="pre">==</span> <span class="pre">module.__file__</span></code> です。
+ただし、属性の <em>値</em> はたいていは同一ですが、2つのオブジェクトどうしは同期されないため、異なっている可能性があることに注意してください。
+例えば、モジュールの <code class="docutils literal notranslate"><span class="pre">__path__</span></code> を実行時に更新できますが、 <code class="docutils literal notranslate"><span class="pre">__spec__.submodule_search_locations</span></code> に自動的には反映されません。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.name">
+<code class="descname">name</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>(<code class="docutils literal notranslate"><span class="pre">__name__</span></code>)</p>
+<p>モジュールの完全修飾名を表す文字列です。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.loader">
+<code class="descname">loader</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>(<code class="docutils literal notranslate"><span class="pre">__loader__</span></code>)</p>
+<p>ロードに使うローダです。名前空間パッケージの場合 <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定しなければなりません。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.origin">
+<code class="descname">origin</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.origin" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>(<code class="docutils literal notranslate"><span class="pre">__file__</span></code>)</p>
+<p>Name of the place from which the module is loaded, e.g. &quot;builtin&quot; for
+built-in modules and the filename for modules loaded from source.
+Normally &quot;origin&quot; should be set, but it may be <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default)
+which indicates it is unspecified (e.g. for namespace packages).</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.submodule_search_locations">
+<code class="descname">submodule_search_locations</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.submodule_search_locations" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>(<code class="docutils literal notranslate"><span class="pre">__path__</span></code>)</p>
+<p>パッケージの場合サブモジュールを見付けるべき場所を表す文字列のリスト (そうでない場合は <code class="docutils literal notranslate"><span class="pre">None</span></code>) です。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.loader_state">
+<code class="descname">loader_state</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.loader_state" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>ロード中に使う拡張モジュール指定のデータのコンテナ (または <code class="docutils literal notranslate"><span class="pre">None</span></code>) です。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.cached">
+<code class="descname">cached</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.cached" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>(<code class="docutils literal notranslate"><span class="pre">__cached__</span></code>)</p>
+<p>コンパイルされたモジュールを保存すべき場所を表す文字列 (または <code class="docutils literal notranslate"><span class="pre">None</span></code>) です。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.parent">
+<code class="descname">parent</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.parent" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>(<code class="docutils literal notranslate"><span class="pre">__package__</span></code>)</p>
+<p>(読み出し専用) サブモジュールとしてモジュールが属するパッケージの完全修飾名 (または <code class="docutils literal notranslate"><span class="pre">None</span></code>) です。</p>
+<dl class="attribute">
+<dt id="importlib.machinery.ModuleSpec.has_location">
+<code class="descname">has_location</code><a class="headerlink" href="#importlib.machinery.ModuleSpec.has_location" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<p>モジュールの &quot;origin&quot; 属性がロード可能な場所を参照しているかどうかを示すブール値です。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-importlib.util">
+<span id="importlib-util-utility-code-for-importers"></span><h2><a class="reference internal" href="#module-importlib.util" title="importlib.util: Utility code for importers"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib.util</span></code></a> -- インポータのためのユーティリティコード<a class="headerlink" href="#module-importlib.util" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/importlib/util.py">Lib/importlib/util.py</a></p>
+<hr class="docutils" />
+<p>このモジュールには、 <a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">インポーター</span></a> の構築を助ける様々なオブジェクトがあります。</p>
+<dl class="attribute">
+<dt id="importlib.util.MAGIC_NUMBER">
+<code class="descclassname">importlib.util.</code><code class="descname">MAGIC_NUMBER</code><a class="headerlink" href="#importlib.util.MAGIC_NUMBER" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バイトコードバージョン番号を表しているバイト列。バイトコードのロード／書き込みについてヘルプが必要なら <a class="reference internal" href="#importlib.abc.SourceLoader" title="importlib.abc.SourceLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.abc.SourceLoader</span></code></a> を参照してください。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.cache_from_source">
+<code class="descclassname">importlib.util.</code><code class="descname">cache_from_source</code><span class="sig-paren">(</span><em>path</em>, <em>debug_override=None</em>, <em>*</em>, <em>optimization=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.cache_from_source" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ソース <em>path</em> に関連付けられたバイトコンパイルされたファイルの <span class="target" id="index-44"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3147"><strong>PEP 3147</strong></a>/<span class="target" id="index-45"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0488"><strong>PEP 488</strong></a> パスを返します。例えば、 <em>path</em> が <code class="docutils literal notranslate"><span class="pre">/foo/bar/baz.py</span></code> なら、 Python 3.2 の場合返り値は <code class="docutils literal notranslate"><span class="pre">/foo/bar/__pycache__/baz.cpython-32.pyc</span></code> になります。 <code class="docutils literal notranslate"><span class="pre">cpython-32</span></code> という文字列は、現在のマジックタグから得られます (マジックタグについては <code class="xref py py-func docutils literal notranslate"><span class="pre">get_tag()</span></code> を参照; <code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.implementation.cache_tag</span></code> が未定義なら <a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> が送出されます。)</p>
+<p>The <em>optimization</em> parameter is used to specify the optimization level of the
+bytecode file. An empty string represents no optimization, so
+<code class="docutils literal notranslate"><span class="pre">/foo/bar/baz.py</span></code> with an <em>optimization</em> of <code class="docutils literal notranslate"><span class="pre">''</span></code> will result in a
+bytecode path of <code class="docutils literal notranslate"><span class="pre">/foo/bar/__pycache__/baz.cpython-32.pyc</span></code>. <code class="docutils literal notranslate"><span class="pre">None</span></code> causes
+the interpreter's optimization level to be used. Any other value's string
+representation is used, so <code class="docutils literal notranslate"><span class="pre">/foo/bar/baz.py</span></code> with an <em>optimization</em> of
+<code class="docutils literal notranslate"><span class="pre">2</span></code> will lead to the bytecode path of
+<code class="docutils literal notranslate"><span class="pre">/foo/bar/__pycache__/baz.cpython-32.opt-2.pyc</span></code>. The string representation
+of <em>optimization</em> can only be alphanumeric, else <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> is raised.</p>
+<p><em>debug_override</em> パラメータは deprecated で、システムの <code class="docutils literal notranslate"><span class="pre">__debug__</span></code> 値をオーバーライドするために使用できます。 <code class="docutils literal notranslate"><span class="pre">True</span></code> 値は <em>optimization</em> を空文字列に設定するのと等価です。 <code class="docutils literal notranslate"><span class="pre">False</span></code> 値は <em>optimization</em> を <code class="docutils literal notranslate"><span class="pre">1</span></code> に設定するのと同等です。もし <em>debug_override</em> と <em>optimization</em> のどちらも <code class="docutils literal notranslate"><span class="pre">None</span></code> 以外であれば <a class="reference internal" href="exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> が上げられます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><em>optimization</em> パラメータが追加され、 <em>debug_override</em> パラメータは deprecated になりました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><a class="reference internal" href="../glossary.html#term-path-like-object"><span class="xref std std-term">path-like object</span></a> を受け入れるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.source_from_cache">
+<code class="descclassname">importlib.util.</code><code class="descname">source_from_cache</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.source_from_cache" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Given the <em>path</em> to a <span class="target" id="index-23"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3147"><strong>PEP 3147</strong></a> file name, return the associated source code
+file path.  For example, if <em>path</em> is
+<code class="docutils literal notranslate"><span class="pre">/foo/bar/__pycache__/baz.cpython-32.pyc</span></code> the returned path would be
+<code class="docutils literal notranslate"><span class="pre">/foo/bar/baz.py</span></code>.  <em>path</em> need not exist, however if it does not conform
+to <span class="target" id="index-24"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3147"><strong>PEP 3147</strong></a> or <span class="target" id="index-25"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0488"><strong>PEP 488</strong></a> format, a <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> is raised. If
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.implementation.cache_tag</span></code> is not defined,
+<a class="reference internal" href="exceptions.html#NotImplementedError" title="NotImplementedError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NotImplementedError</span></code></a> is raised.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><a class="reference internal" href="../glossary.html#term-path-like-object"><span class="xref std std-term">path-like object</span></a> を受け入れるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.decode_source">
+<code class="descclassname">importlib.util.</code><code class="descname">decode_source</code><span class="sig-paren">(</span><em>source_bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.decode_source" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>与えられたソースコードを表すバイト列をデコードして、文字列としてそれを一般的な改行形式 (universal newlines) で返します (<a class="reference internal" href="#importlib.abc.InspectLoader.get_source" title="importlib.abc.InspectLoader.get_source"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.InspectLoader.get_source()</span></code></a> で要求されるように)。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.resolve_name">
+<code class="descclassname">importlib.util.</code><code class="descname">resolve_name</code><span class="sig-paren">(</span><em>name</em>, <em>package</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.resolve_name" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>相対的なモジュール名を解決して絶対的なものにします。</p>
+<p><strong>name</strong> の先頭にドットがなければ、単に <strong>name</strong> が返されます。これにより、例えば <code class="docutils literal notranslate"><span class="pre">importlib.util.resolve_name('sys',</span> <span class="pre">__package__)</span></code> を使うときに <strong>package</strong> 変数が必要かどうかを確認する必要がなくなります。</p>
+<p><strong>name</strong> が相対的なモジュール名であるにもかかわらず package が偽値 (例えば <code class="docutils literal notranslate"><span class="pre">None</span></code> や空文字列) ならば、 <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます。相対的な名前がそれを含むパッケージから抜け出る (例えば <code class="docutils literal notranslate"><span class="pre">spam</span></code> パッケージ内から <code class="docutils literal notranslate"><span class="pre">..bacon</span></code> を要求する) 場合にも <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.find_spec">
+<code class="descclassname">importlib.util.</code><code class="descname">find_spec</code><span class="sig-paren">(</span><em>name</em>, <em>package=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.find_spec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールの <a class="reference internal" href="../glossary.html#term-module-spec"><span class="xref std std-term">spec</span></a> を、オプションで指定された <strong>package</strong> 名に対する相対で検索します。モジュールが <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.modules</span></code></a> にあれば、 <code class="docutils literal notranslate"><span class="pre">sys.modules[name].__spec__</span></code> が返されます (ただしスペックが <code class="docutils literal notranslate"><span class="pre">None</span></code> であるか設定されていなければ <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> が送出されます)。なければ、 <a class="reference internal" href="sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> を使った検索がなされます。スペックが見つからなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> が返ります。</p>
+<p><strong>name</strong> がサブモジュールを示している  (ドットを含む) 場合、親モジュールは自動的にインポートされます。</p>
+<p><strong>name</strong> と <strong>package</strong> は <code class="xref py py-func docutils literal notranslate"><span class="pre">import_module()</span></code> に対するものと同じように機能します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Raises <a class="reference internal" href="exceptions.html#ModuleNotFoundError" title="ModuleNotFoundError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code></a> instead of <a class="reference internal" href="exceptions.html#AttributeError" title="AttributeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code></a> if
+<strong>package</strong> is in fact not a package (i.e. lacks a <a class="reference internal" href="../reference/import.html#__path__" title="__path__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__path__</span></code></a>
+attribute).</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.module_from_spec">
+<code class="descclassname">importlib.util.</code><code class="descname">module_from_spec</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.module_from_spec" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><strong>spec</strong> と <a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">spec.loader.create_module</span></code></a> に基づいて新しいモジュールを作ります。</p>
+<p><a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">spec.loader.create_module</span></code></a> が <code class="docutils literal notranslate"><span class="pre">None</span></code> を返さない場合は、既に存在するどの属性もリセットされません。また、 <strong>spec</strong> にアクセスしたり属性をモジュールに設定したりする際に <a class="reference internal" href="exceptions.html#AttributeError" title="AttributeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AttributeError</span></code></a> 例外が起きても例外は送出されません。</p>
+<p>この関数は、新しいモジュールを作る方法として <a class="reference internal" href="types.html#types.ModuleType" title="types.ModuleType"><code class="xref py py-class docutils literal notranslate"><span class="pre">types.ModuleType</span></code></a> よりも推奨されます。なぜなら、できるだけ多くのインポートコントロールされた属性をモジュールに設定するために <strong>spec</strong> が使用されるからです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.module_for_loader">
+<code class="descclassname">&#64;</code><code class="descclassname">importlib.util.</code><code class="descname">module_for_loader</code><a class="headerlink" href="#importlib.util.module_for_loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ロードに使う適切なモジュールオブジェクトの選択を扱うための、 <a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.load_module()</span></code></a> への <a class="reference internal" href="../glossary.html#term-decorator"><span class="xref std std-term">decorator</span></a> です。このデコレータメソッドのシグニチャは、2 つの位置引数をとることを期待されます (例えば <code class="docutils literal notranslate"><span class="pre">load_module(self,</span> <span class="pre">module)</span></code>) 。第2引数はローダーによって使われるモジュール <strong>object</strong> になります。なお、このデコレータは 2 つの引数を想定するため、スタティックメソッドには働きません。</p>
+<p>デコレートされたメソッドは、 <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">loader</span></a> がロードしようとするモジュールの <strong>name</strong> を受け取ります。そのモジュールが <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に見つからなければ新しいモジュールが構築されます。モジュールの出所に関わらず、 <a class="reference internal" href="../reference/import.html#__loader__" title="__loader__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__loader__</span></code></a> は <strong>self</strong> に設定され、 (もし利用可能なら) <a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> は <a class="reference internal" href="#importlib.abc.InspectLoader.is_package" title="importlib.abc.InspectLoader.is_package"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.InspectLoader.is_package()</span></code></a> の戻り値に基づいて設定されます。これらの属性は、リロードをサポートするために無条件に設定されます。</p>
+<p>デコレートされたメソッドによって例外が送出されたとき、モジュールが <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に加えられていたら、部分的に初期化されたモジュールが <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> に残らないよう、そのモジュールは取り除かれます。モジュールが既に <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.modules</span></code></a> にあったなら、それは残されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><a class="reference internal" href="../reference/import.html#__loader__" title="__loader__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__loader__</span></code></a> および <a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> は (可能なら) 自動的に設定されます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>リロードをサポートするために <a class="reference internal" href="../reference/import.html#__name__" title="__name__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__name__</span></code></a> <a class="reference internal" href="../reference/import.html#__loader__" title="__loader__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__loader__</span></code></a> <a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> は無条件に設定されます。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>インポート機構はこの関数が提供する全機能を直接実行するようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.set_loader">
+<code class="descclassname">&#64;</code><code class="descclassname">importlib.util.</code><code class="descname">set_loader</code><a class="headerlink" href="#importlib.util.set_loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>返されたモジュールの <a class="reference internal" href="../reference/import.html#__loader__" title="__loader__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__loader__</span></code></a> 属性を設定する、 <a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.load_module()</span></code></a> への <a class="reference internal" href="../glossary.html#term-decorator"><span class="xref std std-term">decorator</span></a> です。属性が既に設定されていたら、このデコレータは何もしません。ラップされたメソッド (すなわち <code class="docutils literal notranslate"><span class="pre">self</span></code>) への1つ目の位置引数は <a class="reference internal" href="../reference/import.html#__loader__" title="__loader__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__loader__</span></code></a> に設定される値であると仮定されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>もし <code class="docutils literal notranslate"><span class="pre">__loader__</span></code> 属性が <code class="docutils literal notranslate"><span class="pre">None</span></code> に設定されていれば、属性が存在しないかのように <code class="docutils literal notranslate"><span class="pre">__loader__</span></code> を設定します。</p>
+</div>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>インポート機構はこれを自動的に考慮するようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.set_package">
+<code class="descclassname">&#64;</code><code class="descclassname">importlib.util.</code><code class="descname">set_package</code><a class="headerlink" href="#importlib.util.set_package" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> 属性を戻り値のモジュールに設定するための、 <a class="reference internal" href="#importlib.abc.Loader.load_module" title="importlib.abc.Loader.load_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">importlib.abc.Loader.load_module()</span></code></a> への <a class="reference internal" href="../glossary.html#term-decorator"><span class="xref std std-term">decorator</span></a> です。もし <a class="reference internal" href="../reference/import.html#__package__" title="__package__"><code class="xref py py-attr docutils literal notranslate"><span class="pre">__package__</span></code></a> が設定されていて <code class="docutils literal notranslate"><span class="pre">None</span></code> 以外の値を持っているなら、それは変更されません。</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>インポート機構はこれを自動的に考慮するようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.spec_from_loader">
+<code class="descclassname">importlib.util.</code><code class="descname">spec_from_loader</code><span class="sig-paren">(</span><em>name</em>, <em>loader</em>, <em>*</em>, <em>origin=None</em>, <em>is_package=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.spec_from_loader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この関数は、スペックに不足している情報を埋めるために <code class="xref py py-meth docutils literal notranslate"><span class="pre">InspectLoader.is_package()</span></code> のような利用可能な <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">loader</span></a> API を使います。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.spec_from_file_location">
+<code class="descclassname">importlib.util.</code><code class="descname">spec_from_file_location</code><span class="sig-paren">(</span><em>name</em>, <em>location</em>, <em>*</em>, <em>loader=None</em>, <em>submodule_search_locations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.spec_from_file_location" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルへのパスにもとづいて <code class="xref py py-class docutils literal notranslate"><span class="pre">ModuleSpec</span></code> インスタンスを生成するためのファクトリー関数。不足している情報は、ローダー API を利用してスペックから得られる情報と、モジュールがファイルベースであるという暗黙的な情報によって埋められます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><a class="reference internal" href="../glossary.html#term-path-like-object"><span class="xref std std-term">path-like object</span></a> を受け入れるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="importlib.util.source_hash">
+<code class="descclassname">importlib.util.</code><code class="descname">source_hash</code><span class="sig-paren">(</span><em>source_bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.source_hash" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return the hash of <em>source_bytes</em> as bytes. A hash-based <code class="docutils literal notranslate"><span class="pre">.pyc</span></code> file embeds
+the <a class="reference internal" href="#importlib.util.source_hash" title="importlib.util.source_hash"><code class="xref py py-func docutils literal notranslate"><span class="pre">source_hash()</span></code></a> of the corresponding source file's contents in its
+header.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="importlib.util.LazyLoader">
+<em class="property">class </em><code class="descclassname">importlib.util.</code><code class="descname">LazyLoader</code><span class="sig-paren">(</span><em>loader</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.LazyLoader" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モジュールが属性アクセスできるようになるまで、モジュールのローダーの実行を遅延するクラス。</p>
+<p>This class <strong>only</strong> works with loaders that define
+<a class="reference internal" href="#importlib.abc.Loader.exec_module" title="importlib.abc.Loader.exec_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exec_module()</span></code></a> as control over what module type
+is used for the module is required. For those same reasons, the loader's
+<a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a> method must return <code class="docutils literal notranslate"><span class="pre">None</span></code> or a
+type for which its <code class="docutils literal notranslate"><span class="pre">__class__</span></code> attribute can be mutated along with not
+using <a class="reference internal" href="../glossary.html#term-slots"><span class="xref std std-term">slots</span></a>. Finally, modules which substitute the object
+placed into <a class="reference internal" href="sys.html#sys.modules" title="sys.modules"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.modules</span></code></a> will not work as there is no way to properly
+replace the module references throughout the interpreter safely;
+<a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> is raised if such a substitution is detected.</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">起動時間が重要なプロジェクトでは、もし決して使われないモジュールがあれば、このクラスを使ってモジュールをロードするコストを最小化できるかもしれません。スタートアップ時間が重要でないプロジェクトでは、遅延されたロードの際に発生して文脈の外で起こるエラーメッセージのため、このクラスの使用は <strong>著しく</strong> 推奨されません。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.5 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>Began calling <a class="reference internal" href="#importlib.abc.Loader.create_module" title="importlib.abc.Loader.create_module"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create_module()</span></code></a>, removing the
+compatibility warning for <a class="reference internal" href="#importlib.machinery.BuiltinImporter" title="importlib.machinery.BuiltinImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.machinery.BuiltinImporter</span></code></a> and
+<a class="reference internal" href="#importlib.machinery.ExtensionFileLoader" title="importlib.machinery.ExtensionFileLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">importlib.machinery.ExtensionFileLoader</span></code></a>.</p>
+</div>
+<dl class="classmethod">
+<dt id="importlib.util.LazyLoader.factory">
+<em class="property">classmethod </em><code class="descname">factory</code><span class="sig-paren">(</span><em>loader</em><span class="sig-paren">)</span><a class="headerlink" href="#importlib.util.LazyLoader.factory" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>遅延ローダを生成する callable を返すスタティックメソッド。これは、ローダーをインスタンスとしてではなくクラスとして渡すような状況において使われることを意図しています。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">suffixes</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SOURCE_SUFFIXES</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SourceFileLoader</span>
+<span class="n">lazy_loader</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">LazyLoader</span><span class="o">.</span><span class="n">factory</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>
+<span class="n">finder</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">FileFinder</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="p">(</span><span class="n">lazy_loader</span><span class="p">,</span> <span class="n">suffixes</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="examples">
+<span id="importlib-examples"></span><h2>使用例<a class="headerlink" href="#examples" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="importing-programmatically">
+<h3>プログラムからのインポート<a class="headerlink" href="#importing-programmatically" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>プログラムからモジュールをインポートするには、 <a class="reference internal" href="#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a> を使ってください。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="n">itertools</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s1">&#39;itertools&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="checking-if-a-module-can-be-imported">
+<h3>モジュールがインポートできるか確認する<a class="headerlink" href="#checking-if-a-module-can-be-imported" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>インポートを実際に行わずに、あるモジュールがインポートできるかを知る必要がある場合は、 <a class="reference internal" href="#importlib.util.find_spec" title="importlib.util.find_spec"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.util.find_spec()</span></code></a> を使ってください。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># For illustrative purposes.</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;itertools&#39;</span>
+
+<span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already in sys.modules&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="p">(</span><span class="n">spec</span> <span class="o">:=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># If you chose to perform the actual import ...</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> has been imported&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;can&#39;t find the </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> module&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="importing-a-source-file-directly">
+<h3>ソースファイルから直接インポートする<a class="headerlink" href="#importing-a-source-file-directly" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>To import a Python source file directly, use the following recipe
+(Python 3.5 and newer only):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># For illustrative purposes.</span>
+<span class="kn">import</span> <span class="nn">tokenize</span>
+<span class="n">file_path</span> <span class="o">=</span> <span class="n">tokenize</span><span class="o">.</span><span class="vm">__file__</span>
+<span class="n">module_name</span> <span class="o">=</span> <span class="n">tokenize</span><span class="o">.</span><span class="vm">__name__</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+<span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+<span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="setting-up-an-importer">
+<h3>インポーターのセットアップ<a class="headerlink" href="#setting-up-an-importer" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>For deep customizations of import, you typically want to implement an
+<a class="reference internal" href="../glossary.html#term-importer"><span class="xref std std-term">importer</span></a>. This means managing both the <a class="reference internal" href="../glossary.html#term-finder"><span class="xref std std-term">finder</span></a> and <a class="reference internal" href="../glossary.html#term-loader"><span class="xref std std-term">loader</span></a>
+side of things. For finders there are two flavours to choose from depending on
+your needs: a <a class="reference internal" href="../glossary.html#term-meta-path-finder"><span class="xref std std-term">meta path finder</span></a> or a <a class="reference internal" href="../glossary.html#term-path-entry-finder"><span class="xref std std-term">path entry finder</span></a>. The
+former is what you would put on <a class="reference internal" href="sys.html#sys.meta_path" title="sys.meta_path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.meta_path</span></code></a> while the latter is what
+you create using a <a class="reference internal" href="../glossary.html#term-path-entry-hook"><span class="xref std std-term">path entry hook</span></a> on <a class="reference internal" href="sys.html#sys.path_hooks" title="sys.path_hooks"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.path_hooks</span></code></a> which works
+with <a class="reference internal" href="sys.html#sys.path" title="sys.path"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sys.path</span></code></a> entries to potentially create a finder. This example will
+show you how to register your own importers so that import will use them (for
+creating an importer for yourself, read the documentation for the appropriate
+classes defined within this package):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.machinery</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># For illustrative purposes only.</span>
+<span class="n">SpamMetaPathFinder</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">PathFinder</span>
+<span class="n">SpamPathEntryFinder</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">FileFinder</span>
+<span class="n">loader_details</span> <span class="o">=</span> <span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SourceFileLoader</span><span class="p">,</span>
+                  <span class="n">importlib</span><span class="o">.</span><span class="n">machinery</span><span class="o">.</span><span class="n">SOURCE_SUFFIXES</span><span class="p">)</span>
+
+<span class="c1"># Setting up a meta path finder.</span>
+<span class="c1"># Make sure to put the finder in the proper location in the list in terms of</span>
+<span class="c1"># priority.</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SpamMetaPathFinder</span><span class="p">)</span>
+
+<span class="c1"># Setting up a path entry finder.</span>
+<span class="c1"># Make sure to put the path hook in the proper location in the list in terms</span>
+<span class="c1"># of priority.</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path_hooks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SpamPathEntryFinder</span><span class="o">.</span><span class="n">path_hook</span><span class="p">(</span><span class="n">loader_details</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="approximating-importlib-import-module">
+<h3>Approximating <a class="reference internal" href="#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a><a class="headerlink" href="#approximating-importlib-import-module" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Import itself is implemented in Python code, making it possible to
+expose most of the import machinery through importlib. The following
+helps illustrate the various APIs that importlib exposes by providing an
+approximate implementation of
+<a class="reference internal" href="#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a> (Python 3.4 and newer for the importlib usage,
+Python 3.6 and newer for other parts of the code).</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">importlib.util</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An approximate implementation of import.&quot;&quot;&quot;</span>
+    <span class="n">absolute_name</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">resolve_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">absolute_name</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">absolute_name</span><span class="p">:</span>
+        <span class="n">parent_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">child_name</span> <span class="o">=</span> <span class="n">absolute_name</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">parent_module</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">parent_name</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">parent_module</span><span class="o">.</span><span class="n">__spec__</span><span class="o">.</span><span class="n">submodule_search_locations</span>
+    <span class="k">for</span> <span class="n">finder</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">meta_path</span><span class="p">:</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">absolute_name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;No module named </span><span class="si">{</span><span class="n">absolute_name</span><span class="si">!r}</span><span class="s1">&#39;</span>
+        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">absolute_name</span><span class="p">)</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">absolute_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">module</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">parent_module</span><span class="p">,</span> <span class="n">child_name</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">module</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code> --- <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> の実装</a><ul>
+<li><a class="reference internal" href="#introduction">はじめに</a></li>
+<li><a class="reference internal" href="#functions">関数</a></li>
+<li><a class="reference internal" href="#module-importlib.abc"><code class="docutils literal notranslate"><span class="pre">importlib.abc</span></code> -- インポートに関連する抽象基底クラス</a></li>
+<li><a class="reference internal" href="#module-importlib.resources"><code class="docutils literal notranslate"><span class="pre">importlib.resources</span></code> -- Resources</a></li>
+<li><a class="reference internal" href="#module-importlib.machinery"><code class="docutils literal notranslate"><span class="pre">importlib.machinery</span></code> -- インポータおよびパスフック</a></li>
+<li><a class="reference internal" href="#module-importlib.util"><code class="docutils literal notranslate"><span class="pre">importlib.util</span></code> -- インポータのためのユーティリティコード</a></li>
+<li><a class="reference internal" href="#examples">使用例</a><ul>
+<li><a class="reference internal" href="#importing-programmatically">プログラムからのインポート</a></li>
+<li><a class="reference internal" href="#checking-if-a-module-can-be-imported">モジュールがインポートできるか確認する</a></li>
+<li><a class="reference internal" href="#importing-a-source-file-directly">ソースファイルから直接インポートする</a></li>
+<li><a class="reference internal" href="#setting-up-an-importer">インポーターのセットアップ</a></li>
+<li><a class="reference internal" href="#approximating-importlib-import-module">Approximating <code class="docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="runpy.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">runpy</span></code> --- Python モジュールの位置特定と実行</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="importlib.metadata.html"
+                        title="次の章へ">Using importlib.metadata</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/importlib.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="importlib.metadata.html" title="Using importlib.metadata"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="runpy.html" title="runpy --- Python モジュールの位置特定と実行"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >モジュールのインポート</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

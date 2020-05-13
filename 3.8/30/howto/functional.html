@@ -1,0 +1,998 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>関数型プログラミング HOWTO &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="Logging HOWTO" href="logging.html" />
+    <link rel="prev" title="デスクリプタ HowTo ガイド" href="descriptor.html" />
+    <link rel="canonical" href="https://docs.python.org/3/howto/functional.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="logging.html" title="Logging HOWTO"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="descriptor.html" title="デスクリプタ HowTo ガイド"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python HOWTO</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="functional-programming-howto">
+<h1>関数型プログラミング HOWTO<a class="headerlink" href="#functional-programming-howto" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">著者:</th><td class="field-body">A. M. Kuchling</td>
+</tr>
+<tr class="field-even field"><th class="field-name">リリース:</th><td class="field-body">0.32</td>
+</tr>
+</tbody>
+</table>
+<p>この文書では、関数型スタイルでプログラムを実装するのにピッタリな Python の機能を見てまわることにしましょう。まず関数型プログラミングという概念を紹介したあと、 <a class="reference internal" href="../glossary.html#term-iterator"><span class="xref std std-term">iterator</span></a> や <a class="reference internal" href="../glossary.html#term-generator"><span class="xref std std-term">generator</span></a> のような言語機能、および <a class="reference internal" href="../library/itertools.html#module-itertools" title="itertools: Functions creating iterators for efficient looping."><code class="xref py py-mod docutils literal notranslate"><span class="pre">itertools</span></code></a> や <a class="reference internal" href="../library/functools.html#module-functools" title="functools: Higher-order functions and operations on callable objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">functools</span></code></a> といった関連するライブラリモジュールを見ることにします。</p>
+<div class="section" id="introduction">
+<h2>はじめに<a class="headerlink" href="#introduction" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>この章は関数型プログラミングの基本概念を説明します; Python の言語機能についてだけ知りたい人は、次の章の <a class="reference internal" href="#functional-howto-iterators"><span class="std std-ref">イテレータ (iterator)</span></a> まで飛ばしてください。</p>
+<p>プログラミング言語とは問題を分解するものですが、各言語がサポートする分解方法にはいくつかの種類があります:</p>
+<ul class="simple">
+<li>ほとんどのプログラミング言語は <strong>手続き型</strong> です: プログラムは、入力に対して行うべきことをコンピュータに教える指示リストとなります。 C, Pascal, さらには Unix シェルまでもが手続き型言語に入ります。</li>
+<li><strong>宣言型</strong> 言語で書くのは、解くべき問題を説明する仕様書であって、それを効率的に計算処理する方法を見付けるのは言語実装の役目です。SQL はおそらく一番よく知られた宣言型言語です; SQL のクエリは取得したいデータセットを説明しているだけで、テーブルを走査するかインデックスを使うか、どのサブクローズから実行するか等々を決めるのは SQL エンジンなのです。</li>
+<li><strong>オブジェクト指向</strong> プログラムはオブジェクトの集まりを操作します。オブジェクトには内部状態があり、その状態を調べたり色々と変更したりするためのメソッドがあります。Smalltalk や Java はオブジェクト指向言語です。 C++ と Python はオブジェクト指向プログラミングをサポートしていますが、関連する機能を使わなくても構わないようになっています。</li>
+<li><strong>関数型</strong> プログラミングは問題をいくつかの関数にわけて考えます。理想的に言うと、関数は入力を受けて出力を吐くだけで、同じ入力に対して異なる出力をするような内部状態を一切持ちません。有名な関数型言語には ML 一家 (Standard ML, OCaml 等々) と Haskell があります。</li>
+</ul>
+<p>設計者が特定のアプローチを強調することにした言語もありますが、そうすると大抵は、別のアプローチを使うプログラムを書きにくくなります。複数のアプローチに対応した言語もあり、Lisp, C++, Python はそうしたマルチパラダイム言語です; この中のどれを使っても、基本的に手続き型な、または基本的にオブジェクト指向な、とか、基本的に関数型なプログラムやライブラリを書くことができます。大きなプログラムでは、各部で別々のアプローチを使って書くことがあるかもしれません; GUI はオブジェクト指向で、でも処理ロジックは手続き型や関数型で、といったようにです。</p>
+<p>関数型プログラムでは、入力は一連の関数を通って流れていきます。それぞれの関数は入力に何らかの作業をして出力します。関数型スタイルにおいては、内部状態を変えてしまったり、返り値に現れない変更をしたりといった副作用のある関数はやめるように言われています。副作用のまったくない関数は <strong>純粋関数型</strong> であるとされます。副作用をなくすということは、プログラムの実行中に順次変化していくデータ構造を持たない、つまり各関数の出力はその入力にしか影響を受けてはいけないということです。</p>
+<p>この純粋性を守る面で非常に厳しい言語もあり、そうした言語には <code class="docutils literal notranslate"><span class="pre">a=3</span></code> や <code class="docutils literal notranslate"><span class="pre">c</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">+</span> <span class="pre">b</span></code> といった代入文さえありません。しかし副作用を完全になくすのは難しいもので、たとえば画面表示やディスクファイルへの書き込みも副作用なのです。 Python で言うと、たとえば <a class="reference internal" href="../library/functions.html#print" title="print"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> や <a class="reference internal" href="../library/time.html#time.sleep" title="time.sleep"><code class="xref py py-func docutils literal notranslate"><span class="pre">time.sleep()</span></code></a> 関数の呼び出しはどちらも意味ある値を返しません; ただ画面にテキストを送ったり動作を 1 秒止めたりといった副作用のためだけに呼ばれるのです。</p>
+<p>関数型スタイルで書いた Python プログラムはふつう、I/O や代入を完全になくすといった極端なところまでは行かずに、関数型っぽく見えるインタフェースを提供しつつも内部では非関数型の機能を使います。たとえば、関数内でローカル変数の代入は使いますが、グローバル変数は変更せず、他の副作用もないように実装するのです。</p>
+<p>関数型プログラミングはオブジェクト指向プログラミングの反対と考えることもできます。オブジェクト指向において、オブジェクトは内部状態とそれを変更するメソッドコールの入ったカプセルであり、プログラムはその状態を適正に変化させていく手順です。一方で、関数型プログラミングは可能なかぎり状態の変更を避け、関数どうしの間を流れるデータだけを扱おうとします。Python ではこの二つのアプローチを結び合わせることができます。アプリケーション内のオブジェクト (メール、トランザクション、等々) を表現したインスタンスを、関数が受け渡しするようにするのです。</p>
+<p>関数型デザインは、わけのわからない制約に見えるかもしれません。どうしてオブジェクトも副作用もないほうが良いのでしょうか。実は、関数型スタイルには理論と実践に基づく次の利点があるのです:</p>
+<ul class="simple">
+<li>形式的証明可能性。</li>
+<li>モジュラー性。</li>
+<li>結合性。</li>
+<li>デバッグやテストの簡単さ。</li>
+</ul>
+<div class="section" id="formal-provability">
+<h3>形式的証明可能性<a class="headerlink" href="#formal-provability" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>理論面の利点としては、プログラムが正しいことの数学的証明を他より簡単に構築できるという点があります。</p>
+<p>研究者たちは長いあいだ、プログラムが正しいことを数学的に証明する方法の発見に血道をあげてきました。これは、色々な入力でテストして出力が正しかったからまあ正しいだろう、と結論するのとも違いますし、ソースコードを読んで「間違いはなさそうだ」と言うのとも別の話です; 目指すのは、出現しうる入力すべてに対してプログラムが正しい結果を出すことの厳密な証明なのです。</p>
+<p>プログラムを証明するために使われているのは <strong>不変式</strong> を書き出していくというテクニックで、不変式とは入力データやプログラム変数のうち常に真である性質のことです。コードの一行一行で、 <strong>実行前</strong> の不変式 X と Y が真なら <strong>実行後に</strong> ちょっと違う不変式 X' と Y' が真になることを示していき、これをプログラムの終わりまで続けるわけです。すると最終的な不変式はプログラムの出力に合った条件になっているはずです。</p>
+<p>関数型プログラミングが代入を嫌うのは、この不変式テクニックでは代入を扱いにくいからです; 代入は、それまで真だった不変式を壊しておいて、自分は次の行に伝えてゆける不変式を生み出さないことがあるのです。</p>
+<p>残念ながら、プログラムの証明はだいたい実際的でもありませんし、Python ソフトウェアにも関係ありません。本当に簡単なプログラムでも、証明には数ページにわたる論文が必要なのです; ある程度の複雑なプログラムではもう尋常でない長さになってしまうので、日常で使っているプログラム (Python インタプリタ、XML パーサ、ウェブブラウザ) はほとんど、あるいはすべて、正しさを証明するのは不可能でしょう。仮に証明を書き出したり生成したりしても、その証明を検証するための疑いが残ります; 証明に間違いがあるかもしれず、その場合は証明したと自分で勝手に思い込んでいただけになるのです。</p>
+</div>
+<div class="section" id="modularity">
+<h3>モジュラー性<a class="headerlink" href="#modularity" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>より実用的には、関数型プログラミングをすると問題を細かく切り分けることになるという利点があります。結果としてプログラムはモジュラー化されます。複雑な変形を施す大きな関数を書くより、一つのことに絞ってそれだけをする小さな関数のほうが書きやすいものです。それに、小さいほうが読むのもエラーをチェックするのも簡単です。</p>
+</div>
+<div class="section" id="ease-of-debugging-and-testing">
+<h3>デバグやテストの簡単さ<a class="headerlink" href="#ease-of-debugging-and-testing" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>テストやデバグも関数型プログラムなら簡単です。</p>
+<p>関数が一般的に小さくて明確に意味付けされているので、デバグ方法は単純です。プログラムが正しく動かないときには、関数ひとつひとつがデータの正しさをチェックするポイントになるので、それぞれの時点における入力と出力を見ていけば、バグの原因となる関数を素早く切り出すことができるのです。</p>
+<p>ひとつひとつの関数がユニットテストの対象になり得るわけですから、テストも簡単です。関数はシステムの状態に依存しませんので、テストの実行前にそうした状態を再現する必要はありません; 単に適切な入力を合成して、出力が期待どおりかどうかチェックするだけで良いのです。</p>
+</div>
+<div class="section" id="composability">
+<h3>結合性<a class="headerlink" href="#composability" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>関数型スタイルのプログラムを作っていると、色々な入力や出力のために色々な関数を書くことになります。仕方なく特定のアプリケーションに特化した関数を書くこともあるでしょうけれど、広範なプログラムに使える関数もあることでしょう。たとえば、ディレクトリ名を受け取ってその中の XML ファイル一覧を返す関数や、ファイル名を受け取って内容を返す関数などは、多様な場面に適用できそうです。</p>
+<p>時たつうちに自分の特製ライブラリやユーティリティが充実してくると、新しいプログラムも、既存の関数を調整して少し今回に特化した関数を書くだけで組み立てられるようになります。</p>
+</div>
+</div>
+<div class="section" id="iterators">
+<span id="functional-howto-iterators"></span><h2>イテレータ (iterator)<a class="headerlink" href="#iterators" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>まずは関数型スタイルのプログラムを書く際の基礎となる重要な Python 機能から見ていきましょう: イテレータです。</p>
+<p>イテレータは連続データを表現するオブジェクトです; このオブジェクトは一度に一つの要素ずつデータを返します。 Python のイテレータは <a class="reference internal" href="../library/stdtypes.html#iterator.__next__" title="iterator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> という、引数を取らず次の要素を返すメソッドを必ずサポートしています。データストリームに要素が残っていない場合、 <a class="reference internal" href="../library/stdtypes.html#iterator.__next__" title="iterator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> は必ず <a class="reference internal" href="../library/exceptions.html#StopIteration" title="StopIteration"><code class="xref py py-exc docutils literal notranslate"><span class="pre">StopIteration</span></code></a> 例外を出します。ただし、イテレータの長さは有限である必要はありません; 無限のストリームを生成するイテレータを書くというのもまったく理に適ったことです。</p>
+<p>ビルトインの <a class="reference internal" href="../library/functions.html#iter" title="iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">iter()</span></code></a> 関数は任意のオブジェクトを受けて、 その中身や要素を返すイテレータを返そうとします。引数のオブジェクトが イテレータを作れないときは <a class="reference internal" href="../library/exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> を投げます。Python の ビルトインなデータ型にもいくつかイテレータ化のできるものがあり、 中でもよく使われるのはリストと辞書です。イテレータを作れる オブジェクトは <a class="reference internal" href="../glossary.html#term-iterable"><span class="xref std std-term">iterable</span></a> オブジェクトと呼ばれます。</p>
+<p>手を動かしてイテレータ化の実験をしてみましょう:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">it</span>  <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;...iterator object at ...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">it</span><span class="o">.</span><span class="fm">__next__</span><span class="p">()</span>  <span class="c1"># same as next(it)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+<span class="gr">StopIteration</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Python は色々な文脈でイテラブルなオブジェクトを期待しますが、 最も重要なのは <a class="reference internal" href="../reference/compound_stmts.html#for"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">for</span></code></a> 文です。 <code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">X</span> <span class="pre">in</span> <span class="pre">Y</span></code> という文の Y は、 イテレータか、あるいは <a class="reference internal" href="../library/functions.html#iter" title="iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">iter()</span></code></a> でイテレータを作れるオブジェクトである必要があります。次の二つは同じ意味になります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>イテレータは <a class="reference internal" href="../library/stdtypes.html#list" title="list"><code class="xref py py-func docutils literal notranslate"><span class="pre">list()</span></code></a> や <a class="reference internal" href="../library/stdtypes.html#tuple" title="tuple"><code class="xref py py-func docutils literal notranslate"><span class="pre">tuple()</span></code></a> といったコンストラクタ関数を使ってリストやタプルに具現化することができます:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span>
+<span class="go">(1, 2, 3)</span>
+</pre></div>
+</div>
+<p>シーケンスのアンパックもイテレータに対応しています: イテレータが N 個の要素を返すということが事前にわかっていれば、N-タプルにアンパックすることができます:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">iterator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span>
+<span class="go">(1, 2, 3)</span>
+</pre></div>
+</div>
+<p>ビルトイン関数の <a class="reference internal" href="../library/functions.html#max" title="max"><code class="xref py py-func docutils literal notranslate"><span class="pre">max()</span></code></a> や <a class="reference internal" href="../library/functions.html#min" title="min"><code class="xref py py-func docutils literal notranslate"><span class="pre">min()</span></code></a> なども、イテレータ一つだけを引数に取って最大・最小の要素を返すことができます。 <code class="docutils literal notranslate"><span class="pre">&quot;in&quot;</span></code> や <code class="docutils literal notranslate"><span class="pre">&quot;not</span> <span class="pre">in&quot;</span></code> 演算子もイテレータに対応しています: <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">in</span> <span class="pre">iterator</span></code> は、そのイテレータから返るストリームに X があれば真です。ですからイテレータが無限長だと、当然ながら問題に直面します; <a class="reference internal" href="../library/functions.html#max" title="max"><code class="xref py py-func docutils literal notranslate"><span class="pre">max()</span></code></a>, <a class="reference internal" href="../library/functions.html#min" title="min"><code class="xref py py-func docutils literal notranslate"><span class="pre">min()</span></code></a> はいつまでも戻って来ませんし、 要素 X がストリームに出てこなければ <code class="docutils literal notranslate"><span class="pre">&quot;in&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;not</span> <span class="pre">in&quot;</span></code> オペレータも戻りません。</p>
+<p>イテレータは次に進むことしかできませんのでご注意ください; 前の要素を手に入れたり、イテレータをリセットしたり、コピーを作ったりする方法はありません。イテレータがオブジェクトとしてそうした追加機能を 持つことはできますが、プロトコルでは <a class="reference internal" href="../library/stdtypes.html#iterator.__next__" title="iterator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> メソッドのことしか指定されていません。ですから関数はイテレータの出力を使い尽くして しまうかもしれませんし、同じストリームに何か別のことをする 必要があるなら新しいイテレータを作らなくてはいけません。</p>
+<div class="section" id="data-types-that-support-iterators">
+<h3>イテレータ対応のデータ型<a class="headerlink" href="#data-types-that-support-iterators" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>リストやタプルがイテレータに対応している方法については既に見ましたが、実のところ Python のシーケンス型はどれでも、たとえば文字列なども、自動でイテレータ生成に対応しています。</p>
+<p>辞書に対して <a class="reference internal" href="../library/functions.html#iter" title="iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">iter()</span></code></a> すると、辞書のキーでループを回すイテレータが返されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Jan&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Feb&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Mar&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;Apr&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;May&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;Jun&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+<span class="gp">... </span>     <span class="s1">&#39;Jul&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">&#39;Aug&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;Sep&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">&#39;Oct&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;Nov&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s1">&#39;Dec&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">m</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+<span class="go">Jan 1</span>
+<span class="go">Feb 2</span>
+<span class="go">Mar 3</span>
+<span class="go">Apr 4</span>
+<span class="go">May 5</span>
+<span class="go">Jun 6</span>
+<span class="go">Jul 7</span>
+<span class="go">Aug 8</span>
+<span class="go">Sep 9</span>
+<span class="go">Oct 10</span>
+<span class="go">Nov 11</span>
+<span class="go">Dec 12</span>
+</pre></div>
+</div>
+<p>Python 3.7 から、辞書の反復順序は挿入順序と同じであることが保証されていることに注意してください。
+以前のバージョンでは、その振る舞いは仕様が定められておらず、実装ごとに異なることがありました。</p>
+<p>辞書は <a class="reference internal" href="../library/functions.html#iter" title="iter"><code class="xref py py-func docutils literal notranslate"><span class="pre">iter()</span></code></a> を適用するとキーでループを回しますが、辞書には他のイテレータを返すメソッドもあります。明示的に値、あるいはキーと値のペアでイテレートしたければ、<a class="reference internal" href="../library/stdtypes.html#dict.values" title="dict.values"><code class="xref py py-meth docutils literal notranslate"><span class="pre">values()</span></code></a>, <a class="reference internal" href="../library/stdtypes.html#dict.items" title="dict.items"><code class="xref py py-meth docutils literal notranslate"><span class="pre">items()</span></code></a> というメソッドでイテレータを作ることができます。</p>
+<p>逆に <a class="reference internal" href="../library/stdtypes.html#dict" title="dict"><code class="xref py py-func docutils literal notranslate"><span class="pre">dict()</span></code></a> コンストラクタは、有限な  <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code> タプルのストリームを返すイテレータを受け入れることができます:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">L</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Italy&#39;</span><span class="p">,</span> <span class="s1">&#39;Rome&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;France&#39;</span><span class="p">,</span> <span class="s1">&#39;Paris&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;US&#39;</span><span class="p">,</span> <span class="s1">&#39;Washington DC&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">dict</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">L</span><span class="p">))</span>
+<span class="go">{&#39;Italy&#39;: &#39;Rome&#39;, &#39;France&#39;: &#39;Paris&#39;, &#39;US&#39;: &#39;Washington DC&#39;}</span>
+</pre></div>
+</div>
+<p>ファイルも、最後の行まで <a class="reference internal" href="../library/io.html#io.TextIOBase.readline" title="io.TextIOBase.readline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">readline()</span></code></a> メソッドを呼んでいくことでイテレータ化に対応しています。つまりこうやってファイルの各行を読んでいくことができるわけです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="p">:</span>
+    <span class="c1"># do something for each line</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>セットはイテラブルを受け取れますし、そのセットの要素でイテレートすることもできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">S</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">S</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="generator-expressions-and-list-comprehensions">
+<h2>ジェネレータ式とリスト内包表記<a class="headerlink" href="#generator-expressions-and-list-comprehensions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>イテレータの出力に対してよく使う操作トップ 2 は、(1) ひとつずつ全要素に操作を実行する、および (2) 条件に合う要素でサブセットを作る、です。たとえば文字列のリストなら、各行のうしろに付いた邪魔なホワイトスペースを削りたいとか、特定の文字列を含む部分をピックアップしたいなどと思うかもしれません。</p>
+<p>リスト内包表記とジェネレータ式 (略して「listcomp」と「genexp」) は、そうした操作向けの簡潔な表記方法です。これは関数型プログラミング言語 Haskell (<a class="reference external" href="https://www.haskell.org/">https://www.haskell.org/</a>) にインスパイアされました。文字列のストリームからホワイトスペースをすべて削るのは次のコードでできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">line_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;  line 1</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;line 2  </span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+<span class="c1"># Generator expression -- returns iterator</span>
+<span class="n">stripped_iter</span> <span class="o">=</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">line_list</span><span class="p">)</span>
+
+<span class="c1"># List comprehension -- returns list</span>
+<span class="n">stripped_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">line_list</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>特定の要素だけを選び出すのは <code class="docutils literal notranslate"><span class="pre">&quot;if&quot;</span></code> 条件式を付けることで可能です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">stripped_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">line_list</span>
+                 <span class="k">if</span> <span class="n">line</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>リスト内包表記を使うと Python リストが返って来ます; <code class="docutils literal notranslate"><span class="pre">stripped_list</span></code> は実行結果の行が入ったリストであって、イテレータではありません。ジェネレータ式はイテレータを返し、これだと必要に応じてだけ値を算出しますので、すべての値を一度に出す必要がありません。つまりリスト内包表記のほうは、無限長ストリームや膨大なデータを返すようなイテレータを扱う際には、あまり役に立たないということです。そういった状況ではジェネレータ式のほうが好ましいと言えます。</p>
+<p>ジェネレータ式は丸括弧 &quot;()&quot; で囲まれ、リスト内包表記は角括弧 &quot;[]&quot; で囲まれます。ジェネレータ式の形式は次のとおりです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span> <span class="n">expression</span> <span class="k">for</span> <span class="n">expr</span> <span class="ow">in</span> <span class="n">sequence1</span>
+             <span class="k">if</span> <span class="n">condition1</span>
+             <span class="k">for</span> <span class="n">expr2</span> <span class="ow">in</span> <span class="n">sequence2</span>
+             <span class="k">if</span> <span class="n">condition2</span>
+             <span class="k">for</span> <span class="n">expr3</span> <span class="ow">in</span> <span class="n">sequence3</span> <span class="o">...</span>
+             <span class="k">if</span> <span class="n">condition3</span>
+             <span class="k">for</span> <span class="n">exprN</span> <span class="ow">in</span> <span class="n">sequenceN</span>
+             <span class="k">if</span> <span class="n">conditionN</span> <span class="p">)</span>
+</pre></div>
+</div>
+<p>リスト内包表記も、外側の括弧が違うだけ (丸ではなく角括弧) で、あとは同じです。</p>
+<p>生成される出力は <code class="docutils literal notranslate"><span class="pre">expression</span></code> 部分の値を要素として並べたものになります。 <code class="docutils literal notranslate"><span class="pre">if</span></code> 節はすべて、なくても大丈夫です; あれば <code class="docutils literal notranslate"><span class="pre">condition</span></code> が真のときだけ <code class="docutils literal notranslate"><span class="pre">expression</span></code> が評価されて出力に追加されます。</p>
+<p>ジェネレータ式は常に括弧の中に書かなければなりませんが、関数コールの目印になっている括弧でも大丈夫です。関数にすぐ渡すイテレータを作りたければこう書けるのです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">obj_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">count</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">list_all_objects</span><span class="p">())</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">for...in</span></code> 節は複数つなげられますが、どれにも、イテレートするためのシーケンスが含まれています。それらのシーケンスは並行して <strong>ではなく</strong> 、左から右へ順番にイテレートされるので、長さが同じである必要はありません。 <code class="docutils literal notranslate"><span class="pre">sequence1</span></code> の各要素ごとに毎回最初から <code class="docutils literal notranslate"><span class="pre">sequence2</span></code> をループで回すのです。その後 <code class="docutils literal notranslate"><span class="pre">sequence1</span></code> と <code class="docutils literal notranslate"><span class="pre">sequence2</span></code> から出た要素ペアごとに、 <code class="docutils literal notranslate"><span class="pre">sequence3</span></code> でループします。</p>
+<p>別の書き方をすると、リスト内包表記やジェネレータ式は次の Python コードと同じ意味になります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">expr1</span> <span class="ow">in</span> <span class="n">sequence1</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">condition1</span><span class="p">):</span>
+        <span class="k">continue</span>   <span class="c1"># Skip this element</span>
+    <span class="k">for</span> <span class="n">expr2</span> <span class="ow">in</span> <span class="n">sequence2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">condition2</span><span class="p">):</span>
+            <span class="k">continue</span>   <span class="c1"># Skip this element</span>
+        <span class="o">...</span>
+        <span class="k">for</span> <span class="n">exprN</span> <span class="ow">in</span> <span class="n">sequenceN</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">conditionN</span><span class="p">):</span>
+                <span class="k">continue</span>   <span class="c1"># Skip this element</span>
+
+            <span class="c1"># Output the value of</span>
+            <span class="c1"># the expression.</span>
+</pre></div>
+</div>
+<p>つまり、複数の <code class="docutils literal notranslate"><span class="pre">for...in</span></code> 節があって <code class="docutils literal notranslate"><span class="pre">if</span></code> がないときの最終出力は、長さが各シーケンス長の積に等しくなるということです。長さ 3 のリスト二つなら、出力リストの長さは 9 要素です:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">seq1</span> <span class="o">=</span> <span class="s1">&#39;abc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seq2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq1</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">seq2</span><span class="p">]</span>  <span class="c1">#doctest: +NORMALIZE_WHITESPACE</span>
+<span class="go">[(&#39;a&#39;, 1), (&#39;a&#39;, 2), (&#39;a&#39;, 3),</span>
+<span class="go"> (&#39;b&#39;, 1), (&#39;b&#39;, 2), (&#39;b&#39;, 3),</span>
+<span class="go"> (&#39;c&#39;, 1), (&#39;c&#39;, 2), (&#39;c&#39;, 3)]</span>
+</pre></div>
+</div>
+<p>Python の文法に曖昧さを紛れ込ませないように、 <code class="docutils literal notranslate"><span class="pre">expression</span></code> でタプルを作るなら括弧で囲わなくてはなりません。下にあるリスト内包表記で、最初のは構文エラーですが、二番目は有効です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Syntax error</span>
+<span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq1</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">seq2</span><span class="p">]</span>
+<span class="c1"># Correct</span>
+<span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">seq1</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">seq2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generators">
+<h2>ジェネレータ (generator)<a class="headerlink" href="#generators" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ジェネレータは、イテレータを書く作業を簡単にする、特殊な関数です。標準的な関数は値を計算して返しますが、ジェネレータが返すのは、一連の値を返すイテレータです。</p>
+<p>Python や C の標準的な関数コールについては、よくご存じに違いありません。関数を呼ぶと、ローカル変数を作るプライベートな名前空間ができますね。その関数が <code class="docutils literal notranslate"><span class="pre">return</span></code> 文まで来ると、ローカル変数が破壊されてから、返り値が呼び出し元に返ります。次に同じ関数をもう一度呼ぶと、新しいプライベート名前空間に新規のローカル変数が作られるのです。しかし、関数を出るときにローカル変数を捨てなければどうなるでしょうか。その出ていったところから関数を続行できたとしたら、どうでしょう。これこそジェネレータが提供する機能です; すなわち、ジェネレータは続行できる関数と考えることができます。</p>
+<p>ごく単純なジェネレータ関数の例がこちらにあります:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">generate_ints</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+<span class="gp">... </span>       <span class="k">yield</span> <span class="n">i</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../reference/simple_stmts.html#yield"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">yield</span></code></a> キーワードを含む関数はすべてジェネレータ関数です; Python の <a class="reference internal" href="../glossary.html#term-bytecode"><span class="xref std std-term">bytecode</span></a> コンパイラがこれを検出して、特別な方法でコンパイルしてくれるのです。</p>
+<p>ジェネレータ関数は、呼ばれたときに一回だけ値を返すのではなく、イテレータ プロトコルに対応したオブジェクトを返します。上の例で <code class="docutils literal notranslate"><span class="pre">yield</span></code> を実行したとき、 ジェネレータは <code class="docutils literal notranslate"><span class="pre">return</span></code> 文のようにして <code class="docutils literal notranslate"><span class="pre">i</span></code> の値を出力します。 <code class="docutils literal notranslate"><span class="pre">yield</span></code> と <code class="docutils literal notranslate"><span class="pre">return</span></code> 文の大きな違いは、 <code class="docutils literal notranslate"><span class="pre">yield</span></code> に到達した段階でジェネレータの実行状態が一時停止になって、ローカル変数が保存される点です。 次回そのジェネレータの <a class="reference internal" href="../reference/expressions.html#generator.__next__" title="generator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> を呼ぶと、そこから関数が実行を再開します。</p>
+<p>上記 <code class="docutils literal notranslate"><span class="pre">generate_ints()</span></code> ジェネレータの使用例はこちらです:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gen</span> <span class="o">=</span> <span class="n">generate_ints</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gen</span>  <span class="c1">#doctest: +ELLIPSIS</span>
+<span class="go">&lt;generator object generate_ints at ...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;stdin&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;stdin&quot;</span>, line <span class="m">2</span>, in <span class="n">generate_ints</span>
+<span class="gr">StopIteration</span>
+</pre></div>
+</div>
+<p>同じく <code class="docutils literal notranslate"><span class="pre">for</span> <span class="pre">i</span> <span class="pre">in</span> <span class="pre">generate_ints(5)</span></code> や <code class="docutils literal notranslate"><span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c</span> <span class="pre">=</span> <span class="pre">generate_ints(3)</span></code> といった書き方もできます。</p>
+<p>ジェネレータ関数の中では、<code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">value</span></code> は <a class="reference internal" href="../reference/expressions.html#generator.__next__" title="generator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> メソッドから送出された <code class="docutils literal notranslate"><span class="pre">StopIteration(value)</span></code> を引き起こします。これが発生した場合や、関数の終わりに到達した場合は、値の生成が終了してジェネレーターがそれ以上の値を返さない。</p>
+<p>自分でクラスを書いて、ジェネレータで言うところのローカル変数をインスタンス変数として全部保管しておけば、同じ効果を得ることは可能です。たとえば整数のリストを返すのは、 <code class="docutils literal notranslate"><span class="pre">self.count</span></code> を 0 にして、 <a class="reference internal" href="../library/stdtypes.html#iterator.__next__" title="iterator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> メソッドが <code class="docutils literal notranslate"><span class="pre">self.count</span></code> をインクリメントして返すようにすればできます。しかしながら、ある程度複雑なジェネレータになってくると、同じことをするクラスを書くのは格段にややこしいことになります。</p>
+<p>Python のライブラリに含まれているテストスイート <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/test/test_generators.py">Lib/test/test_generators.py</a> には、ほかにも興味深い例が数多く入っています。これは二分木の通りがけ順 (in-order) 探索を再帰で実装したジェネレータです。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A recursive generator that generates Tree leaves in in-order.</span>
+<span class="k">def</span> <span class="nf">inorder</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inorder</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">left</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">x</span>
+
+        <span class="k">yield</span> <span class="n">t</span><span class="o">.</span><span class="n">label</span>
+
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inorder</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">right</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>ほかにも <code class="docutils literal notranslate"><span class="pre">test_generators.py</span></code> には、N-Queens 問題 (N×N コマのチェス盤に、互いに攻撃できないような配置で N 個のクイーンを置く) やナイト・ツアー (N×N 盤の全コマをナイトが一度ずつ通るような経路を探す) の解を出す例が入っています。</p>
+<div class="section" id="passing-values-into-a-generator">
+<h3>ジェネレータに値を渡す<a class="headerlink" href="#passing-values-into-a-generator" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Python 2.4 までのジェネレータは出力することしかできませんでした。ジェネレータのコードを実行してイテレータを作ってしまったあとで、その関数を再開するときに新しい情報を渡す手段はなかったのです。ジェネレータがグローバル変数を見るようにしたり、ミュータブルなオブジェクトを渡しておいて呼び出し元であとからそれを変更したり、といったハックは可能でしたが、どれもゴチャゴチャしていますね。</p>
+<p>Python 2.5 で、ジェネレータに値を渡す簡単な手段ができました。 <a class="reference internal" href="../reference/simple_stmts.html#yield"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">yield</span></code></a> が、変数に代入したり演算したりできる値を返す式になったのです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span> <span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上のように、返り値で何かをするときは <code class="docutils literal notranslate"><span class="pre">yield</span></code> 式の前後に <strong>必ず</strong> 括弧を付けるようお勧めします。括弧は常に必要なわけではありませんが、どんなとき付けなくて良いのかを覚えておくより、いつも付けておくほうが楽ですから。</p>
+<p>(<span class="target" id="index-4"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0342"><strong>PEP 342</strong></a> がその規則を正確に説明していますが、それによると <code class="docutils literal notranslate"><span class="pre">yield</span></code>-式は、代入式で右辺のトップレベルにあるとき以外はいつも括弧を付ける必要があります。つまり <code class="docutils literal notranslate"><span class="pre">val</span> <span class="pre">=</span> <span class="pre">yield</span> <span class="pre">i</span></code> とは書けますが、 <code class="docutils literal notranslate"><span class="pre">val</span> <span class="pre">=</span> <span class="pre">(yield</span> <span class="pre">i)</span> <span class="pre">+</span> <span class="pre">12</span></code> のように演算子があるときは括弧を使わなくてはいけません。)</p>
+<p>ジェネレータに値を送るには <a class="reference internal" href="../reference/expressions.html#generator.send" title="generator.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send(value)</span></code></a> メソッドを呼びます。 するとジェネレータのコードが実行を再開し、 <code class="docutils literal notranslate"><span class="pre">yield</span></code> 式がその値を返すのです。ふつうの <a class="reference internal" href="../reference/expressions.html#generator.__next__" title="generator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> メソッドを呼ぶと、 <code class="docutils literal notranslate"><span class="pre">yield</span></code> は <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+<p>下にあるのは 1 ずつ増える単純なカウンタですが、内部カウンタの値を変更することができるようになっています。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">counter</span><span class="p">(</span><span class="n">maximum</span><span class="p">):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">maximum</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="k">yield</span> <span class="n">i</span><span class="p">)</span>
+        <span class="c1"># If value provided, change counter</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>そしてカウンタ変更の例がこちらです:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">it</span> <span class="o">=</span> <span class="n">counter</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1">#doctest: +SKIP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>  <span class="c1">#doctest: +SKIP</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>  <span class="c1">#doctest: +SKIP</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">it</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>  <span class="c1">#doctest: +SKIP</span>
+<span class="go">8</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>  <span class="c1">#doctest: +SKIP</span>
+<span class="go">9</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>  <span class="c1">#doctest: +SKIP</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;t.py&quot;</span>, line <span class="m">15</span>, in <span class="n">&lt;module&gt;</span>
+    <span class="n">it</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+<span class="gr">StopIteration</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">yield</span></code> が <code class="docutils literal notranslate"><span class="pre">None</span></code> を返すことはよくあるのですから、そうなっていないかどうか必ずチェックしておくべきです。ジェネレータ関数を再開するために使うメソッドが <a class="reference internal" href="../reference/expressions.html#generator.send" title="generator.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> しかないのだと確定してるのでない限り、式の値をそのまま使ってはいけません。</p>
+<p>ジェネレータには、 <a class="reference internal" href="../reference/expressions.html#generator.send" title="generator.send"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send()</span></code></a> のほかにもメソッドが二つあります:</p>
+<ul>
+<li><p class="first"><a class="reference internal" href="../reference/expressions.html#generator.throw" title="generator.throw"><code class="xref py py-meth docutils literal notranslate"><span class="pre">throw(type,</span> <span class="pre">value=None,</span> <span class="pre">traceback=None)</span></code></a> はジェネレータ内で例外を投げるために使います; その例外はジェネレータの実行が停止したところの <code class="docutils literal notranslate"><span class="pre">yield</span></code> 式によって投げられます。</p>
+</li>
+<li><p class="first"><a class="reference internal" href="../reference/expressions.html#generator.close" title="generator.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> はジェネレータ内で <a class="reference internal" href="../library/exceptions.html#GeneratorExit" title="GeneratorExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GeneratorExit</span></code></a> 例外を投げて、 イテレートを終了させます。この例外を受け取ったジェネレータのコードは <a class="reference internal" href="../library/exceptions.html#GeneratorExit" title="GeneratorExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GeneratorExit</span></code></a> か <a class="reference internal" href="../library/exceptions.html#StopIteration" title="StopIteration"><code class="xref py py-exc docutils literal notranslate"><span class="pre">StopIteration</span></code></a> を投げなくてはいけません; この例外を捕捉して何かほかのことをしようとするのは規則違反であり、 <a class="reference internal" href="../library/exceptions.html#RuntimeError" title="RuntimeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> を引き起こします。 <a class="reference internal" href="../reference/expressions.html#generator.close" title="generator.close"><code class="xref py py-meth docutils literal notranslate"><span class="pre">close()</span></code></a> はジェネレータが GC されるときにも呼ばれます。</p>
+<p><a class="reference internal" href="../library/exceptions.html#GeneratorExit" title="GeneratorExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GeneratorExit</span></code></a> が起こったときにクリーンアップ作業をする必要があるなら、 <a class="reference internal" href="../library/exceptions.html#GeneratorExit" title="GeneratorExit"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GeneratorExit</span></code></a> を捕捉するのではなく <code class="docutils literal notranslate"><span class="pre">try:</span> <span class="pre">...</span> <span class="pre">finaly:</span></code> するようお勧めします。</p>
+</li>
+</ul>
+<p>これらの変更の合わせ技で、ジェネレータは情報の一方的な生産者から、生産者かつ消費者という存在に変貌を遂げたのです。</p>
+<p>ジェネレータは <strong>コルーチン</strong> という、より一般化された形式のサブルーチンにもなります。サブルーチンは一カ所 (関数の冒頭) から入って別の一カ所 (<code class="docutils literal notranslate"><span class="pre">return</span></code> 文) から出るだけですが、コルーチンはいろいろな場所 (<code class="docutils literal notranslate"><span class="pre">yield</span></code> 文) から入ったり出たり再開したりできるのです。</p>
+</div>
+</div>
+<div class="section" id="built-in-functions">
+<h2>組み込み関数 (built-in function)<a class="headerlink" href="#built-in-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>よくイテレータと一緒に使うビルトイン関数について、もっと詳しく見ていきましょう。</p>
+<p>Python のビルトイン関数 <a class="reference internal" href="../library/functions.html#map" title="map"><code class="xref py py-func docutils literal notranslate"><span class="pre">map()</span></code></a> と <a class="reference internal" href="../library/functions.html#filter" title="filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">filter()</span></code></a> は、機能がジェネレータ式と重複しています:</p>
+<dl class="docutils">
+<dt><a class="reference internal" href="../library/functions.html#map" title="map"><code class="xref py py-func docutils literal notranslate"><span class="pre">map(f,</span> <span class="pre">iterA,</span> <span class="pre">iterB,</span> <span class="pre">...)</span></code></a> は以下のシーケンスのイテレータを返します</dt>
+<dd><p class="first"><code class="docutils literal notranslate"><span class="pre">f(iterA[0],</span> <span class="pre">iterB[0]),</span> <span class="pre">f(iterA[1],</span> <span class="pre">iterB[1]),</span> <span class="pre">f(iterA[2],</span> <span class="pre">iterB[2]),</span> <span class="pre">...</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">upper</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">upper</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;sentence&#39;</span><span class="p">,</span> <span class="s1">&#39;fragment&#39;</span><span class="p">]))</span>
+<span class="go">[&#39;SENTENCE&#39;, &#39;FRAGMENT&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">upper</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;sentence&#39;</span><span class="p">,</span> <span class="s1">&#39;fragment&#39;</span><span class="p">]]</span>
+<span class="go">[&#39;SENTENCE&#39;, &#39;FRAGMENT&#39;]</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>もちろん、リスト内包表記でも同じ結果が得られます。</p>
+<p><a class="reference internal" href="../library/functions.html#filter" title="filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">filter(predicate,</span> <span class="pre">iter)</span></code></a> はある条件を満たす要素に渡るイテレータを返すので、同様にリスト内包表記で再現できます。
+<strong>predicate</strong> は、ある条件に対する真偽値を返す関数です;
+<a class="reference internal" href="../library/functions.html#filter" title="filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">filter()</span></code></a> で使うには、その関数の引数は一つでなければなりません。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">is_even</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">is_even</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
+<span class="go">[0, 2, 4, 6, 8]</span>
+</pre></div>
+</div>
+<p>これはリスト内包表記でも書けます:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_even</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="go">[0, 2, 4, 6, 8]</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/functions.html#enumerate" title="enumerate"><code class="xref py py-func docutils literal notranslate"><span class="pre">enumerate(iter,</span> <span class="pre">start=0)</span></code></a> はイテラブルの要素に順番に番号を振っていき、(<em>start</em> から数え始めたときの) 番号とそれぞれの要素を含む 2 タプルを返します。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;verb&#39;</span><span class="p">,</span> <span class="s1">&#39;object&#39;</span><span class="p">]):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+<span class="go">(0, &#39;subject&#39;)</span>
+<span class="go">(1, &#39;verb&#39;)</span>
+<span class="go">(2, &#39;object&#39;)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/functions.html#enumerate" title="enumerate"><code class="xref py py-func docutils literal notranslate"><span class="pre">enumerate()</span></code></a> はよく、リストに対してループさせて、条件に合う所に印を付けていくときに使われます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;data.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Blank line at line #</span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/functions.html#sorted" title="sorted"><code class="xref py py-func docutils literal notranslate"><span class="pre">sorted(iterable,</span> <span class="pre">key=None,</span> <span class="pre">reverse=False)</span></code></a> はイテラブルの要素をすべて集めたリストを作り、ソートして返します。 引数 <em>key</em> および <em>reverse</em> は、リストの <a class="reference internal" href="../library/stdtypes.html#list.sort" title="list.sort"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sort()</span></code></a> メソッドにそのまま渡されます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate 8 random numbers between [0, 10000)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_list</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rand_list</span>  
+<span class="go">[769, 7953, 9828, 6431, 8442, 9878, 6213, 2207]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">rand_list</span><span class="p">)</span>  
+<span class="go">[769, 2207, 6213, 6431, 7953, 8442, 9828, 9878]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">rand_list</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  
+<span class="go">[9878, 9828, 8442, 7953, 6431, 6213, 2207, 769]</span>
+</pre></div>
+</div>
+<p>(ソートに関する詳細な論議は <a class="reference internal" href="sorting.html#sortinghowto"><span class="std std-ref">ソート HOW TO</span></a> を参照)</p>
+<p>組み込みの <a class="reference internal" href="../library/functions.html#any" title="any"><code class="xref py py-func docutils literal notranslate"><span class="pre">any(iter)</span></code></a> および <a class="reference internal" href="../library/functions.html#all" title="all"><code class="xref py py-func docutils literal notranslate"><span class="pre">all(iter)</span></code></a> は iterable の値の真偽を調べます。 <a class="reference internal" href="../library/functions.html#any" title="any"><code class="xref py py-func docutils literal notranslate"><span class="pre">any()</span></code></a> は要素のどれかが真値なら <code class="docutils literal notranslate"><span class="pre">True</span></code> を返し、 <a class="reference internal" href="../library/functions.html#all" title="all"><code class="xref py py-func docutils literal notranslate"><span class="pre">all()</span></code></a> は要素が全て真値なら <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">any</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">any</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">any</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">all</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">all</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">all</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/functions.html#zip" title="zip"><code class="xref py py-func docutils literal notranslate"><span class="pre">zip(iterA,</span> <span class="pre">iterB,</span> <span class="pre">...)</span></code></a> はそれぞれの iterable から1つの要素を取り、それらをタプルに入れて返します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/functions.html#zip" title="zip"><code class="xref py py-func docutils literal notranslate"><span class="pre">zip()</span></code></a> は結果を返す前に入力のイテレーターを全て消費してメモリ上に list を作成しません。代わりに要求されるたびに tuple を生成して返します。(この動作を技術的な用語で <a class="reference external" href="https://en.wikipedia.org/wiki/Lazy_evaluation">lazy evaluation</a> (訳: <a class="reference external" href="https://ja.wikipedia.org/wiki/%E9%81%85%E5%BB%B6%E8%A9%95%E4%BE%A1">遅延評価</a>) と呼びます。)</p>
+<p>このイテレータの用途には、すべて同じ長さのイテラブルを想定しています。長さが違っていれば、出力されるストリームは一番短いイテラブルと同じ長さになります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>とは言え、これをやってしまうと長いイテレータから要素をひとつ無駄に多く取って捨ててしまうかもしれませんので、やめておいたほうが良いです。その捨てられた要素を抜かしてしまう危険があるので、もうそのイテレータはそれ以上使えなくなってしまいます。</p>
+</div>
+<div class="section" id="the-itertools-module">
+<h2>itertools モジュール<a class="headerlink" href="#the-itertools-module" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="../library/itertools.html#module-itertools" title="itertools: Functions creating iterators for efficient looping."><code class="xref py py-mod docutils literal notranslate"><span class="pre">itertools</span></code></a> モジュールには、よく使うイテレータや、イテレータ同士の連結に使う関数がたくさん含まれています。この章では、そのモジュールの内容を小さな例で紹介していきたいと思います。</p>
+<p>このモジュールの関数を大まかに分けるとこうなります:</p>
+<ul class="simple">
+<li>既存のイテレータに基づいて新しいイテレータを作る関数。</li>
+<li>イテレータの要素を引数として扱う関数。</li>
+<li>イテレータの出力から一部を取り出す関数。</li>
+<li>イテレータの出力をグループ分けする関数。</li>
+</ul>
+<div class="section" id="creating-new-iterators">
+<h3>新しいイテレータを作る<a class="headerlink" href="#creating-new-iterators" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/itertools.html#itertools.count" title="itertools.count"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.count(start,</span> <span class="pre">step)</span></code></a> は値の間隔が一定の無限ストリームを返します。
+オプションで開始する数 (デフォルトは 0) や数どうしの間隔 (デフォルトは 1) を与えられます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">=&gt;</span>
+  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="o">...</span>
+<span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="o">...</span>
+<span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.cycle" title="itertools.cycle"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.cycle(iter)</span></code></a> は与えられたイテラブルの内容をコピーして、 その要素を最初から最後まで無限に繰り返していくイテレータを返します。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">cycle</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span> <span class="o">=&gt;</span>
+  <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.repeat" title="itertools.repeat"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.repeat(elem,</span> <span class="pre">[n])</span></code></a> は、与えられた要素を <em>n</em> 回返しますが、 <em>n</em> がなければ永遠に返し続けます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="s1">&#39;abc&#39;</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="o">...</span>
+<span class="n">itertools</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="s1">&#39;abc&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">,</span> <span class="n">abc</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.chain" title="itertools.chain"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.chain(iterA,</span> <span class="pre">iterB,</span> <span class="pre">...)</span></code></a> は任意の数のイテラブルを受け取って、最初のイテレータから要素をすべて返し、次に二番目から 要素をすべて返し、ということを要素がなくなるまで続けます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">=&gt;</span>
+  <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.islice" title="itertools.islice"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.islice(iter,</span> <span class="pre">[start],</span> <span class="pre">stop,</span> <span class="pre">[step])</span></code></a> は、イテレータの スライスをストリームで返します。 <em>stop</em> 引数だけだと、最初の <em>stop</em> 個の要素を返します。開始インデックスを渡すと <em>stop-start</em> 個で、 <em>step</em> の値も渡せばそれに応じて要素を抜かします。Python における文字列やリストのスライスとは違って、マイナスの値は <em>start</em>, <em>stop</em>, <em>step</em> に使えません。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span>
+<span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span>
+<span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.tee" title="itertools.tee"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.tee(iter,</span> <span class="pre">[n])</span></code></a> はイテレータを複製します; 元のイテレータの内容を同じように返す、独立した <em>n</em> 個のイテレータを返すのです。 <em>n</em> の値は、指定しなければ既定が 2 になっています。複製するには元のイテレータの内容を一部保存しておく必要がありますから、大きなイテレータから複製したうちの一つが他よりも進んでいってしまうと、大量のメモリを消費することがあります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">tee</span><span class="p">(</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="p">)</span> <span class="o">=&gt;</span>
+   <span class="n">iterA</span><span class="p">,</span> <span class="n">iterB</span>
+
+<span class="n">where</span> <span class="n">iterA</span> <span class="o">-&gt;</span>
+   <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="o">...</span>
+
+<span class="ow">and</span>   <span class="n">iterB</span> <span class="o">-&gt;</span>
+   <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calling-functions-on-elements">
+<h3>要素に対して関数を呼ぶ<a class="headerlink" href="#calling-functions-on-elements" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>いま使った <a class="reference internal" href="../library/operator.html#module-operator" title="operator: Functions corresponding to the standard operators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">operator</span></code></a> モジュールには、Python の演算子に対応する関数が入っています。いくつか例を挙げると、 <a class="reference internal" href="../library/operator.html#operator.add" title="operator.add"><code class="xref py py-func docutils literal notranslate"><span class="pre">operator.add(a,</span> <span class="pre">b)</span></code></a> (二つの値を加算)、 <a class="reference internal" href="../library/operator.html#operator.ne" title="operator.ne"><code class="xref py py-func docutils literal notranslate"><span class="pre">operator.ne(a,</span> <span class="pre">b)</span></code></a> (<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">!=</span> <span class="pre">b</span></code> と同じ)、 <a class="reference internal" href="../library/operator.html#operator.attrgetter" title="operator.attrgetter"><code class="xref py py-func docutils literal notranslate"><span class="pre">operator.attrgetter('id')</span></code></a> (<code class="docutils literal notranslate"><span class="pre">.id</span></code> 属性を取得するコーラブルを返す) といった関数です。</p>
+<p><a class="reference internal" href="../library/itertools.html#itertools.starmap" title="itertools.starmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.starmap(func,</span> <span class="pre">iter)</span></code></a> は、イテラブルがタプルのストリームを返すとみなして、 そのタプルを引数に使って <em>func</em> を呼びます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">,</span>
+                  <span class="p">[(</span><span class="s1">&#39;/bin&#39;</span><span class="p">,</span> <span class="s1">&#39;python&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;/usr&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;java&#39;</span><span class="p">),</span>
+                   <span class="p">(</span><span class="s1">&#39;/usr&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;perl&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;/usr&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;ruby&#39;</span><span class="p">)])</span>
+<span class="o">=&gt;</span>
+  <span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span><span class="p">,</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">java</span><span class="p">,</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">perl</span><span class="p">,</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">ruby</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="selecting-elements">
+<h3>要素を選択する<a class="headerlink" href="#selecting-elements" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>さらに別のグループとして、述語 (predicate) に基づいてイテレータの要素からサブセットを選び出す関数があります。</p>
+<p><a class="reference internal" href="../library/itertools.html#itertools.filterfalse" title="itertools.filterfalse"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.filterfalse(predicate,</span> <span class="pre">iter)</span></code></a> は <a class="reference internal" href="../library/functions.html#filter" title="filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">filter()</span></code></a> とは反対に、 述語が偽を返す要素をすべて返します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">filterfalse</span><span class="p">(</span><span class="n">is_even</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">=&gt;</span>
+  <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.takewhile" title="itertools.takewhile"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.takewhile(predicate,</span> <span class="pre">iter)</span></code></a> は述語が真を返している間だけ要素を返します。一度でも述語が偽を返すと、イテレータは出力終了の合図をします。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">less_than_10</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">10</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">takewhile</span><span class="p">(</span><span class="n">less_than_10</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">=&gt;</span>
+  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">takewhile</span><span class="p">(</span><span class="n">is_even</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">=&gt;</span>
+  <span class="mi">0</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.dropwhile" title="itertools.dropwhile"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.dropwhile(predicate,</span> <span class="pre">iter)</span></code></a> は、述語が真を返しているうちは要素を無視し、偽になってから残りの出力をすべて返します。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">dropwhile</span><span class="p">(</span><span class="n">less_than_10</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">=&gt;</span>
+  <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="o">...</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">dropwhile</span><span class="p">(</span><span class="n">is_even</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">())</span> <span class="o">=&gt;</span>
+  <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.compress" title="itertools.compress"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.compress(data,</span> <span class="pre">selectors)</span></code></a> は 2つのイテレータを取り、 どちらかのイテレータを使い果たすまでの、 <em>selectors</em> が真となる要素に対応する <em>data</em> 要素だけを返します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">compress</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span> <span class="o">=&gt;</span>
+   <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="combinatoric-functions">
+<h3>組合せ関数<a class="headerlink" href="#combinatoric-functions" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/itertools.html#itertools.combinations" title="itertools.combinations"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.combinations(iterable,</span> <span class="pre">r)</span></code></a> は、 <em>iterable</em> から <em>r</em>-tuple 選択する全ての組み合わせを提供するイテレータを返します</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>それぞれのタプル内では、要素は <em>iterable</em> がそれを返したのと同じ順序を保ちます。例えば上の例であれば、 1 はいつでも 2, 3, 4, 5 の前に来ます。似たような関数に <a class="reference internal" href="../library/itertools.html#itertools.permutations" title="itertools.permutations"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.permutations(iterable,</span> <span class="pre">r=None)</span></code></a> があり、こちらはこの順序についての制約がなく、 <em>r</em> 個選択する全ての順列を返します。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="o">...</span>
+  <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>r</em> を与えない場合は iterable の長さが使われます。つまり iterable の全ての要素を選んだ順列を返します。</p>
+<p>これらの関数が生成する組み合わせは、位置が基準ですので、 <em>iterable</em> の内容が一意でなくとも良いことに注目してください:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">permutations</span><span class="p">(</span><span class="s1">&#39;aba&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span>
+  <span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>全く同じタプル <code class="docutils literal notranslate"><span class="pre">('a',</span> <span class="pre">'a',</span> <span class="pre">'b')</span></code> が 2度現れていますが、これは 2つの 'a' が別の位置からのものだからです。</p>
+<p><a class="reference internal" href="../library/itertools.html#itertools.combinations_with_replacement" title="itertools.combinations_with_replacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.combinations_with_replacement(iterable,</span> <span class="pre">r)</span></code></a> 関数は別の制約を取り払います: 一回の選択で同じ要素を繰り返し選んでも良い。概念的には、それぞれのタプルの最初のものとして一つ要素が選ばれ、続いて 2つ目の選択のかわりにそれで置き換わります</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations_with_replacement</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+  <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="grouping-elements">
+<h3>要素をグループ分けする<a class="headerlink" href="#grouping-elements" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>最後に議題に上げる関数 <a class="reference internal" href="../library/itertools.html#itertools.groupby" title="itertools.groupby"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.groupby(iter,</span> <span class="pre">key_func=None)</span></code></a> は、 これまでで最も複雑です。 <code class="docutils literal notranslate"><span class="pre">key_func(elem)</span></code> は、イテラブルから返ってきた要素それぞれのキー値を計算する関数です。この関数が指定されていなければ、 キーは単に各要素そのものになります。</p>
+<p><a class="reference internal" href="../library/itertools.html#itertools.groupby" title="itertools.groupby"><code class="xref py py-func docutils literal notranslate"><span class="pre">groupby()</span></code></a> は、元になるイテラブルから同じキー値を持つ連続する要素を集めて、キー値とそのキーに対応する要素のイテレータの 2-タプルのストリームを返します。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">city_list</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;Decatur&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Huntsville&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Selma&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">),</span>
+             <span class="p">(</span><span class="s1">&#39;Anchorage&#39;</span><span class="p">,</span> <span class="s1">&#39;AK&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Nome&#39;</span><span class="p">,</span> <span class="s1">&#39;AK&#39;</span><span class="p">),</span>
+             <span class="p">(</span><span class="s1">&#39;Flagstaff&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Phoenix&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Tucson&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">),</span>
+             <span class="o">...</span>
+            <span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="n">city_state</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">city_state</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">city_list</span><span class="p">,</span> <span class="n">get_state</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;AL&#39;</span><span class="p">,</span> <span class="n">iterator</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+  <span class="p">(</span><span class="s1">&#39;AK&#39;</span><span class="p">,</span> <span class="n">iterator</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span>
+  <span class="p">(</span><span class="s1">&#39;AZ&#39;</span><span class="p">,</span> <span class="n">iterator</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span> <span class="o">...</span>
+
+<span class="n">where</span>
+<span class="n">iterator</span><span class="o">-</span><span class="mi">1</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;Decatur&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Huntsville&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Selma&#39;</span><span class="p">,</span> <span class="s1">&#39;AL&#39;</span><span class="p">)</span>
+<span class="n">iterator</span><span class="o">-</span><span class="mi">2</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;Anchorage&#39;</span><span class="p">,</span> <span class="s1">&#39;AK&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Nome&#39;</span><span class="p">,</span> <span class="s1">&#39;AK&#39;</span><span class="p">)</span>
+<span class="n">iterator</span><span class="o">-</span><span class="mi">3</span> <span class="o">=&gt;</span>
+  <span class="p">(</span><span class="s1">&#39;Flagstaff&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Phoenix&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Tucson&#39;</span><span class="p">,</span> <span class="s1">&#39;AZ&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/itertools.html#itertools.groupby" title="itertools.groupby"><code class="xref py py-func docutils literal notranslate"><span class="pre">groupby()</span></code></a> は、元になるイテラブルの内容がキー値でソートされた状態で与えられることを想定しています。ここで、返されるイテレータ自体も元のイテラブルを使うということに注意してください。そのため、 iterator-1 の結果を読み終わるまでは iterator-2 とそれに対応するキー値を要求することはできません。</p>
+</div>
+</div>
+<div class="section" id="the-functools-module">
+<h2>functools モジュール<a class="headerlink" href="#the-functools-module" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python 2.5 からの <a class="reference internal" href="../library/functools.html#module-functools" title="functools: Higher-order functions and operations on callable objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">functools</span></code></a> モジュールには、高階関数がいくつか入っています。 <strong>高階関数</strong> とは、入力として関数を受け取って新たな関数を返す関数です。このモジュールで一番便利なツールは <a class="reference internal" href="../library/functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.partial()</span></code></a> 関数です。</p>
+<p>関数型スタイルのプログラムでは時折、既存の関数から一部のパラメータを埋めた変種を作りたくなることがあります。Python の関数 <code class="docutils literal notranslate"><span class="pre">f(a,</span> <span class="pre">b,</span> <span class="pre">c)</span></code> というものがあるとしてください; <code class="docutils literal notranslate"><span class="pre">f(1,</span> <span class="pre">b,</span> <span class="pre">c)</span></code> と同じ意味の <code class="docutils literal notranslate"><span class="pre">g(b,</span> <span class="pre">c)</span></code> という関数を作りたくなることがあります; つまり <code class="docutils literal notranslate"><span class="pre">f()</span></code> のパラメータを一つ埋めるわけです。これは「関数の部分適用」と呼ばれています。</p>
+<p><a class="reference internal" href="../library/functools.html#functools.partial" title="functools.partial"><code class="xref py py-func docutils literal notranslate"><span class="pre">partial()</span></code></a> のコンストラクタは <code class="docutils literal notranslate"><span class="pre">(function,</span> <span class="pre">arg1,</span> <span class="pre">arg2,</span> <span class="pre">...,</span> <span class="pre">kwarg1=value1,</span> <span class="pre">kwarg2=value2)</span></code> という引数を取ります。できあがったオブジェクトはコーラブルなので、それを呼べば、引数の埋まった状態で <code class="docutils literal notranslate"><span class="pre">function</span></code> を実行したのと同じことになります。</p>
+<p>以下にあるのは、小さいけれども現実的な一つの例です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">subsystem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write the contents of &#39;message&#39; to the specified subsystem.&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subsystem</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
+    <span class="o">...</span>
+
+<span class="n">server_log</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="n">subsystem</span><span class="o">=</span><span class="s1">&#39;server&#39;</span><span class="p">)</span>
+<span class="n">server_log</span><span class="p">(</span><span class="s1">&#39;Unable to open socket&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/functools.html#functools.reduce" title="functools.reduce"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.reduce(func,</span> <span class="pre">iter,</span> <span class="pre">[initial_value])</span></code></a> はイテラブルの要素に対して次々に演算を実行していった最終結果を出すもので、それゆえ無限長イテラブルには適用できません。 <em>func</em> には、要素を二つ取って値を一つ返す関数が入ります。 <a class="reference internal" href="../library/functools.html#functools.reduce" title="functools.reduce"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.reduce()</span></code></a> はイテレータが返す最初の二要素 A と B を取って <code class="docutils literal notranslate"><span class="pre">func(A,</span> <span class="pre">B)</span></code> を計算します。それから三番目の要素 C を要求して <code class="docutils literal notranslate"><span class="pre">func(func(A,</span> <span class="pre">B),</span> <span class="pre">C)</span></code> を計算すると、その結果をさらに四番目の要素と組み合わせて……ということをイテラブルが尽きるまで続けるのです。 もしイテラブルが一つも値を返さなければ <a class="reference internal" href="../library/exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> が発生します。 初期値 <code class="docutils literal notranslate"><span class="pre">initial_value</span></code> があるときには、最初の計算で <code class="docutils literal notranslate"><span class="pre">func(initial_value,</span> <span class="pre">A)</span></code> が実行されます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">operator</span><span class="o">,</span> <span class="nn">functools</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">concat</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">])</span>
+<span class="go">&#39;ABBC&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">concat</span><span class="p">,</span> <span class="p">[])</span>
+<span class="gt">Traceback (most recent call last):</span>
+  <span class="c">...</span>
+<span class="gr">TypeError</span>: <span class="n">reduce() of empty sequence with no initial value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="p">[],</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/operator.html#operator.add" title="operator.add"><code class="xref py py-func docutils literal notranslate"><span class="pre">operator.add()</span></code></a> を <a class="reference internal" href="../library/functools.html#functools.reduce" title="functools.reduce"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.reduce()</span></code></a> で使うと、 iterable の全要素を合計することになります。これは使用頻度が高いので、そのための <a class="reference internal" href="../library/functions.html#sum" title="sum"><code class="xref py py-func docutils literal notranslate"><span class="pre">sum()</span></code></a> というビルトイン関数があります:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">functools</span><span class="o">,</span> <span class="nn">operator</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<span class="go">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">([])</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<p>とはいえ、多くの場合 <a class="reference internal" href="../library/functools.html#functools.reduce" title="functools.reduce"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.reduce()</span></code></a> を使うよりは、単に <a class="reference internal" href="../reference/compound_stmts.html#for"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">for</span></code></a> ループを書いたほうがわかりやすくなります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="c1"># Instead of:</span>
+<span class="n">product</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># You can write:</span>
+<span class="n">product</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="n">product</span> <span class="o">*=</span> <span class="n">i</span>
+</pre></div>
+</div>
+<p>関連する関数は <a class="reference internal" href="../library/itertools.html#itertools.accumulate" title="itertools.accumulate"><code class="xref py py-func docutils literal notranslate"><span class="pre">itertools.accumulate(iterable,</span> <span class="pre">func=operator.add)</span></code></a> です。この関数は同じ計算をしますが、最終結果を返すのではなく、 <code class="xref py py-func docutils literal notranslate"><span class="pre">accumulate()</span></code> はそれぞれの中間結果を返すイテレータが返り値となります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">itertools</span><span class="o">.</span><span class="n">accumulate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span> <span class="o">=&gt;</span>
+  <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span>
+
+<span class="n">itertools</span><span class="o">.</span><span class="n">accumulate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">)</span> <span class="o">=&gt;</span>
+  <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">120</span>
+</pre></div>
+</div>
+<div class="section" id="the-operator-module">
+<h3>operator モジュール<a class="headerlink" href="#the-operator-module" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/operator.html#module-operator" title="operator: Functions corresponding to the standard operators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">operator</span></code></a> モジュールは、既に取り上げましたが、Python の演算子に対応する関数が入っているモジュールです。関数型スタイルのコードにおいて、演算を一つ実行するだけのくだらない関数を書かずに済むので、よく世話になります。</p>
+<p>このモジュールの関数を一部だけ紹介しましょう:</p>
+<ul class="simple">
+<li>数学演算子: <code class="docutils literal notranslate"><span class="pre">add()</span></code>, <code class="docutils literal notranslate"><span class="pre">sub()</span></code>, <code class="docutils literal notranslate"><span class="pre">mul()</span></code>, <code class="docutils literal notranslate"><span class="pre">floordiv()</span></code>, <code class="docutils literal notranslate"><span class="pre">abs()</span></code>, ...</li>
+<li>論理演算子: <code class="docutils literal notranslate"><span class="pre">not_()</span></code>, <code class="docutils literal notranslate"><span class="pre">truth()</span></code></li>
+<li>ビット演算子: <code class="docutils literal notranslate"><span class="pre">and_()</span></code>, <code class="docutils literal notranslate"><span class="pre">or_()</span></code>, <code class="docutils literal notranslate"><span class="pre">invert()</span></code></li>
+<li>比較: <code class="docutils literal notranslate"><span class="pre">eq()</span></code>, <code class="docutils literal notranslate"><span class="pre">ne()</span></code>, <code class="docutils literal notranslate"><span class="pre">lt()</span></code>, <code class="docutils literal notranslate"><span class="pre">le()</span></code>, <code class="docutils literal notranslate"><span class="pre">gt()</span></code>, <code class="docutils literal notranslate"><span class="pre">ge()</span></code></li>
+<li>オブジェクト識別: <code class="docutils literal notranslate"><span class="pre">is_()</span></code>, <code class="docutils literal notranslate"><span class="pre">is_not()</span></code></li>
+</ul>
+<p>ちゃんとした一覧は operator モジュールの文書でご覧ください。</p>
+</div>
+</div>
+<div class="section" id="small-functions-and-the-lambda-expression">
+<h2>小さな関数とラムダ式<a class="headerlink" href="#small-functions-and-the-lambda-expression" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>関数型スタイルのプログラムを書いていると、述語として働いたり、何らかの形で要素をつなぎ合わせたりするミニサイズの関数を必要とすることがよくあります。</p>
+<p>ちょうど良い関数がビルトインやモジュールで存在していれば、新しい関数を定義する必要はまったくありません:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">stripped_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
+<span class="n">existing_files</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">,</span> <span class="n">file_list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>しかし、欲しい関数がないなら書くしかありません。そうした小さな関数を書く方法の 一つが <a class="reference internal" href="../reference/expressions.html#lambda"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">lambda</span></code></a> 式です。 <code class="docutils literal notranslate"><span class="pre">lambda</span></code> は引数として複数のパラメータと それをつなぐ式を取り、その式の値を返す無名の関数を作ります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">adder</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">+</span><span class="n">y</span>
+
+<span class="n">print_assign</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>もう一つの選択肢は、ふつうに <code class="docutils literal notranslate"><span class="pre">def</span></code> 文で関数を定義するだけです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">adder</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+<span class="k">def</span> <span class="nf">print_assign</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>どちらのほうが良いのでしょうか。それは好みの問題です; 著者のスタイルとしてはできるだけ <code class="docutils literal notranslate"><span class="pre">lambda</span></code> を使わないようにしています。</p>
+<p>そのようにしている理由の一つに、<code class="docutils literal notranslate"><span class="pre">lambda</span></code> は定義できる関数が非常に限られているという点があります。一つの式として算出できる結果にしなければいけませんので、<code class="docutils literal notranslate"><span class="pre">if...</span> <span class="pre">elif...</span> <span class="pre">else</span></code> や <code class="docutils literal notranslate"><span class="pre">try...</span> <span class="pre">except</span></code> のような分岐を持つことができないのです。<code class="docutils literal notranslate"><span class="pre">lambda</span></code> 文の中でたくさんのことをやろうとしすぎると、ごちゃごちゃして読みにくい式になってしまいます。さて、次のコードは何をしているでしょうか、素早くお答えください!</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="n">total</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">items</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>わかるにはわかるでしょうが、何がどうなっているのか紐解いていくには時間がかかるはずです。短い <code class="docutils literal notranslate"><span class="pre">def</span></code> 文で入れ子にすると、少し見通しが良くなりますが:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="k">def</span> <span class="nf">combine</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">total</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">combine</span><span class="p">,</span> <span class="n">items</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>でも単純に <code class="docutils literal notranslate"><span class="pre">for</span></code> ループにすれば良かったのです:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+    <span class="n">total</span> <span class="o">+=</span> <span class="n">b</span>
+</pre></div>
+</div>
+<p>あるいは <a class="reference internal" href="../library/functions.html#sum" title="sum"><code class="xref py py-func docutils literal notranslate"><span class="pre">sum()</span></code></a> ビルトインとジェネレータ式でも良いですね:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">b</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>多くの場合、 <a class="reference internal" href="../library/functools.html#functools.reduce" title="functools.reduce"><code class="xref py py-func docutils literal notranslate"><span class="pre">functools.reduce()</span></code></a> を使っているところは <code class="docutils literal notranslate"><span class="pre">for</span></code> ループに 書き直したほうが見やすいです。</p>
+<p>Fredrik Lundh は以前 <code class="docutils literal notranslate"><span class="pre">lambda</span></code> 利用のリファクタリングに関して以下の指針を提案したことがあります:</p>
+<ol class="arabic simple">
+<li>ラムダ関数を書く。</li>
+<li>そのラムダが一体ぜんたい何をしているのかコメントで説明する。</li>
+<li>そのコメントをしばらく研究して、本質をとらえた名前を考える。</li>
+<li>ラムダをその名前で def 文に書き換える。</li>
+<li>コメントを消す。</li>
+</ol>
+<p>著者はこの指針を本当に気に入っていますが、こうしたラムダなしスタイルが他より優れているかどうかについて、異論は認めます。</p>
+</div>
+<div class="section" id="revision-history-and-acknowledgements">
+<h2>更新履歴と謝辞<a class="headerlink" href="#revision-history-and-acknowledgements" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>著者は提案の申し出や修正、様々なこの記事の草稿の助けをしてくれた以下の人々に感謝します: Ian Bicking, Nick Coghlan, Nick Efford, Raymond Hettinger, Jim Jewett, Mike Krell, Leandro Lameiro, Jussi Salmela, Collin Winter, Blake Winton.</p>
+<p>Version 0.1: posted June 30 2006.</p>
+<p>Version 0.11: posted July 1 2006.  Typo fixes.</p>
+<p>Version 0.2: posted July 10 2006.  Merged genexp and listcomp sections into one.
+Typo fixes.</p>
+<p>Version 0.21: Added more references suggested on the tutor mailing list.</p>
+<p>Version 0.30: Adds a section on the <code class="docutils literal notranslate"><span class="pre">functional</span></code> module written by Collin
+Winter; adds short section on the operator module; a few other edits.</p>
+</div>
+<div class="section" id="references">
+<h2>参考資料<a class="headerlink" href="#references" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="general">
+<h3>一般論<a class="headerlink" href="#general" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Harold Abelson と Gerald Jay Sussman, Julie Sussman による <strong>Structure and Interpretation of Computer Programs</strong>。<a class="reference external" href="https://mitpress.mit.edu/sicp/">https://mitpress.mit.edu/sicp/</a> に全文があります。この計算機科学に関する古典的な教科書では、2 章と 3 章でデータフローをプログラム内でまとめるためのシーケンスとストリームの利用について議論しています。この本は例として Scheme を使っていますが、これらの章内の多くのデザインアプローチは関数スタイルな Python コードにも適用できます。</p>
+<p><a class="reference external" href="http://www.defmacro.org/ramblings/fp.html">http://www.defmacro.org/ramblings/fp.html</a>: 関数プログラミングの一般的な入門で Java での例を利用していて、長大な歴史の紹介があります。</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Functional_programming">https://en.wikipedia.org/wiki/Functional_programming</a>: 関数プログラミングに関する一般的な内容の記事。</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Coroutine">https://en.wikipedia.org/wiki/Coroutine</a>: コルーチンに関する記事。</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Currying">https://en.wikipedia.org/wiki/Currying</a>: カリー化の概念に関する記事。</p>
+</div>
+<div class="section" id="python-specific">
+<h3>Python 特有の話<a class="headerlink" href="#python-specific" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="http://gnosis.cx/TPiP/">http://gnosis.cx/TPiP/</a>: David Mertz's の本の最初の章 <cite>Text Processing in Python</cite> では文書処理のための関数プログラミングについて議論しています、この議論の節には &quot;Utilizing Higher-Order Functions in Text Processing&quot; というタイトルがついています。</p>
+<p>Mertz は IBM の DeveloperWorks サイトにも関数型プログラミングに関する 3 部構成の記事を書いています; <a class="reference external" href="https://developer.ibm.com/articles/l-prog/">part 1</a>, <a class="reference external" href="https://developer.ibm.com/tutorials/l-prog2/">part 2</a>, <a class="reference external" href="https://developer.ibm.com/tutorials/l-prog3/">part 3</a>,</p>
+</div>
+<div class="section" id="python-documentation">
+<h3>Python 文書<a class="headerlink" href="#python-documentation" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/itertools.html#module-itertools" title="itertools: Functions creating iterators for efficient looping."><code class="xref py py-mod docutils literal notranslate"><span class="pre">itertools</span></code></a> モジュールの文書。</p>
+<p><a class="reference internal" href="../library/functools.html#module-functools" title="functools: Higher-order functions and operations on callable objects."><code class="xref py py-mod docutils literal notranslate"><span class="pre">functools</span></code></a> モジュールについてのドキュメント。</p>
+<p><a class="reference internal" href="../library/operator.html#module-operator" title="operator: Functions corresponding to the standard operators."><code class="xref py py-mod docutils literal notranslate"><span class="pre">operator</span></code></a> モジュールの文書。</p>
+<p><span class="target" id="index-1"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0289"><strong>PEP 289</strong></a>: &quot;Generator Expressions&quot;</p>
+<p><span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0342"><strong>PEP 342</strong></a>: &quot;Coroutines via Enhanced Generators&quot; describes the new generator
+features in Python 2.5.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">関数型プログラミング HOWTO</a><ul>
+<li><a class="reference internal" href="#introduction">はじめに</a><ul>
+<li><a class="reference internal" href="#formal-provability">形式的証明可能性</a></li>
+<li><a class="reference internal" href="#modularity">モジュラー性</a></li>
+<li><a class="reference internal" href="#ease-of-debugging-and-testing">デバグやテストの簡単さ</a></li>
+<li><a class="reference internal" href="#composability">結合性</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#iterators">イテレータ (iterator)</a><ul>
+<li><a class="reference internal" href="#data-types-that-support-iterators">イテレータ対応のデータ型</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generator-expressions-and-list-comprehensions">ジェネレータ式とリスト内包表記</a></li>
+<li><a class="reference internal" href="#generators">ジェネレータ (generator)</a><ul>
+<li><a class="reference internal" href="#passing-values-into-a-generator">ジェネレータに値を渡す</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#built-in-functions">組み込み関数 (built-in function)</a></li>
+<li><a class="reference internal" href="#the-itertools-module">itertools モジュール</a><ul>
+<li><a class="reference internal" href="#creating-new-iterators">新しいイテレータを作る</a></li>
+<li><a class="reference internal" href="#calling-functions-on-elements">要素に対して関数を呼ぶ</a></li>
+<li><a class="reference internal" href="#selecting-elements">要素を選択する</a></li>
+<li><a class="reference internal" href="#combinatoric-functions">組合せ関数</a></li>
+<li><a class="reference internal" href="#grouping-elements">要素をグループ分けする</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-functools-module">functools モジュール</a><ul>
+<li><a class="reference internal" href="#the-operator-module">operator モジュール</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#small-functions-and-the-lambda-expression">小さな関数とラムダ式</a></li>
+<li><a class="reference internal" href="#revision-history-and-acknowledgements">更新履歴と謝辞</a></li>
+<li><a class="reference internal" href="#references">参考資料</a><ul>
+<li><a class="reference internal" href="#general">一般論</a></li>
+<li><a class="reference internal" href="#python-specific">Python 特有の話</a></li>
+<li><a class="reference internal" href="#python-documentation">Python 文書</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="descriptor.html"
+                        title="前の章へ">デスクリプタ HowTo ガイド</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="logging.html"
+                        title="次の章へ">Logging HOWTO</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/howto/functional.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="logging.html" title="Logging HOWTO"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="descriptor.html" title="デスクリプタ HowTo ガイド"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python HOWTO</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

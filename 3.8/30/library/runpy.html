@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>runpy --- Python モジュールの位置特定と実行 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="importlib --- import の実装" href="importlib.html" />
+    <link rel="prev" title="modulefinder --- スクリプト中で使われているモジュールを検索する" href="modulefinder.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/runpy.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="importlib.html" title="importlib --- import の実装"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="modulefinder.html" title="modulefinder --- スクリプト中で使われているモジュールを検索する"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">モジュールのインポート</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-runpy">
+<span id="runpy-locating-and-executing-python-modules"></span><h1><a class="reference internal" href="#module-runpy" title="runpy: Locate and run Python modules without importing them first."><code class="xref py py-mod docutils literal notranslate"><span class="pre">runpy</span></code></a> --- Python モジュールの位置特定と実行<a class="headerlink" href="#module-runpy" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/runpy.py">Lib/runpy.py</a></p>
+<hr class="docutils" />
+<p><a class="reference internal" href="#module-runpy" title="runpy: Locate and run Python modules without importing them first."><code class="xref py py-mod docutils literal notranslate"><span class="pre">runpy</span></code></a> モジュールは Python のモジュールをインポートせずにその位置を特定したり実行したりするのに使われます。その主な目的はファイルシステムではなく Python のモジュール名前空間を使って位置を特定したスクリプトの実行を可能にする <a class="reference internal" href="../using/cmdline.html#cmdoption-m"><code class="xref std std-option docutils literal notranslate"><span class="pre">-m</span></code></a> コマンドラインスイッチを実装することです。</p>
+<p>これはサンドボックスモジュール <em>ではない</em> ことに注意してください。すべてのコードは現在のプロセスで実行され、あらゆる副作用 (たとえば他のモジュールのキャッシュされたインポート等) は関数から戻った後にそのまま残ります。</p>
+<p>さらに、 <a class="reference internal" href="#module-runpy" title="runpy: Locate and run Python modules without importing them first."><code class="xref py py-mod docutils literal notranslate"><span class="pre">runpy</span></code></a> 関数から戻った後で、実行されたコードによって定義された任意の関数およびクラスが正常に動作することは保証されません。この制限が受け入れられないユースケースでは、 <a class="reference internal" href="importlib.html#module-importlib" title="importlib: The implementation of the import machinery."><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code></a> がこのモジュールより適切な選択となるでしょう。</p>
+<p><a class="reference internal" href="#module-runpy" title="runpy: Locate and run Python modules without importing them first."><code class="xref py py-mod docutils literal notranslate"><span class="pre">runpy</span></code></a> モジュールは2つの関数を提供しています:</p>
+<dl class="function">
+<dt id="runpy.run_module">
+<code class="descclassname">runpy.</code><code class="descname">run_module</code><span class="sig-paren">(</span><em>mod_name</em>, <em>init_globals=None</em>, <em>run_name=None</em>, <em>alter_sys=False</em><span class="sig-paren">)</span><a class="headerlink" href="#runpy.run_module" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-0">指定されたモジュールのコードを実行し、実行後のモジュールグローバル辞書を返します。モジュールのコードはまず標準インポート機構(詳細は <span class="target" id="index-13"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0302"><strong>PEP 302</strong></a> を参照) を使ってモジュールの位置を特定され、まっさらなモジュール名前空間で実行されます。</p>
+<p>The <em>mod_name</em> argument should be an absolute module name.
+If the module name refers to a package rather than a normal
+module, then that package is imported and the <code class="docutils literal notranslate"><span class="pre">__main__</span></code> submodule within
+that package is then executed and the resulting module globals dictionary
+returned.</p>
+<p>オプションの辞書型引数 <em>init_globals</em> はコードを実行する前にモジュールグローバル辞書に前もって必要な設定しておくのに使われます。与えられた辞書は変更されません。その辞書の中に以下に挙げる特別なグローバル変数が定義されていたとしても、それらの定義は <a class="reference internal" href="#runpy.run_module" title="runpy.run_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_module()</span></code></a> 関数によってオーバーライドされます。</p>
+<p>特別なグローバル変数 <code class="docutils literal notranslate"><span class="pre">__name__</span></code>, <code class="docutils literal notranslate"><span class="pre">__spec__</span></code>, <code class="docutils literal notranslate"><span class="pre">__file__</span></code>, <code class="docutils literal notranslate"><span class="pre">__cached__</span></code>, <code class="docutils literal notranslate"><span class="pre">__loader__</span></code>, <code class="docutils literal notranslate"><span class="pre">__package__</span></code> はモジュールコードが実行される前にグローバル辞書にセットされます。(この変数群は修正される最小セットです。これ以外の変数もインタプリタの実装の詳細として暗黙的に設定されるかもしれません)。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__name__</span></code> は、オプション引数 <em>run_name</em> が <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> でない場合、指定されたモジュールがパッケージであれば <code class="docutils literal notranslate"><span class="pre">mod_name</span> <span class="pre">+</span> <span class="pre">'.__main__'</span></code> に、そうでなければ <em>mod_name</em> 引数の値がセットされます。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__spec__</span></code> will be set appropriately for the <em>actually</em> imported
+module (that is, <code class="docutils literal notranslate"><span class="pre">__spec__.name</span></code> will always be <em>mod_name</em> or
+<code class="docutils literal notranslate"><span class="pre">mod_name</span> <span class="pre">+</span> <span class="pre">'.__main__</span></code>, never <em>run_name</em>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">__file__</span></code>, <code class="docutils literal notranslate"><span class="pre">__cached__</span></code>, <code class="docutils literal notranslate"><span class="pre">__loader__</span></code> and <code class="docutils literal notranslate"><span class="pre">__package__</span></code> are
+<a class="reference internal" href="../reference/import.html#import-mod-attrs"><span class="std std-ref">set as normal</span></a> based on the module spec.</p>
+<p>引数 <em>alter_sys</em> が与えられて <a class="reference internal" href="constants.html#True" title="True"><code class="xref py py-const docutils literal notranslate"><span class="pre">True</span></code></a> に評価されるならば、 <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code> は <code class="docutils literal notranslate"><span class="pre">__file__</span></code> の値で更新され <code class="docutils literal notranslate"><span class="pre">sys.modules[__name__]</span></code> は実行されるモジュールの一時的モジュールオブジェクトで更新されます。 <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code> と <code class="docutils literal notranslate"><span class="pre">sys.modules[__name__]</span></code> はどちらも関数が処理を戻す前にもとの値に復旧します。</p>
+<p>この <a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> に対する操作はスレッドセーフではないということに注意してください。他のスレッドは部分的に初期化されたモジュールを見たり、入れ替えられた引数リストを見たりするかもしれません。この関数をスレッド化されたコードから起動するときは <a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> モジュールには手を触れないことが推奨されます。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last">コマンドラインから、 <a class="reference internal" href="../using/cmdline.html#cmdoption-m"><code class="xref std std-option docutils literal notranslate"><span class="pre">-m</span></code></a> オプションを与えることで同じ機能を実現出来ます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.1 で変更: </span><code class="docutils literal notranslate"><span class="pre">__main__</span></code> サブモジュールを検索することによってパッケージを実行する機能が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.2 で変更: </span><code class="docutils literal notranslate"><span class="pre">__cached__</span></code> グローバル変数が追加されました (<span class="target" id="index-14"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3147"><strong>PEP 3147</strong></a> を参照)。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>Updated to take advantage of the module spec feature added by
+<span class="target" id="index-3"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0451"><strong>PEP 451</strong></a>. This allows <code class="docutils literal notranslate"><span class="pre">__cached__</span></code> to be set correctly for modules
+run this way, as well as ensuring the real module name is always
+accessible as <code class="docutils literal notranslate"><span class="pre">__spec__.name</span></code>.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="runpy.run_path">
+<code class="descclassname">runpy.</code><code class="descname">run_path</code><span class="sig-paren">(</span><em>file_path</em>, <em>init_globals=None</em>, <em>run_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#runpy.run_path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-4">指定されたファイルシステム上の場所にあるコードを実行して、結果としてそのモジュールグローバル辞書を返します。通常の CPython 実行時にコマンドラインで指定するスクリプト名と同じく、指定できるパスは Python ソースファイル、コンパイルされたバイトコードファイル、もしくは <code class="docutils literal notranslate"><span class="pre">__main__</span></code> モジュールを含む有効な sys.path エントリ(例: トップレベルに <code class="docutils literal notranslate"><span class="pre">__main__.py</span></code> ファイルを持つ zip ファイル)です。</p>
+<p>シンプルなスクリプトを指定した場合は、指定されたコードはシンプルに新しいモジュール名前空間で実行されます。有効な sys.path エントリ (一般的には zip ファイルかディレクトリ) を指定した場合は、最初にそのエントリが <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> の先頭に追加されます。次に更新した <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> を元に <a class="reference internal" href="__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> モジュールを検索して実行します。指定された場所に <a class="reference internal" href="__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> モジュールが無かった時、 <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> のどこか他のエントリに存在する別の <a class="reference internal" href="__main__.html#module-__main__" title="__main__: The environment where the top-level script is run."><code class="xref py py-mod docutils literal notranslate"><span class="pre">__main__</span></code></a> を実行してしまう可能性があることに注意してください。</p>
+<p>オプションの辞書型引数 <em>init_globals</em> はコードを実行する前にモジュールグローバル辞書に前もって必要な設定しておくのに使われます。与えられた辞書は変更されません。その辞書の中に以下に挙げる特別なグローバル変数が定義されていたとしても、それらの定義は <a class="reference internal" href="#runpy.run_path" title="runpy.run_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_path()</span></code></a> 関数によってオーバーライドされます。</p>
+<p>特別なグローバル変数 <code class="docutils literal notranslate"><span class="pre">__name__</span></code>, <code class="docutils literal notranslate"><span class="pre">__spec__</span></code>, <code class="docutils literal notranslate"><span class="pre">__file__</span></code>, <code class="docutils literal notranslate"><span class="pre">__cached__</span></code>, <code class="docutils literal notranslate"><span class="pre">__loader__</span></code>, <code class="docutils literal notranslate"><span class="pre">__package__</span></code> はモジュールコードが実行される前にグローバル辞書にセットされます。(この変数群は修正される最小セットです。これ以外の変数もインタプリタの実装の詳細として暗黙的に設定されるかもしれません)。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__name__</span></code> は、オプション引数 <em>run_name</em> が <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> でない場合、 <em>run_name</em> に設定され、それ以外の場合は <code class="docutils literal notranslate"><span class="pre">'&lt;run_path&gt;'</span></code> に設定されます。</p>
+<p>If the supplied path directly references a script file (whether as source
+or as precompiled byte code), then <code class="docutils literal notranslate"><span class="pre">__file__</span></code> will be set to the
+supplied path, and <code class="docutils literal notranslate"><span class="pre">__spec__</span></code>, <code class="docutils literal notranslate"><span class="pre">__cached__</span></code>, <code class="docutils literal notranslate"><span class="pre">__loader__</span></code> and
+<code class="docutils literal notranslate"><span class="pre">__package__</span></code> will all be set to <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a>.</p>
+<p>If the supplied path is a reference to a valid sys.path entry, then
+<code class="docutils literal notranslate"><span class="pre">__spec__</span></code> will be set appropriately for the imported <code class="docutils literal notranslate"><span class="pre">__main__</span></code>
+module (that is, <code class="docutils literal notranslate"><span class="pre">__spec__.name</span></code> will always be <code class="docutils literal notranslate"><span class="pre">__main__</span></code>).
+<code class="docutils literal notranslate"><span class="pre">__file__</span></code>, <code class="docutils literal notranslate"><span class="pre">__cached__</span></code>, <code class="docutils literal notranslate"><span class="pre">__loader__</span></code> and <code class="docutils literal notranslate"><span class="pre">__package__</span></code> will be
+<a class="reference internal" href="../reference/import.html#import-mod-attrs"><span class="std std-ref">set as normal</span></a> based on the module spec.</p>
+<p><a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> モジュールに対していくつかの変更操作が行われます。まず、 <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> が上記のように修正されます。 <code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code> は <code class="docutils literal notranslate"><span class="pre">file_path</span></code> に更新され、 <code class="docutils literal notranslate"><span class="pre">sys.modules[__name__]</span></code> は実行されるモジュールのための一時モジュールオブジェクトに更新されます。 <a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> の要素に対する全ての変更は、この関数から戻る前に元に戻されます。</p>
+<p><a class="reference internal" href="#runpy.run_module" title="runpy.run_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_module()</span></code></a> と違い、 <a class="reference internal" href="sys.html#module-sys" title="sys: Access system-specific parameters and functions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">sys</span></code></a> に対する変更はオプションではありません。これらの変更は sys.path エントリの実行に必要不可欠だからです。スレッドセーフ性に関する制限はこの関数にも存在します。この関数をマルチスレッドプログラムから実行する場合は、 import lock によりシリアライズして実行するか、別プロセスに委譲してください。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last">コマンドラインから <a class="reference internal" href="../using/cmdline.html#using-on-interface-options"><span class="std std-ref">インターフェイスオプション</span></a> で同じ機能を使えます (<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">path/to/script</span></code>)。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>Updated to take advantage of the module spec feature added by
+<span class="target" id="index-5"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0451"><strong>PEP 451</strong></a>. This allows <code class="docutils literal notranslate"><span class="pre">__cached__</span></code> to be set correctly in the
+case where <code class="docutils literal notranslate"><span class="pre">__main__</span></code> is imported from a valid sys.path entry rather
+than being executed directly.</p>
+</div>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="docutils">
+<dt><span class="target" id="index-15"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0338"><strong>PEP 338</strong></a> - モジュールをスクリプトとして実行する</dt>
+<dd>Nick Coghlan によって書かれ実装された PEP。</dd>
+<dt><span class="target" id="index-16"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0366"><strong>PEP 366</strong></a> - main モジュールの明示的な相対インポート</dt>
+<dd>Nick Coghlan によって書かれ実装された PEP。</dd>
+<dt><span class="target" id="index-8"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0451"><strong>PEP 451</strong></a> -- A ModuleSpec Type for the Import System</dt>
+<dd>PEP written and implemented by Eric Snow</dd>
+</dl>
+<p><a class="reference internal" href="../using/cmdline.html#using-on-general"><span class="std std-ref">コマンドラインと環境</span></a> - CPython コマンドライン詳細</p>
+<p class="last"><a class="reference internal" href="importlib.html#importlib.import_module" title="importlib.import_module"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.import_module()</span></code></a> 関数</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="modulefinder.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">modulefinder</span></code> --- スクリプト中で使われているモジュールを検索する</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="importlib.html"
+                        title="次の章へ"><code class="xref py py-mod docutils literal notranslate"><span class="pre">importlib</span></code> --- <code class="xref std std-keyword docutils literal notranslate"><span class="pre">import</span></code> の実装</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/runpy.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="importlib.html" title="importlib --- import の実装"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="modulefinder.html" title="modulefinder --- スクリプト中で使われているモジュールを検索する"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >モジュールのインポート</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,700 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Python プロファイラ &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="timeit --- 小さなコード断片の実行時間計測" href="timeit.html" />
+    <link rel="prev" title="pdb --- Python デバッガ" href="pdb.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/profile.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="timeit.html" title="timeit --- 小さなコード断片の実行時間計測"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="pdb.html" title="pdb --- Python デバッガ"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="debug.html" accesskey="U">デバッグとプロファイル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-python-profilers">
+<span id="profile"></span><h1>Python プロファイラ<a class="headerlink" href="#the-python-profilers" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/profile.py">Lib/profile.py</a> と <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/pstats.py">Lib/pstats.py</a></p>
+<hr class="docutils" />
+<div class="section" id="introduction-to-the-profilers">
+<span id="profiler-introduction"></span><h2>プロファイラとは<a class="headerlink" href="#introduction-to-the-profilers" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p id="index-0"><a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> と <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> は <em class="dfn">決定論的プロファイリング (deterministic profiling)</em> を行います。 <em class="dfn">プロファイル (profile)</em> とは、プログラムの各部分がどれだけ頻繁に呼ばれたか、そして実行にどれだけ時間がかかったかという統計情報です。 <a class="reference internal" href="#module-pstats" title="pstats: Statistics object for use with the profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pstats</span></code></a> モジュールを使ってこの統計情報をフォーマットし表示することができます。</p>
+<p>Python 標準ライブラリは同じインターフェイスを提供するプロファイラの実装を2つ提供しています:</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> はほとんどのユーザーに推奨されるモジュールです。 C言語で書かれた拡張モジュールで、オーバーヘッドが少ないため長時間実行されるプログラムのプロファイルに適しています。 Brett Rosen と Ted Czotter によって提供された <code class="xref py py-mod docutils literal notranslate"><span class="pre">lsprof</span></code> に基づいています。</li>
+<li><a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> はピュア Python モジュールで、 <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> モジュールはこのモジュールのインタフェースを真似ています。対象プログラムに相当のオーバーヘッドが生じます。もしプロファイラに何らかの拡張をしたいのであれば、こちらのモジュールを拡張する方が簡単でしょう。このモジュールはもともと Jim Roskind により設計、実装されました。</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">2つのプロファイラモジュールは、与えられたプログラムの実行時プロファイルを取得するために設計されており、ベンチマークのためのものではありません (ベンチマーク用途には <a class="reference internal" href="timeit.html#module-timeit" title="timeit: Measure the execution time of small code snippets."><code class="xref py py-mod docutils literal notranslate"><span class="pre">timeit</span></code></a> のほうが正確な計測結果を求められます)。これは Python コードと C で書かれたコードをベンチマークするときに特に大きく影響します。プロファイラは Python コードに対してオーバーヘッドを発生しますが、C言語レベルの関数に対してはオーバーヘッドを生じません。なのでC言語で書かれたコードが、実際の速度と関係なく、Pythonで書かれたコードより速く見えるでしょう。</p>
+</div>
+</div>
+<div class="section" id="instant-user-s-manual">
+<span id="profile-instant"></span><h2>かんたんユーザマニュアル<a class="headerlink" href="#instant-user-s-manual" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>この節は &quot;マニュアルなんか読みたくない人&quot;のために書かれています。ここではきわめて簡単な概要説明とアプリケーションのプロファイリングを手っ取り早く行う方法だけを解説します。</p>
+<p>1つの引数を取る関数をプロファイルしたい場合、次のようにできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cProfile</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="n">cProfile</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;re.compile(&quot;foo|bar&quot;)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(お使いのシステムで <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> が使えないときは代わりに <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> を使って下さい)</p>
+<p>上のコードは <a class="reference internal" href="re.html#re.compile" title="re.compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.compile()</span></code></a> を実行して、プロファイル結果を次のように表示します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span>      <span class="mi">197</span> <span class="n">function</span> <span class="n">calls</span> <span class="p">(</span><span class="mi">192</span> <span class="n">primitive</span> <span class="n">calls</span><span class="p">)</span> <span class="ow">in</span> <span class="mf">0.002</span> <span class="n">seconds</span>
+
+<span class="n">Ordered</span> <span class="n">by</span><span class="p">:</span> <span class="n">standard</span> <span class="n">name</span>
+
+<span class="n">ncalls</span>  <span class="n">tottime</span>  <span class="n">percall</span>  <span class="n">cumtime</span>  <span class="n">percall</span> <span class="n">filename</span><span class="p">:</span><span class="n">lineno</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+     <span class="mi">1</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.001</span>    <span class="mf">0.001</span> <span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">(</span><span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span><span class="p">)</span>
+     <span class="mi">1</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.001</span>    <span class="mf">0.001</span> <span class="n">re</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">212</span><span class="p">(</span><span class="nb">compile</span><span class="p">)</span>
+     <span class="mi">1</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.001</span>    <span class="mf">0.001</span> <span class="n">re</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">268</span><span class="p">(</span><span class="n">_compile</span><span class="p">)</span>
+     <span class="mi">1</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span> <span class="n">sre_compile</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">172</span><span class="p">(</span><span class="n">_compile_charset</span><span class="p">)</span>
+     <span class="mi">1</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span> <span class="n">sre_compile</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">201</span><span class="p">(</span><span class="n">_optimize_charset</span><span class="p">)</span>
+     <span class="mi">4</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span> <span class="n">sre_compile</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">25</span><span class="p">(</span><span class="n">_identityfunction</span><span class="p">)</span>
+   <span class="mi">3</span><span class="o">/</span><span class="mi">1</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">0.000</span> <span class="n">sre_compile</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">33</span><span class="p">(</span><span class="n">_compile</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>最初の行は 197 回の呼び出しを測定したことを示しています。その中で 192 回は <em class="dfn">プリミティブ</em> です。すなわち呼び出しが再帰によってなされてはいません。次の行は <code class="docutils literal notranslate"><span class="pre">Ordered</span> <span class="pre">by:</span> <span class="pre">standard</span> <span class="pre">name</span></code> は一番右の列の文字列が出力のソートに用いられたことを示します。列の見出しは以下を含みます:</p>
+<dl class="docutils">
+<dt>ncalls</dt>
+<dd>呼び出し回数</dd>
+<dt>tottime</dt>
+<dd>与えられた関数に消費された合計時間 (sub-function の呼び出しで消費された時間は除外されています)</dd>
+<dt>percall</dt>
+<dd><code class="docutils literal notranslate"><span class="pre">tottime</span></code> を <code class="docutils literal notranslate"><span class="pre">ncalls</span></code> で割った値</dd>
+<dt>cumtime</dt>
+<dd>この関数と全ての subfunction に消費された累積時間 (起動から終了まで)。この数字は再帰関数に <em>ついても</em> 正確です。</dd>
+<dt>percall</dt>
+<dd><code class="docutils literal notranslate"><span class="pre">cumtime</span></code> をプリミティブな呼び出し回数で割った値</dd>
+<dt>filename:lineno(function)</dt>
+<dd>その関数のファイル名、行番号、関数名</dd>
+</dl>
+<p>最初の行に 2 つの数字がある場合 (たとえば <code class="docutils literal notranslate"><span class="pre">3/1</span></code>) は、関数が再帰的に呼び出されたということです。2 つ目の数字はプリミティブな呼び出しの回数で、1 つ目の数字は総呼び出し回数です。関数が再帰的に呼び出されなかった場合、それらは同じ値で数字は 1 つしか表示されないことに留意してください。</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code> 関数でファイル名を指定することで、プロファイル実行の終了時に出力を表示する代わりに、ファイルに保存することが出来ます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cProfile</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="n">cProfile</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s1">&#39;re.compile(&quot;foo|bar&quot;)&#39;</span><span class="p">,</span> <span class="s1">&#39;restats&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">pstats.Stats</span></code></a> クラスはファイルからプロファイルの結果を読み込んで様々な書式に整えます。</p>
+<p>The files <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> and <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> can also be invoked as a script to
+profile another script.  For example:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cProfile</span> <span class="p">[</span><span class="o">-</span><span class="n">o</span> <span class="n">output_file</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">sort_order</span><span class="p">]</span> <span class="p">(</span><span class="o">-</span><span class="n">m</span> <span class="n">module</span> <span class="o">|</span> <span class="n">myscript</span><span class="o">.</span><span class="n">py</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-o</span></code> はプロファイルの結果を標準出力の代わりにファイルに書き出します。</p>
+<p><code class="docutils literal notranslate"><span class="pre">-s</span></code> は出力を <a class="reference internal" href="#pstats.Stats.sort_stats" title="pstats.Stats.sort_stats"><code class="xref py py-func docutils literal notranslate"><span class="pre">sort_stats()</span></code></a> で出力をソートする値を指定します。<code class="docutils literal notranslate"><span class="pre">-o</span></code> がない場合に有効です。</p>
+<p><code class="docutils literal notranslate"><span class="pre">-m</span></code> specifies that a module is being profiled instead of a script.</p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加: </span>Added the <code class="docutils literal notranslate"><span class="pre">-m</span></code> option to <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a>.</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.8 で追加: </span>Added the <code class="docutils literal notranslate"><span class="pre">-m</span></code> option to <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a>.</p>
+</div>
+</div></blockquote>
+<p><a class="reference internal" href="#module-pstats" title="pstats: Statistics object for use with the profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pstats</span></code></a> モジュールの <a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスにはプロファイル結果のファイルに保存されているデータを処理して出力するための様々なメソッドがあります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pstats</span>
+<span class="kn">from</span> <span class="nn">pstats</span> <span class="kn">import</span> <span class="n">SortKey</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="s1">&#39;restats&#39;</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">strip_dirs</span><span class="p">()</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#pstats.Stats.strip_dirs" title="pstats.Stats.strip_dirs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">strip_dirs()</span></code></a> メソッドによって全モジュール名から無関係なパスが取り除かれました。<a class="reference internal" href="#pstats.Stats.sort_stats" title="pstats.Stats.sort_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sort_stats()</span></code></a> メソッドにより、出力される標準的な モジュール/行/名前 文字列にしたがって全項目がソートされました。<a class="reference internal" href="#pstats.Stats.print_stats" title="pstats.Stats.print_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">print_stats()</span></code></a> メソッドによって全統計が出力されました。以下のようなソート呼び出しを試すことができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="n">SortKey</span><span class="o">.</span><span class="n">NAME</span><span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>最初の行ではリストを関数名でソートしています。2行目で情報を出力しています。さらに次の内容も試してください:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="n">SortKey</span><span class="o">.</span><span class="n">CUMULATIVE</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このようにすると、関数が消費した累計時間でソートして、さらにその上位10件だけを表示します。どのアルゴリズムが時間を多く消費しているのか知りたいときは、この方法が役に立つはずです。</p>
+<p>ループで多くの時間を消費している関数はどれか調べたいときは、次のようにします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="n">SortKey</span><span class="o">.</span><span class="n">TIME</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上記はそれぞれの関数で消費された時間でソートして、上位10件の関数の情報が表示されます。</p>
+<p>次の内容も試してください:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="n">SortKey</span><span class="o">.</span><span class="n">FILENAME</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="s1">&#39;__init__&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このようにするとファイル名でソートされ、そのうちクラスの初期化メソッド (メソッド名 <code class="docutils literal notranslate"><span class="pre">__init__</span></code>) に関する統計情報だけが表示されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="n">SortKey</span><span class="o">.</span><span class="n">TIME</span><span class="p">,</span> <span class="n">SortKey</span><span class="o">.</span><span class="n">CUMULATIVE</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;init&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上記は時間 (time) をプライマリキー、累計時間 (cumulative time) をセカンダリキーにしてソートした後でさらに条件を絞って統計情報を出力します。 <code class="docutils literal notranslate"><span class="pre">.5</span></code> は上位 50% だけを選択することを意味し、さらにその中から文字列 <code class="docutils literal notranslate"><span class="pre">init</span></code> を含むものだけが表示されます。</p>
+<p>どの関数がどの関数を呼び出しているのかを知りたければ、次のようにします (<code class="docutils literal notranslate"><span class="pre">p</span></code> は最後に実行したときの状態でソートされています):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">print_callers</span><span class="p">(</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;init&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このようにすると、関数ごとの呼び出し側関数の一覧が得られます。</p>
+<p>さらに詳しい機能を知りたければマニュアルを読むか、次の関数の実行結果から内容を推察してください:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">print_callees</span><span class="p">()</span>
+<span class="n">p</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;restats&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>スクリプトとして起動した場合、 <a class="reference internal" href="#module-pstats" title="pstats: Statistics object for use with the profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">pstats</span></code></a> モジュールはプロファイルのダンプを読み込み、分析するための統計ブラウザとして動きます。シンプルな行指向のインタフェース (<a class="reference internal" href="cmd.html#module-cmd" title="cmd: Build line-oriented command interpreters."><code class="xref py py-mod docutils literal notranslate"><span class="pre">cmd</span></code></a> を使って実装) とヘルプ機能を備えています。</p>
+</div>
+<div class="section" id="module-cProfile">
+<span id="profile-and-cprofile-module-reference"></span><h2>リファレンスマニュアル -- <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> と <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a><a class="headerlink" href="#module-cProfile" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<span class="target" id="module-profile"></span><p><a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> および <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> モジュールは以下の関数を提供します:</p>
+<dl class="function">
+<dt id="profile.run">
+<code class="descclassname">profile.</code><code class="descname">run</code><span class="sig-paren">(</span><em>command</em>, <em>filename=None</em>, <em>sort=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.run" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この関数は <a class="reference internal" href="functions.html#exec" title="exec"><code class="xref py py-func docutils literal notranslate"><span class="pre">exec()</span></code></a> 関数に渡せる一つの引数と、オプション引数としてファイル名を指定できます。全ての場合でこのルーチンは以下を実行します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">__main__</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">__main__</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>そして実行結果からプロファイル情報を収集します。
+ファイル名が指定されていない場合は、 <a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> のインスタンスが自動的に作られ、簡単なプロファイルレポートが表示されます。
+<em>sort</em> が指定されている場合は、 <a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> インスタンスに渡され、結果をどのように並び替えるかを制御します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="profile.runctx">
+<code class="descclassname">profile.</code><code class="descname">runctx</code><span class="sig-paren">(</span><em>command</em>, <em>globals</em>, <em>locals</em>, <em>filename=None</em>, <em>sort=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.runctx" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この関数は <a class="reference internal" href="#profile.run" title="profile.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> に似ていますが、 globals、 locals 辞書を <em>command</em> のために与えるための追加引数を取ります。このルーチンは以下を実行します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="nb">globals</span><span class="p">,</span> <span class="nb">locals</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>そしてプロファイル統計情報を <a class="reference internal" href="#profile.run" title="profile.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> 同様に収集します。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="profile.Profile">
+<em class="property">class </em><code class="descclassname">profile.</code><code class="descname">Profile</code><span class="sig-paren">(</span><em>timer=None</em>, <em>timeunit=0.0</em>, <em>subcalls=True</em>, <em>builtins=True</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このクラスは普通、プロファイリングを <code class="xref py py-func docutils literal notranslate"><span class="pre">cProfile.run()</span></code> 関数が提供するもの以上に正確に制御したい場合にのみ使われます。</p>
+<p><em>timer</em> 引数に、コードの実行時間を計測するためのカスタムな時刻取得用関数を渡せます。これは現在時刻を表す単一の数値を返す関数でなければなりません。もしこれが整数を返す関数ならば、 <em>timeunit</em> には単位時間当たりの実際の持続時間を指定します。たとえば関数が 1000 分の 1 秒単位で計測した時間を返すとすると、 <em>timeunit</em> は <code class="docutils literal notranslate"><span class="pre">.001</span></code> でしょう。</p>
+<p><a class="reference internal" href="#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code></a> クラスを直接使うと、プロファイルデータをファイルに書き出すことなしに結果をフォーマット出来ます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cProfile</span><span class="o">,</span> <span class="nn">pstats</span><span class="o">,</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">pstats</span> <span class="kn">import</span> <span class="n">SortKey</span>
+<span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+<span class="n">pr</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+<span class="c1"># ... do something ...</span>
+<span class="n">pr</span><span class="o">.</span><span class="n">disable</span><span class="p">()</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="n">sortby</span> <span class="o">=</span> <span class="n">SortKey</span><span class="o">.</span><span class="n">CUMULATIVE</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="n">pr</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="n">sortby</span><span class="p">)</span>
+<span class="n">ps</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code></a> class can also be used as a context manager (supported
+only in <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> module. see <a class="reference internal" href="stdtypes.html#typecontextmanager"><span class="std std-ref">コンテキストマネージャ型</span></a>):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cProfile</span>
+
+<span class="k">with</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span> <span class="k">as</span> <span class="n">pr</span><span class="p">:</span>
+    <span class="c1"># ... do something ...</span>
+
+<span class="n">pr</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>コンテキストマネージャーサポートが追加されました。</p>
+</div>
+<dl class="method">
+<dt id="profile.Profile.enable">
+<code class="descname">enable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.enable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Start collecting profiling data. Only in <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.disable">
+<code class="descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.disable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Stop collecting profiling data. Only in <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.create_stats">
+<code class="descname">create_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.create_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>プロファイリングデータの収集を停止し、現在のプロファイルとして結果を内部で記録します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.print_stats">
+<code class="descname">print_stats</code><span class="sig-paren">(</span><em>sort=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.print_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のプロファイルに基づいて <a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> オブジェクトを作成し、結果を標準出力に出力します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.dump_stats">
+<code class="descname">dump_stats</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.dump_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のプロファイルの結果を <em>filename</em> に書き出します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.run" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="functions.html#exec" title="exec"><code class="xref py py-func docutils literal notranslate"><span class="pre">exec()</span></code></a> を用いて cmd をプロファイルします。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.runctx">
+<code class="descname">runctx</code><span class="sig-paren">(</span><em>cmd</em>, <em>globals</em>, <em>locals</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.runctx" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="functions.html#exec" title="exec"><code class="xref py py-func docutils literal notranslate"><span class="pre">exec()</span></code></a> を用いて指定されたグローバルおよびローカルな環境で cmd をプロファイルします。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="profile.Profile.runcall">
+<code class="descname">runcall</code><span class="sig-paren">(</span><em>func</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.runcall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">func(*args,</span> <span class="pre">**kwargs)</span></code> をプロファイルします。</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Note that profiling will only work if the called command/function actually
+returns.  If the interpreter is terminated (e.g. via a <a class="reference internal" href="sys.html#sys.exit" title="sys.exit"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.exit()</span></code></a> call
+during the called command/function execution) no profiling results will be
+printed.</p>
+</div>
+<div class="section" id="the-stats-class">
+<span id="profile-stats"></span><h2><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラス<a class="headerlink" href="#the-stats-class" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスを使用してプロファイラデータを解析します。</p>
+<span class="target" id="module-pstats"></span><dl class="class">
+<dt id="pstats.Stats">
+<em class="property">class </em><code class="descclassname">pstats.</code><code class="descname">Stats</code><span class="sig-paren">(</span><em>*filenames or profile</em>, <em>stream=sys.stdout</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このコンストラクタは <em>filename</em> で指定した (単一または複数の) ファイルもしくは <code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code> のインスタンスから &quot;統計情報オブジェクト&quot; のインスタンスを生成します。出力は <em>stream</em> で指定したストリームに出力されます。</p>
+<p>The file selected by the above constructor must have been created by the
+corresponding version of <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> or <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a>.  To be specific,
+there is <em>no</em> file compatibility guaranteed with future versions of this
+profiler, and there is no compatibility with files produced by other
+profilers, or the same profiler run on a different operating system.  If
+several files are provided, all the statistics for identical functions will
+be coalesced, so that an overall view of several processes can be considered
+in a single report.  If additional files need to be combined with data in an
+existing <a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> object, the <a class="reference internal" href="#pstats.Stats.add" title="pstats.Stats.add"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add()</span></code></a> method
+can be used.</p>
+<p>プロファイルデータをファイルから読み込む代わりに、 <code class="xref py py-class docutils literal notranslate"><span class="pre">cProfile.Profile</span></code> または <a class="reference internal" href="#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">profile.Profile</span></code></a> オブジェクトをプロファイルデータのソースとして使うことができます。</p>
+<p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> には次のメソッドがあります:</p>
+<dl class="method">
+<dt id="pstats.Stats.strip_dirs">
+<code class="descname">strip_dirs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.strip_dirs" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスのこのメソッドは、ファイル名の前に付いているすべてのパス情報を取り除くためのものです。出力の幅を80文字以内に収めたいときに重宝します。このメソッドはオブジェクトを変更するため、取り除いたパス情報は失われます。パス情報除去の操作後、オブジェクトが保持するデータエントリは、オブジェクトの初期化、ロード直後と同じように &quot;ランダムに&quot; 並んでいます。 <a class="reference internal" href="#pstats.Stats.strip_dirs" title="pstats.Stats.strip_dirs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">strip_dirs()</span></code></a> を実行した結果、2つの関数名が区別できない (両者が同じファイルの同じ行番号で同じ関数名となった) 場合、一つのエントリに合算されされます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>*filenames</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.add" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスのこのメソッドは、既存のプロファイリングオブジェクトに情報を追加します。引数は対応するバージョンの <a class="reference internal" href="#profile.run" title="profile.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile.run()</span></code></a> または <code class="xref py py-func docutils literal notranslate"><span class="pre">cProfile.run()</span></code> によって生成されたファイルの名前でなくてはなりません。関数の名前が区別できない (ファイル名、行番号、関数名が同じ) 場合、一つの関数の統計情報として合算されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.dump_stats">
+<code class="descname">dump_stats</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.dump_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> オブジェクトに読み込まれたデータを、ファイル名 <em>filename</em> のファイルに保存します。ファイルが存在しない場合は新たに作成され、すでに存在する場合には上書きされます。このメソッドは <a class="reference internal" href="#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">profile.Profile</span></code></a> クラスおよび <code class="xref py py-class docutils literal notranslate"><span class="pre">cProfile.Profile</span></code> クラスの同名のメソッドと等価です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.sort_stats">
+<code class="descname">sort_stats</code><span class="sig-paren">(</span><em>*keys</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.sort_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>This method modifies the <a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> object by sorting it according to
+the supplied criteria.  The argument can be either a string or a SortKey
+enum identifying the basis of a sort (example: <code class="docutils literal notranslate"><span class="pre">'time'</span></code>, <code class="docutils literal notranslate"><span class="pre">'name'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">SortKey.TIME</span></code> or <code class="docutils literal notranslate"><span class="pre">SortKey.NAME</span></code>). The SortKey enums argument have
+advantage over the string argument in that it is more robust and less
+error prone.</p>
+<p>When more than one key is provided, then additional keys are used as
+secondary criteria when there is equality in all keys selected before
+them.  For example, <code class="docutils literal notranslate"><span class="pre">sort_stats(SortKey.NAME,</span> <span class="pre">SortKey.FILE)</span></code> will sort
+all the entries according to their function name, and resolve all ties
+(identical function names) by sorting by file name.</p>
+<p>For the string argument, abbreviations can be used for any key names, as
+long as the abbreviation is unambiguous.</p>
+<p>The following are the valid string and SortKey:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="34%" />
+<col width="36%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Valid String Arg</th>
+<th class="head">Valid enum Arg</th>
+<th class="head">意味</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'calls'</span></code></td>
+<td>SortKey.CALLS</td>
+<td>呼び出し数</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'cumulative'</span></code></td>
+<td>SortKey.CUMULATIVE</td>
+<td>累積時間</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'cumtime'</span></code></td>
+<td>N/A</td>
+<td>累積時間</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'file'</span></code></td>
+<td>N/A</td>
+<td>ファイル名</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'filename'</span></code></td>
+<td>SortKey.FILENAME</td>
+<td>ファイル名</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'module'</span></code></td>
+<td>N/A</td>
+<td>ファイル名</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'ncalls'</span></code></td>
+<td>N/A</td>
+<td>呼び出し数</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'pcalls'</span></code></td>
+<td>SortKey.PCALLS</td>
+<td>プリミティブな呼び出し回数</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'line'</span></code></td>
+<td>SortKey.LINE</td>
+<td>行番号</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'name'</span></code></td>
+<td>SortKey.NAME</td>
+<td>関数名</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'nfl'</span></code></td>
+<td>SortKey.NFL</td>
+<td>関数名/ファイル名/行番号</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'stdname'</span></code></td>
+<td>SortKey.STDNAME</td>
+<td>標準名</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">'time'</span></code></td>
+<td>SortKey.TIME</td>
+<td>内部時間</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">'tottime'</span></code></td>
+<td>N/A</td>
+<td>内部時間</td>
+</tr>
+</tbody>
+</table>
+<p>Note that all sorts on statistics are in descending order (placing most
+time consuming items first), where as name, file, and line number searches
+are in ascending order (alphabetical). The subtle distinction between
+<code class="docutils literal notranslate"><span class="pre">SortKey.NFL</span></code> and <code class="docutils literal notranslate"><span class="pre">SortKey.STDNAME</span></code> is that the standard name is a
+sort of the name as printed, which means that the embedded line numbers
+get compared in an odd way.  For example, lines 3, 20, and 40 would (if
+the file names were the same) appear in the string order 20, 3 and 40.
+In contrast, <code class="docutils literal notranslate"><span class="pre">SortKey.NFL</span></code> does a numeric compare of the line numbers.
+In fact, <code class="docutils literal notranslate"><span class="pre">sort_stats(SortKey.NFL)</span></code> is the same as
+<code class="docutils literal notranslate"><span class="pre">sort_stats(SortKey.NAME,</span> <span class="pre">SortKey.FILENAME,</span> <span class="pre">SortKey.LINE)</span></code>.</p>
+<p>後方互換性のため、数値を引数に使った <code class="docutils literal notranslate"><span class="pre">-1</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code> の形式もサポートしています。それぞれ <code class="docutils literal notranslate"><span class="pre">'stdname'</span></code>, <code class="docutils literal notranslate"><span class="pre">'calls'</span></code>, <code class="docutils literal notranslate"><span class="pre">'time'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cumulative'</span></code> として処理されます。引数をこの旧スタイルで指定した場合、最初のキー (数値キー) だけが使われ、複数のキーを指定しても2番目以降は無視されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加: </span>Added the SortKey enum.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.reverse_order">
+<code class="descname">reverse_order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.reverse_order" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスのこのメソッドは、オブジェクト内の情報のリストを逆順にソートします。デフォルトでは選択したキーに応じて昇順、降順が適切に選ばれることに注意してください。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.print_stats">
+<code class="descname">print_stats</code><span class="sig-paren">(</span><em>*restrictions</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.print_stats" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスのこのメソッドは、 <a class="reference internal" href="#profile.run" title="profile.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile.run()</span></code></a> の項で述べたプロファイルのレポートを出力します。</p>
+<p>出力するデータの順序はオブジェクトに対し最後に行った <a class="reference internal" href="#pstats.Stats.sort_stats" title="pstats.Stats.sort_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sort_stats()</span></code></a> による操作に基づきます (<a class="reference internal" href="#pstats.Stats.add" title="pstats.Stats.add"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add()</span></code></a> と <a class="reference internal" href="#pstats.Stats.strip_dirs" title="pstats.Stats.strip_dirs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">strip_dirs()</span></code></a> による制限にも支配されます)。</p>
+<p>引数は (もし与えられると) リストを重要なエントリのみに制限するために使われます。初期段階でリストはプロファイルした関数の完全な情報を持っています。制限の指定は、 (行数を指定する) 整数、 (行のパーセンテージを指定する) 0.0 から 1.0 までの割合を指定する小数、 (出力する standard name にマッチする) 正規表現として解釈される文字列のいずれかを使って行います。複数の制限が指定された場合、指定の順に適用されます。たとえば次のようになります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_stats</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;foo:&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上記の場合まず出力するリストは全体の10%に制限され、さらにファイル名の一部に文字列 <code class="file docutils literal notranslate"><span class="pre">.*foo:</span></code> を持つ関数だけが出力されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">print_stats</span><span class="p">(</span><span class="s1">&#39;foo:&#39;</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>こちらの例の場合、リストはまずファイル名に <code class="file docutils literal notranslate"><span class="pre">.*foo:</span></code> を持つ関数だけに制限され、その中の最初の 10% だけが出力されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.print_callers">
+<code class="descname">print_callers</code><span class="sig-paren">(</span><em>*restrictions</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.print_callers" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスのこのメソッドは、プロファイルのデータベースの中から何らかの関数呼び出しを行った関数をすべて出力します。出力の順序は <a class="reference internal" href="#pstats.Stats.print_stats" title="pstats.Stats.print_stats"><code class="xref py py-meth docutils literal notranslate"><span class="pre">print_stats()</span></code></a> によって与えられるものと同じです。出力を制限する引数も同じです。各呼び出し側関数についてそれぞれ一行ずつ表示されます。フォーマットは統計を作り出したプロファイラごとに微妙に異なります:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> の場合、呼び出し側関数の後に括弧で囲まれて表示される数値はその呼び出しが何回行われたかを示しています。利便性のため、 2番目の括弧なしで表示される数値によって、関数が消費した累積時間を表しています。</li>
+<li><a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> の場合、各呼び出し側関数の後に3つの数字が付きます。呼び出しが何回行われたかと、この呼び出し側関数からの呼び出しによって現在の関数内で消費された合計時間および累積時間です。</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pstats.Stats.print_callees">
+<code class="descname">print_callees</code><span class="sig-paren">(</span><em>*restrictions</em><span class="sig-paren">)</span><a class="headerlink" href="#pstats.Stats.print_callees" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#pstats.Stats" title="pstats.Stats"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stats</span></code></a> クラスのこのメソッドは、指定した関数から呼び出された関数のリストを出力します。呼び出し側、呼び出される側の方向は逆ですが、引数と出力の順序に関しては <a class="reference internal" href="#pstats.Stats.print_callers" title="pstats.Stats.print_callers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">print_callers()</span></code></a> と同じです。</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="what-is-deterministic-profiling">
+<span id="deterministic-profiling"></span><h2>決定論的プロファイリングとは<a class="headerlink" href="#what-is-deterministic-profiling" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><em class="dfn">決定論的プロファイリング</em> とは、すべての <em>関数呼び出し</em>, <em>関数からのリターン</em>, <em>例外発生</em> をモニターし、正確なタイミングを記録することで、イベント間の時間、つまりどの時間にユーザコードが実行されているのかを計測するやり方です。もう一方の <em class="dfn">統計的プロファイリング</em> (このモジュールでこの方法は採用していません) とは、有効なインストラクションポインタからランダムにサンプリングを行い、プログラムのどこで時間が使われているかを推定する方法です。後者の方法は、オーバヘッドが少ないものの、プログラムのどこで多くの時間が使われているか、その相対的な示唆に留まります。</p>
+<p>In Python, since there is an interpreter active during execution, the presence
+of instrumented code is not required in order to do deterministic profiling.
+Python automatically provides a <em class="dfn">hook</em> (optional callback) for each event.
+In addition, the interpreted nature of Python tends to add so much overhead to
+execution, that deterministic profiling tends to only add small processing
+overhead in typical applications.  The result is that deterministic profiling is
+not that expensive, yet provides extensive run time statistics about the
+execution of a Python program.</p>
+<p>呼び出し回数はコード中のバグ発見にも使用できます (とんでもない数の呼び出しが行われている部分)。インライン拡張の対象とすべき部分を見つけるためにも使えます (呼び出し頻度の高い部分)。内部時間の統計は、注意深く最適化すべき&quot;ホットループ&quot;の発見にも役立ちます。累積時間の統計は、アルゴリズム選択に関連した高レベルのエラー検知に役立ちます。なお、このプロファイラは再帰的なアルゴリズム実装の累計時間を計ることが可能で、通常のループを使った実装と直接比較することもできるようになっています。</p>
+</div>
+<div class="section" id="limitations">
+<span id="profile-limitations"></span><h2>制限事項<a class="headerlink" href="#limitations" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>一つの制限はタイミング情報の正確さに関するものです。決定論的プロファイラには正確さに関する根本的問題があります。最も明白な制限は、 (一般に) &quot;クロック&quot;は .001 秒の精度しかないということです。これ以上の精度で計測することはできません。仮に充分な精度が得られたとしても、&quot;誤差&quot;が計測の平均値に影響を及ぼすことがあります。この最初の誤差を取り除いたとしても、それがまた別の誤差を引き起こす原因となります。</p>
+<p>もう一つの問題として、イベントを検知してからプロファイラがその時刻を実際に <em>取得</em> するまでに &quot;いくらかの時間がかかる&quot; ことです。同様に、イベントハンドラが終了する時にも、時刻を取得して (そしてその値を保存して) から、ユーザコードが処理を再開するまでの間に遅延が発生します。結果的に多く呼び出される関数または多数の関数から呼び出される関数の情報にはこの種の誤差が蓄積する傾向にあります。このようにして蓄積される誤差は、典型的にはクロックの精度を下回ります (1クロック以下) が、一方でこの時間が累計して非常に大きな値になることも <em>あり得ます</em> 。</p>
+<p>この問題はオーバーヘッドの小さい <a class="reference internal" href="#module-cProfile" title="cProfile"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cProfile</span></code></a> よりも <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> においてより重要です。そのため、 <a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> は誤差が確率的に (平均値で) 減少するようにプラットフォームごとに補正する機能を備えています。プロファイラに補正を施すと (最小二乗の意味で) 正確さが増しますが、ときには数値が負の値になってしまうこともあります (呼び出し回数が極めて少なく、確率の神があなたに意地悪をしたとき :-) )。プロファイルの結果に負の値が出力されても <em>驚かないでください</em> 。これは補正を行った場合にのみ生じることで、補正を行わない場合に比べて計測結果は実際にはより正確になっているはずだからです。</p>
+</div>
+<div class="section" id="calibration">
+<span id="profile-calibration"></span><h2>キャリブレーション (補正)<a class="headerlink" href="#calibration" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#module-profile" title="profile: Python source profiler."><code class="xref py py-mod docutils literal notranslate"><span class="pre">profile</span></code></a> のプロファイラは time 関数呼び出しおよびその値を保存するためのオーバーヘッドを補正するために、各イベントの処理時間から定数を引きます。デフォルトでこの定数の値は 0 です。以下の手順で、プラットフォームに合った、より適切な定数が得られます (<a class="reference internal" href="#profile-limitations"><span class="std std-ref">制限事項</span></a> 参照)。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">profile</span>
+<span class="n">pr</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">pr</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="mi">10000</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The method executes the number of Python calls given by the argument, directly
+and again under the profiler, measuring the time for both. It then computes the
+hidden overhead per profiler event, and returns that as a float.  For example,
+on a 1.8Ghz Intel Core i5 running Mac OS X, and using Python's time.process_time() as
+the timer, the magical number is about 4.04e-6.</p>
+<p>この手順で使用しているオブジェクトはほぼ一定の結果を返します。 <em>非常に</em> 早いコンピュータを使う場合、もしくはタイマの性能が貧弱な場合は、一定の結果を得るために引数に 100000 や 1000000 といった大きな値を指定する必要があるかもしれません。</p>
+<p>一定の結果が得られたら、それを使う方法には3通りあります:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">profile</span>
+
+<span class="c1"># 1. Apply computed bias to all Profile instances created hereafter.</span>
+<span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">your_computed_bias</span>
+
+<span class="c1"># 2. Apply computed bias to a specific Profile instance.</span>
+<span class="n">pr</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+<span class="n">pr</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="n">your_computed_bias</span>
+
+<span class="c1"># 3. Specify computed bias in instance constructor.</span>
+<span class="n">pr</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">bias</span><span class="o">=</span><span class="n">your_computed_bias</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>選択肢がある場合は、補正値は小さめに設定した方が良いでしょう。プロファイルの結果に負の値が表われる&quot;頻度が低く&quot;なるはずです。</p>
+</div>
+<div class="section" id="using-a-custom-timer">
+<span id="profile-timers"></span><h2>カスタムな時刻取得用関数を使う<a class="headerlink" href="#using-a-custom-timer" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>プロファイラが時刻を取得する方法を変更したいなら (たとえば、実測時間やプロセスの経過時間を使いたい場合)、時刻取得用の関数を <code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code> クラスのコンストラクタに指定することができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">pr</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">your_time_func</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>この結果生成されるプロファイラは時刻取得に <code class="xref py py-func docutils literal notranslate"><span class="pre">your_time_func()</span></code> を呼び出すようになります。 <a class="reference internal" href="#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">profile.Profile</span></code></a> と <code class="xref py py-class docutils literal notranslate"><span class="pre">cProfile.Profile</span></code> のどちらを使っているかにより、 <code class="docutils literal notranslate"><span class="pre">your_time_func</span></code> の戻り値は異なって解釈されます:</p>
+<dl class="docutils">
+<dt><a class="reference internal" href="#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">profile.Profile</span></code></a></dt>
+<dd><p class="first"><code class="xref py py-func docutils literal notranslate"><span class="pre">your_time_func()</span></code> は単一の数値、あるいは (<a class="reference internal" href="os.html#os.times" title="os.times"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.times()</span></code></a> と同じように) その合計が累計時間を示すリストを返すようになっていなければなりません。関数が1つの数値、あるいは長さ2の数値のリストを返すようになっていれば、ディスパッチルーチンには特別な高速化バージョンが使われます。</p>
+<p class="last">あなたが選択した時刻取得関数のために、プロファイラのクラスを補正すべきであることを警告しておきます (<a class="reference internal" href="#profile-calibration"><span class="std std-ref">キャリブレーション (補正)</span></a> 参照)。ほとんどのマシンでは、プロファイル時のオーバヘッドの小ささという意味においては、時刻取得関数が長整数値を返すのが最も良い結果を生みます。 (<a class="reference internal" href="os.html#os.times" title="os.times"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.times()</span></code></a> は浮動小数点数のタプルを返すので <em>かなり悪い</em> です。) 綺麗な手段でより良い時刻取得関数に置き換えたいと望むなら、クラスを派生して、ディスパッチメソッドを置き換えてあなたの関数を一番いいように処理するように固定化してしまってください。補正定数の調整もお忘れなく。</p>
+</dd>
+<dt><code class="xref py py-class docutils literal notranslate"><span class="pre">cProfile.Profile</span></code></dt>
+<dd><p class="first"><code class="xref py py-func docutils literal notranslate"><span class="pre">your_time_func()</span></code> は単一の数値を返すようになっていなければなりません。単一の整数を返すのであれば、クラスコンストラクタの第二引数に単位時間当たりの実際の持続時間を渡せます。例えば <code class="docutils literal notranslate"><span class="pre">your_integer_time_func</span></code> が 1000 分の 1 秒単位で計測した時間を返すとすると、 <code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code> インスタンスを以下のように構築出来ます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">(</span><span class="n">your_integer_time_func</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">cProfile.Profile</span></code> クラスはキャリブレーションができないので、自前のタイマ関数は注意を払って使う必要があり、またそれは可能な限り速くなければなりません。自前のタイマ関数で最高の結果を得るには、 <code class="xref py py-mod docutils literal notranslate"><span class="pre">_lsprof</span></code> 内部モジュールの C ソースファイルにハードコードする必要があるかもしれません。</p>
+</dd>
+</dl>
+<p>Python 3.3 で <a class="reference internal" href="time.html#module-time" title="time: Time access and conversions."><code class="xref py py-mod docutils literal notranslate"><span class="pre">time</span></code></a> に、プロセス時間や実時間の精密な計測に使える新しい関数が追加されました。
+例えば、 <a class="reference internal" href="time.html#time.perf_counter" title="time.perf_counter"><code class="xref py py-func docutils literal notranslate"><span class="pre">time.perf_counter()</span></code></a> を参照してください。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Python プロファイラ</a><ul>
+<li><a class="reference internal" href="#introduction-to-the-profilers">プロファイラとは</a></li>
+<li><a class="reference internal" href="#instant-user-s-manual">かんたんユーザマニュアル</a></li>
+<li><a class="reference internal" href="#module-cProfile">リファレンスマニュアル -- <code class="docutils literal notranslate"><span class="pre">profile</span></code> と <code class="docutils literal notranslate"><span class="pre">cProfile</span></code></a></li>
+<li><a class="reference internal" href="#the-stats-class"><code class="docutils literal notranslate"><span class="pre">Stats</span></code> クラス</a></li>
+<li><a class="reference internal" href="#what-is-deterministic-profiling">決定論的プロファイリングとは</a></li>
+<li><a class="reference internal" href="#limitations">制限事項</a></li>
+<li><a class="reference internal" href="#calibration">キャリブレーション (補正)</a></li>
+<li><a class="reference internal" href="#using-a-custom-timer">カスタムな時刻取得用関数を使う</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="pdb.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">pdb</span></code> --- Python デバッガ</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="timeit.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">timeit</span></code> --- 小さなコード断片の実行時間計測</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/profile.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="timeit.html" title="timeit --- 小さなコード断片の実行時間計測"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="pdb.html" title="pdb --- Python デバッガ"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="debug.html" >デバッグとプロファイル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

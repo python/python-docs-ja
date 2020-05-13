@@ -1,0 +1,449 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>formatter --- 汎用の出力書式化機構 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="MS Windows 固有のサービス" href="windows.html" />
+    <link rel="prev" title="各種サービス" href="misc.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/formatter.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="windows.html" title="MS Windows 固有のサービス"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="各種サービス"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="misc.html" accesskey="U">各種サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-formatter">
+<span id="formatter-generic-output-formatting"></span><h1><a class="reference internal" href="#module-formatter" title="formatter: Generic output formatter and device interface. (非推奨)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">formatter</span></code></a> --- 汎用の出力書式化機構<a class="headerlink" href="#module-formatter" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.4 で非推奨: </span>使用法がないため formatter モジュールは非推奨になりました。</p>
+</div>
+<hr class="docutils" />
+<p>このモジュールでは、二つのインタフェース定義を提供しており、それらの各インタフェースについて複数の実装を提供しています。<em>formatter</em> インタフェースと、formatter インタフェースに必要なされる <em>writer</em> インタフェースです。</p>
+<p>formatter オブジェクトはある抽象化された書式イベントの流れを writer オブジェクト上の特定の出力イベントに変換します。formatter はいくつかのスタック構造を管理することで、writer  オブジェクトの様々な属性を変更したり復元したりできるようにしています; このため、writer は相対的な変更や &quot;元に戻す&quot; 操作を処理できなくてもかまいません。writer の特定のプロパティのうち、formatter オブジェクトを介して制御できるのは、水平方向の字揃え、フォント、そして左マージンの字下げです。任意の、非排他的なスタイル設定を writer に提供するためのメカニズムも提供されています。さらに、段落分割のように、可逆でない書式化イベントの機能を提供するインタフェースもあります。</p>
+<p>writer オブジェクトはデバイスインタフェースをカプセル化します。ファイル形式のような抽象デバイスも物理デバイス同様にサポートされています。ここで提供されている実装内容はすべて抽象デバイス上で動作します。デバイスインタフェースは formatter オブジェクトが管理しているプロパティを設定し、データを出力端に書き込めるようにします。</p>
+<div class="section" id="the-formatter-interface">
+<span id="formatter-interface"></span><h2>formatter インタフェース<a class="headerlink" href="#the-formatter-interface" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>formatter を作成するためのインタフェースは、インスタンス化しようとする個々の formatter クラスに依存します。以下で解説するのは、インスタンス化された全ての formatter がサポートしなければならないインタフェースです。</p>
+<p>モジュールレベルではデータ要素を一つ定義しています:</p>
+<dl class="data">
+<dt id="formatter.AS_IS">
+<code class="descclassname">formatter.</code><code class="descname">AS_IS</code><a class="headerlink" href="#formatter.AS_IS" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>後に述べる <code class="docutils literal notranslate"><span class="pre">push_font()</span></code> メソッドでフォント指定をする時に使える値です。また、その他の <code class="docutils literal notranslate"><span class="pre">push_property()</span></code> メソッドの新しい値として使うことができます。<code class="docutils literal notranslate"><span class="pre">AS_IS</span></code> の値をスタックに置くと、どのプロパティが変更されたかの追跡を行わずに、対応する <code class="docutils literal notranslate"><span class="pre">pop_property()</span></code> メソッドが呼び出されるようになります。</p>
+</dd></dl>
+
+<p>formatter インスタンスオブジェクトには以下の属性が定義されています:</p>
+<dl class="attribute">
+<dt id="formatter.formatter.writer">
+<code class="descclassname">formatter.</code><code class="descname">writer</code><a class="headerlink" href="#formatter.formatter.writer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>formatter とやり取りを行う writer インスタンスです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.end_paragraph">
+<code class="descclassname">formatter.</code><code class="descname">end_paragraph</code><span class="sig-paren">(</span><em>blanklines</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.end_paragraph" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>開かれている段落があれば閉じ、次の段落との間に少なくとも <em>blanklines</em> が挿入されるようにします。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.add_line_break">
+<code class="descclassname">formatter.</code><code class="descname">add_line_break</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.add_line_break" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>強制改行挿入します。既に強制改行がある場合は挿入しません。論理的な段落は中断しません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.add_hor_rule">
+<code class="descclassname">formatter.</code><code class="descname">add_hor_rule</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.add_hor_rule" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>出力に水平罫線を挿入します。現在の段落に何らかのデータがある場合、強制改行が挿入されますが、論理的な段落は中断しません。引数とキーワードは writer の <code class="xref py py-meth docutils literal notranslate"><span class="pre">send_line_break()</span></code> メソッドに渡されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.add_flowing_data">
+<code class="descclassname">formatter.</code><code class="descname">add_flowing_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.add_flowing_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>空白を折りたたんで書式化しなければならないデータを提供します。空白の折りたたみでは、直前や直後の <a class="reference internal" href="#formatter.formatter.add_flowing_data" title="formatter.formatter.add_flowing_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_flowing_data()</span></code></a> 呼び出しに入っている空白も考慮されます。このメソッドに渡されたデータは出力デバイスで行末の折り返し (word-wrap) されるものと想定されています。出力デバイスでの要求やフォント情報に応じて、writer オブジェクトでも何らかの行末折り返しが行われなければならないので注意してください。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.add_literal_data">
+<code class="descclassname">formatter.</code><code class="descname">add_literal_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.add_literal_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>変更を加えずに writer に渡さなければならないデータを提供します。改行およびタブを含む空白を <em>data</em> の値にしても問題ありません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.add_label_data">
+<code class="descclassname">formatter.</code><code class="descname">add_label_data</code><span class="sig-paren">(</span><em>format</em>, <em>counter</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.add_label_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在の左マージン位置の左側に配置されるラベルを挿入します。このラベルは箇条書き、数字つき箇条書きの書式を構築する際に使われます。 <em>format</em> の値が文字列の場合、整数の値 <em>counter</em> の書式指定として解釈されます。 <em>format</em> の値が文字列の場合、整数の値をとる <em>counter</em> の書式化指定として解釈されます。書式化された文字列はラベルの値になります; <em>format</em> が文字列でない場合、ラベルの値として直接使われます。ラベルの値は writer の <code class="xref py py-meth docutils literal notranslate"><span class="pre">send_label_data()</span></code> メソッドの唯一の引数として渡されます。非文字列のラベル値をどう解釈するかは関連付けられた writer に依存します。</p>
+<p>書式化指定は文字列からなり、counter の値と合わせてラベルの値を算出するために使われます。書式文字列の各文字はラベル値にコピーされます。このときいくつかの文字は counter 値を変換を指すものとして認識されます。特に、文字 <code class="docutils literal notranslate"><span class="pre">'1'</span></code> はアラビア数字の counter 値を表し、<code class="docutils literal notranslate"><span class="pre">'A'</span></code> と <code class="docutils literal notranslate"><span class="pre">'a'</span></code> はそれぞれ大文字および小文字のアルファベットによる counter 値を表し、<code class="docutils literal notranslate"><span class="pre">'I'</span></code> と <code class="docutils literal notranslate"><span class="pre">'i'</span></code> はそれぞれ大文字および小文字のローマ数字による counter 値を表します。アルファベットおよびローマ字数字への変換の際には、counter の値はゼロ以上である必要があるので注意してください。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.flush_softspace">
+<code class="descclassname">formatter.</code><code class="descname">flush_softspace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.flush_softspace" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>以前の <a class="reference internal" href="#formatter.formatter.add_flowing_data" title="formatter.formatter.add_flowing_data"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_flowing_data()</span></code></a> 呼び出しでバッファされている出力待ちの空白を、関連付けられている writer オブジェクトに送信します。このメソッドは writer オブジェクトに対するあらゆる直接操作の前に呼び出さなければなりません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.push_alignment">
+<code class="descclassname">formatter.</code><code class="descname">push_alignment</code><span class="sig-paren">(</span><em>align</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.push_alignment" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>新たな字揃え (alignment) 設定を字揃えスタックの上にプッシュします。変更を行いたくない場合には <a class="reference internal" href="#formatter.AS_IS" title="formatter.AS_IS"><code class="xref py py-const docutils literal notranslate"><span class="pre">AS_IS</span></code></a> にすることができます。字揃え設定値が以前の設定から変更された場合、writer の  <code class="xref py py-meth docutils literal notranslate"><span class="pre">new_alignment()</span></code> メソッドが <em>align</em> の値と共に呼び出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.pop_alignment">
+<code class="descclassname">formatter.</code><code class="descname">pop_alignment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.pop_alignment" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>以前の字揃え設定を復元します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.push_font">
+<code class="descclassname">formatter.</code><code class="descname">push_font</code><span class="sig-paren">(</span><em>(size</em>, <em>italic</em>, <em>bold</em>, <em>teletype)</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.push_font" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>writer オブジェクトのフォントプロパティのうち、一部または全てを変更します。 <a class="reference internal" href="#formatter.AS_IS" title="formatter.AS_IS"><code class="xref py py-const docutils literal notranslate"><span class="pre">AS_IS</span></code></a> に設定されていないプロパティは引数で渡された値に設定され、その他の値は現在の設定を維持します。writer の <code class="xref py py-meth docutils literal notranslate"><span class="pre">new_font()</span></code> メソッドは完全に設定解決されたフォント指定で呼び出されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.pop_font">
+<code class="descclassname">formatter.</code><code class="descname">pop_font</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.pop_font" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>以前のフォント設定を復元します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.push_margin">
+<code class="descclassname">formatter.</code><code class="descname">push_margin</code><span class="sig-paren">(</span><em>margin</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.push_margin" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>左マージンのインデント数を一つ増やし、論理タグ <em>margin</em> を新たなインデントに関連付けます。マージンレベルの初期値は <code class="docutils literal notranslate"><span class="pre">0</span></code> です。変更された論理タグの値は真値とならなければなりません;  <a class="reference internal" href="#formatter.AS_IS" title="formatter.AS_IS"><code class="xref py py-const docutils literal notranslate"><span class="pre">AS_IS</span></code></a> 以外の偽の値はマージンの変更としては不適切です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.pop_margin">
+<code class="descclassname">formatter.</code><code class="descname">pop_margin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.pop_margin" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>以前のマージン設定を復元します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.push_style">
+<code class="descclassname">formatter.</code><code class="descname">push_style</code><span class="sig-paren">(</span><em>*styles</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.push_style" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>任意のスタイル指定をスタックにプッシュします。全てのスタイルはスタイルスタックに順番にプッシュされます。 <a class="reference internal" href="#formatter.AS_IS" title="formatter.AS_IS"><code class="xref py py-const docutils literal notranslate"><span class="pre">AS_IS</span></code></a> 値を含み、スタック全体を表すタプルは writer の <code class="xref py py-meth docutils literal notranslate"><span class="pre">new_styles()</span></code> メソッドに渡されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.pop_style">
+<code class="descclassname">formatter.</code><code class="descname">pop_style</code><span class="sig-paren">(</span><em>n=1</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.pop_style" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#formatter.formatter.push_style" title="formatter.formatter.push_style"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push_style()</span></code></a> に渡された最新 <em>n</em> 個のスタイル指定をポップします。 <a class="reference internal" href="#formatter.AS_IS" title="formatter.AS_IS"><code class="xref py py-const docutils literal notranslate"><span class="pre">AS_IS</span></code></a> 値を含み、変更されたスタックを表すタプルは writer の <code class="xref py py-meth docutils literal notranslate"><span class="pre">new_styles()</span></code> メソッドに渡されます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.set_spacing">
+<code class="descclassname">formatter.</code><code class="descname">set_spacing</code><span class="sig-paren">(</span><em>spacing</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.set_spacing" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>writer の割り付けスタイル (spacing style) を設定します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.formatter.assert_line_data">
+<code class="descclassname">formatter.</code><code class="descname">assert_line_data</code><span class="sig-paren">(</span><em>flag=1</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.formatter.assert_line_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在の段落にデータが予期せず追加されたことを formatter に知らせます。このメソッドは writer を直接操作した際に使わなければなりません。writer 操作の結果、出力の末尾が強制改行となった場合、オプションの <em>flag</em> 引数を偽に設定することができます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="formatter-implementations">
+<span id="formatter-impls"></span><h2>formatter 実装<a class="headerlink" href="#formatter-implementations" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このモジュールでは、formatter オブジェクトに関して二つの実装を提供しています。ほとんどのアプリケーションではこれらのクラスを変更したりサブクラス化することなく使うことができます。</p>
+<dl class="class">
+<dt id="formatter.NullFormatter">
+<em class="property">class </em><code class="descclassname">formatter.</code><code class="descname">NullFormatter</code><span class="sig-paren">(</span><em>writer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.NullFormatter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>何も行わない formatter です。 <em>writer</em> を省略すると、 <a class="reference internal" href="#formatter.NullWriter" title="formatter.NullWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NullWriter</span></code></a> インスタンスが生成されます。 <a class="reference internal" href="#formatter.NullFormatter" title="formatter.NullFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NullFormatter</span></code></a> インスタンスは、writer のメソッドを全く呼び出しません。writer へのインタフェースを実装する場合にはこのクラスのインタフェースを継承する必要がありますが、実装を継承する必要は全くありません。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="formatter.AbstractFormatter">
+<em class="property">class </em><code class="descclassname">formatter.</code><code class="descname">AbstractFormatter</code><span class="sig-paren">(</span><em>writer</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.AbstractFormatter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>標準の formatter です。この formatter 実装は広範な writer で適用できることが実証されており、ほとんどの状況で直接使うことができます。高機能の WWW ブラウザを実装するために使われたこともあります。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="the-writer-interface">
+<span id="writer-interface"></span><h2>writer インタフェース<a class="headerlink" href="#the-writer-interface" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>writer を作成するためのインタフェースは、インスタンス化しようとする個々の writer クラスに依存します。以下で解説するのは、インスタンス化された全ての writer がサポートしなければならないインタフェースです。ほとんどのアプリケーションでは <a class="reference internal" href="#formatter.AbstractFormatter" title="formatter.AbstractFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractFormatter</span></code></a> クラスを formatter として使うことができますが、通常 writer はアプリケーション側で与えなければならないので注意してください。</p>
+<dl class="method">
+<dt id="formatter.writer.flush">
+<code class="descclassname">writer.</code><code class="descname">flush</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.flush" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>バッファに蓄積されている出力データやデバイス制御イベントをフラッシュします。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.new_alignment">
+<code class="descclassname">writer.</code><code class="descname">new_alignment</code><span class="sig-paren">(</span><em>align</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.new_alignment" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>字揃えのスタイルを設定します。<em>align</em> の値は任意のオブジェクトを取りえますが、慣習的な値は文字列または <code class="docutils literal notranslate"><span class="pre">None</span></code> で、<code class="docutils literal notranslate"><span class="pre">None</span></code> は writer の &quot;好む&quot; 字揃えを使うことを表します。慣習的な <em>align</em> の値は <code class="docutils literal notranslate"><span class="pre">'left'</span></code>、<code class="docutils literal notranslate"><span class="pre">'center'</span></code>、<code class="docutils literal notranslate"><span class="pre">'right'</span></code>、および <code class="docutils literal notranslate"><span class="pre">'justify'</span></code> です。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.new_font">
+<code class="descclassname">writer.</code><code class="descname">new_font</code><span class="sig-paren">(</span><em>font</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.new_font" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フォントスタイルを設定します。<em>font</em> は、デバイスの標準のフォントが使われることを示す <code class="docutils literal notranslate"><span class="pre">None</span></code> か、<code class="docutils literal notranslate"><span class="pre">(size,</span> <span class="pre">italic,</span> <span class="pre">bold,</span> <span class="pre">teletype)</span></code> の形式をとるタプルになります。size はフォントサイズを示す文字列になります; 特定の文字列やその解釈はアプリケーション側で定義します。<em>italic</em>、<em>bold</em>、および <em>teletype</em> といった値はブール値で、それらの属性を使うかどうかを指定します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.new_margin">
+<code class="descclassname">writer.</code><code class="descname">new_margin</code><span class="sig-paren">(</span><em>margin</em>, <em>level</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.new_margin" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>マージンレベルを整数値 <em>level</em> に設定し、論理タグ (logical tag) を <em>margin</em> に設定します。論理タグの解釈は writer の判断に任されます; 論理タグの値に対する唯一の制限は <em>level</em> が非ゼロの値の際に偽であってはならないということです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.new_spacing">
+<code class="descclassname">writer.</code><code class="descname">new_spacing</code><span class="sig-paren">(</span><em>spacing</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.new_spacing" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>割り付けスタイル (spacing style) を <em>spacing</em> に設定します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.new_styles">
+<code class="descclassname">writer.</code><code class="descname">new_styles</code><span class="sig-paren">(</span><em>styles</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.new_styles" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>追加のスタイルを設定します。 <em>styles</em> の値は任意の値からなるタプルです; <a class="reference internal" href="#formatter.AS_IS" title="formatter.AS_IS"><code class="xref py py-const docutils literal notranslate"><span class="pre">AS_IS</span></code></a> 値は無視されます。 <em>styles</em> タプルはアプリケーションや writer の実装上の都合により、集合としても、スタックとしても解釈され得ます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.send_line_break">
+<code class="descclassname">writer.</code><code class="descname">send_line_break</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.send_line_break" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在の行を改行します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.send_paragraph">
+<code class="descclassname">writer.</code><code class="descname">send_paragraph</code><span class="sig-paren">(</span><em>blankline</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.send_paragraph" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>少なくとも <em>blankline</em> 空行分の間隔か、空行そのもので段落を分割します。 <em>blankline</em> の値は整数になります。 writer の実装では、改行を行う必要がある場合、このメソッドの呼び出しに先立って <a class="reference internal" href="#formatter.writer.send_line_break" title="formatter.writer.send_line_break"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_line_break()</span></code></a> の呼び出しを受ける必要あります; このメソッドには段落の最後の行を閉じる機能は含まれておらず、段落間に垂直スペースを空ける役割しかありません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.send_hor_rule">
+<code class="descclassname">writer.</code><code class="descname">send_hor_rule</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.send_hor_rule" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>水平罫線を出力デバイスに表示します。このメソッドへの引数は全てアプリケーションおよび writer 特有のものなので、注意して解釈する必要があります。このメソッドの実装では、すでに改行が <a class="reference internal" href="#formatter.writer.send_line_break" title="formatter.writer.send_line_break"><code class="xref py py-meth docutils literal notranslate"><span class="pre">send_line_break()</span></code></a> によってなされているものと仮定しています。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.send_flowing_data">
+<code class="descclassname">writer.</code><code class="descname">send_flowing_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.send_flowing_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>行端が折り返され、必要に応じて再割り付け解析を行った (re-flowed)  文字データを出力します。このメソッドを連続して呼び出す上では、writer は複数の空白文字は単一のスペース文字に縮約されていると仮定することがあります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.send_literal_data">
+<code class="descclassname">writer.</code><code class="descname">send_literal_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.send_literal_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>すでに表示用に書式化された文字データを出力します。これは通常、改行文字で表された改行を保存し、新たに改行を持ち込まないことを意味します。 <code class="xref py py-meth docutils literal notranslate"><span class="pre">send_formatted_data()</span></code> インタフェースと違って、データには改行やタブ文字が埋め込まれていてもかまいません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="formatter.writer.send_label_data">
+<code class="descclassname">writer.</code><code class="descname">send_label_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.writer.send_label_data" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>可能ならば、<em>data</em> を現在の左マージンの左側に設定します。<em>data</em> の値には制限がありません; 文字列でない値の扱い方はアプリケーションや writer に完全に依存します。このメソッドは行の先頭でのみ呼び出されます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="writer-implementations">
+<span id="writer-impls"></span><h2>writer 実装<a class="headerlink" href="#writer-implementations" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このモジュールでは、3 種類の writer オブジェクトインタフェース実装を提供しています。ほとんどのアプリケーションでは、 <a class="reference internal" href="#formatter.NullWriter" title="formatter.NullWriter"><code class="xref py py-class docutils literal notranslate"><span class="pre">NullWriter</span></code></a> から新しい writer クラスを派生する必要があるでしょう。</p>
+<dl class="class">
+<dt id="formatter.NullWriter">
+<em class="property">class </em><code class="descclassname">formatter.</code><code class="descname">NullWriter</code><a class="headerlink" href="#formatter.NullWriter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>インタフェース定義だけを提供する writer クラスです; どのメソッドも何ら処理を行いません。このクラスは、メソッド実装をまったく継承する必要のない writer 全ての基底クラスになります。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="formatter.AbstractWriter">
+<em class="property">class </em><code class="descclassname">formatter.</code><code class="descname">AbstractWriter</code><a class="headerlink" href="#formatter.AbstractWriter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>この writer は formatter をデバッグするのに利用できますが、それ以外に利用できるほどのものではありません。各メソッドを呼び出すと、メソッド名と引数を標準出力に印字して呼び出されたことを示します。</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="formatter.DumbWriter">
+<em class="property">class </em><code class="descclassname">formatter.</code><code class="descname">DumbWriter</code><span class="sig-paren">(</span><em>file=None</em>, <em>maxcol=72</em><span class="sig-paren">)</span><a class="headerlink" href="#formatter.DumbWriter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>単純な writer クラスで <em>file</em> に渡された <a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">ファイルオブジェクト</span></a> か <em>file</em> が省略された場合には標準出力に出力を書き込みます。出力は <em>maxcol</em> で指定されたカラム数で単純な行端折り返しが行われます。このクラスは連続した段落を再割り付けするのに適しています。</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">formatter</span></code> --- 汎用の出力書式化機構</a><ul>
+<li><a class="reference internal" href="#the-formatter-interface">formatter インタフェース</a></li>
+<li><a class="reference internal" href="#formatter-implementations">formatter 実装</a></li>
+<li><a class="reference internal" href="#the-writer-interface">writer インタフェース</a></li>
+<li><a class="reference internal" href="#writer-implementations">writer 実装</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="misc.html"
+                        title="前の章へ">各種サービス</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="windows.html"
+                        title="次の章へ">MS Windows 固有のサービス</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/formatter.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="windows.html" title="MS Windows 固有のサービス"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="各種サービス"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="misc.html" >各種サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

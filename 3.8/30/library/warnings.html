@@ -1,0 +1,606 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>warnings --- 警告の制御 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="dataclasses --- データクラス" href="dataclasses.html" />
+    <link rel="prev" title="__main__ --- トップレベルのスクリプト環境" href="__main__.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/warnings.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="dataclasses.html" title="dataclasses --- データクラス"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="__main__.html" title="__main__ --- トップレベルのスクリプト環境"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" accesskey="U">Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-warnings">
+<span id="warnings-warning-control"></span><h1><a class="reference internal" href="#module-warnings" title="warnings: Issue warning messages and control their disposition."><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> --- 警告の制御<a class="headerlink" href="#module-warnings" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/warnings.py">Lib/warnings.py</a></p>
+<hr class="docutils" id="index-0" />
+<p>警告メッセージは一般に、ユーザに警告しておいた方がよいような状況下にプログラムが置かれているが、その状況は (通常は) 例外を送出したりそのプログラムを終了させるほどの正当な理由がないといった状況で発されます。例えば、プログラムが古いモジュールを使っている場合には警告を発したくなるかもしれません。</p>
+<p>Python プログラマは、このモジュールの <a class="reference internal" href="#warnings.warn" title="warnings.warn"><code class="xref py py-func docutils literal notranslate"><span class="pre">warn()</span></code></a> 関数を使って警告を発することができます。(C 言語のプログラマは <a class="reference internal" href="../c-api/exceptions.html#c.PyErr_WarnEx" title="PyErr_WarnEx"><code class="xref c c-func docutils literal notranslate"><span class="pre">PyErr_WarnEx()</span></code></a> を使います; 詳細は <a class="reference internal" href="../c-api/exceptions.html#exceptionhandling"><span class="std std-ref">例外処理</span></a> を参照してください)。</p>
+<p>Warning messages are normally written to <a class="reference internal" href="sys.html#sys.stderr" title="sys.stderr"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a>, but their disposition
+can be changed flexibly, from ignoring all warnings to turning them into
+exceptions.  The disposition of warnings can vary based on the <a class="reference internal" href="#warning-categories"><span class="std std-ref">warning category</span></a>, the text of the warning message, and the source location where it
+is issued.  Repetitions of a particular warning for the same source location are
+typically suppressed.</p>
+<p>警告制御には 2 つの段階 (stage) があります: 第一に、警告が発されるたびに、メッセージを出力すべきかどうかの決定が行われます; 次に、メッセージを出力するなら、メッセージはユーザによって設定が可能なフックを使って書式化され印字されます。</p>
+<p>The determination whether to issue a warning message is controlled by the
+<a class="reference internal" href="#warning-filter"><span class="std std-ref">warning filter</span></a>, which is a sequence of matching rules and actions. Rules can be
+added to the filter by calling <a class="reference internal" href="#warnings.filterwarnings" title="warnings.filterwarnings"><code class="xref py py-func docutils literal notranslate"><span class="pre">filterwarnings()</span></code></a> and reset to its default
+state by calling <a class="reference internal" href="#warnings.resetwarnings" title="warnings.resetwarnings"><code class="xref py py-func docutils literal notranslate"><span class="pre">resetwarnings()</span></code></a>.</p>
+<p>警告メッセージの印字は <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> を呼び出して行うことができ、この関数は上書きすることができます; この関数の標準の実装では、 <a class="reference internal" href="#warnings.formatwarning" title="warnings.formatwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">formatwarning()</span></code></a> を呼び出して警告メッセージを書式化しますが、この関数についても自作の実装を使うことができます。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="logging.html#logging.captureWarnings" title="logging.captureWarnings"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.captureWarnings()</span></code></a> を使うことで、標準ロギング基盤ですべての警告を扱うことができます。</p>
+</div>
+<div class="section" id="warning-categories">
+<span id="id1"></span><h2>警告カテゴリ<a class="headerlink" href="#warning-categories" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>There are a number of built-in exceptions that represent warning categories.
+This categorization is useful to be able to filter out groups of warnings.</p>
+<p>While these are technically
+<a class="reference internal" href="exceptions.html#warning-categories-as-exceptions"><span class="std std-ref">built-in exceptions</span></a>, they are
+documented here, because conceptually they belong to the warnings mechanism.</p>
+<p>標準の警告カテゴリをユーザの作成したコード上でサブクラス化することで、さらに別の警告カテゴリを定義することができます。警告カテゴリは常に <a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a> クラスのサブクラスでなければなりません。</p>
+<p>The following warnings category classes are currently defined:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Class</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a></td>
+<td>すべての警告カテゴリクラスの基底クラスです。 <a class="reference internal" href="exceptions.html#Exception" title="Exception"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code></a> のサブクラスです。</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="exceptions.html#UserWarning" title="UserWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UserWarning</span></code></a></td>
+<td><a class="reference internal" href="#warnings.warn" title="warnings.warn"><code class="xref py py-func docutils literal notranslate"><span class="pre">warn()</span></code></a> の標準のカテゴリです。</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a></td>
+<td>Base category for warnings about deprecated
+features when those warnings are intended for
+other Python developers (ignored by default,
+unless triggered by code in <code class="docutils literal notranslate"><span class="pre">__main__</span></code>).</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="exceptions.html#SyntaxWarning" title="SyntaxWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxWarning</span></code></a></td>
+<td>その文法機能があいまいであることを示す警告カテゴリの基底クラスです。</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="exceptions.html#RuntimeWarning" title="RuntimeWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeWarning</span></code></a></td>
+<td>そのランタイム機能があいまいであることを示す警告カテゴリの基底クラスです。</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="exceptions.html#FutureWarning" title="FutureWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FutureWarning</span></code></a></td>
+<td>Base category for warnings about deprecated
+features when those warnings are intended for
+end users of applications that are written in
+Python.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="exceptions.html#PendingDeprecationWarning" title="PendingDeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PendingDeprecationWarning</span></code></a></td>
+<td>将来その機能が廃止されることを示す警告カテゴリの基底クラスです(デフォルトでは無視されます)。</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="exceptions.html#ImportWarning" title="ImportWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ImportWarning</span></code></a></td>
+<td>モジュールのインポート処理中に引き起こされる警告カテゴリの基底クラスです(デフォルトでは無視されます)。</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="exceptions.html#UnicodeWarning" title="UnicodeWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeWarning</span></code></a></td>
+<td>Unicode に関係した警告カテゴリの基底クラスです。</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="exceptions.html#BytesWarning" title="BytesWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BytesWarning</span></code></a></td>
+<td><a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> や <a class="reference internal" href="stdtypes.html#bytearray" title="bytearray"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytearray</span></code></a> に関連した警告カテゴリの基底クラスです。</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="exceptions.html#ResourceWarning" title="ResourceWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ResourceWarning</span></code></a></td>
+<td>リソースの使用に関連した警告カテゴリの基底クラスです。</td>
+</tr>
+</tbody>
+</table>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Previously <a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> and <a class="reference internal" href="exceptions.html#FutureWarning" title="FutureWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FutureWarning</span></code></a> were
+distinguished based on whether a feature was being removed entirely or
+changing its behaviour. They are now distinguished based on their
+intended audience and the way they're handled by the default warnings
+filters.</p>
+</div>
+</div>
+<div class="section" id="the-warnings-filter">
+<span id="warning-filter"></span><h2>警告フィルタ<a class="headerlink" href="#the-warnings-filter" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>警告フィルタは、ある警告を無視すべきか、表示すべきか、あるいは (例外を送出する) エラーにするべきかを制御します。</p>
+<p>Conceptually, the warnings filter maintains an ordered list of filter
+specifications; any specific warning is matched against each filter
+specification in the list in turn until a match is found; the filter determines
+the disposition of the match.  Each entry is a tuple of the form (<em>action</em>,
+<em>message</em>, <em>category</em>, <em>module</em>, <em>lineno</em>), where:</p>
+<ul>
+<li><p class="first"><em>action</em> は以下の文字列のうちの一つです:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">値</th>
+<th class="head">処理方法</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code></td>
+<td>print the first occurrence of matching
+warnings for each location (module +
+line number) where the warning is issued</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">&quot;error&quot;</span></code></td>
+<td>一致した警告を例外に変えます</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">&quot;ignore&quot;</span></code></td>
+<td>一致した警告を出力しません</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">&quot;always&quot;</span></code></td>
+<td>一致した警告を常に出力します</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">&quot;module&quot;</span></code></td>
+<td>print the first occurrence of matching
+warnings for each module where the warning
+is issued (regardless of line number)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">&quot;once&quot;</span></code></td>
+<td>一致した警告のうち、警告の原因になった場所にかかわらず最初の警告のみ出力します</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first"><em>message</em> は正規表現を含む文字列で、警告メッセージの先頭はこのパターンに一致しなければなりません。正規表現は常に大小文字の区別をしないようにコンパイルされます。</p>
+</li>
+<li><p class="first"><em>category</em> はクラス (<a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a> のサブクラス) です。警告クラスはこのクラスのサブクラスに一致しなければなりません。</p>
+</li>
+<li><p class="first"><em>module</em> は正規表現を含む文字列で、モジュール名はこのパターンに一致しなければなりません。正規表現は常に大小文字の区別をしないようにコンパイルされます。</p>
+</li>
+<li><p class="first"><em>lineno</em> は整数で、警告が発生した場所の行番号に一致しなければなりません。<code class="docutils literal notranslate"><span class="pre">0</span></code> の場合はすべての行と一致します。</p>
+</li>
+</ul>
+<p><a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a> クラスは組み込みの <a class="reference internal" href="exceptions.html#Exception" title="Exception"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code></a> クラスから派生しているので、警告をエラーに変換するには単に <code class="docutils literal notranslate"><span class="pre">category(message)</span></code> を <code class="docutils literal notranslate"><span class="pre">raise</span></code> します。</p>
+<p>If a warning is reported and doesn't match any registered filter then the
+&quot;default&quot; action is applied (hence its name).</p>
+<div class="section" id="describing-warning-filters">
+<span id="id2"></span><h3>Describing Warning Filters<a class="headerlink" href="#describing-warning-filters" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>The warnings filter is initialized by <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span></code></a> options passed to the Python
+interpreter command line and the <span class="target" id="index-1"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONWARNINGS"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONWARNINGS</span></code></a> environment variable.
+The interpreter saves the arguments for all supplied entries without
+interpretation in <a class="reference internal" href="sys.html#sys.warnoptions" title="sys.warnoptions"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.warnoptions</span></code></a>; the <a class="reference internal" href="#module-warnings" title="warnings: Issue warning messages and control their disposition."><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module parses these
+when it is first imported (invalid options are ignored, after printing a
+message to <a class="reference internal" href="sys.html#sys.stderr" title="sys.stderr"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a>).</p>
+<p>Individual warnings filters are specified as a sequence of fields separated by
+colons:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">action</span><span class="p">:</span><span class="n">message</span><span class="p">:</span><span class="n">category</span><span class="p">:</span><span class="n">module</span><span class="p">:</span><span class="n">line</span>
+</pre></div>
+</div>
+<p>The meaning of each of these fields is as described in <a class="reference internal" href="#warning-filter"><span class="std std-ref">警告フィルタ</span></a>.
+When listing multiple filters on a single line (as for
+<span class="target" id="index-2"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONWARNINGS"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONWARNINGS</span></code></a>), the individual filters are separated by commas and
+the filters listed later take precedence over those listed before them (as
+they're applied left-to-right, and the most recently applied filters take
+precedence over earlier ones).</p>
+<p>Commonly used warning filters apply to either all warnings, warnings in a
+particular category, or warnings raised by particular modules or packages.
+Some examples:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">default</span>                      <span class="c1"># Show all warnings (even those ignored by default)</span>
+<span class="n">ignore</span>                       <span class="c1"># Ignore all warnings</span>
+<span class="n">error</span>                        <span class="c1"># Convert all warnings to errors</span>
+<span class="n">error</span><span class="p">::</span><span class="ne">ResourceWarning</span>       <span class="c1"># Treat ResourceWarning messages as errors</span>
+<span class="n">default</span><span class="p">::</span><span class="ne">DeprecationWarning</span>  <span class="c1"># Show DeprecationWarning messages</span>
+<span class="n">ignore</span><span class="p">,</span><span class="n">default</span><span class="p">:::</span><span class="n">mymodule</span>    <span class="c1"># Only report warnings triggered by &quot;mymodule&quot;</span>
+<span class="n">error</span><span class="p">:::</span><span class="n">mymodule</span><span class="p">[</span><span class="o">.*</span><span class="p">]</span>         <span class="c1"># Convert warnings to errors in &quot;mymodule&quot;</span>
+                             <span class="c1"># and any subpackages of &quot;mymodule&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="default-warning-filter">
+<span id="id3"></span><h3>Default Warning Filter<a class="headerlink" href="#default-warning-filter" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>By default, Python installs several warning filters, which can be overridden by
+the <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span></code></a> command-line option, the <span class="target" id="index-3"></span><a class="reference internal" href="../using/cmdline.html#envvar-PYTHONWARNINGS"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">PYTHONWARNINGS</span></code></a> environment
+variable and calls to <a class="reference internal" href="#warnings.filterwarnings" title="warnings.filterwarnings"><code class="xref py py-func docutils literal notranslate"><span class="pre">filterwarnings()</span></code></a>.</p>
+<p>In regular release builds, the default warning filter has the following entries
+(in order of precedence):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">default</span><span class="p">::</span><span class="ne">DeprecationWarning</span><span class="p">:</span><span class="n">__main__</span>
+<span class="n">ignore</span><span class="p">::</span><span class="ne">DeprecationWarning</span>
+<span class="n">ignore</span><span class="p">::</span><span class="ne">PendingDeprecationWarning</span>
+<span class="n">ignore</span><span class="p">::</span><span class="ne">ImportWarning</span>
+<span class="n">ignore</span><span class="p">::</span><span class="ne">ResourceWarning</span>
+</pre></div>
+</div>
+<p>In debug builds, the list of default warning filters is empty.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.2 で変更: </span><a class="reference internal" href="exceptions.html#PendingDeprecationWarning" title="PendingDeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PendingDeprecationWarning</span></code></a> に加えて、 <a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> もデフォルトで無視されるようになりました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> is once again shown by default when triggered
+directly by code in <code class="docutils literal notranslate"><span class="pre">__main__</span></code>.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><a class="reference internal" href="exceptions.html#BytesWarning" title="BytesWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BytesWarning</span></code></a> no longer appears in the default filter list and is
+instead configured via <a class="reference internal" href="sys.html#sys.warnoptions" title="sys.warnoptions"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.warnoptions</span></code></a> when <a class="reference internal" href="../using/cmdline.html#cmdoption-b"><code class="xref std std-option docutils literal notranslate"><span class="pre">-b</span></code></a> is specified
+twice.</p>
+</div>
+</div>
+<div class="section" id="overriding-the-default-filter">
+<span id="warning-disable"></span><h3>Overriding the default filter<a class="headerlink" href="#overriding-the-default-filter" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Developers of applications written in Python may wish to hide <em>all</em> Python level
+warnings from their users by default, and only display them when running tests
+or otherwise working on the application. The <a class="reference internal" href="sys.html#sys.warnoptions" title="sys.warnoptions"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.warnoptions</span></code></a> attribute
+used to pass filter configurations to the interpreter can be used as a marker to
+indicate whether or not warnings should be disabled:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Developers of test runners for Python code are advised to instead ensure that
+<em>all</em> warnings are displayed by default for the code under test, using code
+like:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">warnings</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">)</span> <span class="c1"># Change the filter in this process</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYTHONWARNINGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span> <span class="c1"># Also affect subprocesses</span>
+</pre></div>
+</div>
+<p>Finally, developers of interactive shells that run user code in a namespace
+other than <code class="docutils literal notranslate"><span class="pre">__main__</span></code> are advised to ensure that <a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a>
+messages are made visible by default, using code like the following (where
+<code class="docutils literal notranslate"><span class="pre">user_ns</span></code> is the module used to execute code entered interactively):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">,</span>
+                                   <span class="n">module</span><span class="o">=</span><span class="n">user_ns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__name__&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="temporarily-suppressing-warnings">
+<span id="warning-suppress"></span><h2>一時的に警告を抑制する<a class="headerlink" href="#temporarily-suppressing-warnings" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>If you are using code that you know will raise a warning, such as a deprecated
+function, but do not want to see the warning (even when warnings have been
+explicitly configured via the command line), then it is possible to suppress
+the warning using the <a class="reference internal" href="#warnings.catch_warnings" title="warnings.catch_warnings"><code class="xref py py-class docutils literal notranslate"><span class="pre">catch_warnings</span></code></a> context manager:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">def</span> <span class="nf">fxn</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+    <span class="n">fxn</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>このサンプルのコンテキストマネージャーの中では、すべての警告が無視されています。これで、他の廃止予定のコードを含まない(つもりの)部分まで警告を抑止せずに、廃止予定だと分かっているコードだけ警告を表示させないようにすることができます。注意: これが保証できるのはシングルスレッドのアプリケーションだけです。 2つ以上のスレッドが同時に <a class="reference internal" href="#warnings.catch_warnings" title="warnings.catch_warnings"><code class="xref py py-class docutils literal notranslate"><span class="pre">catch_warnings</span></code></a> コンテキストマネージャーを使用した場合、動作は未定義です。</p>
+</div>
+<div class="section" id="testing-warnings">
+<span id="warning-testing"></span><h2>警告のテスト<a class="headerlink" href="#testing-warnings" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>コードが警告を発生させることをテストするには、 <a class="reference internal" href="#warnings.catch_warnings" title="warnings.catch_warnings"><code class="xref py py-class docutils literal notranslate"><span class="pre">catch_warnings</span></code></a> コンテキストマネージャーを利用します。このクラスを使うと、一時的に警告フィルタを操作してテストに利用できます。例えば、次のコードでは、発生したすべての警告を取得してチェックしています:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">def</span> <span class="nf">fxn</span><span class="p">():</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+    <span class="c1"># Cause all warnings to always be triggered.</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+    <span class="c1"># Trigger a warning.</span>
+    <span class="n">fxn</span><span class="p">()</span>
+    <span class="c1"># Verify some things</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">category</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;deprecated&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">always</span></code> の代わりに <code class="docutils literal notranslate"><span class="pre">error</span></code> を利用することで、すべての警告で例外を発生させることができます。1つ気をつけないといけないのは、一度 <code class="docutils literal notranslate"><span class="pre">once</span></code>/<code class="docutils literal notranslate"><span class="pre">default</span></code> ルールによって発生した警告は、フィルタに何をセットしているかにかかわらず、警告レジストリをクリアしない限りは 2度と発生しません。</p>
+<p>コンテキストマネージャーが終了したら、警告フィルタはコンテキストマネージャーに入る前のものに戻されます。これは、テスト中に予期しない方法で警告フィルタが変更され、テスト結果が中途半端になる事を予防します。このモジュールの <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> 関数も元の値に戻されます。注意: これが保証できるのはシングルスレッドのアプリケーションだけです。 2つ以上のスレッドが同時に <a class="reference internal" href="#warnings.catch_warnings" title="warnings.catch_warnings"><code class="xref py py-class docutils literal notranslate"><span class="pre">catch_warnings</span></code></a> コンテキストマネージャを使用した場合、動作は未定義です。</p>
+<p>同じ種類の警告を発生させる複数の操作をテストする場合、各操作が新しい警告を発生させている事を確認するのは大切な事です (例えば、警告を例外として発生させて各操作が例外を発生させることを確認したり、警告リストの長さが各操作で増加していることを確認したり、警告リストを各操作の前に毎回クリアする事ができます)。</p>
+</div>
+<div class="section" id="updating-code-for-new-versions-of-dependencies">
+<span id="warning-ignored"></span><h2>Updating Code For New Versions of Dependencies<a class="headerlink" href="#updating-code-for-new-versions-of-dependencies" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Warning categories that are primarily of interest to Python developers (rather
+than end users of applications written in Python) are ignored by default.</p>
+<p>Notably, this &quot;ignored by default&quot; list includes <a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a>
+(for every module except <code class="docutils literal notranslate"><span class="pre">__main__</span></code>), which means developers should make sure
+to test their code with typically ignored warnings made visible in order to
+receive timely notifications of future breaking API changes (whether in the
+standard library or third party packages).</p>
+<p>In the ideal case, the code will have a suitable test suite, and the test runner
+will take care of implicitly enabling all warnings when running tests
+(the test runner provided by the <a class="reference internal" href="unittest.html#module-unittest" title="unittest: Unit testing framework for Python."><code class="xref py py-mod docutils literal notranslate"><span class="pre">unittest</span></code></a> module does this).</p>
+<p>In less ideal cases, applications can be checked for use of deprecated
+interfaces by passing <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-Wd</span></code></a> to the Python interpreter (this is
+shorthand for <code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span> <span class="pre">default</span></code>) or setting <code class="docutils literal notranslate"><span class="pre">PYTHONWARNINGS=default</span></code> in
+the environment. This enables default handling for all warnings, including those
+that are ignored by default. To change what action is taken for encountered
+warnings you can change what argument is passed to <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span></code></a> (e.g.
+<code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span> <span class="pre">error</span></code>). See the <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span></code></a> flag for more details on what is
+possible.</p>
+</div>
+<div class="section" id="available-functions">
+<span id="warning-functions"></span><h2>利用可能な関数<a class="headerlink" href="#available-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="warnings.warn">
+<code class="descclassname">warnings.</code><code class="descname">warn</code><span class="sig-paren">(</span><em>message</em>, <em>category=None</em>, <em>stacklevel=1</em>, <em>source=None</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.warn" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Issue a warning, or maybe ignore it or raise an exception.  The <em>category</em>
+argument, if given, must be a <a class="reference internal" href="#warning-categories"><span class="std std-ref">warning category class</span></a>; it
+defaults to <a class="reference internal" href="exceptions.html#UserWarning" title="UserWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UserWarning</span></code></a>.  Alternatively, <em>message</em> can be a <a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a> instance,
+in which case <em>category</em> will be ignored and <code class="docutils literal notranslate"><span class="pre">message.__class__</span></code> will be used.
+In this case, the message text will be <code class="docutils literal notranslate"><span class="pre">str(message)</span></code>. This function raises an
+exception if the particular warning issued is changed into an error by the
+<a class="reference internal" href="#warning-filter"><span class="std std-ref">warnings filter</span></a>.  The <em>stacklevel</em> argument can be used by wrapper
+functions written in Python, like this:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">deprecation</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>こうすることで、警告が参照するソースコード部分を、 <code class="xref py py-func docutils literal notranslate"><span class="pre">deprecation()</span></code> 自身ではなく <code class="xref py py-func docutils literal notranslate"><span class="pre">deprecation()</span></code> を呼び出した側にできます (というのも、前者の場合は警告メッセージの目的を台無しにしてしまうからです)。</p>
+<p><em>source</em> 引数が与えられた場合、これは <a class="reference internal" href="exceptions.html#ResourceWarning" title="ResourceWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ResourceWarning</span></code></a> を発生させた破壊されたオブジェクトです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><em>source</em> 引数を追加しました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="warnings.warn_explicit">
+<code class="descclassname">warnings.</code><code class="descname">warn_explicit</code><span class="sig-paren">(</span><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>module=None</em>, <em>registry=None</em>, <em>module_globals=None</em>, <em>source=None</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.warn_explicit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#warnings.warn" title="warnings.warn"><code class="xref py py-func docutils literal notranslate"><span class="pre">warn()</span></code></a> の機能に対する低レベルのインタフェースで、メッセージ、警告カテゴリ、ファイル名および行番号、そしてオプションのモジュール名およびレジストリ情報 (モジュールの  <code class="docutils literal notranslate"><span class="pre">__warningregistry__</span></code> 辞書) を明示的に渡します。モジュール名は標準で <code class="docutils literal notranslate"><span class="pre">.py</span></code> が取り去られたファイル名になります; レジストリが渡されなかった場合、警告が抑制されることはありません。 <em>message</em> が文字列のとき、 <em>category</em> は <a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a> のサブクラスでなければなりません。また <em>message</em> は <a class="reference internal" href="exceptions.html#Warning" title="Warning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Warning</span></code></a> のインスタンスであってもよく、この場合 <em>category</em> は無視されます。</p>
+<p><em>module_globals</em> は、もし与えられるならば、警告が発せられるコードが使っているグローバル名前空間でなければなりません (この引数は zipfile やその他の非ファイルシステムのインポート元の中にあるモジュールのソースを表示することをサポートするためのものです)。</p>
+<p><em>source</em> 引数が与えられた場合、これは <a class="reference internal" href="exceptions.html#ResourceWarning" title="ResourceWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ResourceWarning</span></code></a> を発生させた破壊されたオブジェクトです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><em>source</em> 引数を追加しました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="warnings.showwarning">
+<code class="descclassname">warnings.</code><code class="descname">showwarning</code><span class="sig-paren">(</span><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>file=None</em>, <em>line=None</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.showwarning" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Write a warning to a file.  The default implementation calls
+<code class="docutils literal notranslate"><span class="pre">formatwarning(message,</span> <span class="pre">category,</span> <span class="pre">filename,</span> <span class="pre">lineno,</span> <span class="pre">line)</span></code> and writes the
+resulting string to <em>file</em>, which defaults to <a class="reference internal" href="sys.html#sys.stderr" title="sys.stderr"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a>.  You may replace
+this function with any callable by assigning to <code class="docutils literal notranslate"><span class="pre">warnings.showwarning</span></code>.
+<em>line</em> is a line of source code to be included in the warning
+message; if <em>line</em> is not supplied, <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> will
+try to read the line specified by <em>filename</em> and <em>lineno</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="warnings.formatwarning">
+<code class="descclassname">warnings.</code><code class="descname">formatwarning</code><span class="sig-paren">(</span><em>message</em>, <em>category</em>, <em>filename</em>, <em>lineno</em>, <em>line=None</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.formatwarning" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>警告を通常の方法で書式化します。返される文字列内には改行が埋め込まれている可能性があり、かつ文字列は改行で終端されています。 <em>line</em> は警告メッセージに含まれるソースコードの1行です。 <em>line</em> が渡されない場合、 <a class="reference internal" href="#warnings.formatwarning" title="warnings.formatwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">formatwarning()</span></code></a> は <em>filename</em> と <em>lineno</em> から行の取得を試みます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="warnings.filterwarnings">
+<code class="descclassname">warnings.</code><code class="descname">filterwarnings</code><span class="sig-paren">(</span><em>action</em>, <em>message=''</em>, <em>category=Warning</em>, <em>module=''</em>, <em>lineno=0</em>, <em>append=False</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.filterwarnings" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#warning-filter"><span class="std std-ref">警告フィルタ仕様</span></a> のリストにエントリを一つ挿入します。標準ではエントリは先頭に挿入されます; <em>append</em> が真ならば、末尾に挿入されます。この関数は引数の型をチェックし、 <em>message</em> および <em>module</em> の正規表現をコンパイルしてから、これらをタプルにして警告フィルタのリストに挿入します。二つのエントリが特定の警告に合致した場合、リストの先頭に近い方のエントリが後方にあるエントリに優先します。引数が省略されると、標準ではすべてにマッチする値に設定されます。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="warnings.simplefilter">
+<code class="descclassname">warnings.</code><code class="descname">simplefilter</code><span class="sig-paren">(</span><em>action</em>, <em>category=Warning</em>, <em>lineno=0</em>, <em>append=False</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.simplefilter" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>単純なエントリを <a class="reference internal" href="#warning-filter"><span class="std std-ref">警告フィルタ仕様</span></a> のリストに挿入します。引数の意味は <a class="reference internal" href="#warnings.filterwarnings" title="warnings.filterwarnings"><code class="xref py py-func docutils literal notranslate"><span class="pre">filterwarnings()</span></code></a> と同じですが、この関数により挿入されるフィルタはカテゴリと行番号が一致していればすべてのモジュールのすべてのメッセージに合致しますので、正規表現は必要ありません。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="warnings.resetwarnings">
+<code class="descclassname">warnings.</code><code class="descname">resetwarnings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#warnings.resetwarnings" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>警告フィルタをリセットします。これにより、 <a class="reference internal" href="../using/cmdline.html#cmdoption-w"><code class="xref std std-option docutils literal notranslate"><span class="pre">-W</span></code></a> コマンドラインオプションによるもの <a class="reference internal" href="#warnings.simplefilter" title="warnings.simplefilter"><code class="xref py py-func docutils literal notranslate"><span class="pre">simplefilter()</span></code></a> 呼び出しによるものを含め、 <a class="reference internal" href="#warnings.filterwarnings" title="warnings.filterwarnings"><code class="xref py py-func docutils literal notranslate"><span class="pre">filterwarnings()</span></code></a> の呼び出しによる影響はすべて無効化されます。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="available-context-managers">
+<h2>利用可能なコンテキストマネージャー<a class="headerlink" href="#available-context-managers" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="warnings.catch_warnings">
+<em class="property">class </em><code class="descclassname">warnings.</code><code class="descname">catch_warnings</code><span class="sig-paren">(</span><em>*</em>, <em>record=False</em>, <em>module=None</em><span class="sig-paren">)</span><a class="headerlink" href="#warnings.catch_warnings" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>警告フィルタと <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> 関数をコピーし、終了時に復元するコンテキストマネージャーです。 <em>record</em> 引数が <a class="reference internal" href="constants.html#False" title="False"><code class="xref py py-const docutils literal notranslate"><span class="pre">False</span></code></a> (デフォルト値)だった場合、コンテキスト開始時には <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> を返します。もし <em>record</em> が <a class="reference internal" href="constants.html#True" title="True"><code class="xref py py-const docutils literal notranslate"><span class="pre">True</span></code></a> だった場合、リストを返します。このリストにはカスタムの <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> 関数(この関数は同時に <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> への出力を抑制します)によってオブジェクトが継続的に追加されます。リストの中の各オブジェクトは、 <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> 関数の引数と同じ名前の属性を持っています。</p>
+<p><em>module</em> 引数は、保護したいフィルタを持つモジュールを取ります。 <a class="reference internal" href="#module-warnings" title="warnings: Issue warning messages and control their disposition."><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> を import して得られるモジュールの代わりに利用されます。この引数は、主に <a class="reference internal" href="#module-warnings" title="warnings: Issue warning messages and control their disposition."><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> モジュール自体をテストする目的で追加されました。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last"><a class="reference internal" href="#warnings.catch_warnings" title="warnings.catch_warnings"><code class="xref py py-class docutils literal notranslate"><span class="pre">catch_warnings</span></code></a> マネージャーは、モジュールの <a class="reference internal" href="#warnings.showwarning" title="warnings.showwarning"><code class="xref py py-func docutils literal notranslate"><span class="pre">showwarning()</span></code></a> 関数と内部のフィルタ仕様のリストを置き換え、その後復元することによって動作しています。これは、コンテキストマネージャーがグローバルな状態を変更していることを意味していて、したがってスレッドセーフではありません。</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">warnings</span></code> --- 警告の制御</a><ul>
+<li><a class="reference internal" href="#warning-categories">警告カテゴリ</a></li>
+<li><a class="reference internal" href="#the-warnings-filter">警告フィルタ</a><ul>
+<li><a class="reference internal" href="#describing-warning-filters">Describing Warning Filters</a></li>
+<li><a class="reference internal" href="#default-warning-filter">Default Warning Filter</a></li>
+<li><a class="reference internal" href="#overriding-the-default-filter">Overriding the default filter</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#temporarily-suppressing-warnings">一時的に警告を抑制する</a></li>
+<li><a class="reference internal" href="#testing-warnings">警告のテスト</a></li>
+<li><a class="reference internal" href="#updating-code-for-new-versions-of-dependencies">Updating Code For New Versions of Dependencies</a></li>
+<li><a class="reference internal" href="#available-functions">利用可能な関数</a></li>
+<li><a class="reference internal" href="#available-context-managers">利用可能なコンテキストマネージャー</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="__main__.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">__main__</span></code> --- トップレベルのスクリプト環境</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="dataclasses.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">dataclasses</span></code> --- データクラス</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/warnings.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="dataclasses.html" title="dataclasses --- データクラス"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="__main__.html" title="__main__ --- トップレベルのスクリプト環境"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="python.html" >Python ランタイムサービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

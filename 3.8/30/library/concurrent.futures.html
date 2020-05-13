@@ -1,0 +1,674 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>concurrent.futures -- 並列タスク実行 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="subprocess --- サブプロセス管理" href="subprocess.html" />
+    <link rel="prev" title="concurrent パッケージ" href="concurrent.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/concurrent.futures.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="subprocess.html" title="subprocess --- サブプロセス管理"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="concurrent.html" title="concurrent パッケージ"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="concurrency.html" accesskey="U">並行実行</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-concurrent.futures">
+<span id="concurrent-futures-launching-parallel-tasks"></span><h1><a class="reference internal" href="#module-concurrent.futures" title="concurrent.futures: Execute computations concurrently using threads or processes."><code class="xref py py-mod docutils literal notranslate"><span class="pre">concurrent.futures</span></code></a> -- 並列タスク実行<a class="headerlink" href="#module-concurrent.futures" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/concurrent/futures/thread.py">Lib/concurrent/futures/thread.py</a> および <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/concurrent/futures/process.py">Lib/concurrent/futures/process.py</a></p>
+<hr class="docutils" />
+<p><a class="reference internal" href="#module-concurrent.futures" title="concurrent.futures: Execute computations concurrently using threads or processes."><code class="xref py py-mod docutils literal notranslate"><span class="pre">concurrent.futures</span></code></a> モジュールは、非同期に実行できる呼び出し可能オブジェクトの高水準のインタフェースを提供します。</p>
+<p>非同期実行は <a class="reference internal" href="#concurrent.futures.ThreadPoolExecutor" title="concurrent.futures.ThreadPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadPoolExecutor</span></code></a> を用いてスレッドで実行することも、  <a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a> を用いて別々のプロセスで実行することもできます.  どちらも <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> 抽象クラスで定義された同じインターフェースを実装します。</p>
+<div class="section" id="executor-objects">
+<h2>Executor オブジェクト<a class="headerlink" href="#executor-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="class">
+<dt id="concurrent.futures.Executor">
+<em class="property">class </em><code class="descclassname">concurrent.futures.</code><code class="descname">Executor</code><a class="headerlink" href="#concurrent.futures.Executor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>非同期呼び出しを実行するためのメソッドを提供する抽象クラスです。このクラスを直接使ってはならず、具象サブクラスを介して使います。</p>
+<blockquote>
+<div><dl class="method">
+<dt id="concurrent.futures.Executor.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><em>fn</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Executor.submit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出し可能オブジェクト <em>fn</em> を、 <code class="docutils literal notranslate"><span class="pre">fn(*args</span> <span class="pre">**kwargs)</span></code> として実行するようにスケジュールし、呼び出し可能オブジェクトの実行を表現する <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> オブジェクトを返します。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+    <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="nb">pow</span><span class="p">,</span> <span class="mi">323</span><span class="p">,</span> <span class="mi">1235</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Executor.map">
+<code class="descname">map</code><span class="sig-paren">(</span><em>func</em>, <em>*iterables</em>, <em>timeout=None</em>, <em>chunksize=1</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Executor.map" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Similar to <a class="reference internal" href="functions.html#map" title="map"><code class="xref py py-func docutils literal notranslate"><span class="pre">map(func,</span> <span class="pre">*iterables)</span></code></a> except:</p>
+<ul class="simple">
+<li>the <em>iterables</em> are collected immediately rather than lazily;</li>
+<li><em>func</em> is executed asynchronously and several calls to
+<em>func</em> may be made concurrently.</li>
+</ul>
+<p>The returned iterator raises a <a class="reference internal" href="#concurrent.futures.TimeoutError" title="concurrent.futures.TimeoutError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">concurrent.futures.TimeoutError</span></code></a>
+if <a class="reference internal" href="stdtypes.html#iterator.__next__" title="iterator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a> is called and the result isn't available
+after <em>timeout</em> seconds from the original call to <a class="reference internal" href="#concurrent.futures.Executor.map" title="concurrent.futures.Executor.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Executor.map()</span></code></a>.
+<em>timeout</em> can be an int or a float.  If <em>timeout</em> is not specified or
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, there is no limit to the wait time.</p>
+<p>If a <em>func</em> call raises an exception, then that exception will be
+raised when its value is retrieved from the iterator.</p>
+<p>When using <a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a>, this method chops <em>iterables</em>
+into a number of chunks which it submits to the pool as separate
+tasks.  The (approximate) size of these chunks can be specified by
+setting <em>chunksize</em> to a positive integer.  For very long iterables,
+using a large value for <em>chunksize</em> can significantly improve
+performance compared to the default size of 1.  With
+<a class="reference internal" href="#concurrent.futures.ThreadPoolExecutor" title="concurrent.futures.ThreadPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadPoolExecutor</span></code></a>, <em>chunksize</em> has no effect.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><em>chunksize</em> 引数が追加されました。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Executor.shutdown">
+<code class="descname">shutdown</code><span class="sig-paren">(</span><em>wait=True</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Executor.shutdown" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>executor に対して、現在保留中のフューチャーが実行された後で、使用中のすべての資源を解放するように伝えます。シャットダウンにより後に <a class="reference internal" href="#concurrent.futures.Executor.submit" title="concurrent.futures.Executor.submit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Executor.submit()</span></code></a> と <a class="reference internal" href="#concurrent.futures.Executor.map" title="concurrent.futures.Executor.map"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Executor.map()</span></code></a> を呼び出すと <a class="reference internal" href="exceptions.html#RuntimeError" title="RuntimeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> が送出されます。</p>
+<p><em>wait</em> が <code class="docutils literal notranslate"><span class="pre">True</span></code> の場合、すべての未完了のフューチャの実行が完了して Executor に関連付けられたリソースが解放されるまで、このメソッドは返りません。 <em>wait</em> が <code class="docutils literal notranslate"><span class="pre">False</span></code> の場合、このメソッドはすぐに返り、すべての未完了のフューチャの実行が完了したときに、 Executor に関連付けられたリソースが解放されます。 <em>wait</em> の値に関係なく、すべての未完了のフューチャの実行が完了するまで Python プログラム全体は終了しません。</p>
+<p><a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> 文を使用することで、このメソッドを明示的に呼ばないようにできます。 <a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> 文は  <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> をシャットダウンします (<em>wait</em> を <code class="docutils literal notranslate"><span class="pre">True</span></code> にセットして <a class="reference internal" href="#concurrent.futures.Executor.shutdown" title="concurrent.futures.Executor.shutdown"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Executor.shutdown()</span></code></a> が呼ばれたかのように待ちます)。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
+<span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">,</span> <span class="s1">&#39;src1.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;dest1.txt&#39;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">,</span> <span class="s1">&#39;src2.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;dest2.txt&#39;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">,</span> <span class="s1">&#39;src3.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;dest3.txt&#39;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">,</span> <span class="s1">&#39;src4.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;dest4.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="threadpoolexecutor">
+<h2>ThreadPoolExecutor<a class="headerlink" href="#threadpoolexecutor" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#concurrent.futures.ThreadPoolExecutor" title="concurrent.futures.ThreadPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadPoolExecutor</span></code></a> はスレッドのプールを使用して非同期に呼び出しを行う、 <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> のサブクラスです。</p>
+<p><a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> に関連づけられた呼び出し可能オブジェクトが、別の <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> の結果を待つ時にデッドロックすることがあります。例:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="k">def</span> <span class="nf">wait_on_b</span><span class="p">():</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>  <span class="c1"># b will never complete because it is waiting on a.</span>
+    <span class="k">return</span> <span class="mi">5</span>
+
+<span class="k">def</span> <span class="nf">wait_on_a</span><span class="p">():</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>  <span class="c1"># a will never complete because it is waiting on b.</span>
+    <span class="k">return</span> <span class="mi">6</span>
+
+
+<span class="n">executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">wait_on_b</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">wait_on_a</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>以下でも同様です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">wait_on_future</span><span class="p">():</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="nb">pow</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># This will never complete because there is only one worker thread and</span>
+    <span class="c1"># it is executing this function.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+
+<span class="n">executor</span> <span class="o">=</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">wait_on_future</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="concurrent.futures.ThreadPoolExecutor">
+<em class="property">class </em><code class="descclassname">concurrent.futures.</code><code class="descname">ThreadPoolExecutor</code><span class="sig-paren">(</span><em>max_workers=None</em>, <em>thread_name_prefix=''</em>, <em>initializer=None</em>, <em>initargs=()</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.ThreadPoolExecutor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最大で <em>max_workers</em> 個のスレッドを非同期実行に使う <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> のサブクラスです。</p>
+<p><em>initializer</em> is an optional callable that is called at the start of
+each worker thread; <em>initargs</em> is a tuple of arguments passed to the
+initializer.  Should <em>initializer</em> raise an exception, all currently
+pending jobs will raise a <a class="reference internal" href="#concurrent.futures.thread.BrokenThreadPool" title="concurrent.futures.thread.BrokenThreadPool"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BrokenThreadPool</span></code></a>,
+as well as any attempt to submit more jobs to the pool.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span><em>max_workers</em> が <code class="docutils literal notranslate"><span class="pre">None</span></code> か指定されない場合のデフォルト値はマシンのプロセッサの数に 5 を掛けたものになります。これは、 <a class="reference internal" href="#concurrent.futures.ThreadPoolExecutor" title="concurrent.futures.ThreadPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadPoolExecutor</span></code></a> は CPU の処理ではなく I/O をオーバーラップするのによく使用されるため、 <a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a> のワーカーの数よりもこのワーカーの数を増やすべきであるという想定に基づいています。</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加: </span>The <em>thread_name_prefix</em> argument was added to allow users to
+control the <a class="reference internal" href="threading.html#threading.Thread" title="threading.Thread"><code class="xref py py-class docutils literal notranslate"><span class="pre">threading.Thread</span></code></a> names for worker threads created by
+the pool for easier debugging.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>Added the <em>initializer</em> and <em>initargs</em> arguments.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>Default value of <em>max_workers</em> is changed to <code class="docutils literal notranslate"><span class="pre">min(32,</span> <span class="pre">os.cpu_count()</span> <span class="pre">+</span> <span class="pre">4)</span></code>.
+This default value preserves at least 5 workers for I/O bound tasks.
+It utilizes at most 32 CPU cores for CPU bound tasks which release the GIL.
+And it avoids using very large resources implicitly on many-core machines.</p>
+<p>ThreadPoolExecutor now reuses idle worker threads before starting
+<em>max_workers</em> worker threads too.</p>
+</div>
+</dd></dl>
+
+<div class="section" id="threadpoolexecutor-example">
+<span id="id1"></span><h3>ThreadPoolExecutor の例<a class="headerlink" href="#threadpoolexecutor-example" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">concurrent.futures</span>
+<span class="kn">import</span> <span class="nn">urllib.request</span>
+
+<span class="n">URLS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;http://www.foxnews.com/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;http://www.cnn.com/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;http://europe.wsj.com/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;http://www.bbc.co.uk/&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;http://some-made-up-domain.com/&#39;</span><span class="p">]</span>
+
+<span class="c1"># Retrieve a single page and report the URL and contents</span>
+<span class="k">def</span> <span class="nf">load_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="c1"># We can use a with statement to ensure threads are cleaned up promptly</span>
+<span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+    <span class="c1"># Start the load operations and mark each future with its URL</span>
+    <span class="n">future_to_url</span> <span class="o">=</span> <span class="p">{</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">load_url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="mi">60</span><span class="p">):</span> <span class="n">url</span> <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">URLS</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_url</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">future_to_url</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> generated an exception: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> page is </span><span class="si">%d</span><span class="s1"> bytes&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="processpoolexecutor">
+<h2>ProcessPoolExecutor<a class="headerlink" href="#processpoolexecutor" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a>  はプロセスプールを使って非同期呼び出しを実施する <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> のサブクラスです。<a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a> は <a class="reference internal" href="multiprocessing.html#module-multiprocessing" title="multiprocessing: Process-based parallelism."><code class="xref py py-mod docutils literal notranslate"><span class="pre">multiprocessing</span></code></a> モジュールを利用します。このため <a class="reference internal" href="../glossary.html#term-global-interpreter-lock"><span class="xref std std-term">Global Interpreter Lock</span></a> を回避することができますが、pickle 化できるオブジェクトしか実行したり返したりすることができません。</p>
+<p><code class="docutils literal notranslate"><span class="pre">__main__</span></code> モジュールはワーカサブプロセスでインポート可能でなければなりません。
+すなわち、 <a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a> は対話的インタープリタでは動きません。</p>
+<p><a class="reference internal" href="#concurrent.futures.ProcessPoolExecutor" title="concurrent.futures.ProcessPoolExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code></a> に渡された呼び出し可能オブジェクトから <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> や <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> メソッドを呼ぶとデッドロックに陥ります。</p>
+<dl class="class">
+<dt id="concurrent.futures.ProcessPoolExecutor">
+<em class="property">class </em><code class="descclassname">concurrent.futures.</code><code class="descname">ProcessPoolExecutor</code><span class="sig-paren">(</span><em>max_workers=None</em>, <em>mp_context=None</em>, <em>initializer=None</em>, <em>initargs=()</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.ProcessPoolExecutor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>An <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> subclass that executes calls asynchronously using a pool
+of at most <em>max_workers</em> processes.  If <em>max_workers</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or not
+given, it will default to the number of processors on the machine.
+If <em>max_workers</em> is lower or equal to <code class="docutils literal notranslate"><span class="pre">0</span></code>, then a <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a>
+will be raised.
+On Windows, <em>max_workers</em> must be equal or lower than <code class="docutils literal notranslate"><span class="pre">61</span></code>. If it is not
+then <a class="reference internal" href="exceptions.html#ValueError" title="ValueError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code></a> will be raised. If <em>max_workers</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, then
+the default chosen will be at most <code class="docutils literal notranslate"><span class="pre">61</span></code>, even if more processors are
+available.
+<em>mp_context</em> can be a multiprocessing context or None. It will be used to
+launch the workers. If <em>mp_context</em> is <code class="docutils literal notranslate"><span class="pre">None</span></code> or not given, the default
+multiprocessing context is used.</p>
+<p><em>initializer</em> is an optional callable that is called at the start of
+each worker process; <em>initargs</em> is a tuple of arguments passed to the
+initializer.  Should <em>initializer</em> raise an exception, all currently
+pending jobs will raise a <a class="reference internal" href="#concurrent.futures.process.BrokenProcessPool" title="concurrent.futures.process.BrokenProcessPool"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BrokenProcessPool</span></code></a>,
+as well any attempt to submit more jobs to the pool.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span>ワーカプロセスの1つが突然終了した場合、<code class="xref py py-exc docutils literal notranslate"><span class="pre">BrokenProcessPool</span></code> エラーが送出されるようになりました。
+以前は挙動は未定義でしたが、 executor や  futures がフリーズしたりデッドロックを起こすことがしばしばでした。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>The <em>mp_context</em> argument was added to allow users to control the
+start_method for worker processes created by the pool.</p>
+<p>Added the <em>initializer</em> and <em>initargs</em> arguments.</p>
+</div>
+</dd></dl>
+
+<div class="section" id="processpoolexecutor-example">
+<span id="id2"></span><h3>ProcessPoolExecutor の例<a class="headerlink" href="#processpoolexecutor-example" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">concurrent.futures</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="n">PRIMES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mi">112272535095293</span><span class="p">,</span>
+    <span class="mi">112582705942171</span><span class="p">,</span>
+    <span class="mi">112272535095293</span><span class="p">,</span>
+    <span class="mi">115280095190773</span><span class="p">,</span>
+    <span class="mi">115797848077099</span><span class="p">,</span>
+    <span class="mi">1099726899285419</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">is_prime</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">sqrt_n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sqrt_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ProcessPoolExecutor</span><span class="p">()</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">prime</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">PRIMES</span><span class="p">,</span> <span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">is_prime</span><span class="p">,</span> <span class="n">PRIMES</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> is prime: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="n">prime</span><span class="p">))</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="future-objects">
+<h2>Future オブジェクト<a class="headerlink" href="#future-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> クラスは呼び出し可能オブジェクトの非同期実行をカプセル化します。 <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> のインスタンスは <a class="reference internal" href="#concurrent.futures.Executor.submit" title="concurrent.futures.Executor.submit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Executor.submit()</span></code></a> によって生成されます。</p>
+<dl class="class">
+<dt id="concurrent.futures.Future">
+<em class="property">class </em><code class="descclassname">concurrent.futures.</code><code class="descname">Future</code><a class="headerlink" href="#concurrent.futures.Future" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出し可能オブジェクトの非同期実行をカプセル化します。 <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> インスタンスは <a class="reference internal" href="#concurrent.futures.Executor.submit" title="concurrent.futures.Executor.submit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Executor.submit()</span></code></a> で生成され、テストを除いて直接生成すべきではありません。</p>
+<blockquote>
+<div><dl class="method">
+<dt id="concurrent.futures.Future.cancel">
+<code class="descname">cancel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.cancel" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Attempt to cancel the call.  If the call is currently being executed or
+finished running and cannot be cancelled then the method will return
+<code class="docutils literal notranslate"><span class="pre">False</span></code>, otherwise the call will be cancelled and the method will
+return <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.cancelled">
+<code class="descname">cancelled</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.cancelled" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出しが正常にキャンセルされた場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.running">
+<code class="descname">running</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.running" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在呼び出しが実行中でキャンセルできない場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.done">
+<code class="descname">done</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.done" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出しが正常にキャンセルされたか終了した場合 <code class="docutils literal notranslate"><span class="pre">True</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.result">
+<code class="descname">result</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.result" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出しによって返された値を返します。呼び出しがまだ完了していない場合、このメソッドは <em>timeout</em> 秒の間待機します。呼び出しが <em>timeout</em> 秒間の間に完了しない場合、 <a class="reference internal" href="#concurrent.futures.TimeoutError" title="concurrent.futures.TimeoutError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">concurrent.futures.TimeoutError</span></code></a> が送出されます。 <em>timeout</em> にはintかfloatを指定できます。<em>timeout</em> が指定されていないか、 <code class="docutils literal notranslate"><span class="pre">None</span></code> である場合、待機時間に制限はありません。</p>
+<p>future が完了する前にキャンセルされた場合 <a class="reference internal" href="#concurrent.futures.CancelledError" title="concurrent.futures.CancelledError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">CancelledError</span></code></a> が送出されます。</p>
+<p>呼び出しが例外を送出した場合、このメソッドは同じ例外を送出します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.exception">
+<code class="descname">exception</code><span class="sig-paren">(</span><em>timeout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.exception" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出しによって送出された例外を返します。呼び出しがまだ完了していない場合、このメソッドは <em>timeout</em> 秒だけ待機します。呼び出しが <em>timeout</em> 秒の間に完了しない場合、 <a class="reference internal" href="#concurrent.futures.TimeoutError" title="concurrent.futures.TimeoutError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">concurrent.futures.TimeoutError</span></code></a> が送出されます。 <em>timeout</em> にはintかfloatを指定できます。 <em>timeout</em> が指定されていないか、 <code class="docutils literal notranslate"><span class="pre">None</span></code> である場合、待機時間に制限はありません。</p>
+<p>future が完了する前にキャンセルされた場合 <a class="reference internal" href="#concurrent.futures.CancelledError" title="concurrent.futures.CancelledError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">CancelledError</span></code></a> が送出されます。</p>
+<p>呼び出しが例外を送出することなく完了した場合、<code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.add_done_callback">
+<code class="descname">add_done_callback</code><span class="sig-paren">(</span><em>fn</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.add_done_callback" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出し可能な <em>fn</em> オブジェクトを future にアタッチします。futureがキャンセルされたか、実行を終了した際に、future をそのただ一つの引数として <em>fn</em> が呼び出されます。</p>
+<p>追加された呼び出し可能オブジェクトは、追加された順番で呼びだされ、追加を行ったプロセスに属するスレッド中で呼び出されます。もし呼び出し可能オブジェクトが <a class="reference internal" href="exceptions.html#Exception" title="Exception"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code></a> のサブクラスを送出した場合、それはログに記録され無視されます。呼び出し可能オブジェクトが <a class="reference internal" href="exceptions.html#BaseException" title="BaseException"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BaseException</span></code></a> のサブクラスを送出した場合の動作は未定義です。</p>
+<p>もしfutureがすでに完了しているか、キャンセル済みであれば、<em>fn</em> は即座に実行されます。</p>
+</dd></dl>
+
+</div></blockquote>
+<p>以下の <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> メソッドは、ユニットテストでの使用と <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> を実装することを意図しています。</p>
+<blockquote>
+<div><dl class="method">
+<dt id="concurrent.futures.Future.set_running_or_notify_cancel">
+<code class="descname">set_running_or_notify_cancel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.set_running_or_notify_cancel" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このメソッドは、<a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> に関連付けられたワークやユニットテストによるワークの実行前に、 <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> の実装によってのみ呼び出してください。</p>
+<p>このメソッドが <code class="docutils literal notranslate"><span class="pre">False</span></code> を返す場合、 <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> はキャンセルされています。つまり、 <a class="reference internal" href="#concurrent.futures.Future.cancel" title="concurrent.futures.Future.cancel"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Future.cancel()</span></code></a> が呼び出されて <cite>True</cite> が返っています。<a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> の完了を  (<a class="reference internal" href="#concurrent.futures.as_completed" title="concurrent.futures.as_completed"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_completed()</span></code></a> または <a class="reference internal" href="#concurrent.futures.wait" title="concurrent.futures.wait"><code class="xref py py-func docutils literal notranslate"><span class="pre">wait()</span></code></a> により)  待機するすべてのスレッドが起動します。</p>
+<p>このメソッドが <code class="docutils literal notranslate"><span class="pre">True</span></code> を返す場合、 <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> はキャンセルされて、実行状態に移行されています。つまり、 <a class="reference internal" href="#concurrent.futures.Future.running" title="concurrent.futures.Future.running"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Future.running()</span></code></a> を呼び出すと <cite>True</cite> が返ります。</p>
+<p>このメソッドは、一度だけ呼び出すことができ、<a class="reference internal" href="#concurrent.futures.Future.set_result" title="concurrent.futures.Future.set_result"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Future.set_result()</span></code></a> または <a class="reference internal" href="#concurrent.futures.Future.set_exception" title="concurrent.futures.Future.set_exception"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Future.set_exception()</span></code></a> がキャンセルされた後には呼び出すことができません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.set_result">
+<code class="descname">set_result</code><span class="sig-paren">(</span><em>result</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.set_result" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> に関連付けられたワークの結果を <em>result</em> に設定します。</p>
+<p>このメソッドは、 <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> の実装またはユニットテストによってのみ使用してください。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>This method raises
+<a class="reference internal" href="#concurrent.futures.InvalidStateError" title="concurrent.futures.InvalidStateError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">concurrent.futures.InvalidStateError</span></code></a> if the <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> is
+already done.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="concurrent.futures.Future.set_exception">
+<code class="descname">set_exception</code><span class="sig-paren">(</span><em>exception</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.Future.set_exception" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> に関連付けられたワークの結果を <a class="reference internal" href="exceptions.html#Exception" title="Exception"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a> <em>exception</em> に設定します。</p>
+<p>このメソッドは、 <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> の実装またはユニットテストによってのみ使用してください。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span>This method raises
+<a class="reference internal" href="#concurrent.futures.InvalidStateError" title="concurrent.futures.InvalidStateError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">concurrent.futures.InvalidStateError</span></code></a> if the <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> is
+already done.</p>
+</div>
+</dd></dl>
+
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-functions">
+<h2>モジュール関数<a class="headerlink" href="#module-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="function">
+<dt id="concurrent.futures.wait">
+<code class="descclassname">concurrent.futures.</code><code class="descname">wait</code><span class="sig-paren">(</span><em>fs</em>, <em>timeout=None</em>, <em>return_when=ALL_COMPLETED</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.wait" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Wait for the <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> instances (possibly created by different
+<a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> instances) given by <em>fs</em> to complete.  Returns a named
+2-tuple of sets.  The first set, named <code class="docutils literal notranslate"><span class="pre">done</span></code>, contains the futures that
+completed (finished or cancelled futures) before the wait completed.  The
+second set, named <code class="docutils literal notranslate"><span class="pre">not_done</span></code>, contains the futures that did not complete
+(pending or running futures).</p>
+<p><em>timeout</em> で結果を返すまで待機する最大秒数を指定できます。<em>timeout</em> は整数か浮動小数点数をとります。<em>timeout</em> が指定されないか <code class="docutils literal notranslate"><span class="pre">None</span></code> の場合、無期限に待機します。</p>
+<p><em>return_when</em> でこの関数がいつ結果を返すか指定します。指定できる値は以下の 定数のどれか一つです:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">定数</th>
+<th class="head">説明</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">FIRST_COMPLETED</span></code></td>
+<td>いずれかのフューチャが終了したかキャンセルされたときに返します。</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">FIRST_EXCEPTION</span></code></td>
+<td>いずれかのフューチャが例外の送出で終了した場合に返します。例外を送出したフューチャがない場合は、<code class="xref py py-const docutils literal notranslate"><span class="pre">ALL_COMPLETED</span></code> と等価になります。</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal notranslate"><span class="pre">ALL_COMPLETED</span></code></td>
+<td>すべてのフューチャが終了したかキャンセルされたときに返します。</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="concurrent.futures.as_completed">
+<code class="descclassname">concurrent.futures.</code><code class="descname">as_completed</code><span class="sig-paren">(</span><em>fs</em>, <em>timeout=None</em><span class="sig-paren">)</span><a class="headerlink" href="#concurrent.futures.as_completed" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Returns an iterator over the <a class="reference internal" href="#concurrent.futures.Future" title="concurrent.futures.Future"><code class="xref py py-class docutils literal notranslate"><span class="pre">Future</span></code></a> instances (possibly created by
+different <a class="reference internal" href="#concurrent.futures.Executor" title="concurrent.futures.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a> instances) given by <em>fs</em> that yields futures as
+they complete (finished or cancelled futures). Any futures given by <em>fs</em> that
+are duplicated will be returned once. Any futures that completed before
+<a class="reference internal" href="#concurrent.futures.as_completed" title="concurrent.futures.as_completed"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_completed()</span></code></a> is called will be yielded first.  The returned iterator
+raises a <a class="reference internal" href="#concurrent.futures.TimeoutError" title="concurrent.futures.TimeoutError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">concurrent.futures.TimeoutError</span></code></a> if <a class="reference internal" href="stdtypes.html#iterator.__next__" title="iterator.__next__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__next__()</span></code></a>
+is called and the result isn't available after <em>timeout</em> seconds from the
+original call to <a class="reference internal" href="#concurrent.futures.as_completed" title="concurrent.futures.as_completed"><code class="xref py py-func docutils literal notranslate"><span class="pre">as_completed()</span></code></a>.  <em>timeout</em> can be an int or float. If
+<em>timeout</em> is not specified or <code class="docutils literal notranslate"><span class="pre">None</span></code>, there is no limit to the wait time.</p>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt><span class="target" id="index-0"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-3148"><strong>PEP 3148</strong></a> -- futures - execute computations asynchronously</dt>
+<dd>この機能を Python 標準ライブラリに含めることを述べた提案です。</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="exception-classes">
+<h2>例外クラス<a class="headerlink" href="#exception-classes" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<dl class="exception">
+<dt id="concurrent.futures.CancelledError">
+<em class="property">exception </em><code class="descclassname">concurrent.futures.</code><code class="descname">CancelledError</code><a class="headerlink" href="#concurrent.futures.CancelledError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>future がキャンセルされたときに送出されます。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="concurrent.futures.TimeoutError">
+<em class="property">exception </em><code class="descclassname">concurrent.futures.</code><code class="descname">TimeoutError</code><a class="headerlink" href="#concurrent.futures.TimeoutError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>future の操作が与えられたタイムアウトを超過したときに送出されます。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="concurrent.futures.BrokenExecutor">
+<em class="property">exception </em><code class="descclassname">concurrent.futures.</code><code class="descname">BrokenExecutor</code><a class="headerlink" href="#concurrent.futures.BrokenExecutor" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Derived from <a class="reference internal" href="exceptions.html#RuntimeError" title="RuntimeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a>, this exception class is raised
+when an executor is broken for some reason, and cannot be used
+to submit or execute new tasks.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="exception">
+<dt id="concurrent.futures.InvalidStateError">
+<em class="property">exception </em><code class="descclassname">concurrent.futures.</code><code class="descname">InvalidStateError</code><a class="headerlink" href="#concurrent.futures.InvalidStateError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Raised when an operation is performed on a future that is not allowed
+in the current state.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.8 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="exception">
+<dt id="concurrent.futures.thread.BrokenThreadPool">
+<em class="property">exception </em><code class="descclassname">concurrent.futures.thread.</code><code class="descname">BrokenThreadPool</code><a class="headerlink" href="#concurrent.futures.thread.BrokenThreadPool" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Derived from <a class="reference internal" href="#concurrent.futures.BrokenExecutor" title="concurrent.futures.BrokenExecutor"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BrokenExecutor</span></code></a>, this exception
+class is raised when one of the workers of a <code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadPoolExecutor</span></code>
+has failed initializing.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.7 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="exception">
+<dt id="concurrent.futures.process.BrokenProcessPool">
+<em class="property">exception </em><code class="descclassname">concurrent.futures.process.</code><code class="descname">BrokenProcessPool</code><a class="headerlink" href="#concurrent.futures.process.BrokenProcessPool" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Derived from <a class="reference internal" href="#concurrent.futures.BrokenExecutor" title="concurrent.futures.BrokenExecutor"><code class="xref py py-exc docutils literal notranslate"><span class="pre">BrokenExecutor</span></code></a> (formerly
+<a class="reference internal" href="exceptions.html#RuntimeError" title="RuntimeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">RuntimeError</span></code></a>), this exception class is raised when one of the
+workers of a <code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolExecutor</span></code> has terminated in a non-clean
+fashion (for example, if it was killed from the outside).</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">concurrent.futures</span></code> -- 並列タスク実行</a><ul>
+<li><a class="reference internal" href="#executor-objects">Executor オブジェクト</a></li>
+<li><a class="reference internal" href="#threadpoolexecutor">ThreadPoolExecutor</a><ul>
+<li><a class="reference internal" href="#threadpoolexecutor-example">ThreadPoolExecutor の例</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#processpoolexecutor">ProcessPoolExecutor</a><ul>
+<li><a class="reference internal" href="#processpoolexecutor-example">ProcessPoolExecutor の例</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#future-objects">Future オブジェクト</a></li>
+<li><a class="reference internal" href="#module-functions">モジュール関数</a></li>
+<li><a class="reference internal" href="#exception-classes">例外クラス</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="concurrent.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">concurrent</span></code> パッケージ</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="subprocess.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">subprocess</span></code> --- サブプロセス管理</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/concurrent.futures.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="subprocess.html" title="subprocess --- サブプロセス管理"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="concurrent.html" title="concurrent パッケージ"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="concurrency.html" >並行実行</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

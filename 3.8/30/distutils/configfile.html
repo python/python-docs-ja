@@ -1,0 +1,286 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>3. setup 設定ファイル (setup configuration file) を書く &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="4. ソースコード配布物を作成する" href="sourcedist.html" />
+    <link rel="prev" title="2. setup スクリプトを書く" href="setupscript.html" />
+    <link rel="canonical" href="https://docs.python.org/3/distutils/configfile.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="sourcedist.html" title="4. ソースコード配布物を作成する"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="setupscript.html" title="2. setup スクリプトを書く"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python モジュールの配布 (レガシーバージョン)</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="writing-the-setup-configuration-file">
+<span id="setup-config"></span><h1>3. setup 設定ファイル (setup configuration file) を書く<a class="headerlink" href="#writing-the-setup-configuration-file" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last">このドキュメントは、 <a class="reference external" href="https://setuptools.readthedocs.io/en/latest/setuptools.html">https://setuptools.readthedocs.io/en/latest/setuptools.html</a> にある <code class="docutils literal notranslate"><span class="pre">setuptools</span></code> のドキュメントが現時点でここにある関連情報を全て網羅するまで、単独でここに載せておかれます。</p>
+</div>
+<p>時に、配布物をビルドする際に必要な全ての設定を <em>あらかじめ</em> 書ききれない状況が起きます: 例えば、ビルドを進めるために、ユーザに関する情報や、ユーザのシステムに関する情報を必要とするかもしれません。こうした情報が単純 --- C ヘッダファイルやライブラリを検索するディレクトリのリストのように --- であるかぎり、ユーザに設定ファイル (configuration file) <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code> を提供して編集してもらうのが、安上がりで簡単な特定方法になります。設定ファイルはまた、あらゆるコマンドにおけるオプションにデフォルト値を与えておき、インストール作業者がコマンドライン上や設定ファイルの編集でデフォルト設定を上書きできるようにします。</p>
+<p>The setup configuration file is a useful middle-ground between the setup
+script---which, ideally, would be opaque to installers <a class="footnote-reference" href="#id2" id="id1">[1]</a>---and the command-line to
+the setup script, which is outside of your control and entirely up to the
+installer.  In fact, <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code> (and any other Distutils configuration
+files present on the target system) are processed after the contents of the
+setup script, but before the command-line.  This has  several useful
+consequences:</p>
+<ul class="simple">
+<li>インストール作業者は、作者が <code class="file docutils literal notranslate"><span class="pre">setup.py</span></code> に設定した項目のいくつかを <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code> を変更して上書きできます</li>
+<li><code class="file docutils literal notranslate"><span class="pre">setup.py</span></code> では簡単に設定できないような、標準でないオプションのデフォルト値を設定できます</li>
+<li>インストール作業者は、 <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code> に書かれたどんな設定も <code class="file docutils literal notranslate"><span class="pre">setup.py</span></code> のコマンドラインオプションで上書きできます</li>
+</ul>
+<p>The basic syntax of the configuration file is simple:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[command]</span>
+<span class="na">option</span><span class="o">=</span><span class="s">value</span>
+<span class="na">...</span>
+</pre></div>
+</div>
+<p>ここで、 <em>command</em> は Distutils コマンドのうちの一つ (例えば <strong class="command">build_py</strong>, <strong class="command">install</strong>) で、 <em>option</em>  はそのコマンドでサポートされているオプションのうちの一つです。各コマンドには任意の数のオプションを設定でき、一つの設定ファイル中には任意の数のコマンドセクションを収められます。空白行は無視されます、 <code class="docutils literal notranslate"><span class="pre">'#'</span></code> 文字で開始して行末まで続くコメントも同様に無視されます。長いオプション設定値は、継続行をインデントするだけで複数行にわたって記述できます。</p>
+<p>You can find out the list of options supported by a particular command with the
+universal <code class="xref std std-option docutils literal notranslate"><span class="pre">--help</span></code> option, e.g.</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python setup.py --help build_ext
+<span class="go">[...]</span>
+<span class="go">Options for &#39;build_ext&#39; command:</span>
+<span class="go">  --build-lib (-b)     directory for compiled extension modules</span>
+<span class="go">  --build-temp (-t)    directory for temporary files (build by-products)</span>
+<span class="go">  --inplace (-i)       ignore build-lib and put compiled extensions into the</span>
+<span class="go">                       source directory alongside your pure Python modules</span>
+<span class="go">  --include-dirs (-I)  list of directories to search for header files</span>
+<span class="go">  --define (-D)        C preprocessor macros to define</span>
+<span class="go">  --undef (-U)         C preprocessor macros to undefine</span>
+<span class="go">  --swig-opts          list of SWIG command line options</span>
+<span class="go">[...]</span>
+</pre></div>
+</div>
+<p>Note that an option spelled <code class="xref std std-option docutils literal notranslate"><span class="pre">--foo-bar</span></code> on the command-line  is spelled
+<code class="docutils literal notranslate"><span class="pre">foo_bar</span></code> in configuration files.</p>
+<p id="distutils-build-ext-inplace">For example, say you want your extensions to be built &quot;in-place&quot;---that is, you
+have an extension <code class="xref py py-mod docutils literal notranslate"><span class="pre">pkg.ext</span></code>, and you want the compiled extension file
+(<code class="file docutils literal notranslate"><span class="pre">ext.so</span></code> on Unix, say) to be put in the same source directory as your
+pure Python modules <code class="xref py py-mod docutils literal notranslate"><span class="pre">pkg.mod1</span></code> and <code class="xref py py-mod docutils literal notranslate"><span class="pre">pkg.mod2</span></code>.  You can always use the
+<code class="xref std std-option docutils literal notranslate"><span class="pre">--inplace</span></code> option on the command-line to ensure this:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>python setup.py build_ext --inplace
+</pre></div>
+</div>
+<p>But this requires that you always specify the <strong class="command">build_ext</strong> command
+explicitly, and remember to provide <code class="xref std std-option docutils literal notranslate"><span class="pre">--inplace</span></code>. An easier way is to
+&quot;set and forget&quot; this option, by encoding it in <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code>, the
+configuration file for this distribution:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[build_ext]</span>
+<span class="na">inplace</span><span class="o">=</span><span class="s">1</span>
+</pre></div>
+</div>
+<p>この設定は、明示的に <strong class="command">build_ext</strong> を指定するかどうかに関わらず、モジュール配布物の全てのビルドに影響します。ソース配布物に <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code> を含めると、エンドユーザの手で行われるビルドにも影響します --- このオプションの例に関しては <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code> を含めるのはおそらくよくないアイデアでしょう。というのは、拡張モジュールをインプレースでビルドすると常にインストールしたモジュール配布物を壊してしまうからです。とはいえ、ある特定の状況では、モジュールをインストールディレクトリの下に正しく構築できるので、機能としては有用だと考えられます。 (ただ、インストールディレクトリ上でのビルドを想定するような拡張モジュールの配布は、ほとんどの場合よくない考え方です。)</p>
+<p>Another example: certain commands take a lot of options that don't change from
+run to run; for example, <strong class="command">bdist_rpm</strong> needs to know everything required
+to generate a &quot;spec&quot; file for creating an RPM distribution.  Some of this
+information comes from the setup script, and some is automatically generated by
+the Distutils (such as the list of files installed).  But some of it has to be
+supplied as options to <strong class="command">bdist_rpm</strong>, which would be very tedious to do
+on the command-line for every run.  Hence, here is a snippet from the Distutils'
+own <code class="file docutils literal notranslate"><span class="pre">setup.cfg</span></code>:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[bdist_rpm]</span>
+<span class="na">release</span> <span class="o">=</span> <span class="s">1</span>
+<span class="na">packager</span> <span class="o">=</span> <span class="s">Greg Ward &lt;gward@python.net&gt;</span>
+<span class="na">doc_files</span> <span class="o">=</span> <span class="s">CHANGES.txt</span>
+<span class="s">            README.txt</span>
+<span class="s">            USAGE.txt</span>
+<span class="s">            doc/</span>
+<span class="s">            examples/</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">doc_files</span></code> オプションは、単に空白で区切られた文字列で、ここでは可読性のために複数行をまたぐようにしています。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<dl class="last docutils">
+<dt>&quot;Python モジュールのインストール&quot; の <a class="reference internal" href="../install/index.html#inst-config-syntax"><span class="std std-ref">設定ファイルの構文</span></a></dt>
+<dd>設定ファイルに関する詳細情報は、システム管理者向けのこのマニュアルにあります。</dd>
+</dl>
+</div>
+<p class="rubric">脚注</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Distutils が自動設定機能 (auto-configuration) をサポートするまで、おそらくこの理想状態を達成することはないでしょう。</td></tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="setupscript.html"
+                        title="前の章へ">2. setup スクリプトを書く</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="sourcedist.html"
+                        title="次の章へ">4. ソースコード配布物を作成する</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/distutils/configfile.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="sourcedist.html" title="4. ソースコード配布物を作成する"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="setupscript.html" title="2. setup スクリプトを書く"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python モジュールの配布 (レガシーバージョン)</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

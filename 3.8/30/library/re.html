@@ -1,0 +1,1399 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>re --- 正規表現操作 &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="difflib --- 差分の計算を助ける" href="difflib.html" />
+    <link rel="prev" title="string --- 一般的な文字列操作" href="string.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/re.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="difflib.html" title="difflib --- 差分の計算を助ける"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="string.html" title="string --- 一般的な文字列操作"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="text.html" accesskey="U">テキスト処理サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-re">
+<span id="re-regular-expression-operations"></span><h1><a class="reference internal" href="#module-re" title="re: Regular expression operations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">re</span></code></a> --- 正規表現操作<a class="headerlink" href="#module-re" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/re.py">Lib/re.py</a></p>
+<hr class="docutils" />
+<p>このモジュールは Perl に見られる正規表現マッチング操作と同様のものを提供します。</p>
+<p>パターンおよび検索される文字列には、Unicode 文字列 (<a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) や 8 ビット文字列 (<a class="reference internal" href="stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>) を使います。ただし、Unicode 文字列と 8 ビット文字列の混在はできません。つまり、Unicode 文字列にバイト列のパターンでマッチングしたり、その逆はできません。同様に、置換時の置換文字列はパターンおよび検索文字列の両方と同じ型でなくてはなりません。</p>
+<p>正規表現では、特殊な形式を表すためや、特殊文字をその特殊な意味を発動させず使うために、バックスラッシュ文字 (<code class="docutils literal notranslate"><span class="pre">'\'</span></code>) を使います。こうしたバックスラッシュの使い方は、 Python の文字列リテラルにおける同じ文字の使い方と衝突します。例えば、リテラルのバックスラッシュにマッチさせるには、パターン文字列として <code class="docutils literal notranslate"><span class="pre">'\\\\'</span></code> と書かなければなりません。なぜなら、正規表現は <code class="docutils literal notranslate"><span class="pre">\\</span></code> でなければならないうえ、それぞれのバックスラッシュは標準の Python 文字列リテラルで <code class="docutils literal notranslate"><span class="pre">\\</span></code> と表現せねばならないからです。
+Python の文字列リテラルにおいて、バックスラッシュの使用による不正なエスケープ文字がある場合は、<a class="reference internal" href="exceptions.html#DeprecationWarning" title="DeprecationWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">DeprecationWarning</span></code></a> が発生し、将来的には <a class="reference internal" href="exceptions.html#SyntaxError" title="SyntaxError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">SyntaxError</span></code></a> になることにも注意してください。この動作は、正規表現として有効な文字列に対しても同様です。</p>
+<p>これを解決するには、正規表現パターンに Python の raw 文字列記法を使います。 <code class="docutils literal notranslate"><span class="pre">'r'</span></code> を前置した文字列リテラル内ではバックスラッシュが特別扱いされません。従って <code class="docutils literal notranslate"><span class="pre">&quot;\n&quot;</span></code> が改行一文字からなる文字列であるのに対して、 <code class="docutils literal notranslate"><span class="pre">r&quot;\n&quot;</span></code> は <code class="docutils literal notranslate"><span class="pre">'\'</span></code> と <code class="docutils literal notranslate"><span class="pre">'n'</span></code> の二文字からなる文字列です。通常、 Python コード中では、パターンをこの raw 文字列記法を使って表現します。</p>
+<p>重要なこととして、大抵の正規表現操作は、モジュールレベルの関数としても、 <a class="reference internal" href="#re-objects"><span class="std std-ref">コンパイル済み正規表現</span></a> のメソッドとしても利用できます。関数は正規表現オブジェクトを前もってコンパイルする必要がない近道ですが、微調整のための変数が減ります。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last">サードパーティの <a class="reference external" href="https://pypi.org/project/regex/">regex</a> モジュールは、標準ライブラリの <a class="reference internal" href="#module-re" title="re: Regular expression operations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">re</span></code></a> モジュールと互換な API を持ちながら、追加の機能とより徹底した Unicode サポートを提供します。</p>
+</div>
+<div class="section" id="regular-expression-syntax">
+<span id="re-syntax"></span><h2>正規表現のシンタックス<a class="headerlink" href="#regular-expression-syntax" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>正規表現 (または RE) は、その表現にマッチ (match) する文字列の集合を指定します。このモジュールの関数を使えば、ある文字列が与えられた正規表現にマッチするか (または、与えられた正規表現がある文字列にマッチするか、と言い換えても同じことになります) を検査できます。</p>
+<p>正規表現を連結することで新しい正規表現を作れます。<em>A</em> と <em>B</em> がともに正規表現であれば <em>AB</em> も正規表現です。一般的に、ある文字列 <em>p</em> が <em>A</em> にマッチし、別の文字列 <em>q</em> が <em>B</em> にマッチするなら、文字列 <em>pq</em> は AB にマッチします。ただし、 <em>A</em> または <em>B</em> に優先度の低い演算が含まれる場合や、 <em>A</em> と <em>B</em> との間に境界条件がある場合や、番号付けされたグループ参照をしている場合、を除きます。こうして、ここで述べるような簡単な基本表現から、複雑な表現を容易に構築できます。正規表現に関する理論と実装の詳細については Friedl 本 <a class="reference internal" href="#frie09" id="id1">[Frie09]</a> か、コンパイラの構築に関するテキストを参照してください。</p>
+<p>以下で正規表現の形式を簡単に説明します。詳細な情報ややさしい説明は、 <a class="reference internal" href="../howto/regex.html#regex-howto"><span class="std std-ref">正規表現 HOWTO</span></a> を参照してください。</p>
+<p>正規表現には、特殊文字と通常文字の両方を含められます。 <code class="docutils literal notranslate"><span class="pre">'A'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 、または <code class="docutils literal notranslate"><span class="pre">'0'</span></code> のようなほとんどの通常文字は、最も単純な正規表現です。これは単純に、その文字自体にマッチします。通常文字は連結できるので、 <code class="docutils literal notranslate"><span class="pre">last</span></code> は文字列 <code class="docutils literal notranslate"><span class="pre">'last'</span></code> にマッチします。 (この節では以降、正規表現は一般にクオートを使わず <code class="docutils literal notranslate"><span class="pre">この特殊スタイルで</span></code> 表記し、マッチ対象の文字列は、 <code class="docutils literal notranslate"><span class="pre">'シングルクオートで括って'</span></code> 表記します。)</p>
+<p><code class="docutils literal notranslate"><span class="pre">'|'</span></code> や <code class="docutils literal notranslate"><span class="pre">'('</span></code> といったいくつかの文字は特殊です。特殊文字は通常文字の種別を表したり、周辺の通常文字に対する解釈方法に影響します。</p>
+<p>繰り返しの修飾子 (<code class="docutils literal notranslate"><span class="pre">*</span></code>、 <code class="docutils literal notranslate"><span class="pre">+</span></code>、 <code class="docutils literal notranslate"><span class="pre">?</span></code>、 <code class="docutils literal notranslate"><span class="pre">{m,n}</span></code> など) は直接入れ子にはできません。これは、非貪欲な修飾子の接尾辞 <code class="docutils literal notranslate"><span class="pre">?</span></code> や他の実装での他の修飾子との曖昧さを回避します。内側で繰り返したものをさらに繰り返すには、丸括弧が使えます。例えば、正規表現 <code class="docutils literal notranslate"><span class="pre">(?:a{6})*</span></code> は 6 の倍数個の <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 文字にマッチします。</p>
+<p>特殊文字を以下に示します:</p>
+<dl class="docutils" id="index-0">
+<dt><code class="docutils literal notranslate"><span class="pre">.</span></code></dt>
+<dd>(ドット) デフォルトのモードでは改行以外の任意の文字にマッチします。 <a class="reference internal" href="#re.DOTALL" title="re.DOTALL"><code class="xref py py-const docutils literal notranslate"><span class="pre">DOTALL</span></code></a> フラグが指定されていれば改行も含む全ての文字にマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-1">
+<dt><code class="docutils literal notranslate"><span class="pre">^</span></code></dt>
+<dd>(キャレット) 文字列の先頭にマッチし、 <a class="reference internal" href="#re.MULTILINE" title="re.MULTILINE"><code class="xref py py-const docutils literal notranslate"><span class="pre">MULTILINE</span></code></a> モードでは各改行の直後にもマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-2">
+<dt><code class="docutils literal notranslate"><span class="pre">$</span></code></dt>
+<dd>文字列の末尾、あるいは文字列の末尾の改行の直前にマッチし、 <a class="reference internal" href="#re.MULTILINE" title="re.MULTILINE"><code class="xref py py-const docutils literal notranslate"><span class="pre">MULTILINE</span></code></a> モードでは改行の前にもマッチします。 <code class="docutils literal notranslate"><span class="pre">foo</span></code> は 'foo' と 'foobar' の両方にマッチしますが、正規表現 <code class="docutils literal notranslate"><span class="pre">foo$</span></code> は 'foo' だけにマッチします。興味深いことに、 <code class="docutils literal notranslate"><span class="pre">'foo1\nfoo2\n'</span></code> を <code class="docutils literal notranslate"><span class="pre">foo.$</span></code> で検索した場合、通常は 'foo2' だけにマッチしますが、 <a class="reference internal" href="#re.MULTILINE" title="re.MULTILINE"><code class="xref py py-const docutils literal notranslate"><span class="pre">MULTILINE</span></code></a> モードでは 'foo1' にもマッチします。 <code class="docutils literal notranslate"><span class="pre">$</span></code> だけで <code class="docutils literal notranslate"><span class="pre">'foo\n'</span></code> を検索した場合、2 つの (空の) マッチを見つけます: 1つは改行の直前で、もう1つは文字列の末尾です。</dd>
+</dl>
+<dl class="docutils" id="index-3">
+<dt><code class="docutils literal notranslate"><span class="pre">*</span></code></dt>
+<dd>直前の正規表現を 0 回以上、できるだけ多く繰り返したものにマッチさせる結果の正規表現にします。例えば <code class="docutils literal notranslate"><span class="pre">ab*</span></code> は 'a'、'ab'、または 'a' に任意個数の 'b' を続けたものにマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-4">
+<dt><code class="docutils literal notranslate"><span class="pre">+</span></code></dt>
+<dd>直前の正規表現を 1 回以上繰り返したものにマッチさせる結果の正規表現にします。例えば <code class="docutils literal notranslate"><span class="pre">ab+</span></code> は 'a' に 1 つ以上の 'b' が続いたものにマッチし、単なる 'a' にはマッチしません。</dd>
+</dl>
+<dl class="docutils" id="index-5">
+<dt><code class="docutils literal notranslate"><span class="pre">?</span></code></dt>
+<dd>直前の正規表現を 0 回か 1 回繰り返したものにマッチさせる結果の正規表現にします。例えば <code class="docutils literal notranslate"><span class="pre">ab?</span></code> は 'a' あるいは 'ab' にマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-6">
+<dt><code class="docutils literal notranslate"><span class="pre">*?</span></code>, <code class="docutils literal notranslate"><span class="pre">+?</span></code>, <code class="docutils literal notranslate"><span class="pre">??</span></code></dt>
+<dd><code class="docutils literal notranslate"><span class="pre">'*'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'+'</span></code> 、および <code class="docutils literal notranslate"><span class="pre">'?'</span></code> 修飾子は全て <em class="dfn">貪欲 (greedy)</em> マッチで、できるだけ多くのテキストにマッチします。この挙動が望ましくない時もあります。例えば正規表現 <code class="docutils literal notranslate"><span class="pre">&lt;.*&gt;</span></code> が <code class="docutils literal notranslate"><span class="pre">'&lt;a&gt;</span> <span class="pre">b</span> <span class="pre">&lt;c&gt;'</span></code> に対してマッチされると、 <code class="docutils literal notranslate"><span class="pre">'&lt;a&gt;'</span></code> だけでなく文字列全体にマッチしてしまいます。修飾子の後に <code class="docutils literal notranslate"><span class="pre">?</span></code> を追加すると、 <em class="dfn">非貪欲 (non-greedy)</em> あるいは <em class="dfn">最小 (minimal)</em> のマッチが行われ、できるだけ <em>少ない</em> 文字にマッチします。正規表現 <code class="docutils literal notranslate"><span class="pre">&lt;.*?&gt;</span></code> を使うと <code class="docutils literal notranslate"><span class="pre">'&lt;a&gt;'</span></code> だけにマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-7">
+<dt><code class="docutils literal notranslate"><span class="pre">{m}</span></code></dt>
+<dd>直前の正規表現をちょうど <em>m</em> 回繰り返したものにマッチさせるよう指定します。それより少ないマッチでは正規表現全体がマッチしません。例えば、 <code class="docutils literal notranslate"><span class="pre">a{6}</span></code> は 6 個ちょうどの <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 文字にマッチしますが、 5 個ではマッチしません。</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">{m,n}</span></code></dt>
+<dd>直前の正規表現を <em>m</em> 回から <em>n</em> 回、できるだけ多く繰り返したものにマッチさせる結果の正規表現にします。例えば、<code class="docutils literal notranslate"><span class="pre">a{3,5}</span></code> は、3 個から 5 個の <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 文字にマッチします。<em>m</em> を省略すると下限は 0 に指定され、<em>n</em> を省略すると上限は無限に指定されます。例として、 <code class="docutils literal notranslate"><span class="pre">a{4,}b</span></code> は <code class="docutils literal notranslate"><span class="pre">'aaaab'</span></code> や、1,000 個の <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 文字に <code class="docutils literal notranslate"><span class="pre">'b'</span></code> が続いたものにマッチしますが、<code class="docutils literal notranslate"><span class="pre">'aaab'</span></code> にはマッチしません。コンマは省略できません、省略すると修飾子が上で述べた形式と混同されてしまうからです。</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">{m,n}?</span></code></dt>
+<dd>結果の正規表現は、前にある正規表現を、<em>m</em> 回から <em>n</em> 回まで繰り返したものにマッチし、できるだけ <em>少なく</em> 繰り返したものにマッチするようにします。これは、前の修飾子の非貪欲版です。例えば、 6 文字文字列 <code class="docutils literal notranslate"><span class="pre">'aaaaaa'</span></code> では、 <code class="docutils literal notranslate"><span class="pre">a{3,5}</span></code> は、5 個の <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 文字にマッチしますが、 <code class="docutils literal notranslate"><span class="pre">a{3,5}?</span></code> は 3 個の文字にマッチするだけです。</dd>
+</dl>
+<dl class="docutils" id="index-8">
+<dt><code class="docutils literal notranslate"><span class="pre">\</span></code></dt>
+<dd><p class="first">特殊文字をエスケープ ( <code class="docutils literal notranslate"><span class="pre">'*'</span></code> や <code class="docutils literal notranslate"><span class="pre">'?'</span></code> などの文字にマッチできるようにする) し、または特殊シーケンスを合図します。特殊シーケンスは後で議論します。</p>
+<p class="last">パターンを表現するのに raw 文字列を使っていないのであれば、 Python ももまた、バックスラッシュを文字列リテラルでエスケープシーケンスとして使うことを思い出して下さい。そのエスケープシーケンスを Python のパーザが認識しないなら、そのバックスラッシュとそれに続く文字が結果の文字列に含まれます。しかし、Python が結果のシーケンスを認識するなら、そのバックスラッシュは 2 回繰り返さなければいけません。これは複雑で理解しにくいので、ごく単純な表現以外は、全て raw 文字列を使うことを強く推奨します。</p>
+</dd>
+</dl>
+<dl class="docutils" id="index-9">
+<dt><code class="docutils literal notranslate"><span class="pre">[]</span></code></dt>
+<dd><p class="first">文字の集合を指定するのに使います。集合の中では:</p>
+<ul class="simple">
+<li>文字を個別に指定できます。 <code class="docutils literal notranslate"><span class="pre">[amk]</span></code> は <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'m'</span></code> または <code class="docutils literal notranslate"><span class="pre">'k'</span></code> にマッチします。</li>
+</ul>
+<ul class="simple" id="index-10">
+<li>連続した文字の範囲を、 <code class="docutils literal notranslate"><span class="pre">'-'</span></code> を2 つの文字で挟んで指定できます。例えば、 <code class="docutils literal notranslate"><span class="pre">[a-z]</span></code> はあらゆる小文字の ASCII 文字にマッチします。<code class="docutils literal notranslate"><span class="pre">[0-5][0-9]</span></code> は <code class="docutils literal notranslate"><span class="pre">00</span></code> から <code class="docutils literal notranslate"><span class="pre">59</span></code> まで全ての 2 桁の数字にマッチします。<code class="docutils literal notranslate"><span class="pre">[0-9A-Fa-f]</span></code> は任意の 16 進数字にマッチします。<code class="docutils literal notranslate"><span class="pre">-</span></code> がエスケープされているか (例: <code class="docutils literal notranslate"><span class="pre">[a\-z]</span></code>)、先頭や末尾の文字にされていると (例: <code class="docutils literal notranslate"><span class="pre">[-a]</span></code> や <code class="docutils literal notranslate"><span class="pre">[a-]</span></code>)、リテラル <code class="docutils literal notranslate"><span class="pre">'-'</span></code> にマッチします。</li>
+<li>集合の中では、特殊文字はその特殊な意味を失います。例えば <code class="docutils literal notranslate"><span class="pre">[(+*)]</span></code> はリテラル文字 <code class="docutils literal notranslate"><span class="pre">'('</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'+'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'*'</span></code> 、または <code class="docutils literal notranslate"><span class="pre">')'</span></code> のどれにでもマッチします。</li>
+</ul>
+<ul class="simple" id="index-11">
+<li><code class="docutils literal notranslate"><span class="pre">\w</span></code> や <code class="docutils literal notranslate"><span class="pre">\S</span></code> のような文字クラス (後述) も集合の中で受理されますが、それにマッチする文字は <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> や <a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">LOCALE</span></code></a> モードが有効であるかに依存します。</li>
+</ul>
+<ul class="simple" id="index-12">
+<li><em class="dfn">補集合</em> をとって範囲内にない文字にマッチできます。集合の最初の文字が <code class="docutils literal notranslate"><span class="pre">'^'</span></code> なら、集合に <em>含まれない</em> 全ての文字にマッチします。例えば、 <code class="docutils literal notranslate"><span class="pre">[^5]</span></code> は <code class="docutils literal notranslate"><span class="pre">'5'</span></code> を除くあらゆる文字にマッチし、 <code class="docutils literal notranslate"><span class="pre">[^^]</span></code> は <code class="docutils literal notranslate"><span class="pre">'^'</span></code> を除くあらゆる文字にマッチします。 <code class="docutils literal notranslate"><span class="pre">^</span></code> は集合の最初の文字でなければ特別の意味を持ちません。</li>
+<li>集合の中でリテラル <code class="docutils literal notranslate"><span class="pre">']'</span></code> にマッチさせるには、その前にバックスラッシュをつけるか、集合の先頭に置きます。例えば、 <code class="docutils literal notranslate"><span class="pre">[()[\]{}]</span></code> と <code class="docutils literal notranslate"><span class="pre">[]()[{}]</span></code> はどちらも括弧にマッチします。</li>
+</ul>
+<ul class="simple">
+<li><a class="reference external" href="https://unicode.org/reports/tr18/">Unicode Technical Standard #18</a> にあるような集合の入れ子や集合操作が将来追加される可能性があります。これは構文を変化させるもので、この変化を容易にするために、さしあたって曖昧な事例には <a class="reference internal" href="exceptions.html#FutureWarning" title="FutureWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FutureWarning</span></code></a> が送出されます。これはリテラル <code class="docutils literal notranslate"><span class="pre">'['</span></code> で始まる集合や、リテラル文字の連続 <code class="docutils literal notranslate"><span class="pre">'--'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'&amp;&amp;'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'~~'</span></code> および <code class="docutils literal notranslate"><span class="pre">'||'</span></code> を含む集合を含みます。警告を避けるにはバックスラッシュでエスケープしてください。</li>
+</ul>
+<div class="last versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>文字セットが将来意味論的に変化する構造を含むなら <a class="reference internal" href="exceptions.html#FutureWarning" title="FutureWarning"><code class="xref py py-exc docutils literal notranslate"><span class="pre">FutureWarning</span></code></a> が送出されます。</p>
+</div>
+</dd>
+</dl>
+<dl class="docutils" id="index-13">
+<dt><code class="docutils literal notranslate"><span class="pre">|</span></code></dt>
+<dd><em>A</em> と <em>B</em> を任意の正規表現として、 <code class="docutils literal notranslate"><span class="pre">A|B</span></code> は <em>A</em> と <em>B</em> のいずれかにマッチする正規表現を作成します。この方法で任意の数の正規表現を <code class="docutils literal notranslate"><span class="pre">'|'</span></code> で分離できます。これはグループ (下記参照) 中でも使えます。対象文字列を走査するとき、<code class="docutils literal notranslate"><span class="pre">'|'</span></code> で分離された正規表現は左から右へ順に試されます。一つのパターンが完全にマッチしたとき、そのパターン枝が受理されます。つまり、ひとたび <em>A</em> がマッチしてしまえば、例え <em>B</em> によって全体のマッチが長くなるとしても、 <em>B</em> はもはや走査されません。言いかえると、 <code class="docutils literal notranslate"><span class="pre">'|'</span></code> 演算子は決して貪欲にはなりません。リテラル <code class="docutils literal notranslate"><span class="pre">'|'</span></code> にマッチするには、 <code class="docutils literal notranslate"><span class="pre">\|</span></code> を使うか、 <code class="docutils literal notranslate"><span class="pre">[|]</span></code> のように文字クラス中に囲みます。</dd>
+</dl>
+<dl class="docutils" id="index-14">
+<dt><code class="docutils literal notranslate"><span class="pre">(...)</span></code></dt>
+<dd>丸括弧で囲まれた正規表現にマッチするとともに、グループの開始と終了を表します。グループの中身は以下で述べるように、マッチが実行された後で回収したり、その文字列中で以降 <code class="docutils literal notranslate"><span class="pre">\number</span></code> 特殊シーケンスでマッチしたりできます。リテラル <code class="docutils literal notranslate"><span class="pre">'('</span></code> や <code class="docutils literal notranslate"><span class="pre">')'</span></code> にマッチするには、<code class="docutils literal notranslate"><span class="pre">\(</span></code> や <code class="docutils literal notranslate"><span class="pre">\)</span></code> を使うか、文字クラス中に囲みます:  <code class="docutils literal notranslate"><span class="pre">[(]</span></code>、 <code class="docutils literal notranslate"><span class="pre">[)]</span></code> 。</dd>
+</dl>
+<dl class="docutils" id="index-15">
+<dt><code class="docutils literal notranslate"><span class="pre">(?...)</span></code></dt>
+<dd>これは拡張記法です (<code class="docutils literal notranslate"><span class="pre">'('</span></code> に続く <code class="docutils literal notranslate"><span class="pre">'?'</span></code> はそれ以上の意味を持ちません) 。 <code class="docutils literal notranslate"><span class="pre">'?'</span></code> に続く最初の文字がこの構造の意味と特有の構文を決定します。拡張は一般に新しいグループを作成しません。ただし <code class="docutils literal notranslate"><span class="pre">(?P&lt;name&gt;...)</span></code> はこの法則の唯一の例外です。現在サポートされている拡張は以下の通りです。</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">(?aiLmsux)</span></code></dt>
+<dd>(<code class="docutils literal notranslate"><span class="pre">'a'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'i'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'L'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'m'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'s'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'u'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'x'</span></code> の集合から 1 文字以上。) このグループは空文字列にマッチします。文字は正規表現全体に、対応するフラグを設定します。 <a class="reference internal" href="#re.A" title="re.A"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.A</span></code></a> (ASCII 限定マッチング)、 <a class="reference internal" href="#re.I" title="re.I"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.I</span></code></a> (大文字・小文字を区別しない)、 <a class="reference internal" href="#re.L" title="re.L"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.L</span></code></a> (ロケール依存)、 <a class="reference internal" href="#re.M" title="re.M"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.M</span></code></a> (複数行)、 <a class="reference internal" href="#re.S" title="re.S"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.S</span></code></a> (ドットが全てにマッチ)、 <code class="xref py py-const docutils literal notranslate"><span class="pre">re.U</span></code> (Unicode マッチング)、 <a class="reference internal" href="#re.X" title="re.X"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.X</span></code></a> (冗長)。 (各フラグについては <a class="reference internal" href="#contents-of-module-re"><span class="std std-ref">モジュールコンテンツ</span></a> で説明します。) これは、 <em>flag</em> 引数を <a class="reference internal" href="#re.compile" title="re.compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.compile()</span></code></a> 関数に渡すのではなく、フラグを正規表現の一部として含めたいときに便利です。フラグは表現文字列の先頭で使うべきです。</dd>
+</dl>
+<dl class="docutils" id="index-16">
+<dt><code class="docutils literal notranslate"><span class="pre">(?:...)</span></code></dt>
+<dd>普通の丸括弧の、キャプチャしない版です。丸括弧で囲まれた正規表現にマッチしますが、このグループがマッチした部分文字列は、マッチを実行したあとで回収することも、そのパターン中で以降参照することも <em>できません</em> 。</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">(?aiLmsux-imsx:...)</span></code></dt>
+<dd><p class="first">(<code class="docutils literal notranslate"><span class="pre">'a'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'i'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'L'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'m'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'s'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'u'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'x'</span></code> の集合から 0 文字以上、必要ならさらに <code class="docutils literal notranslate"><span class="pre">'-'</span></code> に続けて <code class="docutils literal notranslate"><span class="pre">'i'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'m'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'s'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'x'</span></code> の集合から 1 文字以上。) 文字は表現の一部に、対応するフラグを設定または除去します。 <a class="reference internal" href="#re.A" title="re.A"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.A</span></code></a> (ASCII 限定マッチング)、 <a class="reference internal" href="#re.I" title="re.I"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.I</span></code></a> (大文字・小文字を区別しない)、 <a class="reference internal" href="#re.L" title="re.L"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.L</span></code></a> (ロケール依存)、 <a class="reference internal" href="#re.M" title="re.M"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.M</span></code></a> (複数行)、 <a class="reference internal" href="#re.S" title="re.S"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.S</span></code></a> (ドットが全てにマッチ)、 <code class="xref py py-const docutils literal notranslate"><span class="pre">re.U</span></code> (Unicode マッチング)、 <a class="reference internal" href="#re.X" title="re.X"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.X</span></code></a> (冗長)。 (各フラグについては <a class="reference internal" href="#contents-of-module-re"><span class="std std-ref">モジュールコンテンツ</span></a> で説明します。)</p>
+<p>文字 <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'L'</span></code> および <code class="docutils literal notranslate"><span class="pre">'u'</span></code> は相互に排他であり、組み合わせることも <code class="docutils literal notranslate"><span class="pre">'-'</span></code> に続けることもできません。その代わり、これらの内一つがインライングループ中に現れると、外側のグループでのマッチングモードを上書きします。 Unicode パターン中では <code class="docutils literal notranslate"><span class="pre">(?a:...)</span></code> は ASCII 限定マッチングに切り替え、 <code class="docutils literal notranslate"><span class="pre">(?u:...)</span></code> は Unicode マッチング (デフォルト) に切り替えます。バイト列パターン中では、 <code class="docutils literal notranslate"><span class="pre">(?L:...)</span></code> はロケール依存マッチングに切り替え、 <code class="docutils literal notranslate"><span class="pre">(?a:...)</span></code> は ASCII 限定マッチング (デフォルト) に切り替えます。この上書きは狭いインライングループにのみ影響し、元のマッチングモードはグループ外では復元されます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+<div class="last versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>文字 <code class="docutils literal notranslate"><span class="pre">'a'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'L'</span></code> および <code class="docutils literal notranslate"><span class="pre">'u'</span></code> もグループ中で使えます。</p>
+</div>
+</dd>
+</dl>
+<dl class="docutils" id="index-17">
+<dt><code class="docutils literal notranslate"><span class="pre">(?P&lt;name&gt;...)</span></code></dt>
+<dd><p class="first">通常の丸括弧に似ていますが、このグループがマッチした部分文字列はシンボリックグループ名 <em>name</em> でアクセスできます。グループ名は有効な Python 識別子でなければならず、各グループ名は 1 個の正規表現内で一度だけ定義されていなければなりません。シンボリックグループは、そのグループが名前付けされていなかったかのように番号付けされたグループでもあります。</p>
+<p>名前付きグループは 3 つのコンテキストで参照できます。パターンが <code class="docutils literal notranslate"><span class="pre">(?P&lt;quote&gt;['\&quot;]).*?(?P=quote)</span></code> (シングルまたはダブルクオートで囲まれた文字列にマッチ) ならば:</p>
+<table border="1" class="last docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">グループ &quot;quote&quot; を参照するコンテキスト</th>
+<th class="head">参照する方法</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>その同じパターン中</td>
+<td><ul class="first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">(?P=quote)</span></code> (示したとおり)</li>
+<li><code class="docutils literal notranslate"><span class="pre">\1</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td>マッチオブジェクト <em>m</em> の処理時</td>
+<td><ul class="first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">m.group('quote')</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">m.end('quote')</span></code> (など)</li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">re.sub()</span></code> の <em>repl</em> 引数へ渡される文字列中</td>
+<td><ul class="first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">\g&lt;quote&gt;</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">\g&lt;1&gt;</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">\1</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<dl class="docutils" id="index-18">
+<dt><code class="docutils literal notranslate"><span class="pre">(?P=name)</span></code></dt>
+<dd>名前付きグループへの後方参照です。これは <em>name</em> という名前の既出のグループがマッチした文字列にマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-19">
+<dt><code class="docutils literal notranslate"><span class="pre">(?#...)</span></code></dt>
+<dd>コメントです。括弧の中身は単純に無視されます。</dd>
+</dl>
+<dl class="docutils" id="index-20">
+<dt><code class="docutils literal notranslate"><span class="pre">(?=...)</span></code></dt>
+<dd><code class="docutils literal notranslate"><span class="pre">...</span></code> が次に続くものにマッチすればマッチしますが、文字列をまったく消費しません。これは <em class="dfn">先読みアサーション (lookahead assertion)</em> と呼ばれます。例えば、<code class="docutils literal notranslate"><span class="pre">Isaac</span> <span class="pre">(?=Asimov)</span></code> は <code class="docutils literal notranslate"><span class="pre">'Isaac</span> <span class="pre">'</span></code> に、その後に <code class="docutils literal notranslate"><span class="pre">'Asimov'</span></code> が続く場合にのみ、マッチします。</dd>
+</dl>
+<dl class="docutils" id="index-21">
+<dt><code class="docutils literal notranslate"><span class="pre">(?!...)</span></code></dt>
+<dd><code class="docutils literal notranslate"><span class="pre">...</span></code> が次に続くものにマッチしなければマッチします。これは <em class="dfn">否定先読みアサーション (negative lookahead assertion)</em> です。例えば、<code class="docutils literal notranslate"><span class="pre">Isaac</span> <span class="pre">(?!Asimov)</span></code> は <code class="docutils literal notranslate"><span class="pre">'Isaac</span> <span class="pre">'</span></code> に、その後に <code class="docutils literal notranslate"><span class="pre">'Asimov'</span></code> が続か <em>ない</em> 場合にのみ、マッチします。</dd>
+</dl>
+<dl class="docutils" id="index-22">
+<dt><code class="docutils literal notranslate"><span class="pre">(?&lt;=...)</span></code></dt>
+<dd><p class="first">その文字列における現在位置の前に、現在位置で終わる <code class="docutils literal notranslate"><span class="pre">...</span></code> とのマッチがあれば、マッチします。これは <em class="dfn">後読みアサーション</em> と呼ばれます。<code class="docutils literal notranslate"><span class="pre">(?&lt;=abc)def</span></code> は、後読みは 3 文字をバックアップし、含まれているパターンがマッチするか検査するので <code class="docutils literal notranslate"><span class="pre">'abcdef'</span></code> にマッチを見つけます。含まれるパターンは、固定長の文字列にのみマッチしなければなりません。すなわち、 <code class="docutils literal notranslate"><span class="pre">abc</span></code> や <code class="docutils literal notranslate"><span class="pre">a|b</span></code> は許されますが、<code class="docutils literal notranslate"><span class="pre">a*</span></code> や <code class="docutils literal notranslate"><span class="pre">a{3,4}</span></code> は許されません。肯定後読みアサーションで始まるパターンは、検索される文字列の先頭とは決してマッチしないことに注意して下さい。<a class="reference internal" href="#re.match" title="re.match"><code class="xref py py-func docutils literal notranslate"><span class="pre">match()</span></code></a> 関数ではなく <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> 関数を使う方が望ましいでしょう:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;(?&lt;=abc)def&#39;</span><span class="p">,</span> <span class="s1">&#39;abcdef&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">&#39;def&#39;</span>
+</pre></div>
+</div>
+<p>この例ではハイフンに続く単語を探します:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(?&lt;=-)\w+&#39;</span><span class="p">,</span> <span class="s1">&#39;spam-egg&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">&#39;egg&#39;</span>
+</pre></div>
+</div>
+<div class="last versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>固定長のグループ参照をサポートするようになりました。</p>
+</div>
+</dd>
+</dl>
+<dl class="docutils" id="index-23">
+<dt><code class="docutils literal notranslate"><span class="pre">(?&lt;!...)</span></code></dt>
+<dd>その文字列における現在位置の前に <code class="docutils literal notranslate"><span class="pre">...</span></code> とのマッチがなければ、マッチします。これは <em class="dfn">否定後読みアサーション(negative lookbehind assertion)</em> と呼ばれます。肯定後読みアサーションと同様に、含まれるパターンは固定長の文字列にのみマッチしなければなりません。否定後読みアサーションで始まるパターンは検索される文字列の先頭でマッチできます。</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">(?(id/name)yes-pattern|no-pattern)</span></code></dt>
+<dd>与えられた <em>id</em> や <em>name</em> のグループが存在すれば <code class="docutils literal notranslate"><span class="pre">yes-pattern</span></code> との、存在しなければ <code class="docutils literal notranslate"><span class="pre">no-pattern</span></code> とのマッチを試みます。<code class="docutils literal notranslate"><span class="pre">no-pattern</span></code> はオプションであり省略できます。例えば、<code class="docutils literal notranslate"><span class="pre">(&lt;)?(\w+&#64;\w+(?:\.\w+)+)(?(1)&gt;|$)</span></code> は貧弱な E-mail マッチングパターンで、<code class="docutils literal notranslate"><span class="pre">'&lt;user&#64;host.com&gt;'</span></code> や <code class="docutils literal notranslate"><span class="pre">'user&#64;host.com'</span></code> にはマッチしますが、<code class="docutils literal notranslate"><span class="pre">'&lt;user&#64;host.com'</span></code> や <code class="docutils literal notranslate"><span class="pre">'user&#64;host.com&gt;'</span></code> にはマッチしません。</dd>
+</dl>
+<p>特殊シーケンスは <code class="docutils literal notranslate"><span class="pre">'\'</span></code> と以下のリストの文字から構成されます。通常文字が ASCII 数字でも ASCII 文字でもなければ、結果の正規表現は 2 番目の文字にマッチします。例えば、<code class="docutils literal notranslate"><span class="pre">\$</span></code> は文字 <code class="docutils literal notranslate"><span class="pre">'$'</span></code> にマッチします。</p>
+<dl class="docutils" id="index-24">
+<dt><code class="docutils literal notranslate"><span class="pre">\number</span></code></dt>
+<dd>同じ番号のグループの中身にマッチします。グループは 1 から始まる番号をつけられます。例えば、 <code class="docutils literal notranslate"><span class="pre">(.+)</span> <span class="pre">\1</span></code> は、 <code class="docutils literal notranslate"><span class="pre">'the</span> <span class="pre">the'</span></code> あるいは <code class="docutils literal notranslate"><span class="pre">'55</span> <span class="pre">55'</span></code> にマッチしますが、 <code class="docutils literal notranslate"><span class="pre">'thethe'</span></code> にはマッチしません(グループの後のスペースに注意して下さい)。この特殊シーケンスは最初の 99 グループのうちの一つとのマッチにのみ使えます。 <em>number</em> の最初の桁が 0 であるか、 <em>number</em> が 3 桁の 8 進数であれば、それはグループのマッチとしてではなく、 8 進値 <em>number</em> を持つ文字として解釈されます。文字クラスの <code class="docutils literal notranslate"><span class="pre">'['</span></code> と <code class="docutils literal notranslate"><span class="pre">']'</span></code> の間では全ての数値エスケープが文字として扱われます。</dd>
+</dl>
+<dl class="docutils" id="index-25">
+<dt><code class="docutils literal notranslate"><span class="pre">\A</span></code></dt>
+<dd>文字列の先頭でのみマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-26">
+<dt><code class="docutils literal notranslate"><span class="pre">\b</span></code></dt>
+<dd><p class="first">空文字列にマッチしますが、単語の先頭か末尾でのみです。単語は単語文字の並びとして定義されます。形式的には、 <code class="docutils literal notranslate"><span class="pre">\b</span></code> は <code class="docutils literal notranslate"><span class="pre">\w</span></code> と <code class="docutils literal notranslate"><span class="pre">\W</span></code> 文字 (またはその逆) との、あるいは <code class="docutils literal notranslate"><span class="pre">\w</span></code> と文字列の先頭・末尾との境界として定義されます。例えば、 <code class="docutils literal notranslate"><span class="pre">r'\bfoo\b'</span></code> は <code class="docutils literal notranslate"><span class="pre">'foo'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'foo.'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'(foo)'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'bar</span> <span class="pre">foo</span> <span class="pre">baz'</span></code> にはマッチしますが、 <code class="docutils literal notranslate"><span class="pre">'foobar'</span></code> や <code class="docutils literal notranslate"><span class="pre">'foo3'</span></code> にはマッチしません。</p>
+<p class="last">デフォルトの Unicode 英数字は Unicode パターン中で使われるものと同じですが、これは <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグを使って変更できます。 <a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">LOCALE</span></code></a> フラグが使われているなら単語の境界は現在のロケールによって決定されます。Python の文字列リテラルとの互換性のため、文字列範囲中では、 <code class="docutils literal notranslate"><span class="pre">\b</span></code> は後退 (backspace) 文字を表します。</p>
+</dd>
+</dl>
+<dl class="docutils" id="index-27">
+<dt><code class="docutils literal notranslate"><span class="pre">\B</span></code></dt>
+<dd>空文字列にマッチしますが、それが単語の先頭か末尾 <em>でない</em> ときのみです。つまり <code class="docutils literal notranslate"><span class="pre">r'py\B'</span></code> は <code class="docutils literal notranslate"><span class="pre">'python'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'py3'</span></code> 、<code class="docutils literal notranslate"><span class="pre">'py2'</span></code> にマッチしますが、 <code class="docutils literal notranslate"><span class="pre">'py'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'py.'</span></code> 、 または <code class="docutils literal notranslate"><span class="pre">'py!'</span></code> にはマッチしません。 <code class="docutils literal notranslate"><span class="pre">\B</span></code> は <code class="docutils literal notranslate"><span class="pre">\b</span></code> のちょうど反対で、 Unicode パターンにおける単語文字は Unicode 英数字およびアンダースコアですが、 これは <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグを使って変更できます。 <a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">LOCALE</span></code></a> フラグが使われているなら単語の境界は現在のロケールによって決定されます。</dd>
+</dl>
+<dl class="docutils" id="index-28">
+<dt><code class="docutils literal notranslate"><span class="pre">\d</span></code></dt>
+<dd><dl class="first last docutils">
+<dt>Unicode (str) パターンでは:</dt>
+<dd>任意の Unicode 10 進数字 (Unicode 文字カテゴリ [Nd]) にマッチします。これは <code class="docutils literal notranslate"><span class="pre">[0-9]</span></code> とその他多数の数字を含みます。 <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているなら <code class="docutils literal notranslate"><span class="pre">[0-9]</span></code> のみにマッチします。</dd>
+<dt>8 ビット (bytes) パターンでは:</dt>
+<dd>任意の 10 進数字にマッチします。これは <code class="docutils literal notranslate"><span class="pre">[0-9]</span></code> と等価です。</dd>
+</dl>
+</dd>
+</dl>
+<dl class="docutils" id="index-29">
+<dt><code class="docutils literal notranslate"><span class="pre">\D</span></code></dt>
+<dd>10 進数字でない任意の文字にマッチします。これは <code class="docutils literal notranslate"><span class="pre">\d</span></code> の反対です。<a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているならこれは <code class="docutils literal notranslate"><span class="pre">[^0-9]</span></code> と等価になります。</dd>
+</dl>
+<dl class="docutils" id="index-30">
+<dt><code class="docutils literal notranslate"><span class="pre">\s</span></code></dt>
+<dd><dl class="first last docutils">
+<dt>Unicode (str) パターンでは:</dt>
+<dd>Unicode 空白文字 (これは <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">\t\n\r\f\v]</span></code> その他多くの文字、例えば多くの言語におけるタイポグラフィ規則で定義されたノーブレークスペースなどを含みます) にマッチします。 <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているなら、<code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">\t\n\r\f\v]</span></code> のみにマッチします。</dd>
+<dt>8 ビット (bytes) パターンでは:</dt>
+<dd>ASCII 文字セットで空白文字と見なされる文字にマッチします。これは <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">\t\n\r\f\v]</span></code> と等価です。</dd>
+</dl>
+</dd>
+</dl>
+<dl class="docutils" id="index-31">
+<dt><code class="docutils literal notranslate"><span class="pre">\S</span></code></dt>
+<dd>空白文字ではない任意の文字にマッチします。これは <code class="docutils literal notranslate"><span class="pre">\s</span></code> の反対です。<a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているならこれは <code class="docutils literal notranslate"><span class="pre">[^</span> <span class="pre">\t\n\r\f\v]</span></code> と等価になります。</dd>
+</dl>
+<dl class="docutils" id="index-32">
+<dt><code class="docutils literal notranslate"><span class="pre">\w</span></code></dt>
+<dd><dl class="first last docutils">
+<dt>Unicode (str) パターンでは:</dt>
+<dd>Unicode 単語文字にマッチします。これはあらゆる言語で単語の一部になりうるほとんどの文字、数字、およびアンダースコアを含みます。<a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているなら、 <code class="docutils literal notranslate"><span class="pre">[a-zA-Z0-9_]</span></code> のみにマッチします。</dd>
+<dt>8 ビット (bytes) パターンでは:</dt>
+<dd>ASCII 文字セットで英数字と見なされる文字にマッチします。これは <code class="docutils literal notranslate"><span class="pre">[a-zA-Z0-9_]</span></code> と等価です。<a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">LOCALE</span></code></a> フラグが使われているなら、現在のロケールで英数字と見なされる文字およびアンダースコアにマッチします。</dd>
+</dl>
+</dd>
+</dl>
+<dl class="docutils" id="index-33">
+<dt><code class="docutils literal notranslate"><span class="pre">\W</span></code></dt>
+<dd>単語文字ではない任意の文字にマッチします。これは <code class="docutils literal notranslate"><span class="pre">\w</span></code> の反対です。 <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているなら、これは <code class="docutils literal notranslate"><span class="pre">[^a-zA-Z0-9_]</span></code> と等価になります。<a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">LOCALE</span></code></a> フラグが使われているなら、現在のロケールの英数字でもアンダースコアでもない文字にマッチします。</dd>
+</dl>
+<dl class="docutils" id="index-34">
+<dt><code class="docutils literal notranslate"><span class="pre">\Z</span></code></dt>
+<dd>文字列の末尾でのみマッチします。</dd>
+</dl>
+<p id="index-35">Python 文字列リテラルでサポートされている標準エスケープのほとんども正規表現パーザで受理されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span>\<span class="n">a</span>      \<span class="n">b</span>      \<span class="n">f</span>      \<span class="n">n</span>
+\<span class="n">N</span>      \<span class="n">r</span>      \<span class="n">t</span>      \<span class="n">u</span>
+\<span class="n">U</span>      \<span class="n">v</span>      \<span class="n">x</span>      \\
+</pre></div>
+</div>
+<p>(<code class="docutils literal notranslate"><span class="pre">\b</span></code> は単語の境界を表すのに使われ、文字クラス中でのみ &quot;後退 (backspace)&quot; 文字を意味することに注意してください。)</p>
+<p><code class="docutils literal notranslate"><span class="pre">'\u'</span></code>、<code class="docutils literal notranslate"><span class="pre">'\U'</span></code> および <code class="docutils literal notranslate"><span class="pre">'\N'</span></code> エスケープシーケンスは、Unicode パターン内でのみ認識されます。バイト列ではエラーとなります。ASCII 文字のエスケープで未知のものは将来使うために予約されていて、エラーとして扱われます。</p>
+<p>8 進エスケープは限られた形式でのみ含まれます。その最初の桁が 0 であるか、それが 3 桁の 8 進数であるならば、それは 8 進エスケープと見なされます。そうでなければ、それはグループ参照です。文字列リテラルでは、8 進エスケープは常にたかだか 3 桁長です。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><code class="docutils literal notranslate"><span class="pre">'\u'</span></code> と <code class="docutils literal notranslate"><span class="pre">'\U'</span></code> エスケープシーケンスが追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><code class="docutils literal notranslate"><span class="pre">'\'</span></code> と ASCII 文字からなる未知のエスケープはエラーになります。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.8 で変更: </span><code class="docutils literal notranslate"><span class="pre">'\N{name}'</span></code> エスケープシーケンスが追加されました。文字列リテラルでは、同名のUnicode 文字に展開されます。(<code class="docutils literal notranslate"><span class="pre">'\N{EM</span> <span class="pre">DASH}'</span></code> など)</p>
+</div>
+</div>
+<div class="section" id="module-contents">
+<span id="contents-of-module-re"></span><h2>モジュールコンテンツ<a class="headerlink" href="#module-contents" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このモジュールはいくつかの関数、定数、例外を定義します。このうちいくつかの関数は、コンパイル済み正規表現がそなえる完全な機能のメソッドを簡易にしたものです。些細なものを除くほとんどのアプリケーションは常にコンパイル済み形式を使います。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span>フラグ定数は、<a class="reference internal" href="enum.html#enum.IntFlag" title="enum.IntFlag"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.IntFlag</span></code></a> のサブクラスである <code class="xref py py-class docutils literal notranslate"><span class="pre">RegexFlag</span></code> のインスタンスになりました。</p>
+</div>
+<dl class="function">
+<dt id="re.compile">
+<code class="descclassname">re.</code><code class="descname">compile</code><span class="sig-paren">(</span><em>pattern</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.compile" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>正規表現パターンを <a class="reference internal" href="#re-objects"><span class="std std-ref">正規表現オブジェクト</span></a> にコンパイルし、以下に述べる <a class="reference internal" href="#re.Pattern.match" title="re.Pattern.match"><code class="xref py py-func docutils literal notranslate"><span class="pre">match()</span></code></a> 、 <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> その他のメソッドを使ってマッチングに使えるようにします。</p>
+<p>式の挙動は <em>flags</em> の値を指定することで加減できます。値は以下の変数のうち任意のものを、ビット単位 OR ( <code class="docutils literal notranslate"><span class="pre">|</span></code> 演算子) で組み合わせたものです。</p>
+<p>シーケンス</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">prog</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">prog</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>は、以下と同等です</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>が、 <a class="reference internal" href="#re.compile" title="re.compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.compile()</span></code></a> を使い、結果の正規表現オブジェクトを保存して再利用するほうが、一つのプログラムでその表現を何回も使うときに効率的です。</p>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p class="last"><a class="reference internal" href="#re.compile" title="re.compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.compile()</span></code></a> やモジュールレベルのマッチング関数に渡された最新のパターンはコンパイル済みのものがキャッシュされるので、一度に正規表現を少ししか使わないプログラムでは正規表現をコンパイルする必要はありません。</p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.A">
+<code class="descclassname">re.</code><code class="descname">A</code><a class="headerlink" href="#re.A" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.ASCII">
+<code class="descclassname">re.</code><code class="descname">ASCII</code><a class="headerlink" href="#re.ASCII" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">\w</span></code> 、<code class="docutils literal notranslate"><span class="pre">\W</span></code> 、<code class="docutils literal notranslate"><span class="pre">\b</span></code> 、<code class="docutils literal notranslate"><span class="pre">\B</span></code> 、<code class="docutils literal notranslate"><span class="pre">\d</span></code> 、<code class="docutils literal notranslate"><span class="pre">\D</span></code> 、<code class="docutils literal notranslate"><span class="pre">\s</span></code> 、および <code class="docutils literal notranslate"><span class="pre">\S</span></code> に、完全な Unicode マッチングではなく ASCII 限定マッチングを行わせます。これは Unicode パターンでのみ意味があり、バイト列パターンでは無視されます。インラインフラグの <code class="docutils literal notranslate"><span class="pre">(?a)</span></code> に相当します。</p>
+<p>後方互換性のため、<code class="xref py py-const docutils literal notranslate"><span class="pre">re.U</span></code> フラグ (と同義の <code class="xref py py-const docutils literal notranslate"><span class="pre">re.UNICODE</span></code> および埋め込みで使用する <code class="docutils literal notranslate"><span class="pre">(?u)</span></code>) はまだ存在しますが、Python 3 では文字列のマッチがデフォルトで Unicode (そしてバイト列では Unicode マッチングが扱えない) なので冗長です。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.DEBUG">
+<code class="descclassname">re.</code><code class="descname">DEBUG</code><a class="headerlink" href="#re.DEBUG" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>コンパイル済み表現に関するデバッグ情報を表示します。相当するインラインフラグはありません。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.I">
+<code class="descclassname">re.</code><code class="descname">I</code><a class="headerlink" href="#re.I" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.IGNORECASE">
+<code class="descclassname">re.</code><code class="descname">IGNORECASE</code><a class="headerlink" href="#re.IGNORECASE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>大文字・小文字を区別しないマッチングを行います; <code class="docutils literal notranslate"><span class="pre">[A-Z]</span></code> のような正規表現は小文字にもマッチします。
+<a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.ASCII</span></code></a> フラグを使い、非 ASCII マッチが無効化されていない限り、 (<code class="docutils literal notranslate"><span class="pre">Ü</span></code> が <code class="docutils literal notranslate"><span class="pre">ü</span></code> にマッチするような) 完全な Unicode マッチングも有効です。
+<a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.LOCALE</span></code></a> フラグも一緒に使われていない限り、現在のロケールがこのフラグの効果を変更することはありません。
+インラインフラグの <code class="docutils literal notranslate"><span class="pre">(?i)</span></code> に相当します。</p>
+<p>Unicode パターン <code class="docutils literal notranslate"><span class="pre">[a-z]</span></code> または <code class="docutils literal notranslate"><span class="pre">[A-Z]</span></code> が <a class="reference internal" href="#re.IGNORECASE" title="re.IGNORECASE"><code class="xref py py-const docutils literal notranslate"><span class="pre">IGNORECASE</span></code></a> フラグとあわせて使われたとき、52 の ASCII 文字に加えて 4 の非 ASCII 文字 'İ' (U+0130, Latin capital letter I with dot above) 、 'ı' (U+0131, Latin small letter dotless i) 、 'ſ' (U+017F, Latin small letter long s) および 'K' (U+212A, Kelvin sign) にマッチすることに注意してください。 <a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">ASCII</span></code></a> フラグが使われているなら、文字 'a' から 'z' および 'A' から 'Z' にのみマッチします。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.L">
+<code class="descclassname">re.</code><code class="descname">L</code><a class="headerlink" href="#re.L" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.LOCALE">
+<code class="descclassname">re.</code><code class="descname">LOCALE</code><a class="headerlink" href="#re.LOCALE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">\w</span></code> 、 <code class="docutils literal notranslate"><span class="pre">\W</span></code> 、 <code class="docutils literal notranslate"><span class="pre">\b</span></code> 、 <code class="docutils literal notranslate"><span class="pre">\B</span></code> および大文字・小文字を区別しないマッチングを、現在のロケールに依存させます。ロケールの仕組みは信頼できず、一度に一つの &quot;文化&quot; しか扱えず、 8 ビットロケールでしか働かないので、このフラグを使うことは推奨されません。Python 3 において Unicode (str) パターンでは Unicode マッチングはデフォルトですでに有効にされていて、異なるロケールや言語を扱えます。インラインフラグの <code class="docutils literal notranslate"><span class="pre">(?L)</span></code> に相当します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.LOCALE</span></code></a> はバイト列パターンにのみ使え、<a class="reference internal" href="#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.ASCII</span></code></a> と互換ではありません。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><a class="reference internal" href="#re.LOCALE" title="re.LOCALE"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.LOCALE</span></code></a> フラグがあるコンパイル済み正規表現オブジェクトはコンパイル時のロケールに依存しなくなりました。マッチング時のロケールのみがマッチングの結果に影響します。</p>
+</div>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.M">
+<code class="descclassname">re.</code><code class="descname">M</code><a class="headerlink" href="#re.M" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.MULTILINE">
+<code class="descclassname">re.</code><code class="descname">MULTILINE</code><a class="headerlink" href="#re.MULTILINE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定されていると、パターン文字 <code class="docutils literal notranslate"><span class="pre">'^'</span></code> は文字列の先頭で、および各行の先頭 (各改行の直後) で、マッチします。そしてパターン文字 <code class="docutils literal notranslate"><span class="pre">'$'</span></code> は文字列の末尾で、および各行の末尾 (各改行の直前) で、マッチします。デフォルトでは、 <code class="docutils literal notranslate"><span class="pre">'^'</span></code> は文字列の先頭でのみ、<code class="docutils literal notranslate"><span class="pre">'$'</span></code> は文字列の末尾および文字列の末尾の改行 (もしあれば) の直前でのみマッチします。インラインフラグの <code class="docutils literal notranslate"><span class="pre">(?m)</span></code> に相当します。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.S">
+<code class="descclassname">re.</code><code class="descname">S</code><a class="headerlink" href="#re.S" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.DOTALL">
+<code class="descclassname">re.</code><code class="descname">DOTALL</code><a class="headerlink" href="#re.DOTALL" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">'.'</span></code> 特殊文字を、改行を含むあらゆる文字にマッチさせます。このフラグがなければ、<code class="docutils literal notranslate"><span class="pre">'.'</span></code> は、改行 <em>以外の</em> あらゆる文字とマッチします。インラインフラグの <code class="docutils literal notranslate"><span class="pre">(?s)</span></code> に相当します。</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="re.X">
+<code class="descclassname">re.</code><code class="descname">X</code><a class="headerlink" href="#re.X" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.VERBOSE">
+<code class="descclassname">re.</code><code class="descname">VERBOSE</code><a class="headerlink" href="#re.VERBOSE" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p id="index-36">このフラグは正規表現を、パターンの論理的な節を視覚的に分割し、コメントを加えることで、見た目よく読みやすく書けるようにします。パターン中の空白は、文字クラス中にあるときと、エスケープされていないバックスラッシュの後にあるときと、 <code class="docutils literal notranslate"><span class="pre">*?</span></code> 、 <code class="docutils literal notranslate"><span class="pre">(?:</span></code> や <code class="docutils literal notranslate"><span class="pre">(?P&lt;...&gt;</span></code> のようなトークン中を除いて無視されます。ある行が文字クラス中でもエスケープされていないバックスラッシュの後でもない <code class="docutils literal notranslate"><span class="pre">#</span></code> を含むなら、一番左のそのような <code class="docutils literal notranslate"><span class="pre">#</span></code> から行末までの全ての文字は無視されます。</p>
+<p>つまり、10 進数字にマッチする下記のふたつの正規表現オブジェクトは、機能的に等価です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&quot;&quot;\d +  # the integral part</span>
+<span class="s2">                   \.    # the decimal point</span>
+<span class="s2">                   \d *  # some fractional digits&quot;&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+\.\d*&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>インラインフラグの <code class="docutils literal notranslate"><span class="pre">(?x)</span></code> に相当します。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.search">
+<code class="descclassname">re.</code><code class="descname">search</code><span class="sig-paren">(</span><em>pattern</em>, <em>string</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.search" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> を走査し、正規表現 <em>pattern</em> がマッチを生じさせる最初の場所を探して、対応する <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返します。文字列内にパターンにマッチする場所がなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。これは文字列のどこかで長さ 0 のマッチを見つけるのとは異なることに注意してください。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.match">
+<code class="descclassname">re.</code><code class="descname">match</code><span class="sig-paren">(</span><em>pattern</em>, <em>string</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.match" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> の先頭で 0 個以上の文字が正規表現 <em>pattern</em> にマッチすれば、対応する <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返します。文字列がパターンにマッチしなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。これは長さ 0 のマッチとは異なることに注意して下さい。</p>
+<p><a class="reference internal" href="#re.MULTILINE" title="re.MULTILINE"><code class="xref py py-const docutils literal notranslate"><span class="pre">MULTILINE</span></code></a> モードにおいても、<a class="reference internal" href="#re.match" title="re.match"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.match()</span></code></a> は各行の先頭でマッチするのではなく、文字列の先頭でのみマッチすることに注意してください。</p>
+<p><em>string</em> 中のどこででもマッチさせたいなら、代わりに <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> を使ってください (<a class="reference internal" href="#search-vs-match"><span class="std std-ref">search() vs. match()</span></a> も参照してください)。</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.fullmatch">
+<code class="descclassname">re.</code><code class="descname">fullmatch</code><span class="sig-paren">(</span><em>pattern</em>, <em>string</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.fullmatch" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> 全体が正規表現 <em>pattern</em> にマッチするなら、対応する <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返します。文字列がパターンにマッチしないなら <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。これは長さ 0 のマッチとは異なることに注意して下さい。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.split">
+<code class="descclassname">re.</code><code class="descname">split</code><span class="sig-paren">(</span><em>pattern</em>, <em>string</em>, <em>maxsplit=0</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.split" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> を、出現した <em>pattern</em> で分割します。 <em>pattern</em> 中でキャプチャの丸括弧が使われていれば、パターン中の全てのグループのテキストも結果のリストの一部として返されます。<em>maxsplit</em> が 0 でなければ、分割は最大 <em>maxsplit</em> 回起こり、残りの文字列はリストの最終要素として返されます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\W+&#39;</span><span class="p">,</span> <span class="s1">&#39;Words, words, words.&#39;</span><span class="p">)</span>
+<span class="go">[&#39;Words&#39;, &#39;words&#39;, &#39;words&#39;, &#39;&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\W+)&#39;</span><span class="p">,</span> <span class="s1">&#39;Words, words, words.&#39;</span><span class="p">)</span>
+<span class="go">[&#39;Words&#39;, &#39;, &#39;, &#39;words&#39;, &#39;, &#39;, &#39;words&#39;, &#39;.&#39;, &#39;&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\W+&#39;</span><span class="p">,</span> <span class="s1">&#39;Words, words, words.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">[&#39;Words&#39;, &#39;words, words.&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[a-f]+&#39;</span><span class="p">,</span> <span class="s1">&#39;0a3B9&#39;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+<span class="go">[&#39;0&#39;, &#39;3&#39;, &#39;9&#39;]</span>
+</pre></div>
+</div>
+<p>セパレータ中にキャプチャグループがあり、それが文字列の先頭にマッチするなら、結果は空文字列で始まります。同じことが文字列の末尾にも言えます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\W+)&#39;</span><span class="p">,</span> <span class="s1">&#39;...words, words...&#39;</span><span class="p">)</span>
+<span class="go">[&#39;&#39;, &#39;...&#39;, &#39;words&#39;, &#39;, &#39;, &#39;words&#39;, &#39;...&#39;, &#39;&#39;]</span>
+</pre></div>
+</div>
+<p>そうして、結果のリストにおいて、セパレータの構成要素は常に同じ相対的インデックスに見つかります。</p>
+<p>パターンへの空マッチは、直前の空マッチに隣接していないときのみ文字列を分割します。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\b&#39;</span><span class="p">,</span> <span class="s1">&#39;Words, words, words.&#39;</span><span class="p">)</span>
+<span class="go">[&#39;&#39;, &#39;Words&#39;, &#39;, &#39;, &#39;words&#39;, &#39;, &#39;, &#39;words&#39;, &#39;.&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\W*&#39;</span><span class="p">,</span> <span class="s1">&#39;...words...&#39;</span><span class="p">)</span>
+<span class="go">[&#39;&#39;, &#39;&#39;, &#39;w&#39;, &#39;o&#39;, &#39;r&#39;, &#39;d&#39;, &#39;s&#39;, &#39;&#39;, &#39;&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\W*)&#39;</span><span class="p">,</span> <span class="s1">&#39;...words...&#39;</span><span class="p">)</span>
+<span class="go">[&#39;&#39;, &#39;...&#39;, &#39;&#39;, &#39;&#39;, &#39;w&#39;, &#39;&#39;, &#39;o&#39;, &#39;&#39;, &#39;r&#39;, &#39;&#39;, &#39;d&#39;, &#39;&#39;, &#39;s&#39;, &#39;...&#39;, &#39;&#39;, &#39;&#39;, &#39;&#39;]</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.1 で変更: </span>オプションの flags 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>空文字列にマッチしうるパターンでの分割をサポートするようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.findall">
+<code class="descclassname">re.</code><code class="descname">findall</code><span class="sig-paren">(</span><em>pattern</em>, <em>string</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.findall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> 中の <em>pattern</em> による全ての重複しないマッチを、文字列のリストとして返します。 <em>string</em> は左から右へ走査され、マッチは見つかった順で返されます。パターン中に 1 つ以上のグループがあれば、グループのリストを返します。パターンに複数のグループがあればタプルのリストになります。空マッチは結果に含まれます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>空でないマッチが前の空マッチの直後から始められるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.finditer">
+<code class="descclassname">re.</code><code class="descname">finditer</code><span class="sig-paren">(</span><em>pattern</em>, <em>string</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.finditer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> 中の正規表現 <em>pattern</em> の重複しないマッチ全てに渡る <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を yield する <a class="reference internal" href="../glossary.html#term-iterator"><span class="xref std std-term">イテレータ</span></a> を返します。  <em>string</em> は左から右へ走査され、マッチは見つかった順で返されます。空マッチは結果に含まれます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>空でないマッチが前の空マッチの直後から始められるようになりました。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.sub">
+<code class="descclassname">re.</code><code class="descname">sub</code><span class="sig-paren">(</span><em>pattern</em>, <em>repl</em>, <em>string</em>, <em>count=0</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.sub" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> 中に出現する最も左の重複しない <em>pattern</em> を置換 <em>repl</em> で置換することで得られる文字列を返します。
+パターンが見つからない場合、 <em>string</em> がそのまま返されます。
+<em>repl</em> は文字列または関数です。
+<em>repl</em> が文字列の場合は、その中の全てのバックスラッシュエスケープが処理されます。
+<code class="docutils literal notranslate"><span class="pre">\n</span></code> は 1 つの改行文字に変換され、 <code class="docutils literal notranslate"><span class="pre">\r</span></code> はキャリッジリターンに変換される、などです。
+ASCII 文字のエスケープで未知のものは将来使うために予約されていて、エラーとして扱われます。
+それ以外の <code class="docutils literal notranslate"><span class="pre">\&amp;</span></code> のような未知のエスケープは残されます。
+<code class="docutils literal notranslate"><span class="pre">\6</span></code> のような後方参照は、パターンのグループ 6 がマッチした部分文字列で置換されます。
+例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;def\s+([a-zA-Z_][a-zA-Z_0-9]*)\s*\(\s*\):&#39;</span><span class="p">,</span>
+<span class="gp">... </span>       <span class="sa">r</span><span class="s1">&#39;static PyObject*\npy_\1(void)\n{&#39;</span><span class="p">,</span>
+<span class="gp">... </span>       <span class="s1">&#39;def myfunc():&#39;</span><span class="p">)</span>
+<span class="go">&#39;static PyObject*\npy_myfunc(void)\n{&#39;</span>
+</pre></div>
+</div>
+<p><em>repl</em> が関数であれば、それは重複しない <em>pattern</em> が出現するたびに呼び出されます。この関数は一つの <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> 引数を取り、置換文字列を返します。例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">dashrepl</span><span class="p">(</span><span class="n">matchobj</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">matchobj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span> <span class="k">return</span> <span class="s1">&#39; &#39;</span>
+<span class="gp">... </span>    <span class="k">else</span><span class="p">:</span> <span class="k">return</span> <span class="s1">&#39;-&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;-{1,2}&#39;</span><span class="p">,</span> <span class="n">dashrepl</span><span class="p">,</span> <span class="s1">&#39;pro----gram-files&#39;</span><span class="p">)</span>
+<span class="go">&#39;pro--gram files&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\sAND\s&#39;</span><span class="p">,</span> <span class="s1">&#39; &amp; &#39;</span><span class="p">,</span> <span class="s1">&#39;Baked Beans And Spam&#39;</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+<span class="go">&#39;Baked Beans &amp; Spam&#39;</span>
+</pre></div>
+</div>
+<p>パターンは、文字列でも <a class="reference internal" href="#re-objects"><span class="std std-ref">パターンオブジェクト</span></a> でも構いません。</p>
+<p>オプション引数 <em>count</em> は出現したパターンを置換する最大の回数です。 <em>count</em> は非負整数です。省略されるか 0 なら、出現した全てが置換されます。パターンへの空マッチは前の空マッチに隣接していないときのみ置換されるので、 <code class="docutils literal notranslate"><span class="pre">sub('x*',</span> <span class="pre">'-',</span> <span class="pre">'abxd')</span></code> は <code class="docutils literal notranslate"><span class="pre">'-a-b--d-'</span></code> を返します。</p>
+<p id="index-37">文字列型 <em>repl</em> 引数では、上で述べた文字エスケープや後方参照に加えて、 <code class="docutils literal notranslate"><span class="pre">\g&lt;name&gt;</span></code> は <code class="docutils literal notranslate"><span class="pre">(?P&lt;name&gt;...)</span></code> 構文で定義された <code class="docutils literal notranslate"><span class="pre">name</span></code> という名前のグループがマッチした部分文字列を使い、 <code class="docutils literal notranslate"><span class="pre">\g&lt;number&gt;</span></code> は対応するグループ番号を使います。よって <code class="docutils literal notranslate"><span class="pre">\g&lt;2&gt;</span></code> は <code class="docutils literal notranslate"><span class="pre">\2</span></code> と等価ですが、 <code class="docutils literal notranslate"><span class="pre">\g&lt;2&gt;0</span></code> のような置換においても曖昧になりません。 <code class="docutils literal notranslate"><span class="pre">\20</span></code> は、グループ 20 への参照として解釈され、グループ 2 への参照にリテラル文字 <code class="docutils literal notranslate"><span class="pre">'0'</span></code> が続いたものとしては解釈されません。後方参照 <code class="docutils literal notranslate"><span class="pre">\g&lt;0&gt;</span></code> は正規表現とマッチした部分文字列全体で置き換わります。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.1 で変更: </span>オプションの flags 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>マッチしなかったグループは空文字列に置き換えられます。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.6 で変更: </span><em>pattern</em> 中に <code class="docutils literal notranslate"><span class="pre">'\'</span></code> と ASCII 文字からなる未知のエスケープがあると、エラーになります。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><em>repl</em> 中に <code class="docutils literal notranslate"><span class="pre">'\'</span></code> と ASCII 文字からなる未知のエスケープがあると、エラーになります。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>パターンへの空マッチは前の空でないマッチに隣接しているとき置き換えられます。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.subn">
+<code class="descclassname">re.</code><code class="descname">subn</code><span class="sig-paren">(</span><em>pattern</em>, <em>repl</em>, <em>string</em>, <em>count=0</em>, <em>flags=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.subn" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.sub" title="re.sub"><code class="xref py py-func docutils literal notranslate"><span class="pre">sub()</span></code></a> と同じ操作を行いますが、タプル <code class="docutils literal notranslate"><span class="pre">(new_string、</span> <span class="pre">number_of_subs_made)</span></code> を返します。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.1 で変更: </span>オプションの flags 引数が追加されました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>マッチしなかったグループは空文字列に置き換えられます。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.escape">
+<code class="descclassname">re.</code><code class="descname">escape</code><span class="sig-paren">(</span><em>pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#re.escape" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>pattern</em> 中の特殊文字をエスケープします。これは正規表現メタ文字を含みうる任意のリテラル文字列にマッチしたい時に便利です。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s1">&#39;http://www.python.org&#39;</span><span class="p">))</span>
+<span class="go">http://www\.python\.org</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">legal_chars</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_lowercase</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="s2">&quot;!#$%&amp;&#39;*+-.^_`|~:&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]+&#39;</span> <span class="o">%</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">legal_chars</span><span class="p">))</span>
+<span class="go">[abcdefghijklmnopqrstuvwxyz0123456789!\#\$%\&amp;&#39;\*\+\-\.\^_`\|\~:]+</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">operators</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;**&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">operators</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))))</span>
+<span class="go">/|\-|\+|\*\*|\*</span>
+</pre></div>
+</div>
+<p>この関数は、バックスラッシュのみをエスケープするべき <a class="reference internal" href="#re.sub" title="re.sub"><code class="xref py py-func docutils literal notranslate"><span class="pre">sub()</span></code></a> および <a class="reference internal" href="#re.subn" title="re.subn"><code class="xref py py-func docutils literal notranslate"><span class="pre">subn()</span></code></a> における置換文字列に使われてはなりません。例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">digits_re</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;\d+&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="s1">&#39;/usr/sbin/sendmail - 0 errors, 12 warnings&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">digits_re</span><span class="p">,</span> <span class="n">digits_re</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">sample</span><span class="p">))</span>
+<span class="go">/usr/sbin/sendmail - \d+ errors, \d+ warnings</span>
+</pre></div>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><code class="docutils literal notranslate"><span class="pre">'_'</span></code> 文字がエスケープされなくなりました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span>正規表現で特別な意味を持つ文字だけがエスケープされます。結果として、 <code class="docutils literal notranslate"><span class="pre">'!'</span></code>、 <code class="docutils literal notranslate"><span class="pre">'&quot;'</span></code>、 <code class="docutils literal notranslate"><span class="pre">'%'</span></code>、 <code class="docutils literal notranslate"><span class="pre">&quot;'&quot;</span></code>、 <code class="docutils literal notranslate"><span class="pre">','</span></code>、 <code class="docutils literal notranslate"><span class="pre">'/'</span></code>、 <code class="docutils literal notranslate"><span class="pre">':'</span></code>、 <code class="docutils literal notranslate"><span class="pre">';'</span></code>、 <code class="docutils literal notranslate"><span class="pre">'&lt;'</span></code>、 <code class="docutils literal notranslate"><span class="pre">'='</span></code>、 <code class="docutils literal notranslate"><span class="pre">'&gt;'</span></code>、 <code class="docutils literal notranslate"><span class="pre">'&#64;'</span></code>、 と <code class="docutils literal notranslate"><span class="pre">&quot;`&quot;</span></code> はもはやエスケープされません。</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="re.purge">
+<code class="descclassname">re.</code><code class="descname">purge</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#re.purge" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>正規表現キャッシュをクリアします。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="re.error">
+<em class="property">exception </em><code class="descclassname">re.</code><code class="descname">error</code><span class="sig-paren">(</span><em>msg</em>, <em>pattern=None</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#re.error" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ここの関数のいずれかに渡された文字列が有効な正規表現ではない (例: 括弧が対になっていない) とき、またはコンパイルやマッチングの際にその他なんらかのエラーが発生した場合に送出される例外です。文字列にパターンとマッチする部分がなくても、それはエラーではありません。エラーインスタンスには、次のような追加の属性があります。</p>
+<dl class="attribute">
+<dt id="re.error.msg">
+<code class="descname">msg</code><a class="headerlink" href="#re.error.msg" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フォーマットされていないエラーメッセージです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.error.pattern">
+<code class="descname">pattern</code><a class="headerlink" href="#re.error.pattern" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>正規表現のパターンです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.error.pos">
+<code class="descname">pos</code><a class="headerlink" href="#re.error.pos" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>pattern</em> のコンパイルに失敗した場所のインデックスです (<code class="docutils literal notranslate"><span class="pre">None</span></code> の場合もあります)。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.error.lineno">
+<code class="descname">lineno</code><a class="headerlink" href="#re.error.lineno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>pos</em> に対応する行です (<code class="docutils literal notranslate"><span class="pre">None</span></code> の場合もあります)。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.error.colno">
+<code class="descname">colno</code><a class="headerlink" href="#re.error.colno" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>pos</em> に対応する列です (<code class="docutils literal notranslate"><span class="pre">None</span></code> の場合もあります)。</p>
+</dd></dl>
+
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>追加の属性が追加されました。</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="regular-expression-objects">
+<span id="re-objects"></span><h2>正規表現オブジェクト<a class="headerlink" href="#regular-expression-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>コンパイル済み正規表現オブジェクトは以下のメソッドと属性をサポートします:</p>
+<dl class="method">
+<dt id="re.Pattern.search">
+<code class="descclassname">Pattern.</code><code class="descname">search</code><span class="sig-paren">(</span><em>string</em><span class="optional">[</span>, <em>pos</em><span class="optional">[</span>, <em>endpos</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.search" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> を走査し、この正規表現がマッチを生じさせる最初の場所を探して、対応する <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返します。文字列内にパターンにマッチする場所がなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。これは文字列内のある場所で長さが 0 のマッチが見つかった場合とは異なることに注意してください。</p>
+<p>オプションの第二引数 <em>pos</em> は、文字列のどこから探し始めるかを指定するインデックスで、デフォルトでは 0 です。これは文字列のスライスと完全には同じではありません。パターン文字 <code class="docutils literal notranslate"><span class="pre">'^'</span></code> は本当の文字列の先頭と改行の直後でマッチしますが、検索を開始するインデックスでマッチするとは限りません。</p>
+<p>オプションの引数 <em>endpos</em> は文字列がどこまで検索されるかを制限します。文字列の長さが <em>endpos</em> 文字だったかのようになるので、<em>pos</em> から <code class="docutils literal notranslate"><span class="pre">endpos</span> <span class="pre">-</span> <span class="pre">1</span></code> の文字に対してだけマッチを探します。<em>endpos</em> が <em>pos</em> よりも小さいと、マッチは見つかりません。そうでなければ、<em>rx</em> をコンパイル済み正規表現オブジェクトとして、<code class="docutils literal notranslate"><span class="pre">rx.search(string,</span> <span class="pre">0,</span> <span class="pre">50)</span></code> は <code class="docutils literal notranslate"><span class="pre">rx.search(string[:50],</span> <span class="pre">0)</span></code> と等価です。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;dog&quot;</span><span class="p">)</span>     <span class="c1"># Match at index 0</span>
+<span class="go">&lt;re.Match object; span=(0, 1), match=&#39;d&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># No match; search doesn&#39;t include the &quot;d&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.match">
+<code class="descclassname">Pattern.</code><code class="descname">match</code><span class="sig-paren">(</span><em>string</em><span class="optional">[</span>, <em>pos</em><span class="optional">[</span>, <em>endpos</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.match" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> の <em>先頭</em> で 0 文字以上がこの正規表現とマッチするなら、対応する <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返します。文字列がパターンにマッチしなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。これは長さ 0 のマッチとは異なることに注意してください。</p>
+<p>オプションの <em>pos</em> および <em>endpos</em> 引数は <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> メソッドのものと同じ意味です。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;dog&quot;</span><span class="p">)</span>      <span class="c1"># No match as &quot;o&quot; is not at the start of &quot;dog&quot;.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>   <span class="c1"># Match as &quot;o&quot; is the 2nd character of &quot;dog&quot;.</span>
+<span class="go">&lt;re.Match object; span=(1, 2), match=&#39;o&#39;&gt;</span>
+</pre></div>
+</div>
+<p><em>string</em> 中のどこででもマッチさせたいなら、代わりに <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> を使ってください (<a class="reference internal" href="#search-vs-match"><span class="std std-ref">search() vs. match()</span></a> も参照してください)。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.fullmatch">
+<code class="descclassname">Pattern.</code><code class="descname">fullmatch</code><span class="sig-paren">(</span><em>string</em><span class="optional">[</span>, <em>pos</em><span class="optional">[</span>, <em>endpos</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.fullmatch" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>string</em> 全体がこの正規表現にマッチすれば、対応する <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返します。文字列がパターンにマッチしなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> を返します。これは長さ 0 のマッチとは異なることに注意してください。</p>
+<p>オプションの <em>pos</em> および <em>endpos</em> 引数は <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> メソッドのものと同じ意味です。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;o[gh]&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;dog&quot;</span><span class="p">)</span>      <span class="c1"># No match as &quot;o&quot; is not at the start of &quot;dog&quot;.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;ogre&quot;</span><span class="p">)</span>     <span class="c1"># No match as not the full string matches.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="s2">&quot;doggie&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>   <span class="c1"># Matches within given limits.</span>
+<span class="go">&lt;re.Match object; span=(1, 3), match=&#39;og&#39;&gt;</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.split">
+<code class="descclassname">Pattern.</code><code class="descname">split</code><span class="sig-paren">(</span><em>string</em>, <em>maxsplit=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.split" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.split" title="re.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> 関数にこのコンパイル済みパターンを使うのと同じです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.findall">
+<code class="descclassname">Pattern.</code><code class="descname">findall</code><span class="sig-paren">(</span><em>string</em><span class="optional">[</span>, <em>pos</em><span class="optional">[</span>, <em>endpos</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.findall" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.findall" title="re.findall"><code class="xref py py-func docutils literal notranslate"><span class="pre">findall()</span></code></a> 関数にこのコンパイル済みパターンを使うのと似ていますが、オプションの <em>pos</em> および <em>endpos</em> 引数で <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> のように検索範囲を制限できます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.finditer">
+<code class="descclassname">Pattern.</code><code class="descname">finditer</code><span class="sig-paren">(</span><em>string</em><span class="optional">[</span>, <em>pos</em><span class="optional">[</span>, <em>endpos</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.finditer" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.finditer" title="re.finditer"><code class="xref py py-func docutils literal notranslate"><span class="pre">finditer()</span></code></a> 関数にこのコンパイル済みパターンを使うのと似ていますが、オプションの <em>pos</em> および <em>endpos</em> 引数で <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> のように検索範囲を制限できます。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.sub">
+<code class="descclassname">Pattern.</code><code class="descname">sub</code><span class="sig-paren">(</span><em>repl</em>, <em>string</em>, <em>count=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.sub" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.sub" title="re.sub"><code class="xref py py-func docutils literal notranslate"><span class="pre">sub()</span></code></a> 関数にこのコンパイル済みパターンを使うのと同じです。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Pattern.subn">
+<code class="descclassname">Pattern.</code><code class="descname">subn</code><span class="sig-paren">(</span><em>repl</em>, <em>string</em>, <em>count=0</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Pattern.subn" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.subn" title="re.subn"><code class="xref py py-func docutils literal notranslate"><span class="pre">subn()</span></code></a> 関数にこのコンパイル済みパターンを使うのと同じです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Pattern.flags">
+<code class="descclassname">Pattern.</code><code class="descname">flags</code><a class="headerlink" href="#re.Pattern.flags" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>正規表現のマッチングフラグです。これは <a class="reference internal" href="#re.compile" title="re.compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> に与えられたフラグ、パターン中の <code class="docutils literal notranslate"><span class="pre">(?...)</span></code> インラインフラグ、およびパターンが Unicode 文字列だった時の <code class="xref py py-data docutils literal notranslate"><span class="pre">UNICODE</span></code> のような暗黙のフラグの組み合わせです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Pattern.groups">
+<code class="descclassname">Pattern.</code><code class="descname">groups</code><a class="headerlink" href="#re.Pattern.groups" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パターン中のキャプチャグループの数です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Pattern.groupindex">
+<code class="descclassname">Pattern.</code><code class="descname">groupindex</code><a class="headerlink" href="#re.Pattern.groupindex" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(?P&lt;id&gt;)</span></code> で定義されたあらゆるシンボリックグループ名をグループ番号へ写像する辞書です。シンボリックグループがパターン中で全く使われていなければ、この辞書は空です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Pattern.pattern">
+<code class="descclassname">Pattern.</code><code class="descname">pattern</code><a class="headerlink" href="#re.Pattern.pattern" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>パターンオブジェクトがコンパイルされた元のパターン文字列です。</p>
+</dd></dl>
+
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><a class="reference internal" href="copy.html#copy.copy" title="copy.copy"><code class="xref py py-func docutils literal notranslate"><span class="pre">copy.copy()</span></code></a> および <a class="reference internal" href="copy.html#copy.deepcopy" title="copy.deepcopy"><code class="xref py py-func docutils literal notranslate"><span class="pre">copy.deepcopy()</span></code></a> をサポートするようになりました。コンパイル済み正規表現オブジェクトはアトミックであると見なされます。</p>
+</div>
+</div>
+<div class="section" id="match-objects">
+<span id="id2"></span><h2>マッチオブジェクト<a class="headerlink" href="#match-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>マッチオブジェクトのブール値は常に <code class="docutils literal notranslate"><span class="pre">True</span></code> です。 <a class="reference internal" href="#re.Pattern.match" title="re.Pattern.match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">match()</span></code></a> および <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> はマッチがないとき <code class="docutils literal notranslate"><span class="pre">None</span></code> を返すので、マッチがあるか単純な <code class="docutils literal notranslate"><span class="pre">if</span></code> 文で判定できます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+    <span class="n">process</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>マッチオブジェクトは以下のメソッドおよび属性をサポートしています:</p>
+<dl class="method">
+<dt id="re.Match.expand">
+<code class="descclassname">Match.</code><code class="descname">expand</code><span class="sig-paren">(</span><em>template</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.expand" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テンプレート文字列 <em>template</em> に <a class="reference internal" href="#re.Pattern.sub" title="re.Pattern.sub"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sub()</span></code></a> メソッドの行うバックスラッシュ置換を行って得られる文字列を返します。 <code class="docutils literal notranslate"><span class="pre">\n</span></code> のようなエスケープは適切な文字に変換され、数後方参照 (<code class="docutils literal notranslate"><span class="pre">\1</span></code>, <code class="docutils literal notranslate"><span class="pre">\2</span></code>) および名前付き後方参照 (<code class="docutils literal notranslate"><span class="pre">\g&lt;1&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">\g&lt;name&gt;</span></code>) は対応するグループの内容に置換されます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.5 で変更: </span>マッチしなかったグループは空文字列に置き換えられます。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Match.group">
+<code class="descclassname">Match.</code><code class="descname">group</code><span class="sig-paren">(</span><span class="optional">[</span><em>group1</em>, <em>...</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.group" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このマッチの 1 つ以上のサブグループを返します。引数が 1 つなら結果は 1 つの文字列です。複数の引数があれば、結果は引数ごとに 1 項目のタプルです。引数がなければ、 <em>group1</em> はデフォルトで 0 (マッチ全体が返される) です。 <em>groupN</em> 引数が 0 なら、対応する返り値はマッチした文字列全体です。1 以上 99 以下なら、丸括弧による対応するグループにマッチする文字列です。グループ番号が負であるかパターン中で定義されたグループの数より大きければ、 <a class="reference internal" href="exceptions.html#IndexError" title="IndexError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndexError</span></code></a> 例外が送出されます。あるグループがパターンのマッチしなかった部分に含まれているなら、対応する結果は <code class="docutils literal notranslate"><span class="pre">None</span></code> です。あるグループがパターンの複数回マッチした部分に含まれているなら、最後のマッチが返されます。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\w+) (\w+)&quot;</span><span class="p">,</span> <span class="s2">&quot;Isaac Newton, physicist&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>       <span class="c1"># The entire match</span>
+<span class="go">&#39;Isaac Newton&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>       <span class="c1"># The first parenthesized subgroup.</span>
+<span class="go">&#39;Isaac&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>       <span class="c1"># The second parenthesized subgroup.</span>
+<span class="go">&#39;Newton&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>    <span class="c1"># Multiple arguments give us a tuple.</span>
+<span class="go">(&#39;Isaac&#39;, &#39;Newton&#39;)</span>
+</pre></div>
+</div>
+<p>正規表現が <code class="docutils literal notranslate"><span class="pre">(?P&lt;name&gt;...)</span></code> 構文を使うなら、 <em>groupN</em> 引数はグループ名でグループを識別する文字列でも構いません。文字列引数がパターン中でグループ名として使われていなければ、 <a class="reference internal" href="exceptions.html#IndexError" title="IndexError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndexError</span></code></a> 例外が送出されます。</p>
+<p>やや複雑な例:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;first_name&gt;\w+) (?P&lt;last_name&gt;\w+)&quot;</span><span class="p">,</span> <span class="s2">&quot;Malcolm Reynolds&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;first_name&#39;</span><span class="p">)</span>
+<span class="go">&#39;Malcolm&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
+<span class="go">&#39;Reynolds&#39;</span>
+</pre></div>
+</div>
+<p>名前付きグループはインデックスでも参照できます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;Malcolm&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">&#39;Reynolds&#39;</span>
+</pre></div>
+</div>
+<p>あるグループが複数回マッチすると、その最後のマッチにのみアクセスできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(..)+&quot;</span><span class="p">,</span> <span class="s2">&quot;a1b2c3&quot;</span><span class="p">)</span>  <span class="c1"># Matches 3 times.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                        <span class="c1"># Returns only the last match.</span>
+<span class="go">&#39;c3&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Match.__getitem__">
+<code class="descclassname">Match.</code><code class="descname">__getitem__</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.__getitem__" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>これは <code class="docutils literal notranslate"><span class="pre">m.group(g)</span></code> と同等です。これでマッチの個別のグループに簡単にアクセスできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\w+) (\w+)&quot;</span><span class="p">,</span> <span class="s2">&quot;Isaac Newton, physicist&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>       <span class="c1"># The entire match</span>
+<span class="go">&#39;Isaac Newton&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>       <span class="c1"># The first parenthesized subgroup.</span>
+<span class="go">&#39;Isaac&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>       <span class="c1"># The second parenthesized subgroup.</span>
+<span class="go">&#39;Newton&#39;</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Match.groups">
+<code class="descclassname">Match.</code><code class="descname">groups</code><span class="sig-paren">(</span><em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.groups" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このマッチの、1 からパターン中のグループ数まで、全てのサブグループを含むタプルを返します。<em>default</em> 引数はマッチに関係しなかったグループに使われます。デフォルトでは <code class="docutils literal notranslate"><span class="pre">None</span></code> です。</p>
+<p>例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="s2">&quot;24.1632&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+<span class="go">(&#39;24&#39;, &#39;1632&#39;)</span>
+</pre></div>
+</div>
+<p>少数位およびその後の全てをオプションにすると、全てのグループがマッチに関係するとは限りません。そういったグループは <em>default</em> 引数が与えられない限りデフォルトで <code class="docutils literal notranslate"><span class="pre">None</span></code> になります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+)\.?(\d+)?&quot;</span><span class="p">,</span> <span class="s2">&quot;24&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>      <span class="c1"># Second group defaults to None.</span>
+<span class="go">(&#39;24&#39;, None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>   <span class="c1"># Now, the second group defaults to &#39;0&#39;.</span>
+<span class="go">(&#39;24&#39;, &#39;0&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Match.groupdict">
+<code class="descclassname">Match.</code><code class="descname">groupdict</code><span class="sig-paren">(</span><em>default=None</em><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.groupdict" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このマッチの、全ての <em>名前付き</em> サブグループを含む、サブグループ名をキーとする辞書を返します。 <em>default</em> 引数はマッチに関係しなかったグループに使われます。デフォルトは <code class="docutils literal notranslate"><span class="pre">None</span></code> です。例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?P&lt;first_name&gt;\w+) (?P&lt;last_name&gt;\w+)&quot;</span><span class="p">,</span> <span class="s2">&quot;Malcolm Reynolds&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+<span class="go">{&#39;first_name&#39;: &#39;Malcolm&#39;, &#39;last_name&#39;: &#39;Reynolds&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Match.start">
+<code class="descclassname">Match.</code><code class="descname">start</code><span class="sig-paren">(</span><span class="optional">[</span><em>group</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.start" title="この定義へのパーマリンク">¶</a></dt>
+<dt id="re.Match.end">
+<code class="descclassname">Match.</code><code class="descname">end</code><span class="sig-paren">(</span><span class="optional">[</span><em>group</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.end" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><em>group</em> がマッチした部分文字列の先頭と末尾のインデックスを返します。 <em>group</em> はデフォルトで 0 (マッチした部分文字列全体という意味) です。 <em>group</em> が存在してかつマッチには寄与していなかったなら <code class="docutils literal notranslate"><span class="pre">-1</span></code> を返します。マッチオブジェクト <em>m</em> と、マッチに寄与したグループ <em>g</em> に対して、グループ <em>g</em> がマッチした部分文字列 (<code class="docutils literal notranslate"><span class="pre">m.group(g)</span></code> と等価です) は以下の通りです</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span><span class="o">.</span><span class="n">string</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">g</span><span class="p">):</span><span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="n">g</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p><em>group</em> が空文字列にマッチしていたら <code class="docutils literal notranslate"><span class="pre">m.start(group)</span></code> は <code class="docutils literal notranslate"><span class="pre">m.end(group)</span></code> と等しくなることに注意して下さい。例えば、 <code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">=</span> <span class="pre">re.search('b(c?)',</span> <span class="pre">'cba')</span></code> とすると、 <code class="docutils literal notranslate"><span class="pre">m.start(0)</span></code> は 1 で、 <code class="docutils literal notranslate"><span class="pre">m.end(0)</span></code> は 2 で、 <code class="docutils literal notranslate"><span class="pre">m.start(1)</span></code> と <code class="docutils literal notranslate"><span class="pre">m.end(1)</span></code> はともに 2 であり、 <code class="docutils literal notranslate"><span class="pre">m.start(2)</span></code> は <a class="reference internal" href="exceptions.html#IndexError" title="IndexError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IndexError</span></code></a> 例外を発生します。</p>
+<p>メールアドレスから <em>remove_this</em> を取り除く例:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">email</span> <span class="o">=</span> <span class="s2">&quot;tony@tiremove_thisger.net&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;remove_this&quot;</span><span class="p">,</span> <span class="n">email</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">email</span><span class="p">[:</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">()]</span> <span class="o">+</span> <span class="n">email</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">():]</span>
+<span class="go">&#39;tony@tiger.net&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="re.Match.span">
+<code class="descclassname">Match.</code><code class="descname">span</code><span class="sig-paren">(</span><span class="optional">[</span><em>group</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#re.Match.span" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>マッチ <em>m</em> について、2 タプル <code class="docutils literal notranslate"><span class="pre">(m.start(group),</span> <span class="pre">m.end(group))</span></code> を返します。 <em>group</em> がマッチに寄与していなければ、これは <code class="docutils literal notranslate"><span class="pre">(-1,</span> <span class="pre">-1)</span></code> です。 <em>group</em> はデフォルトで 0 、マッチ全体です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Match.pos">
+<code class="descclassname">Match.</code><code class="descname">pos</code><a class="headerlink" href="#re.Match.pos" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re-objects"><span class="std std-ref">正規表現オブジェクト</span></a> の <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> や <a class="reference internal" href="#re.Pattern.match" title="re.Pattern.match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">match()</span></code></a> に渡された <em>pos</em> の値です。これは正規表現エンジンがマッチを探し始める位置の文字列のインデックスです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Match.endpos">
+<code class="descclassname">Match.</code><code class="descname">endpos</code><a class="headerlink" href="#re.Match.endpos" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re-objects"><span class="std std-ref">正規表現オブジェクト</span></a> の <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> や <a class="reference internal" href="#re.Pattern.match" title="re.Pattern.match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">match()</span></code></a> に渡された <em>endpos</em> の値です。これは正規表現エンジンがそれ以上は進まない文字列のインデックスです。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Match.lastindex">
+<code class="descclassname">Match.</code><code class="descname">lastindex</code><a class="headerlink" href="#re.Match.lastindex" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最後にマッチしたキャプチャグループの整数インデックスです。どのグループも全くマッチしなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> です。例えば、表現 <code class="docutils literal notranslate"><span class="pre">(a)b</span></code> 、 <code class="docutils literal notranslate"><span class="pre">((a)(b))</span></code> や <code class="docutils literal notranslate"><span class="pre">((ab))</span></code> が <code class="docutils literal notranslate"><span class="pre">'ab'</span></code> に適用されると <code class="docutils literal notranslate"><span class="pre">lastindex</span> <span class="pre">==</span> <span class="pre">1</span></code> となり、同じ文字列に <code class="docutils literal notranslate"><span class="pre">(a)(b)</span></code> が適用されると <code class="docutils literal notranslate"><span class="pre">lastindex</span> <span class="pre">==</span> <span class="pre">2</span></code> となります。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Match.lastgroup">
+<code class="descclassname">Match.</code><code class="descname">lastgroup</code><a class="headerlink" href="#re.Match.lastgroup" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最後にマッチしたキャプチャグループの名前です。そのグループに名前がないか、どのグループも全くマッチしていなければ <code class="docutils literal notranslate"><span class="pre">None</span></code> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Match.re">
+<code class="descclassname">Match.</code><code class="descname">re</code><a class="headerlink" href="#re.Match.re" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>このマッチインスタンスを生じさせた <a class="reference internal" href="#re.Pattern.match" title="re.Pattern.match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">match()</span></code></a> または <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> メソッドの属する <a class="reference internal" href="#re-objects"><span class="std std-ref">正規表現オブジェクト</span></a> です。</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="re.Match.string">
+<code class="descclassname">Match.</code><code class="descname">string</code><a class="headerlink" href="#re.Match.string" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#re.Pattern.match" title="re.Pattern.match"><code class="xref py py-meth docutils literal notranslate"><span class="pre">match()</span></code></a> や <a class="reference internal" href="#re.Pattern.search" title="re.Pattern.search"><code class="xref py py-meth docutils literal notranslate"><span class="pre">search()</span></code></a> へ渡された文字列です。</p>
+</dd></dl>
+
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.7 で変更: </span><a class="reference internal" href="copy.html#copy.copy" title="copy.copy"><code class="xref py py-func docutils literal notranslate"><span class="pre">copy.copy()</span></code></a> および <a class="reference internal" href="copy.html#copy.deepcopy" title="copy.deepcopy"><code class="xref py py-func docutils literal notranslate"><span class="pre">copy.deepcopy()</span></code></a> をサポートするようになりました。マッチオブジェクトはアトミックであると見なされます。</p>
+</div>
+</div>
+<div class="section" id="regular-expression-examples">
+<span id="re-examples"></span><h2>正規表現の例<a class="headerlink" href="#regular-expression-examples" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="checking-for-a-pair">
+<h3>ペアの確認<a class="headerlink" href="#checking-for-a-pair" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>この例では、マッチオブジェクトをより美しく表示するために、この補助関数を使用します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">displaymatch</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="s1">&#39;&lt;Match: </span><span class="si">%r</span><span class="s1">, groups=</span><span class="si">%r</span><span class="s1">&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>あなたがポーカープログラムを書いているとします。プレイヤーの手札は 5 文字の文字列によって表され、それぞれの文字が 1 枚のカードを表します。 &quot;a&quot; はエース、 &quot;k&quot; はキング、 &quot;q&quot; はクイーン、 &quot;j&quot; はジャック、 &quot;t&quot; は 10、そして &quot;2&quot; から &quot;9&quot; はその数字のカードを表します。</p>
+<p>与えられた文字列が有効な手札であるか見るには、以下のようにできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">valid</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[a2-9tjqk]</span><span class="si">{5}</span><span class="s2">$&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">valid</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;akt5q&quot;</span><span class="p">))</span>  <span class="c1"># Valid.</span>
+<span class="go">&quot;&lt;Match: &#39;akt5q&#39;, groups=()&gt;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">valid</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;akt5e&quot;</span><span class="p">))</span>  <span class="c1"># Invalid.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">valid</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;akt&quot;</span><span class="p">))</span>    <span class="c1"># Invalid.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">valid</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;727ak&quot;</span><span class="p">))</span>  <span class="c1"># Valid.</span>
+<span class="go">&quot;&lt;Match: &#39;727ak&#39;, groups=()&gt;&quot;</span>
+</pre></div>
+</div>
+<p>最後の手札、 <code class="docutils literal notranslate"><span class="pre">&quot;727ak&quot;</span></code> 、はペア、すなわち同じ値の 2 枚のカードを含みます。正規表現でこれにマッチするには、このように後方参照を使えます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*(.).*\1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;717ak&quot;</span><span class="p">))</span>     <span class="c1"># Pair of 7s.</span>
+<span class="go">&quot;&lt;Match: &#39;717&#39;, groups=(&#39;7&#39;,)&gt;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;718ak&quot;</span><span class="p">))</span>     <span class="c1"># No pairs.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">displaymatch</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;354aa&quot;</span><span class="p">))</span>     <span class="c1"># Pair of aces.</span>
+<span class="go">&quot;&lt;Match: &#39;354aa&#39;, groups=(&#39;a&#39;,)&gt;&quot;</span>
+</pre></div>
+</div>
+<p>ペアになっているのがどのカードか調べるには、このようにマッチオブジェクトの <a class="reference internal" href="#re.Match.group" title="re.Match.group"><code class="xref py py-meth docutils literal notranslate"><span class="pre">group()</span></code></a> メソッドを使えます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*(.).*\1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;717ak&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;7&#39;</span>
+
+<span class="go"># Error because re.match() returns None, which doesn&#39;t have a group() method:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;718ak&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;pyshell#23&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*(.).*\1&quot;</span><span class="p">,</span> <span class="s2">&quot;718ak&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gr">AttributeError</span>: <span class="n">&#39;NoneType&#39; object has no attribute &#39;group&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pair</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;354aa&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">&#39;a&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simulating-scanf">
+<h3>scanf() をシミュレートする<a class="headerlink" href="#simulating-scanf" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p id="index-38">Python には現在のところ、 <code class="xref c c-func docutils literal notranslate"><span class="pre">scanf()</span></code> に相当するものがありません。正規表現は一般的に、 <code class="xref c c-func docutils literal notranslate"><span class="pre">scanf()</span></code> のフォーマット文字列より強力ですが、冗長でもあります。以下の表に、 <code class="xref c c-func docutils literal notranslate"><span class="pre">scanf()</span></code> のフォーマットトークンと正規表現のおおよその対応付けを示します。</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="42%" />
+<col width="58%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head"><code class="xref c c-func docutils literal notranslate"><span class="pre">scanf()</span></code> トークン</th>
+<th class="head">正規表現</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">%c</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">.</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">%5c</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">.{5}</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">%d</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">[-+]?\d+</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">%e</span></code>, <code class="docutils literal notranslate"><span class="pre">%E</span></code>, <code class="docutils literal notranslate"><span class="pre">%f</span></code>, <code class="docutils literal notranslate"><span class="pre">%g</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">%i</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">[-+]?(0[xX][\dA-Fa-f]+|0[0-7]*|\d+)</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">%o</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">[-+]?[0-7]+</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">%s</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">\S+</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">%u</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">\d+</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">%x</span></code>, <code class="docutils literal notranslate"><span class="pre">%X</span></code></td>
+<td><code class="docutils literal notranslate"><span class="pre">[-+]?(0[xX])?[\dA-Fa-f]+</span></code></td>
+</tr>
+</tbody>
+</table>
+<p>以下のような文字列からファイル名と数を抽出するには</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">sendmail</span> <span class="o">-</span> <span class="mi">0</span> <span class="n">errors</span><span class="p">,</span> <span class="mi">4</span> <span class="n">warnings</span>
+</pre></div>
+</div>
+<p>以下のように <code class="xref c c-func docutils literal notranslate"><span class="pre">scanf()</span></code> フォーマットを使えます</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="n">s</span> <span class="o">-</span> <span class="o">%</span><span class="n">d</span> <span class="n">errors</span><span class="p">,</span> <span class="o">%</span><span class="n">d</span> <span class="n">warnings</span>
+</pre></div>
+</div>
+<p>等価な正規表現はこうです</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span>\<span class="n">S</span><span class="o">+</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span>\<span class="n">d</span><span class="o">+</span><span class="p">)</span> <span class="n">errors</span><span class="p">,</span> <span class="p">(</span>\<span class="n">d</span><span class="o">+</span><span class="p">)</span> <span class="n">warnings</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="search-vs-match">
+<span id="id3"></span><h3>search() vs. match()<a class="headerlink" href="#search-vs-match" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Python は正規表現ベースの 2 つの異なる基本的な関数、文字列の先頭でのみのマッチを確認する <a class="reference internal" href="#re.match" title="re.match"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.match()</span></code></a> および、文字列中の位置にかかわらずマッチを確認する <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.search()</span></code></a> (これが Perl でのデフォルトの挙動です) を提供しています。</p>
+<p>例えば:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span>    <span class="c1"># No match</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span>   <span class="c1"># Match</span>
+<span class="go">&lt;re.Match object; span=(2, 3), match=&#39;c&#39;&gt;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">'^'</span></code> で始まる正規表現を <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> で使って、マッチを文字列の先頭でのみに制限できます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span>    <span class="c1"># No match</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;^c&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span>  <span class="c1"># No match</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;^a&quot;</span><span class="p">,</span> <span class="s2">&quot;abcdef&quot;</span><span class="p">)</span>  <span class="c1"># Match</span>
+<span class="go">&lt;re.Match object; span=(0, 1), match=&#39;a&#39;&gt;</span>
+</pre></div>
+</div>
+<p>ただし、 <a class="reference internal" href="#re.MULTILINE" title="re.MULTILINE"><code class="xref py py-const docutils literal notranslate"><span class="pre">MULTILINE</span></code></a> モードにおいて <a class="reference internal" href="#re.match" title="re.match"><code class="xref py py-func docutils literal notranslate"><span class="pre">match()</span></code></a> は文字列の先頭でのみマッチし、 <code class="docutils literal notranslate"><span class="pre">'^'</span></code> で始まる正規表現で <a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> を使うと各行の先頭でマッチすることに注意してください。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;A</span><span class="se">\n</span><span class="s1">B</span><span class="se">\n</span><span class="s1">X&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>  <span class="c1"># No match</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;^X&#39;</span><span class="p">,</span> <span class="s1">&#39;A</span><span class="se">\n</span><span class="s1">B</span><span class="se">\n</span><span class="s1">X&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>  <span class="c1"># Match</span>
+<span class="go">&lt;re.Match object; span=(4, 5), match=&#39;X&#39;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="making-a-phonebook">
+<h3>電話帳を作る<a class="headerlink" href="#making-a-phonebook" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="#re.split" title="re.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> は渡されたパターンで文字列を分割してリストにします。このメソッドは、テキストデータをデータ構造に変換して、読みやすくしたり、以下の例で実演する電話帳作成のように Python で編集したりしやすくするのに、非常に役に立ちます。</p>
+<p>最初に、入力を示します。通常、これはファイルからの入力になるでしょう。ここでは、3重引用符の書式とします。</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Ross McFluff: 834.345.1254 155 Elm Street</span>
+<span class="gp">...</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">Ronald Heathmore: 892.345.3428 436 Finley Avenue</span>
+<span class="gp">... </span><span class="s2">Frank Burger: 925.541.7625 662 South Dogwood Way</span>
+<span class="gp">...</span><span class="s2"></span>
+<span class="gp">...</span><span class="s2"></span>
+<span class="gp">... </span><span class="s2">Heather Albrecht: 548.326.4584 919 Park Place&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>各項目は 1 つ以上の改行で区切られています。まずは文字列を変換して、空行でない各行を項目とするリストにします:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">entries</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">+&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">entries</span>
+<span class="go">[&#39;Ross McFluff: 834.345.1254 155 Elm Street&#39;,</span>
+<span class="go">&#39;Ronald Heathmore: 892.345.3428 436 Finley Avenue&#39;,</span>
+<span class="go">&#39;Frank Burger: 925.541.7625 662 South Dogwood Way&#39;,</span>
+<span class="go">&#39;Heather Albrecht: 548.326.4584 919 Park Place&#39;]</span>
+</pre></div>
+</div>
+<p>そして各項目を、ファーストネーム、ラストネーム、電話番号、住所に分割してリストにします。分割パターンである空白文字は住所にも含まれるので、 <a class="reference internal" href="#re.split" title="re.split"><code class="xref py py-func docutils literal notranslate"><span class="pre">split()</span></code></a> の <code class="docutils literal notranslate"><span class="pre">maxsplit</span></code> 引数を使います:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:? &quot;</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]</span>
+<span class="go">[[&#39;Ross&#39;, &#39;McFluff&#39;, &#39;834.345.1254&#39;, &#39;155 Elm Street&#39;],</span>
+<span class="go">[&#39;Ronald&#39;, &#39;Heathmore&#39;, &#39;892.345.3428&#39;, &#39;436 Finley Avenue&#39;],</span>
+<span class="go">[&#39;Frank&#39;, &#39;Burger&#39;, &#39;925.541.7625&#39;, &#39;662 South Dogwood Way&#39;],</span>
+<span class="go">[&#39;Heather&#39;, &#39;Albrecht&#39;, &#39;548.326.4584&#39;, &#39;919 Park Place&#39;]]</span>
+</pre></div>
+</div>
+<p>この <code class="docutils literal notranslate"><span class="pre">:?</span></code> パターンはラストネームの次のコロンにマッチして、分割結果のリストに出てこないようにします。 <code class="docutils literal notranslate"><span class="pre">maxsplit</span></code> を <code class="docutils literal notranslate"><span class="pre">4</span></code> にすれば、家屋番号とストリート名を分割できます:</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:? &quot;</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">]</span>
+<span class="go">[[&#39;Ross&#39;, &#39;McFluff&#39;, &#39;834.345.1254&#39;, &#39;155&#39;, &#39;Elm Street&#39;],</span>
+<span class="go">[&#39;Ronald&#39;, &#39;Heathmore&#39;, &#39;892.345.3428&#39;, &#39;436&#39;, &#39;Finley Avenue&#39;],</span>
+<span class="go">[&#39;Frank&#39;, &#39;Burger&#39;, &#39;925.541.7625&#39;, &#39;662&#39;, &#39;South Dogwood Way&#39;],</span>
+<span class="go">[&#39;Heather&#39;, &#39;Albrecht&#39;, &#39;548.326.4584&#39;, &#39;919&#39;, &#39;Park Place&#39;]]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="text-munging">
+<h3>テキストの秘匿<a class="headerlink" href="#text-munging" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="#re.sub" title="re.sub"><code class="xref py py-func docutils literal notranslate"><span class="pre">sub()</span></code></a> は出現する各パターンを文字列で、または関数の返り値で置き換えます。この例ではテキストを「秘匿」する関数と合わせて <a class="reference internal" href="#re.sub" title="re.sub"><code class="xref py py-func docutils literal notranslate"><span class="pre">sub()</span></code></a> を使うところを実演します。具体的には、文中の各単語について、最初と最後の文字を除く全ての文字をランダムに並び替えます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">repl</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">inner_word</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">inner_word</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inner_word</span><span class="p">)</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Professor Abdolmalek, please report your absences promptly.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\w)(\w+)(\w)&quot;</span><span class="p">,</span> <span class="n">repl</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="go">&#39;Poefsrosr Aealmlobdk, pslaee reorpt your abnseces plmrptoy.&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\w)(\w+)(\w)&quot;</span><span class="p">,</span> <span class="n">repl</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="go">&#39;Pofsroser Aodlambelk, plasee reoprt yuor asnebces potlmrpy.&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="finding-all-adverbs">
+<h3>全ての副詞を見つける<a class="headerlink" href="#finding-all-adverbs" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="#re.search" title="re.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> は最初のパターンにのみマッチしますが、 <a class="reference internal" href="#re.findall" title="re.findall"><code class="xref py py-func docutils literal notranslate"><span class="pre">findall()</span></code></a> は出現する <em>全ての</em> パターンにマッチします。例えば、ライターがあるテキストの全ての副詞を見つけたいなら、以下のように <a class="reference internal" href="#re.findall" title="re.findall"><code class="xref py py-func docutils literal notranslate"><span class="pre">findall()</span></code></a> を使えます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;He was carefully disguised but captured quickly by police.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\w+ly&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="go">[&#39;carefully&#39;, &#39;quickly&#39;]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="finding-all-adverbs-and-their-positions">
+<h3>全ての副詞とその位置を見つける<a class="headerlink" href="#finding-all-adverbs-and-their-positions" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>パターンの全てのマッチについて、マッチしたテキスト以上の情報が必要なら、文字列ではなく <a class="reference internal" href="#match-objects"><span class="std std-ref">マッチオブジェクト</span></a> を返す <a class="reference internal" href="#re.finditer" title="re.finditer"><code class="xref py py-func docutils literal notranslate"><span class="pre">finditer()</span></code></a> が便利です。先の例に続いて、ライターがあるテキストの全ての副詞 <em>およびその位置</em> を見つけたいなら、以下のように <a class="reference internal" href="#re.finditer" title="re.finditer"><code class="xref py py-func docutils literal notranslate"><span class="pre">finditer()</span></code></a> を使えます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;He was carefully disguised but captured quickly by police.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\w+ly&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%02d</span><span class="s1">-</span><span class="si">%02d</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)))</span>
+<span class="go">07-16: carefully</span>
+<span class="go">40-47: quickly</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="raw-string-notation">
+<h3>Raw 文字列記法<a class="headerlink" href="#raw-string-notation" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Raw 文字列記法 (<code class="docutils literal notranslate"><span class="pre">r&quot;text&quot;</span></code>) で正規表現をまともに保てます。それがなければ、正規表現中のバックスラッシュ (<code class="docutils literal notranslate"><span class="pre">'\'</span></code>) を個々にバックスラッシュを前置してエスケープしなければなりません。例えば、以下の 2 行のコードは機能的に等価です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\W(.)\1\W&quot;</span><span class="p">,</span> <span class="s2">&quot; ff &quot;</span><span class="p">)</span>
+<span class="go">&lt;re.Match object; span=(0, 4), match=&#39; ff &#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">W(.)</span><span class="se">\\</span><span class="s2">1</span><span class="se">\\</span><span class="s2">W&quot;</span><span class="p">,</span> <span class="s2">&quot; ff &quot;</span><span class="p">)</span>
+<span class="go">&lt;re.Match object; span=(0, 4), match=&#39; ff &#39;&gt;</span>
+</pre></div>
+</div>
+<p>リテラルのバックスラッシュにマッチさせたいなら、正規表現中ではエスケープする必要があります。Raw 文字列記法では、<code class="docutils literal notranslate"><span class="pre">r&quot;\\&quot;</span></code>  になります。Raw 文字列記法を用いないと、<code class="docutils literal notranslate"><span class="pre">&quot;\\\\&quot;</span></code> としなくてはならず、以下のコードは機能的に等価です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">&lt;re.Match object; span=(0, 1), match=&#39;\\&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">&lt;re.Match object; span=(0, 1), match=&#39;\\&#39;&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-a-tokenizer">
+<h3>トークナイザを書く<a class="headerlink" href="#writing-a-tokenizer" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Lexical_analysis">トークナイザやスキャナ</a> は文字列を解析し、文字のグループにカテゴリ分けします。これはコンパイラやインタプリタを書くうえで役立つ第一段階です。</p>
+<p>テキストのカテゴリは正規表現で指定されます。この技法では、それらを一つのマスター正規表現に結合し、マッチの連続についてループします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">NamedTuple</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">class</span> <span class="nc">Token</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">value</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">line</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">column</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">code</span><span class="p">):</span>
+    <span class="n">keywords</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;IF&#39;</span><span class="p">,</span> <span class="s1">&#39;THEN&#39;</span><span class="p">,</span> <span class="s1">&#39;ENDIF&#39;</span><span class="p">,</span> <span class="s1">&#39;FOR&#39;</span><span class="p">,</span> <span class="s1">&#39;NEXT&#39;</span><span class="p">,</span> <span class="s1">&#39;GOSUB&#39;</span><span class="p">,</span> <span class="s1">&#39;RETURN&#39;</span><span class="p">}</span>
+    <span class="n">token_specification</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;NUMBER&#39;</span><span class="p">,</span>   <span class="sa">r</span><span class="s1">&#39;\d+(\.\d*)?&#39;</span><span class="p">),</span>  <span class="c1"># Integer or decimal number</span>
+        <span class="p">(</span><span class="s1">&#39;ASSIGN&#39;</span><span class="p">,</span>   <span class="sa">r</span><span class="s1">&#39;:=&#39;</span><span class="p">),</span>           <span class="c1"># Assignment operator</span>
+        <span class="p">(</span><span class="s1">&#39;END&#39;</span><span class="p">,</span>      <span class="sa">r</span><span class="s1">&#39;;&#39;</span><span class="p">),</span>            <span class="c1"># Statement terminator</span>
+        <span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span>       <span class="sa">r</span><span class="s1">&#39;[A-Za-z]+&#39;</span><span class="p">),</span>    <span class="c1"># Identifiers</span>
+        <span class="p">(</span><span class="s1">&#39;OP&#39;</span><span class="p">,</span>       <span class="sa">r</span><span class="s1">&#39;[+\-*/]&#39;</span><span class="p">),</span>      <span class="c1"># Arithmetic operators</span>
+        <span class="p">(</span><span class="s1">&#39;NEWLINE&#39;</span><span class="p">,</span>  <span class="sa">r</span><span class="s1">&#39;\n&#39;</span><span class="p">),</span>           <span class="c1"># Line endings</span>
+        <span class="p">(</span><span class="s1">&#39;SKIP&#39;</span><span class="p">,</span>     <span class="sa">r</span><span class="s1">&#39;[ \t]+&#39;</span><span class="p">),</span>       <span class="c1"># Skip over spaces and tabs</span>
+        <span class="p">(</span><span class="s1">&#39;MISMATCH&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;.&#39;</span><span class="p">),</span>            <span class="c1"># Any other character</span>
+    <span class="p">]</span>
+    <span class="n">tok_regex</span> <span class="o">=</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;(?P&lt;</span><span class="si">%s</span><span class="s1">&gt;</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">pair</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">token_specification</span><span class="p">)</span>
+    <span class="n">line_num</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">line_start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">tok_regex</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">lastgroup</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="o">-</span> <span class="n">line_start</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;NUMBER&#39;</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;ID&#39;</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">:</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;NEWLINE&#39;</span><span class="p">:</span>
+            <span class="n">line_start</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+            <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;SKIP&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;MISMATCH&#39;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> unexpected on line </span><span class="si">{</span><span class="n">line_num</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">Token</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">line_num</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+
+<span class="n">statements</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">    IF quantity THEN</span>
+<span class="s1">        total := total + price * quantity;</span>
+<span class="s1">        tax := price * 0.05;</span>
+<span class="s1">    ENDIF;</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">statements</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このトークナイザは以下の出力を作成します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;IF&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;IF&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;quantity&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;THEN&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;THEN&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ASSIGN&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;:=&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">17</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;OP&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;OP&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">31</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;quantity&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">33</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;END&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">41</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;tax&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ASSIGN&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;:=&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;OP&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">21</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;NUMBER&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;END&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">27</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;ENDIF&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;ENDIF&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">Token</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;END&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils citation" frame="void" id="frie09" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Frie09]</a></td><td>Friedl, Jeffrey. Mastering Regular Expressions. 3rd ed., O'Reilly Media, 2009. 当書の第三版ではもはや Python についてまったく取り扱っていませんが、初版では良い正規表現を書くことを綿密に取り扱っていました。</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">re</span></code> --- 正規表現操作</a><ul>
+<li><a class="reference internal" href="#regular-expression-syntax">正規表現のシンタックス</a></li>
+<li><a class="reference internal" href="#module-contents">モジュールコンテンツ</a></li>
+<li><a class="reference internal" href="#regular-expression-objects">正規表現オブジェクト</a></li>
+<li><a class="reference internal" href="#match-objects">マッチオブジェクト</a></li>
+<li><a class="reference internal" href="#regular-expression-examples">正規表現の例</a><ul>
+<li><a class="reference internal" href="#checking-for-a-pair">ペアの確認</a></li>
+<li><a class="reference internal" href="#simulating-scanf">scanf() をシミュレートする</a></li>
+<li><a class="reference internal" href="#search-vs-match">search() vs. match()</a></li>
+<li><a class="reference internal" href="#making-a-phonebook">電話帳を作る</a></li>
+<li><a class="reference internal" href="#text-munging">テキストの秘匿</a></li>
+<li><a class="reference internal" href="#finding-all-adverbs">全ての副詞を見つける</a></li>
+<li><a class="reference internal" href="#finding-all-adverbs-and-their-positions">全ての副詞とその位置を見つける</a></li>
+<li><a class="reference internal" href="#raw-string-notation">Raw 文字列記法</a></li>
+<li><a class="reference internal" href="#writing-a-tokenizer">トークナイザを書く</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="string.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">string</span></code> --- 一般的な文字列操作</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="difflib.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">difflib</span></code> --- 差分の計算を助ける</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/re.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="difflib.html" title="difflib --- 差分の計算を助ける"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="string.html" title="string --- 一般的な文字列操作"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="text.html" >テキスト処理サービス</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,736 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Unicode HOWTO &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="urllib パッケージを使ってインターネット上のリソースを取得するには" href="urllib2.html" />
+    <link rel="prev" title="ソート HOW TO" href="sorting.html" />
+    <link rel="canonical" href="https://docs.python.org/3/howto/unicode.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="urllib2.html" title="urllib パッケージを使ってインターネット上のリソースを取得するには"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="sorting.html" title="ソート HOW TO"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python HOWTO</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="unicode-howto">
+<span id="id1"></span><h1>Unicode HOWTO<a class="headerlink" href="#unicode-howto" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">リリース:</th><td class="field-body">1.12</td>
+</tr>
+</tbody>
+</table>
+<p>この HOWTO 文書は、文字データの表現のための Unicode 仕様の Python におけるサポートについて論じ、さらに Unicode を使おうというときによく出喰わす多くの問題について説明します。</p>
+<div class="section" id="introduction-to-unicode">
+<h2>Unicode 入門<a class="headerlink" href="#introduction-to-unicode" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="definitions">
+<h3>定義<a class="headerlink" href="#definitions" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>今日のプログラムは広範囲の文字を扱える必要があります。
+アプリケーションは国際化され、ユーザーが選べる様々な言語でメッセージや出力を表示します; 同じプログラムが、英語、フランス語、日本語、ヘブライ語、ロシア語でエラーメッセージを出力する必要があるかもしれません。
+Webコンテンツはどんな言語でも書かれる可能性がありますし、様々な絵文字が含まれることもあります。
+Python の文字列型は文字表現のための Unicode 標準を使っていて、 Python プログラムは有り得る様々な文字を全て扱えます。</p>
+<p>Unicode (<a class="reference external" href="https://www.unicode.org/">https://www.unicode.org/</a>) は、人類の言語で使われる全ての文字を列挙し、それぞれの文字自身の一意な符号を与えるのを目的とした仕様です。
+Unicode 仕様は継続的に改訂され、新しい言語や記号を追加する更新がなされています。</p>
+<p><strong>文字</strong> は文章の最小の構成要素です。
+'A', 'B', 'C' などは全て異なる文字です。
+'È' と 'Í' も同様に異なる文字です。
+文字は、話している言語や文脈によって変わってきます。
+例えば、「ローマ数字の 1」という文字 'Ⅰ' は大文字の 'I' とは別の文字です。
+両者は通常は同じに見えますが、異なる意味を持つ別々の2つの文字です。</p>
+<p>Unicode 標準は文字がどのように <strong>コードポイント (code points)</strong> で表現されるのかを記述しています。
+コードポイントの値は 0 から 0x10FFFF までの範囲の整数です (約 1100 万個の値であり、今のところ 11 万個くらいが割り当てられています)。
+Unicode 標準やこのドキュメントでは、コードポイントを <code class="docutils literal notranslate"><span class="pre">U+265E</span></code> という記法を使って書き、これはその文字が値 <code class="docutils literal notranslate"><span class="pre">0x265e</span></code> (10 進数では 9,822) を持つことを意味します。</p>
+<p>Unicode 標準は、文字とそれに対応するコードポイントを列挙した多くの表を含んでいます:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>0061    &#39;a&#39;; LATIN SMALL LETTER A
+0062    &#39;b&#39;; LATIN SMALL LETTER B
+0063    &#39;c&#39;; LATIN SMALL LETTER C
+...
+007B    &#39;{&#39;; LEFT CURLY BRACKET
+...
+2167    &#39;Ⅷ&#39;; ROMAN NUMERAL EIGHT
+2168    &#39;Ⅸ&#39;; ROMAN NUMERAL NINE
+...
+265E    &#39;♞&#39;; BLACK CHESS KNIGHT
+265F    &#39;♟&#39;; BLACK CHESS PAWN
+...
+1F600   &#39;😀&#39;; GRINNING FACE
+1F609   &#39;😉&#39;; WINKING FACE
+...
+</pre></div>
+</div>
+<p>厳密には、この定義から「これは文字 <code class="docutils literal notranslate"><span class="pre">U+265E</span></code> です」と言うのは意味の無いことだと分かります。<code class="docutils literal notranslate"><span class="pre">U+265E</span></code> はコードポイントであり、それはある特定の文字を表しているのです; この場合では、 'BLACK CHESS KNIGHT', '♞' という文字を表しています。
+形式ばらない文脈では、このコードポイントと文字の区別は忘れ去られることもあります。</p>
+<p>文字は画面や紙面上では <strong>グリフ (glyph)</strong> と呼ばれるグラフィック要素の組で表示されます。大文字の A のグリフは例えば、厳密な形は使っているフォントによって異なりますが、斜めの線と水平の線です。たいていの Python コードではグリフの心配をする必要はありません; 一般的には表示する正しいグリフを見付けることは GUI toolkit や端末のフォントレンダラーの仕事です。</p>
+</div>
+<div class="section" id="encodings">
+<h3>エンコーディング<a class="headerlink" href="#encodings" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>前の節をまとめると: Unicode 文字列はコードポイントの列であり、コードポイントとは 0 から <code class="docutils literal notranslate"><span class="pre">0x10FFFF</span></code> (10 進表記で 1,114,111) までの数値です。このコードポイント列はメモリ上では <strong>コードユニット</strong> 列として表され、その <strong>コードユニット</strong> 列は 8-bit のバイト列にマップされます。Unicode 文字列をバイト列として翻訳する規則を <strong>文字エンコーディング</strong> または単に <strong>エンコーディング</strong> と呼びます。</p>
+<p>The first encoding you might think of is using 32-bit integers as the
+code unit, and then using the CPU's representation of 32-bit integers.
+In this representation, the string &quot;Python&quot; might look like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   P           y           t           h           o           n
+0x50 00 00 00 79 00 00 00 74 00 00 00 68 00 00 00 6f 00 00 00 6e 00 00 00
+   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+</pre></div>
+</div>
+<p>この表現は直接的でわかりやすい方法ですが、この表現を使うにはいくつかの問題があります。</p>
+<ol class="arabic simple">
+<li>可搬性がない; プロセッサが異なるとバイトの順序づけも変わってしまいます。</li>
+<li>無駄な領域が多いです。多くの文書では、コードポイントは 127 未満もしくは 255 未満が多数派を占め、そのため多くの領域が <code class="docutils literal notranslate"><span class="pre">0x00</span></code> というバイトで埋め尽くされます。上の文字列は、ASCII 表現では 6 バイトなのに対し、24 バイトのサイズになっています。RAM の使用量が増加するのはそれほど問題にはなりません (デスクトップコンピュータはギガバイト単位の RAM を持っており、通常、文字列はそんな大きさにはなりません) が、ディスクとネットワーク帯域が 4 倍多く使われてしまうのは我慢できるものではありません。</li>
+<li><code class="docutils literal notranslate"><span class="pre">strlen()</span></code> のような現存する C 関数と互換性がありません、そのためワイド文字列関数一式が新たに必要となります。</li>
+</ol>
+<p>Therefore this encoding isn't used very much, and people instead choose other
+encodings that are more efficient and convenient, such as UTF-8.</p>
+<p>UTF-8 is one of the most commonly used encodings, and Python often
+defaults to using it.  UTF stands for &quot;Unicode Transformation Format&quot;,
+and the '8' means that 8-bit values are used in the encoding.  (There
+are also UTF-16 and UTF-32 encodings, but they are less frequently
+used than UTF-8.)  UTF-8 uses the following rules:</p>
+<ol class="arabic simple">
+<li>コードポイントが 128 未満だった場合、対応するバイト値で表現します。</li>
+<li>コードポイントが 128 以上の場合、128 から 255 までのバイトからなる、2、3 または 4 バイトのシーケンスに変換します。</li>
+</ol>
+<p>UTF-8 はいくつかの便利な性質を持っています:</p>
+<ol class="arabic simple">
+<li>任意の Unicode コードポイントを扱うことができる。</li>
+<li>A Unicode string is turned into a sequence of bytes that contains embedded
+zero bytes only where they represent the null character (U+0000). This means
+that UTF-8 strings can be processed by C functions such as <code class="docutils literal notranslate"><span class="pre">strcpy()</span></code> and sent
+through protocols that can't handle zero bytes for anything other than
+end-of-string markers.</li>
+<li>ASCII テキストの文字列は UTF-8 テキストとしても有効です。</li>
+<li>UTF-8 はかなりコンパクトです; よく使われている文字の大多数は 1 バイトか 2 バイトで表現できます。</li>
+<li>バイトが欠落したり、失われた場合、次の UTF-8 でエンコードされたコードポイントの開始を決定し、再同期することができる可能性があります。同様の理由でランダムな 8-bit データは正当な UTF-8 とみなされにくくなっています。</li>
+<li>UTF-8 is a byte oriented encoding. The encoding specifies that each
+character is represented by a specific sequence of one or more bytes. This
+avoids the byte-ordering issues that can occur with integer and word oriented
+encodings, like UTF-16 and UTF-32, where the sequence of bytes varies depending
+on the hardware on which the string was encoded.</li>
+</ol>
+</div>
+<div class="section" id="references">
+<h3>参考資料<a class="headerlink" href="#references" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="http://www.unicode.org">Unicode コンソーシアムのサイト</a> には文字の図表、用語辞典、PDF 版の Unicode 仕様があります。これ読むのはそれなりに難しいので覚悟してください。Unicode の起源と発展の <a class="reference external" href="http://www.unicode.org/history/">年表</a> もサイトにあります。</p>
+<p>On the Computerphile Youtube channel, Tom Scott briefly
+<a class="reference external" href="https://www.youtube.com/watch?v=MijmeoH9LT4">discusses the history of Unicode and UTF-8</a>
+(9 minutes 36 seconds).</p>
+<p>To help understand the standard, Jukka Korpela has written <a class="reference external" href="http://jkorpela.fi/unicode/guide.html">an introductory
+guide</a> to reading the
+Unicode character tables.</p>
+<p>Another <a class="reference external" href="https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/">good introductory article</a>
+was written by Joel Spolsky.
+If this introduction didn't make things clear to you, you should try
+reading this alternate article before continuing.</p>
+<p>Wikipedia entries are often helpful; see the entries for &quot;<a class="reference external" href="https://en.wikipedia.org/wiki/Character_encoding">character encoding</a>&quot; and <a class="reference external" href="https://en.wikipedia.org/wiki/UTF-8">UTF-8</a>, for example.</p>
+</div>
+</div>
+<div class="section" id="python-s-unicode-support">
+<h2>Python の Unicode サポート<a class="headerlink" href="#python-s-unicode-support" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ここまでで Unicode の基礎を学びました、ここから Python の Unicode 機能に触れます。</p>
+<div class="section" id="the-string-type">
+<h3>文字列型<a class="headerlink" href="#the-string-type" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Since Python 3.0, the language's <a class="reference internal" href="../library/stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> type contains Unicode
+characters, meaning any string created using <code class="docutils literal notranslate"><span class="pre">&quot;unicode</span> <span class="pre">rocks!&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">'unicode</span>
+<span class="pre">rocks!'</span></code>, or the triple-quoted string syntax is stored as Unicode.</p>
+<p>Python ソースコードのデフォルトエンコーディングは UTF-8 なので、文字列リテラルの中に Unicode 文字をそのまま含めることができます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/input.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="o">...</span>
+<span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+    <span class="c1"># &#39;File not found&#39; error message.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fichier non trouvé&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>追記: Python3 は Unicode 文字を使った識別子もサポートしています:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">répertoire</span> <span class="o">=</span> <span class="s2">&quot;/tmp/records.log&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">répertoire</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;test</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>エディタである特定の文字が入力できなかったり、とある理由でソースコードを ASCII のみに保ちたい場合は、文字列リテラルでエスケープシーケンスが使えます。(使ってるシステムによっては、u でエスケープされた文字列ではなく、実物の大文字のラムダのグリフが見えるかもしれません。):</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;</span><span class="se">\N{GREEK CAPITAL LETTER DELTA}</span><span class="s2">&quot;</span>  <span class="c1"># Using the character name</span>
+<span class="go">&#39;\u0394&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;</span><span class="se">\u0394</span><span class="s2">&quot;</span>                          <span class="c1"># Using a 16-bit hex value</span>
+<span class="go">&#39;\u0394&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;</span><span class="se">\U00000394</span><span class="s2">&quot;</span>                      <span class="c1"># Using a 32-bit hex value</span>
+<span class="go">&#39;\u0394&#39;</span>
+</pre></div>
+</div>
+<p>加えて、 <a class="reference internal" href="../library/stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> クラスの <a class="reference internal" href="../library/stdtypes.html#bytes.decode" title="bytes.decode"><code class="xref py py-func docutils literal notranslate"><span class="pre">decode()</span></code></a> メソッドを使って文字列を作ることもできます。このメソッドは <code class="docutils literal notranslate"><span class="pre">UTF-8</span></code> のような値を <em>encoding</em> 引数に取り、オプションで <em>errors</em> 引数を取ります。</p>
+<p><em>errors</em> 引数は、入力文字列に対しエンコーディングルールに従った変換ができなかったときの対応方法を指定します。この引数に使える値は <code class="docutils literal notranslate"><span class="pre">'strict'</span></code> (<a class="reference internal" href="../library/exceptions.html#UnicodeDecodeError" title="UnicodeDecodeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code></a> を送出する)、 <code class="docutils literal notranslate"><span class="pre">'replace'</span></code> (<code class="docutils literal notranslate"><span class="pre">REPLACEMENT</span> <span class="pre">CHARACTER</span></code> である <code class="docutils literal notranslate"><span class="pre">U+FFFD</span></code> を使う)、 <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code> (結果となる Unicode から単に文字を除く) 、<code class="docutils literal notranslate"><span class="pre">'backslashreplace'</span></code> (エスケープシーケンス <code class="docutils literal notranslate"><span class="pre">\xNN</span></code> を挿入する) です。次の例はこれらの違いを示しています:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x80</span><span class="s1">abc&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="s2">&quot;strict&quot;</span><span class="p">)</span>  
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">UnicodeDecodeError</span>: <span class="n">&#39;utf-8&#39; codec can&#39;t decode byte 0x80 in position 0:</span>
+<span class="go">  invalid start byte</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x80</span><span class="s1">abc&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+<span class="go">&#39;\ufffdabc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x80</span><span class="s1">abc&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="s2">&quot;backslashreplace&quot;</span><span class="p">)</span>
+<span class="go">&#39;\\x80abc&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x80</span><span class="s1">abc&#39;</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+<span class="go">&#39;abc&#39;</span>
+</pre></div>
+</div>
+<p>Encodings are specified as strings containing the encoding's name.  Python
+comes with roughly 100 different encodings; see the Python Library Reference at
+<a class="reference internal" href="../library/codecs.html#standard-encodings"><span class="std std-ref">標準エンコーディング</span></a> for a list.  Some encodings have multiple names; for
+example, <code class="docutils literal notranslate"><span class="pre">'latin-1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'iso_8859_1'</span></code> and <code class="docutils literal notranslate"><span class="pre">'8859</span></code>' are all synonyms for
+the same encoding.</p>
+<p>Unicode 文字列の一つの文字は <a class="reference internal" href="../library/functions.html#chr" title="chr"><code class="xref py py-func docutils literal notranslate"><span class="pre">chr()</span></code></a> 組み込み関数で作成することができます、この関数は整数を引数にとり、対応するコードポイントを含む長さ1の Unicode 文字列を返します。逆の操作は <a class="reference internal" href="../library/functions.html#ord" title="ord"><code class="xref py py-func docutils literal notranslate"><span class="pre">ord()</span></code></a> 組み込み関数です、この関数は一文字の Unicode 文字列を引数にとり、コードポイント値を返します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">chr</span><span class="p">(</span><span class="mi">57344</span><span class="p">)</span>
+<span class="go">&#39;\ue000&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\ue000</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="go">57344</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="converting-to-bytes">
+<h3>バイト列への変換<a class="headerlink" href="#converting-to-bytes" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/stdtypes.html#bytes.decode" title="bytes.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bytes.decode()</span></code></a> とは処理が逆向きのメソッドが <a class="reference internal" href="../library/stdtypes.html#str.encode" title="str.encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.encode()</span></code></a> です。このメソッドは、 Unicode 文字列を指定された <em>encoding</em> でエンコードして、 <a class="reference internal" href="../library/stdtypes.html#bytes" title="bytes"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a> による表現で返します。</p>
+<p><em>errors</em> 引数は <a class="reference internal" href="../library/stdtypes.html#bytes.decode" title="bytes.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decode()</span></code></a> メソッドのパラメータと同じものですが、サポートされているハンドラの数がもう少し多いです。
+<code class="docutils literal notranslate"><span class="pre">'strict'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code> 、 <code class="docutils literal notranslate"><span class="pre">'replace'</span></code> (このメソッドでは、エンコードできなかった文字の代わりに疑問符を挿入する) の他に、 <code class="docutils literal notranslate"><span class="pre">'xmlcharrefreplace'</span></code> (XML 文字参照を挿入する) と <code class="docutils literal notranslate"><span class="pre">backslashreplace</span></code> (エスケープシーケンス <code class="docutils literal notranslate"><span class="pre">\nNNNN</span></code> を挿入する)、 <code class="docutils literal notranslate"><span class="pre">namereplace</span></code> (エスケープシーケンス <code class="docutils literal notranslate"><span class="pre">\N{...}</span></code> を挿入する) があります。</p>
+<p>次の例では、それぞれの異なる処理結果が示されています:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">40960</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;abcd&#39;</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">1972</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+<span class="go">b&#39;\xea\x80\x80abcd\xde\xb4&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>  
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">UnicodeEncodeError</span>: <span class="n">&#39;ascii&#39; codec can&#39;t encode character &#39;\ua000&#39; in</span>
+<span class="go">  position 0: ordinal not in range(128)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="go">b&#39;abcd&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;replace&#39;</span><span class="p">)</span>
+<span class="go">b&#39;?abcd?&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;xmlcharrefreplace&#39;</span><span class="p">)</span>
+<span class="go">b&#39;&amp;#40960;abcd&amp;#1972;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;backslashreplace&#39;</span><span class="p">)</span>
+<span class="go">b&#39;\\ua000abcd\\u07b4&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">,</span> <span class="s1">&#39;namereplace&#39;</span><span class="p">)</span>
+<span class="go">b&#39;\\N{YI SYLLABLE IT}abcd\\u07b4&#39;</span>
+</pre></div>
+</div>
+<p>利用可能なエンコーディングを登録したり、アクセスしたりする低レベルのルーチンは <a class="reference internal" href="../library/codecs.html#module-codecs" title="codecs: Encode and decode data and streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">codecs</span></code></a> モジュールにあります。新しいエンコーディングを実装するには、 <a class="reference internal" href="../library/codecs.html#module-codecs" title="codecs: Encode and decode data and streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">codecs</span></code></a> モジュールを理解していることも必要になります。しかし、このモジュールのエンコードやデコードの関数は、使い勝手が良いというより低レベルな関数で、新しいエンコーディングを書くのは特殊な作業なので、この HOWTO では扱わないことにします。</p>
+</div>
+<div class="section" id="unicode-literals-in-python-source-code">
+<h3>Python ソースコード内の Unicode リテラル<a class="headerlink" href="#unicode-literals-in-python-source-code" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Python のソースコード内では、特定のコードポイントはエスケープシーケンス <code class="docutils literal notranslate"><span class="pre">\u</span></code> を使い、続けてコードポイントを4桁の16進数を書きます。エスケープシーケンス <code class="docutils literal notranslate"><span class="pre">\U</span></code> も同様です、ただし4桁ではなく8桁の16進数を使います:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;a</span><span class="se">\xac\u1234\u20ac\U00008000</span><span class="s2">&quot;</span>
+<span class="gp">... </span><span class="c1">#     ^^^^ two-digit hex escape</span>
+<span class="gp">... </span><span class="c1">#         ^^^^^^ four-digit Unicode escape</span>
+<span class="gp">... </span><span class="c1">#                     ^^^^^^^^^^ eight-digit Unicode escape</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
+<span class="go">[97, 172, 4660, 8364, 32768]</span>
+</pre></div>
+</div>
+<p>127 より大きいコードポイントに対してエスケープシーケンスを使うのは、エスケープシーケンスがあまり多くないうちは有効ですが、フランス語等のアクセントを使う言語でメッセージのような多くのアクセント文字を使う場合には邪魔になります。文字を <a class="reference internal" href="../library/functions.html#chr" title="chr"><code class="xref py py-func docutils literal notranslate"><span class="pre">chr()</span></code></a> 組み込み関数を使って組み上げることもできますが、それはさらに長くなってしまうでしょう。</p>
+<p>理想的にはあなたの言語の自然なエンコーディングでリテラルを書くことでしょう。そうなれば、Python のソースコードをアクセント付きの文字を自然に表示するお気に入りのエディタで編集し、実行時に正しい文字が得られます。</p>
+<p>Python はデフォルトでは UTF-8 ソースコードを書くことができます、ただしどのエンコーディングを使うかを宣言すればほとんどのエンコーディングを使えます。それはソースファイルの一行目や二行目に特別なコメントを含めることによってできます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: latin-1 -*-</span>
+
+<span class="n">u</span> <span class="o">=</span> <span class="s1">&#39;abcdé&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>この構文は Emacs のファイル固有の変数を指定する表記から影響を受けています。Emacs は様々な変数をサポートしていますが、Python がサポートしているのは 'coding' のみです。 <code class="docutils literal notranslate"><span class="pre">-*-</span></code> の記法は Emacs に対してコメントが特別であることを示します。これは Python にとって意味はありませんが慣習で使われています。 Python はコメント中に <code class="docutils literal notranslate"><span class="pre">coding:</span> <span class="pre">name</span></code> または <code class="docutils literal notranslate"><span class="pre">coding=name</span></code> を探します。</p>
+<p>このようなコメントを含んでいない場合、すでに述べた通り、使われるデフォルトエンコーディングは UTF-8 になります。より詳しい情報は <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0263"><strong>PEP 263</strong></a> を参照してください。</p>
+</div>
+<div class="section" id="unicode-properties">
+<h3>Unicode プロパティ<a class="headerlink" href="#unicode-properties" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>The Unicode specification includes a database of information about
+code points.  For each defined code point, the information includes
+the character's name, its category, the numeric value if applicable
+(for characters representing numeric concepts such as the Roman
+numerals, fractions such as one-third and four-fifths, etc.).  There
+are also display-related properties, such as how to use the code point
+in bidirectional text.</p>
+<p>以下のプログラムはいくつかの文字に対する情報を表示し、特定の文字の数値を印字します:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unicodedata</span>
+
+<span class="n">u</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">233</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mh">0x0bf2</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">3972</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">6000</span><span class="p">)</span> <span class="o">+</span> <span class="nb">chr</span><span class="p">(</span><span class="mi">13231</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%04x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">unicodedata</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+<span class="c1"># Get numeric value of second character</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">unicodedata</span><span class="o">.</span><span class="n">numeric</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>実行すると、このように出力されます:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>0 00e9 Ll LATIN SMALL LETTER E WITH ACUTE
+1 0bf2 No TAMIL NUMBER ONE THOUSAND
+2 0f84 Mn TIBETAN MARK HALANTA
+3 1770 Lo TAGBANWA LETTER SA
+4 33af So SQUARE RAD OVER S SQUARED
+1000.0
+</pre></div>
+</div>
+<p>カテゴリーコードは文字の性質を略記で表したものです。カテゴリーコードは &quot;Letter&quot;、&quot;Number&quot;、&quot;Punctuation&quot;、&quot;Symbol&quot; などのカテゴリーに分類され、さらにサブカテゴリーに細分化されます。上記の出力からコードを拾うと、<code class="docutils literal notranslate"><span class="pre">'Ll'</span></code> は 'Letter, lowercase'、<code class="docutils literal notranslate"><span class="pre">'No'</span></code> は &quot;Number, other&quot;、<code class="docutils literal notranslate"><span class="pre">'Mn'</span></code> は &quot;Mark, nonspacing&quot;、<code class="docutils literal notranslate"><span class="pre">'So'</span></code> は &quot;Symbol, other&quot; を意味しています。カテゴリーコードの一覧は <a class="reference external" href="http://www.unicode.org/reports/tr44/#General_Category_Values">Unicode Character Database 文書の General Category Values 節</a> を参照してください。</p>
+</div>
+<div class="section" id="comparing-strings">
+<h3>Comparing Strings<a class="headerlink" href="#comparing-strings" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Unicode adds some complication to comparing strings, because the same
+set of characters can be represented by different sequences of code
+points.  For example, a letter like 'ê' can be represented as a single
+code point U+00EA, or as U+0065 U+0302, which is the code point for
+'e' followed by a code point for 'COMBINING CIRCUMFLEX ACCENT'.  These
+will produce the same output when printed, but one is a string of
+length 1 and the other is of length 2.</p>
+<p>One tool for a case-insensitive comparison is the
+<a class="reference internal" href="../library/stdtypes.html#str.casefold" title="str.casefold"><code class="xref py py-meth docutils literal notranslate"><span class="pre">casefold()</span></code></a> string method that converts a string to a
+case-insensitive form following an algorithm described by the Unicode
+Standard.  This algorithm has special handling for characters such as
+the German letter 'ß' (code point U+00DF), which becomes the pair of
+lowercase letters 'ss'.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">street</span> <span class="o">=</span> <span class="s1">&#39;Gürzenichstraße&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">street</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+<span class="go">&#39;gürzenichstrasse&#39;</span>
+</pre></div>
+</div>
+<p>A second tool is the <a class="reference internal" href="../library/unicodedata.html#module-unicodedata" title="unicodedata: Access the Unicode Database."><code class="xref py py-mod docutils literal notranslate"><span class="pre">unicodedata</span></code></a> module's
+<a class="reference internal" href="../library/unicodedata.html#unicodedata.normalize" title="unicodedata.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code></a> function that converts strings to one
+of several normal forms, where letters followed by a combining
+character are replaced with single characters.  <code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code> can
+be used to perform string comparisons that won't falsely report
+inequality if two strings use combining characters differently:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unicodedata</span>
+
+<span class="k">def</span> <span class="nf">compare_strs</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">NFD</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFD&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">NFD</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span> <span class="o">==</span> <span class="n">NFD</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span>
+
+<span class="n">single_char</span> <span class="o">=</span> <span class="s1">&#39;ê&#39;</span>
+<span class="n">multiple_chars</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\N{LATIN SMALL LETTER E}\N{COMBINING CIRCUMFLEX ACCENT}</span><span class="s1">&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;length of first string=&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">single_char</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;length of second string=&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">multiple_chars</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">compare_strs</span><span class="p">(</span><span class="n">single_char</span><span class="p">,</span> <span class="n">multiple_chars</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>When run, this outputs:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python3 compare-strs.py
+<span class="go">length of first string= 1</span>
+<span class="go">length of second string= 2</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The first argument to the <a class="reference internal" href="../library/unicodedata.html#unicodedata.normalize" title="unicodedata.normalize"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize()</span></code></a> function is a
+string giving the desired normalization form, which can be one of
+'NFC', 'NFKC', 'NFD', and 'NFKD'.</p>
+<p>The Unicode Standard also specifies how to do caseless comparisons:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">unicodedata</span>
+
+<span class="k">def</span> <span class="nf">compare_caseless</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">NFD</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFD&#39;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">NFD</span><span class="p">(</span><span class="n">NFD</span><span class="p">(</span><span class="n">s1</span><span class="p">)</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span> <span class="o">==</span> <span class="n">NFD</span><span class="p">(</span><span class="n">NFD</span><span class="p">(</span><span class="n">s2</span><span class="p">)</span><span class="o">.</span><span class="n">casefold</span><span class="p">())</span>
+
+<span class="c1"># Example usage</span>
+<span class="n">single_char</span> <span class="o">=</span> <span class="s1">&#39;ê&#39;</span>
+<span class="n">multiple_chars</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\N{LATIN CAPITAL LETTER E}\N{COMBINING CIRCUMFLEX ACCENT}</span><span class="s1">&#39;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">compare_caseless</span><span class="p">(</span><span class="n">single_char</span><span class="p">,</span> <span class="n">multiple_chars</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This will print <code class="docutils literal notranslate"><span class="pre">True</span></code>.  (Why is <code class="xref py py-func docutils literal notranslate"><span class="pre">NFD()</span></code> invoked twice?  Because
+there are a few characters that make <code class="xref py py-meth docutils literal notranslate"><span class="pre">casefold()</span></code> return a
+non-normalized string, so the result needs to be normalized again. See
+section 3.13 of the Unicode Standard for a discussion and an example.)</p>
+</div>
+<div class="section" id="unicode-regular-expressions">
+<h3>Unicode 正規表現<a class="headerlink" href="#unicode-regular-expressions" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="../library/re.html#module-re" title="re: Regular expression operations."><code class="xref py py-mod docutils literal notranslate"><span class="pre">re</span></code></a> モジュールがサポートしている正規表現はバイト列や文字列として与えられます。 <code class="docutils literal notranslate"><span class="pre">\d</span></code> や <code class="docutils literal notranslate"><span class="pre">\w</span></code> などのいくつかの特殊な文字シーケンスは、そのパターンがバイト列として与えられたのか文字列として与えられたのかによって、異なる意味を持ちます。例えば、 <code class="docutils literal notranslate"><span class="pre">\d</span></code> はバイト列では <code class="docutils literal notranslate"><span class="pre">[0-9]</span></code> の範囲の文字と一致しますが、文字列では <code class="docutils literal notranslate"><span class="pre">'Nd'</span></code> カテゴリーにある任意の文字と一致します。</p>
+<p>この例にある文字列には、タイ語の数字とアラビア数字の両方で数字の 57 が書いてあります。</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;Over </span><span class="se">\u0e55\u0e57</span><span class="s2"> 57 flavours&quot;</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>実行すると、 <code class="docutils literal notranslate"><span class="pre">\d+</span></code> はタイ語の数字と一致し、それを出力します。フラグ <a class="reference internal" href="../library/re.html#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.ASCII</span></code></a> を <a class="reference internal" href="../library/re.html#re.compile" title="re.compile"><code class="xref py py-func docutils literal notranslate"><span class="pre">compile()</span></code></a> に渡した場合、 <code class="docutils literal notranslate"><span class="pre">\d+</span></code> は先程とは違って部分文字列 &quot;57&quot; に一致します。</p>
+<p>同様に、 <code class="docutils literal notranslate"><span class="pre">\w</span></code> は非常に多くの Unicode 文字に一致しますが、バイト列の場合もしくは <a class="reference internal" href="../library/re.html#re.ASCII" title="re.ASCII"><code class="xref py py-const docutils literal notranslate"><span class="pre">re.ASCII</span></code></a> が渡された場合は <code class="docutils literal notranslate"><span class="pre">[a-zA-Z0-9_]</span></code> にしか一致しません。 <code class="docutils literal notranslate"><span class="pre">\s</span></code> は文字列では Unicode 空白文字に、バイト列では <code class="docutils literal notranslate"><span class="pre">[</span> <span class="pre">\t\n\r\f\v]</span></code> に一致します。</p>
+</div>
+<div class="section" id="id2">
+<h3>参考資料<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Python の Unicode サポートについての参考になる議論は以下の2つです:</p>
+<ul class="simple">
+<li>Nick Coghlan による <a class="reference external" href="http://python-notes.curiousefficiency.org/en/latest/python3/text_file_processing.html">Processing Text Files in Python 3</a></li>
+<li><a class="reference external" href="https://nedbatchelder.com/text/unipain.html">Pragmatic Unicode</a>, a PyCon 2012 presentation by Ned Batchelder.</li>
+</ul>
+<p><a class="reference internal" href="../library/stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> 型については Python ライブラリリファレンスの <a class="reference internal" href="../library/stdtypes.html#textseq"><span class="std std-ref">テキストシーケンス型 --- str</span></a> で解説されています。</p>
+<p><a class="reference internal" href="../library/unicodedata.html#module-unicodedata" title="unicodedata: Access the Unicode Database."><code class="xref py py-mod docutils literal notranslate"><span class="pre">unicodedata</span></code></a> モジュールについてのドキュメント。</p>
+<p><a class="reference internal" href="../library/codecs.html#module-codecs" title="codecs: Encode and decode data and streams."><code class="xref py py-mod docutils literal notranslate"><span class="pre">codecs</span></code></a> モジュールについてのドキュメント。</p>
+<p>Marc-André Lemburg は EuroPython 2002 で <a class="reference external" href="https://downloads.egenix.com/python/Unicode-EPC2002-Talk.pdf">&quot;Python and Unicode&quot; というタイトルのプレゼンテーション (PDF スライド)</a> を行いました。このスライドは Python 2 の Unicode 機能 (Unicode 文字列型が <code class="docutils literal notranslate"><span class="pre">unicode</span></code> と呼ばれ、リテラルは <code class="docutils literal notranslate"><span class="pre">u</span></code> で始まります) の設計について概観する素晴しい資料です。</p>
+</div>
+</div>
+<div class="section" id="reading-and-writing-unicode-data">
+<h2>Unicode データを読み書きする<a class="headerlink" href="#reading-and-writing-unicode-data" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>一旦 Unicode データに対してコードが動作するように書き終えたら、次の問題は入出力です。プログラムは Unicode 文字列をどう受けとり、どう Unicode を外部記憶装置や送受信装置に適した形式に変換するのでしょう?</p>
+<p>入力ソースと出力先に依存しないような方法は可能です; アプリケーションに利用されているライブラリが Unicode をそのままサポートしているかを調べなければいけません。例えば XML パーサーは大抵 Unicode データを返します。多くのリレーショナルデータベースも Unicode 値の入ったコラムをサポートしていますし、 SQL の問い合わせで Unicode 値を返すことができます。</p>
+<p>Unicode のデータはディスクに書き込まれるにあたって通常、特定のエンコーディングに変換されます。推奨はされませんが、これを手動で行うことも可能です。ファイルを開き、8バイトオブジェクトを読み込み、バイト列を <code class="docutils literal notranslate"><span class="pre">bytes.decode(encoding)</span></code> で変換することにより実現できます。</p>
+<p>1つの問題はエンコーディングのマルチバイトという性質です; 1つの Unicode 文字はいくつかのバイトで表現され得ます。任意のサイズのチャンク (例えば、1024 もしくは 4096 バイト) にファイルの内容を読み込みたい場合、ある 1 つの Unicode 文字をエンコードしたバイト列が、チャンクの末尾での一部分のみ読み込まれの場合のエラー処理のためのコードを書く必要があります。1つの解決策はファイル全体をメモリに読み込み、デコード処理を実行することですが、こうしてしまうと非常に大きなファイルを処理するときの妨げになります; 2 GiB のファイルを読み込む必要がある場合、2 GiB の RAM が必要になります。(実際には、少なくともある瞬間では、エンコードされた文字列と Unicode 文字列の両方をメモリに保持する必要があるため、より多くのメモリが必要です。)</p>
+<p>The solution would be to use the low-level decoding interface to catch the case
+of partial coding sequences.  The work of implementing this has already been
+done for you: the built-in <a class="reference internal" href="../library/functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a> function can return a file-like object
+that assumes the file's contents are in a specified encoding and accepts Unicode
+parameters for methods such as <a class="reference internal" href="../library/io.html#io.TextIOBase.read" title="io.TextIOBase.read"><code class="xref py py-meth docutils literal notranslate"><span class="pre">read()</span></code></a> and
+<a class="reference internal" href="../library/io.html#io.TextIOBase.write" title="io.TextIOBase.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code></a>.  This works through <a class="reference internal" href="../library/functions.html#open" title="open"><code class="xref py py-func docutils literal notranslate"><span class="pre">open()</span></code></a>'s <em>encoding</em> and
+<em>errors</em> parameters which are interpreted just like those in <a class="reference internal" href="../library/stdtypes.html#str.encode" title="str.encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">str.encode()</span></code></a>
+and <a class="reference internal" href="../library/stdtypes.html#bytes.decode" title="bytes.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">bytes.decode()</span></code></a>.</p>
+<p>そのためファイルから Unicode を読むのは単純です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;unicode.txt&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>読み書きの両方ができる update モードでファイルを開くことも可能です:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\u4500</span><span class="s1"> blah blah blah</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()[:</span><span class="mi">1</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>Unicode 文字 <code class="docutils literal notranslate"><span class="pre">U+FEFF</span></code> は byte-order mark (BOM) として使われ、ファイルのバイト順の自動判定を支援するために、ファイルの最初の文字として書かれます。UTF-16 のようないくつかのエンコーディングは、ファイルの先頭に BOM があることを要求します; そのようなエンコーディングが使われるとき、自動的に BOM が最初の文字として書かれ、ファイルを読むときに暗黙の内に取り除かれます。これらのエンコーディングには、リトルエンディアン (little-endian) 用の 'utf-16-le' やビッグエンディアン (big-endian) 用の 'utf-16-be' というような変種があり、これらは特定の1つのバイト順を指定していて BOM をスキップしません。</p>
+<p>In some areas, it is also convention to use a &quot;BOM&quot; at the start of UTF-8
+encoded files; the name is misleading since UTF-8 is not byte-order dependent.
+The mark simply announces that the file is encoded in UTF-8.  For reading such
+files, use the 'utf-8-sig' codec to automatically skip the mark if present.</p>
+<div class="section" id="unicode-filenames">
+<h3>Unicode ファイル名<a class="headerlink" href="#unicode-filenames" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Most of the operating systems in common use today support filenames
+that contain arbitrary Unicode characters.  Usually this is
+implemented by converting the Unicode string into some encoding that
+varies depending on the system.  Today Python is converging on using
+UTF-8: Python on MacOS has used UTF-8 for several versions, and Python
+3.6 switched to using UTF-8 on Windows as well.  On Unix systems,
+there will only be a filesystem encoding if you've set the <code class="docutils literal notranslate"><span class="pre">LANG</span></code> or
+<code class="docutils literal notranslate"><span class="pre">LC_CTYPE</span></code> environment variables; if you haven't, the default
+encoding is again UTF-8.</p>
+<p><a class="reference internal" href="../library/sys.html#sys.getfilesystemencoding" title="sys.getfilesystemencoding"><code class="xref py py-func docutils literal notranslate"><span class="pre">sys.getfilesystemencoding()</span></code></a> 関数は現在のシステムで利用するエンコーディングを返し、エンコーディングを手動で設定したい場合利用します、ただしわざわざそうする積極的な理由はありません。読み書きのためにファイルを開く時には、ファイル名を Unicode 文字列として渡すだけで正しいエンコーディングに自動的に変更されます:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;filename</span><span class="se">\u4500</span><span class="s1">abc&#39;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;blah</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../library/os.html#os.stat" title="os.stat"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.stat()</span></code></a> のような <a class="reference internal" href="../library/os.html#module-os" title="os: Miscellaneous operating system interfaces."><code class="xref py py-mod docutils literal notranslate"><span class="pre">os</span></code></a> モジュールの関数も Unicode のファイル名を受け付けます。</p>
+<p>The <a class="reference internal" href="../library/os.html#os.listdir" title="os.listdir"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.listdir()</span></code></a> function returns filenames, which raises an issue: should it return
+the Unicode version of filenames, or should it return bytes containing
+the encoded versions?  <a class="reference internal" href="../library/os.html#os.listdir" title="os.listdir"><code class="xref py py-func docutils literal notranslate"><span class="pre">os.listdir()</span></code></a> can do both, depending on whether you
+provided the directory path as bytes or a Unicode string.  If you pass a
+Unicode string as the path, filenames will be decoded using the filesystem's
+encoding and a list of Unicode strings will be returned, while passing a byte
+path will return the filenames as bytes.  For example,
+assuming the default filesystem encoding is UTF-8, running the following
+program:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn</span> <span class="o">=</span> <span class="s1">&#39;filename</span><span class="se">\u4500</span><span class="s1">abc&#39;</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>以下の出力結果が生成されます:</p>
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> python listdir-test.py
+<span class="go">[b&#39;filename\xe4\x94\x80abc&#39;, ...]</span>
+<span class="go">[&#39;filename\u4500abc&#39;, ...]</span>
+</pre></div>
+</div>
+<p>最初のリストは UTF-8 でエンコーディングされたファイル名を含み、第二のリストは Unicode 版を含んでいます。</p>
+<p>Note that on most occasions, you should can just stick with using
+Unicode with these APIs.  The bytes APIs should only be used on
+systems where undecodable file names can be present; that's
+pretty much only Unix systems now.</p>
+</div>
+<div class="section" id="tips-for-writing-unicode-aware-programs">
+<h3>Unicode 対応のプログラムを書くための Tips<a class="headerlink" href="#tips-for-writing-unicode-aware-programs" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>この章では Unicode を扱うプログラムを書くためのいくつかの提案を紹介します。</p>
+<p>最も重要な助言としては:</p>
+<blockquote>
+<div>ソフトウェアは内部では Unicode 文字列のみを利用し、入力データはできるだけ早期にデコードし、出力の直前でエンコードすべきです。</div></blockquote>
+<p>If you attempt to write processing functions that accept both Unicode and byte
+strings, you will find your program vulnerable to bugs wherever you combine the
+two different kinds of strings.  There is no automatic encoding or decoding: if
+you do e.g. <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">+</span> <span class="pre">bytes</span></code>, a <a class="reference internal" href="../library/exceptions.html#TypeError" title="TypeError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">TypeError</span></code></a> will be raised.</p>
+<p>web ブラウザから来るデータやその他の信頼できないところからのデータを利用する場合、それらの文字列から生成したコマンド行の実行や、それらの文字列をデータベースに蓄える前に文字列の中に不正な文字が含まれていないか確認するのが一般的です。もしそういう状況になった場合には、エンコードされたバイトデータではなく、デコードされた文字列のチェックを入念に行なって下さい; いくつかのエンコーディングは問題となる性質を持っています、例えば全単射でなかったり、完全に ASCII 互換でないなど。入力データがエンコーディングを指定している場合でもそうして下さい、なぜなら攻撃者は巧みに悪意あるテキストをエンコードした文字列の中に隠すことができるからです。</p>
+<div class="section" id="converting-between-file-encodings">
+<h4>ファイルエンコーディングの変換<a class="headerlink" href="#converting-between-file-encodings" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>The <a class="reference internal" href="../library/codecs.html#codecs.StreamRecoder" title="codecs.StreamRecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">StreamRecoder</span></code></a> class can transparently convert between
+encodings, taking a stream that returns data in encoding #1
+and behaving like a stream returning data in encoding #2.</p>
+<p>For example, if you have an input file <em>f</em> that's in Latin-1, you
+can wrap it with a <a class="reference internal" href="../library/codecs.html#codecs.StreamRecoder" title="codecs.StreamRecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">StreamRecoder</span></code></a> to return bytes encoded in
+UTF-8:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_f</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">StreamRecoder</span><span class="p">(</span><span class="n">f</span><span class="p">,</span>
+    <span class="c1"># en/decoder: used by read() to encode its results and</span>
+    <span class="c1"># by write() to decode its input.</span>
+    <span class="n">codecs</span><span class="o">.</span><span class="n">getencoder</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getdecoder</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span>
+
+    <span class="c1"># reader/writer: used to read and write to the stream.</span>
+    <span class="n">codecs</span><span class="o">.</span><span class="n">getreader</span><span class="p">(</span><span class="s1">&#39;latin-1&#39;</span><span class="p">),</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s1">&#39;latin-1&#39;</span><span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="files-in-an-unknown-encoding">
+<h4>不明なエンコーディングのファイル<a class="headerlink" href="#files-in-an-unknown-encoding" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>What can you do if you need to make a change to a file, but don't know
+the file's encoding?  If you know the encoding is ASCII-compatible and
+only want to examine or modify the ASCII parts, you can open the file
+with the <code class="docutils literal notranslate"><span class="pre">surrogateescape</span></code> error handler:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;surrogateescape&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="c1"># make changes to the string &#39;data&#39;</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span> <span class="o">+</span> <span class="s1">&#39;.new&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span>
+          <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;surrogateescape&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">surrogateescape</span></code> error handler will decode any non-ASCII bytes
+as code points in a special range running from U+DC80 to
+U+DCFF.  These code points will then turn back into the
+same bytes when the <code class="docutils literal notranslate"><span class="pre">surrogateescape</span></code> error handler is used to
+encode the data and write it back out.</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>参考資料<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>One section of <a class="reference external" href="http://pyvideo.org/video/289/pycon-2010--mastering-python-3-i-o">Mastering Python 3 Input/Output</a>,
+a PyCon 2010 talk by David Beazley, discusses text processing and binary data handling.</p>
+<p>Marc-André Lemburg のプレゼンテーション &quot;Writing Unicode-aware Applications in Python&quot; の PDF スライドが &lt;<a class="reference external" href="https://downloads.egenix.com/python/LSM2005-Developing-Unicode-aware-applications-in-Python.pdf">https://downloads.egenix.com/python/LSM2005-Developing-Unicode-aware-applications-in-Python.pdf</a>&gt; から入手可能です、そして文字エンコーディングの問題と同様にアプリケーションの国際化やローカライズについても議論されています。このスライドは Python 2.x のみをカバーしています。</p>
+<p><a class="reference external" href="http://pyvideo.org/video/1768/the-guts-of-unicode-in-python">The Guts of Unicode in Python</a>
+is a PyCon 2013 talk by Benjamin Peterson that discusses the internal Unicode
+representation in Python 3.3.</p>
+</div>
+</div>
+<div class="section" id="acknowledgements">
+<h2>謝辞<a class="headerlink" href="#acknowledgements" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このドキュメントの最初の草稿は Andrew Kuchling によって書かれました。それからさらに Alexander Belopolsky, Georg Brandl, Andrew Kuchling, Ezio Melotti らで改訂が重ねられています。</p>
+<p>Thanks to the following people who have noted errors or offered
+suggestions on this article: Éric Araujo, Nicholas Bastin, Nick
+Coghlan, Marius Gedminas, Kent Johnson, Ken Krugler, Marc-André
+Lemburg, Martin von Löwis, Terry J. Reedy, Serhiy Storchaka,
+Eryk Sun, Chad Whitacre, Graham Wideman.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Unicode HOWTO</a><ul>
+<li><a class="reference internal" href="#introduction-to-unicode">Unicode 入門</a><ul>
+<li><a class="reference internal" href="#definitions">定義</a></li>
+<li><a class="reference internal" href="#encodings">エンコーディング</a></li>
+<li><a class="reference internal" href="#references">参考資料</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#python-s-unicode-support">Python の Unicode サポート</a><ul>
+<li><a class="reference internal" href="#the-string-type">文字列型</a></li>
+<li><a class="reference internal" href="#converting-to-bytes">バイト列への変換</a></li>
+<li><a class="reference internal" href="#unicode-literals-in-python-source-code">Python ソースコード内の Unicode リテラル</a></li>
+<li><a class="reference internal" href="#unicode-properties">Unicode プロパティ</a></li>
+<li><a class="reference internal" href="#comparing-strings">Comparing Strings</a></li>
+<li><a class="reference internal" href="#unicode-regular-expressions">Unicode 正規表現</a></li>
+<li><a class="reference internal" href="#id2">参考資料</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reading-and-writing-unicode-data">Unicode データを読み書きする</a><ul>
+<li><a class="reference internal" href="#unicode-filenames">Unicode ファイル名</a></li>
+<li><a class="reference internal" href="#tips-for-writing-unicode-aware-programs">Unicode 対応のプログラムを書くための Tips</a><ul>
+<li><a class="reference internal" href="#converting-between-file-encodings">ファイルエンコーディングの変換</a></li>
+<li><a class="reference internal" href="#files-in-an-unknown-encoding">不明なエンコーディングのファイル</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id3">参考資料</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acknowledgements">謝辞</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="sorting.html"
+                        title="前の章へ">ソート HOW TO</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="urllib2.html"
+                        title="次の章へ">urllib パッケージを使ってインターネット上のリソースを取得するには</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/howto/unicode.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="urllib2.html" title="urllib パッケージを使ってインターネット上のリソースを取得するには"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="sorting.html" title="ソート HOW TO"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python HOWTO</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

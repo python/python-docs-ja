@@ -1,0 +1,199 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>安定 ABI (Stable Appliction Binary Interface) &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="超高水準レイヤ" href="veryhigh.html" />
+    <link rel="prev" title="はじめに" href="intro.html" />
+    <link rel="canonical" href="https://docs.python.org/3/c-api/stable.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="veryhigh.html" title="超高水準レイヤ"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="はじめに"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Python/C API リファレンスマニュアル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="stable-application-binary-interface">
+<span id="stable"></span><h1>安定 ABI (Stable Appliction Binary Interface)<a class="headerlink" href="#stable-application-binary-interface" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>伝統的に Python の C API はリリース毎に変更されます。多くの変更はソース互換性を保っていて、既存の API を変更したり取り除いたりすることはありません (ただし、いくつかの API は、一旦非推奨と指定された後に、削除されます)。</p>
+<p>残念ながら API の互換性はバイナリレベルの互換性 (ABI) までには適用されません。その理由は主に、構造体フィールドの新規追加や型の変更によって、たとえ API は壊れなくても ABI は壊れてしまうからです。その結果として、拡張モジュールを Python のリリース毎に再コンパイルする必要があります (Unix でその影響を受けるインターフェイスが使用されていない場合は例外かもしれませんが)。また、 Windows では、何らかの pythonXY.dll とリンクしている拡張モジュールは、再コンパイルした後に新しい dll とリンクし直す必要があります。</p>
+<p>Python 3.2 以降では、安定 ABI を保証するための API サブセットが宣言されています。拡張モジュールでこのAPI (&quot;limited API&quot; と呼ばれます) を使うには <code class="docutils literal notranslate"><span class="pre">Py_LIMITED_API</span></code> を定義してください。拡張モジュールの細部は大部分隠蔽され、代わりに再コンパイルなしにバージョン 3.x (x&gt;=2) 上で動くモジュールがビルドされます。</p>
+<p>いくつかのケースでは、安定 ABI を新しい関数で拡張する必要があります。これらの新しい API を使用したい拡張モジュールは、 <code class="docutils literal notranslate"><span class="pre">Py_LIMITED_API</span></code> にサポートしたい最小の Python バージョンの <code class="docutils literal notranslate"><span class="pre">PY_VERSION_HEX</span></code> の値  (<a class="reference internal" href="apiabiversion.html#apiabiversion"><span class="std std-ref">API と ABI のバージョニング</span></a> を参照) を設定してください。 (例えば Python3.3 なら <code class="docutils literal notranslate"><span class="pre">0x03030000</span></code>)。 モジュールは後続のすべての Pythonリリースで動作しますが、 (シンボルが存在しないため) 古いリリースでは動作しません。</p>
+<p>Python 3.2 からは limited API は <span class="target" id="index-2"></span><a class="pep reference external" href="https://www.python.org/dev/peps/pep-0384"><strong>PEP 384</strong></a> に文書化されています。 C API のドキュメントでは、 limited API の一部でない API は、 &quot;Not part of the limited API&quot; とマークされています。</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="intro.html"
+                        title="前の章へ">はじめに</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="veryhigh.html"
+                        title="次の章へ">超高水準レイヤ</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/c-api/stable.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="veryhigh.html" title="超高水準レイヤ"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="はじめに"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python/C API リファレンスマニュアル</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>

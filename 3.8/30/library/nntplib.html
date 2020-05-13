@@ -1,0 +1,768 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>nntplib --- NNTP プロトコルクライアント &#8212; Python 3.8.3rc1 ドキュメント</title>
+    <link rel="stylesheet" href="../_static/pydoctheme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/sidebar.js"></script>
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="Python 3.8.3rc1 ドキュメント 内を検索"
+          href="../_static/opensearch.xml"/>
+    <link rel="author" title="このドキュメントについて" href="../about.html" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="検索" href="../search.html" />
+    <link rel="copyright" title="著作権" href="../copyright.html" />
+    <link rel="next" title="smtplib --- SMTP プロトコルクライアント" href="smtplib.html" />
+    <link rel="prev" title="imaplib --- IMAP4 プロトコルクライアント" href="imaplib.html" />
+    <link rel="canonical" href="https://docs.python.org/3/library/nntplib.html" />
+    
+      
+      
+    
+
+    
+    <style>
+      @media only screen {
+        table.full-width-table {
+            width: 100%;
+        }
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="../_static/py.png" />
+    
+    <script type="text/javascript" src="../_static/copybutton.js"></script>
+    
+     
+
+
+  </head><body>
+  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="smtplib.html" title="smtplib --- SMTP プロトコルクライアント"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="imaplib.html" title="imaplib --- IMAP4 プロトコルクライアント"
+             accesskey="P">前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="internet.html" accesskey="U">インターネットプロトコルとサポート</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>    
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-nntplib">
+<span id="nntplib-nntp-protocol-client"></span><h1><a class="reference internal" href="#module-nntplib" title="nntplib: NNTP protocol client (requires sockets)."><code class="xref py py-mod docutils literal notranslate"><span class="pre">nntplib</span></code></a> --- NNTP プロトコルクライアント<a class="headerlink" href="#module-nntplib" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><strong>ソースコード:</strong> <a class="reference external" href="https://github.com/python/cpython/tree/3.8/Lib/nntplib.py">Lib/nntplib.py</a></p>
+<hr class="docutils" id="index-0" />
+<p>This module defines the class <a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> which implements the client side of
+the Network News Transfer Protocol.  It can be used to implement a news reader
+or poster, or automated news processors.  It is compatible with <span class="target" id="index-1"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3977.html"><strong>RFC 3977</strong></a>
+as well as the older <span class="target" id="index-2"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc977.html"><strong>RFC 977</strong></a> and <span class="target" id="index-3"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc2980.html"><strong>RFC 2980</strong></a>.</p>
+<p>以下にこのモジュールの使い方の小さな例を二つ示します。ニュースグループに関する統計情報を列挙し、最新 10 件の記事を出力するには以下のようにします:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">nntplib</span><span class="o">.</span><span class="n">NNTP</span><span class="p">(</span><span class="s1">&#39;news.gmane.io&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;gmane.comp.python.committers&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;has&#39;</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="s1">&#39;articles, range&#39;</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="s1">&#39;to&#39;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
+<span class="go">Group gmane.comp.python.committers has 1096 articles, range 1 to 1096</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">overviews</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">over</span><span class="p">((</span><span class="n">last</span> <span class="o">-</span> <span class="mi">9</span><span class="p">,</span> <span class="n">last</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">over</span> <span class="ow">in</span> <span class="n">overviews</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">nntplib</span><span class="o">.</span><span class="n">decode_header</span><span class="p">(</span><span class="n">over</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">]))</span>
+<span class="gp">...</span>
+<span class="go">1087 Re: Commit privileges for Łukasz Langa</span>
+<span class="go">1088 Re: 3.2 alpha 2 freeze</span>
+<span class="go">1089 Re: 3.2 alpha 2 freeze</span>
+<span class="go">1090 Re: Commit privileges for Łukasz Langa</span>
+<span class="go">1091 Re: Commit privileges for Łukasz Langa</span>
+<span class="go">1092 Updated ssh key</span>
+<span class="go">1093 Re: Updated ssh key</span>
+<span class="go">1094 Re: Updated ssh key</span>
+<span class="go">1095 Hello fellow committers!</span>
+<span class="go">1096 Re: Hello fellow committers!</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+<span class="go">&#39;205 Bye!&#39;</span>
+</pre></div>
+</div>
+<p>バイナリファイルから記事を投稿するには、以下のようにします。 (この例では記事番号は有効な番号を指定していて、あなたがそのニュースグループに投稿する 権限を持っていると仮定しています)</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">nntplib</span><span class="o">.</span><span class="n">NNTP</span><span class="p">(</span><span class="s1">&#39;news.gmane.io&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;article.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="go">&#39;240 Article posted successfully.&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+<span class="go">&#39;205 Bye!&#39;</span>
+</pre></div>
+</div>
+<p>このモジュール自体では以下のクラスを定義しています:</p>
+<dl class="class">
+<dt id="nntplib.NNTP">
+<em class="property">class </em><code class="descclassname">nntplib.</code><code class="descname">NNTP</code><span class="sig-paren">(</span><em>host</em>, <em>port=119</em>, <em>user=None</em>, <em>password=None</em>, <em>readermode=None</em>, <em>usenetrc=False</em><span class="optional">[</span>, <em>timeout</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> object, representing a connection
+to the NNTP server running on host <em>host</em>, listening at port <em>port</em>.
+An optional <em>timeout</em> can be specified for the socket connection.
+If the optional <em>user</em> and <em>password</em> are provided, or if suitable
+credentials are present in <code class="file docutils literal notranslate"><span class="pre">/.netrc</span></code> and the optional flag <em>usenetrc</em>
+is true, the <code class="docutils literal notranslate"><span class="pre">AUTHINFO</span> <span class="pre">USER</span></code> and <code class="docutils literal notranslate"><span class="pre">AUTHINFO</span> <span class="pre">PASS</span></code> commands are used
+to identify and authenticate the user to the server.  If the optional
+flag <em>readermode</em> is true, then a <code class="docutils literal notranslate"><span class="pre">mode</span> <span class="pre">reader</span></code> command is sent before
+authentication is performed.  Reader mode is sometimes necessary if you are
+connecting to an NNTP server on the local machine and intend to call
+reader-specific commands, such as <code class="docutils literal notranslate"><span class="pre">group</span></code>.  If you get unexpected
+<a class="reference internal" href="#nntplib.NNTPPermanentError" title="nntplib.NNTPPermanentError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">NNTPPermanentError</span></code></a>s, you might need to set <em>readermode</em>.
+The <a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> class supports the <a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> statement to
+unconditionally consume <a class="reference internal" href="exceptions.html#OSError" title="OSError"><code class="xref py py-exc docutils literal notranslate"><span class="pre">OSError</span></code></a> exceptions and to close the NNTP
+connection when done, e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">nntplib</span> <span class="kn">import</span> <span class="n">NNTP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">NNTP</span><span class="p">(</span><span class="s1">&#39;news.gmane.io&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">n</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">n</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;gmane.comp.python.committers&#39;</span><span class="p">)</span>
+<span class="gp">... </span><span class="c1"># doctest: +SKIP</span>
+<span class="go">(&#39;211 1755 1 1755 gmane.comp.python.committers&#39;, 1755, 1, 1755, &#39;gmane.comp.python.committers&#39;)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p class="audit-hook">Raises an <a class="reference internal" href="sys.html#auditing"><span class="std std-ref">auditing event</span></a> <code class="docutils literal notranslate"><span class="pre">nntplib.connect</span></code> with arguments <code class="docutils literal notranslate"><span class="pre">self</span></code>, <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>.</p>
+<p class="audit-hook">All commands will raise an <a class="reference internal" href="sys.html#auditing"><span class="std std-ref">auditing event</span></a>
+<code class="docutils literal notranslate"><span class="pre">nntplib.putline</span></code> with arguments <code class="docutils literal notranslate"><span class="pre">self</span></code> and <code class="docutils literal notranslate"><span class="pre">line</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">line</span></code> is the bytes about to be sent to the remote host.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.2 で変更: </span><em>usenetrc</em> がデフォルトで <code class="docutils literal notranslate"><span class="pre">False</span></code> になりました。</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.3 で変更: </span><a class="reference internal" href="../reference/compound_stmts.html#with"><code class="xref std std-keyword docutils literal notranslate"><span class="pre">with</span></code></a> 構文のサポートが追加されました。</p>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="nntplib.NNTP_SSL">
+<em class="property">class </em><code class="descclassname">nntplib.</code><code class="descname">NNTP_SSL</code><span class="sig-paren">(</span><em>host</em>, <em>port=563</em>, <em>user=None</em>, <em>password=None</em>, <em>ssl_context=None</em>, <em>readermode=None</em>, <em>usenetrc=False</em><span class="optional">[</span>, <em>timeout</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP_SSL" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#nntplib.NNTP_SSL" title="nntplib.NNTP_SSL"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP_SSL</span></code></a> object, representing an encrypted
+connection to the NNTP server running on host <em>host</em>, listening at
+port <em>port</em>.  <a class="reference internal" href="#nntplib.NNTP_SSL" title="nntplib.NNTP_SSL"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP_SSL</span></code></a> objects have the same methods as
+<a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> objects.  If <em>port</em> is omitted, port 563 (NNTPS) is used.
+<em>ssl_context</em> is also optional, and is a <a class="reference internal" href="ssl.html#ssl.SSLContext" title="ssl.SSLContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">SSLContext</span></code></a> object.
+Please read <a class="reference internal" href="ssl.html#ssl-security"><span class="std std-ref">セキュリティで考慮すべき点</span></a> for best practices.
+All other parameters behave the same as for <a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a>.</p>
+<p>Note that SSL-on-563 is discouraged per <span class="target" id="index-4"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc4642.html"><strong>RFC 4642</strong></a>, in favor of
+STARTTLS as described below.  However, some servers only support the
+former.</p>
+<p class="audit-hook">Raises an <a class="reference internal" href="sys.html#auditing"><span class="std std-ref">auditing event</span></a> <code class="docutils literal notranslate"><span class="pre">nntplib.connect</span></code> with arguments <code class="docutils literal notranslate"><span class="pre">self</span></code>, <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>.</p>
+<p class="audit-hook">All commands will raise an <a class="reference internal" href="sys.html#auditing"><span class="std std-ref">auditing event</span></a>
+<code class="docutils literal notranslate"><span class="pre">nntplib.putline</span></code> with arguments <code class="docutils literal notranslate"><span class="pre">self</span></code> and <code class="docutils literal notranslate"><span class="pre">line</span></code>,
+where <code class="docutils literal notranslate"><span class="pre">line</span></code> is the bytes about to be sent to the remote host.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>このクラスは <a class="reference internal" href="ssl.html#ssl.SSLContext.check_hostname" title="ssl.SSLContext.check_hostname"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ssl.SSLContext.check_hostname</span></code></a> と <em>Server Name Indication</em> でホスト名のチェックをサポートしました。(<a class="reference internal" href="ssl.html#ssl.HAS_SNI" title="ssl.HAS_SNI"><code class="xref py py-data docutils literal notranslate"><span class="pre">ssl.HAS_SNI</span></code></a> を参照してください)。</p>
+</div>
+</dd></dl>
+
+<dl class="exception">
+<dt id="nntplib.NNTPError">
+<em class="property">exception </em><code class="descclassname">nntplib.</code><code class="descname">NNTPError</code><a class="headerlink" href="#nntplib.NNTPError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>標準の例外 <a class="reference internal" href="exceptions.html#Exception" title="Exception"><code class="xref py py-exc docutils literal notranslate"><span class="pre">Exception</span></code></a> から派生しており、 <a class="reference internal" href="#module-nntplib" title="nntplib: NNTP protocol client (requires sockets)."><code class="xref py py-mod docutils literal notranslate"><span class="pre">nntplib</span></code></a> モジュールが送出する全ての例外の基底クラスです。このクラスのインスタンスは以下の属性を持っています:</p>
+<dl class="attribute">
+<dt id="nntplib.NNTPError.response">
+<code class="descname">response</code><a class="headerlink" href="#nntplib.NNTPError.response" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>利用可能な場合サーバの応答です。<a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> オブジェクトです。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="nntplib.NNTPReplyError">
+<em class="property">exception </em><code class="descclassname">nntplib.</code><code class="descname">NNTPReplyError</code><a class="headerlink" href="#nntplib.NNTPReplyError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>サーバから想定外の応答があったときに送出される例外。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="nntplib.NNTPTemporaryError">
+<em class="property">exception </em><code class="descclassname">nntplib.</code><code class="descname">NNTPTemporaryError</code><a class="headerlink" href="#nntplib.NNTPTemporaryError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>400--499の範囲の応答コードを受け取ったときに送出される例外。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="nntplib.NNTPPermanentError">
+<em class="property">exception </em><code class="descclassname">nntplib.</code><code class="descname">NNTPPermanentError</code><a class="headerlink" href="#nntplib.NNTPPermanentError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>500--599の範囲の応答コードを受け取ったときに送出される例外。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="nntplib.NNTPProtocolError">
+<em class="property">exception </em><code class="descclassname">nntplib.</code><code class="descname">NNTPProtocolError</code><a class="headerlink" href="#nntplib.NNTPProtocolError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>1--5の数字で始まらない応答コードをサーバから受け取ったときに送出される例外。</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="nntplib.NNTPDataError">
+<em class="property">exception </em><code class="descclassname">nntplib.</code><code class="descname">NNTPDataError</code><a class="headerlink" href="#nntplib.NNTPDataError" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>応答データに何らかのエラーがあったときに送出される例外。</p>
+</dd></dl>
+
+<div class="section" id="nntp-objects">
+<span id="id1"></span><h2>NNTP オブジェクト<a class="headerlink" href="#nntp-objects" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>接続されたとき <a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> および <a class="reference internal" href="#nntplib.NNTP_SSL" title="nntplib.NNTP_SSL"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP_SSL</span></code></a> オブジェクトは以下のメソッドと属性をサポートします:</p>
+<div class="section" id="attributes">
+<h3>属性<a class="headerlink" href="#attributes" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<dl class="attribute">
+<dt id="nntplib.NNTP.nntp_version">
+<code class="descclassname">NNTP.</code><code class="descname">nntp_version</code><a class="headerlink" href="#nntplib.NNTP.nntp_version" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>サーバがサポートしている NNTP プロトコルのバージョンを表す整数です。
+実際のところ、この値は <span class="target" id="index-11"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3977.html"><strong>RFC 3977</strong></a> 準拠を通知しているサーバでは <code class="docutils literal notranslate"><span class="pre">2</span></code> で、他の場合は <code class="docutils literal notranslate"><span class="pre">1</span></code> のはずです。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="nntplib.NNTP.nntp_implementation">
+<code class="descclassname">NNTP.</code><code class="descname">nntp_implementation</code><a class="headerlink" href="#nntplib.NNTP.nntp_implementation" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>NNTP サーバのソフトウェア名とバージョンを記述する文字列です。
+サーバが通知していない場合は <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> です。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="methods">
+<h3>メソッド<a class="headerlink" href="#methods" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>全てのメソッドにおける戻り値のタプルで最初の要素となる <em>response</em> は、サーバの応答です: この文字列は 3 桁の数字からなるコードで始まります。サーバの応答がエラーを示す場合、上記のいずれかの例外が送出されます。</p>
+<p>Many of the following methods take an optional keyword-only argument <em>file</em>.
+When the <em>file</em> argument is supplied, it must be either a <a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">file object</span></a>
+opened for binary writing, or the name of an on-disk file to be written to.
+The method will then write any data returned by the server (except for the
+response line and the terminating dot) to the file; any list of lines,
+tuples or objects that the method normally returns will be empty.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.2 で変更: </span>以下のメソッドの多くは改訂・修正されました。このため、3.1 のものとは互換性がありません。</p>
+</div>
+<dl class="method">
+<dt id="nntplib.NNTP.quit">
+<code class="descclassname">NNTP.</code><code class="descname">quit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.quit" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">QUIT</span></code> 命令を送信し、接続を閉じます。このメソッドを呼び出した後は、NTTP オブジェクトの他のいかなるメソッドも呼び出してはいけません。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.getwelcome">
+<code class="descclassname">NNTP.</code><code class="descname">getwelcome</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.getwelcome" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>サーバに最初に接続した際に送信される応答中のウェルカムメッセージを返します。(このメッセージには時に、ユーザにとって重要な免責事項や ヘルプ情報が入っています。)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.getcapabilities">
+<code class="descclassname">NNTP.</code><code class="descname">getcapabilities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.getcapabilities" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return the <span class="target" id="index-6"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3977.html"><strong>RFC 3977</strong></a> capabilities advertised by the server, as a
+<a class="reference internal" href="stdtypes.html#dict" title="dict"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> instance mapping capability names to (possibly empty) lists
+of values. On legacy servers which don't understand the <code class="docutils literal notranslate"><span class="pre">CAPABILITIES</span></code>
+command, an empty dictionary is returned instead.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">NNTP</span><span class="p">(</span><span class="s1">&#39;news.gmane.io&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;POST&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">getcapabilities</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.login">
+<code class="descclassname">NNTP.</code><code class="descname">login</code><span class="sig-paren">(</span><em>user=None</em>, <em>password=None</em>, <em>usenetrc=True</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.login" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send <code class="docutils literal notranslate"><span class="pre">AUTHINFO</span></code> commands with the user name and password.  If <em>user</em>
+and <em>password</em> are <code class="docutils literal notranslate"><span class="pre">None</span></code> and <em>usenetrc</em> is true, credentials from
+<code class="docutils literal notranslate"><span class="pre">~/.netrc</span></code> will be used if possible.</p>
+<p>Unless intentionally delayed, login is normally performed during the
+<a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> object initialization and separately calling this function
+is unnecessary.  To force authentication to be delayed, you must not set
+<em>user</em> or <em>password</em> when creating the object, and must set <em>usenetrc</em> to
+False.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.starttls">
+<code class="descclassname">NNTP.</code><code class="descname">starttls</code><span class="sig-paren">(</span><em>context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.starttls" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">STARTTLS</span></code> command.  This will enable encryption on the NNTP
+connection.  The <em>context</em> argument is optional and should be a
+<a class="reference internal" href="ssl.html#ssl.SSLContext" title="ssl.SSLContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssl.SSLContext</span></code></a> object.  Please read <a class="reference internal" href="ssl.html#ssl-security"><span class="std std-ref">セキュリティで考慮すべき点</span></a> for best
+practices.</p>
+<p>Note that this may not be done after authentication information has
+been transmitted, and authentication occurs by default if possible during a
+<a class="reference internal" href="#nntplib.NNTP" title="nntplib.NNTP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTP</span></code></a> object initialization.  See <a class="reference internal" href="#nntplib.NNTP.login" title="nntplib.NNTP.login"><code class="xref py py-meth docutils literal notranslate"><span class="pre">NNTP.login()</span></code></a> for information
+on suppressing this behavior.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.4 で変更: </span>このメソッドは <a class="reference internal" href="ssl.html#ssl.SSLContext.check_hostname" title="ssl.SSLContext.check_hostname"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ssl.SSLContext.check_hostname</span></code></a> と <em>Server Name Indication</em> でホスト名のチェックをサポートしました。(<a class="reference internal" href="ssl.html#ssl.HAS_SNI" title="ssl.HAS_SNI"><code class="xref py py-data docutils literal notranslate"><span class="pre">ssl.HAS_SNI</span></code></a> を参照してください)。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.newgroups">
+<code class="descclassname">NNTP.</code><code class="descname">newgroups</code><span class="sig-paren">(</span><em>date</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.newgroups" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">NEWGROUPS</span></code> command.  The <em>date</em> argument should be a
+<a class="reference internal" href="datetime.html#datetime.date" title="datetime.date"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.date</span></code></a> or <a class="reference internal" href="datetime.html#datetime.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime.datetime</span></code></a> object.
+Return a pair <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">groups)</span></code> where <em>groups</em> is a list representing
+the groups that are new since the given <em>date</em>. If <em>file</em> is supplied,
+though, then <em>groups</em> will be empty.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">groups</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">newgroups</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="c1"># doctest: +SKIP</span>
+<span class="go">85</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># doctest: +SKIP</span>
+<span class="go">GroupInfo(group=&#39;gmane.network.tor.devel&#39;, last=&#39;4&#39;, first=&#39;1&#39;, flag=&#39;m&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.newnews">
+<code class="descclassname">NNTP.</code><code class="descname">newnews</code><span class="sig-paren">(</span><em>group</em>, <em>date</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.newnews" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">NEWNEWS</span></code> command.  Here, <em>group</em> is a group name or <code class="docutils literal notranslate"><span class="pre">'*'</span></code>, and
+<em>date</em> has the same meaning as for <a class="reference internal" href="#nntplib.NNTP.newgroups" title="nntplib.NNTP.newgroups"><code class="xref py py-meth docutils literal notranslate"><span class="pre">newgroups()</span></code></a>.  Return a pair
+<code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">articles)</span></code> where <em>articles</em> is a list of message ids.</p>
+<p>このコマンドは NNTP サーバ管理者に無効にされていることがよくあります。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.list">
+<code class="descclassname">NNTP.</code><code class="descname">list</code><span class="sig-paren">(</span><em>group_pattern=None</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.list" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">LIST</span></code> or <code class="docutils literal notranslate"><span class="pre">LIST</span> <span class="pre">ACTIVE</span></code> command.  Return a pair
+<code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">list)</span></code> where <em>list</em> is a list of tuples representing all
+the groups available from this NNTP server, optionally matching the
+pattern string <em>group_pattern</em>.  Each tuple has the form
+<code class="docutils literal notranslate"><span class="pre">(group,</span> <span class="pre">last,</span> <span class="pre">first,</span> <span class="pre">flag)</span></code>, where <em>group</em> is a group name, <em>last</em>
+and <em>first</em> are the last and first article numbers, and <em>flag</em> usually
+takes one of these values:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">y</span></code>: Local postings and articles from peers are allowed.</li>
+<li><code class="docutils literal notranslate"><span class="pre">m</span></code>: The group is moderated and all postings must be approved.</li>
+<li><code class="docutils literal notranslate"><span class="pre">n</span></code>: No local postings are allowed, only articles from peers.</li>
+<li><code class="docutils literal notranslate"><span class="pre">j</span></code>: Articles from peers are filed in the junk group instead.</li>
+<li><code class="docutils literal notranslate"><span class="pre">x</span></code>: No local postings, and articles from peers are ignored.</li>
+<li><code class="docutils literal notranslate"><span class="pre">=foo.bar</span></code>: Articles are filed in the <code class="docutils literal notranslate"><span class="pre">foo.bar</span></code> group instead.</li>
+</ul>
+<p>If <em>flag</em> has another value, then the status of the newsgroup should be
+considered unknown.</p>
+<p>This command can return very large results, especially if <em>group_pattern</em>
+is not specified.  It is best to cache the results offline unless you
+really need to refresh them.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 3.2 で変更: </span><em>group_pattern</em> が追加されました。</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.descriptions">
+<code class="descclassname">NNTP.</code><code class="descname">descriptions</code><span class="sig-paren">(</span><em>grouppattern</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.descriptions" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">LIST</span> <span class="pre">NEWSGROUPS</span></code> command, where <em>grouppattern</em> is a wildmat string as
+specified in <span class="target" id="index-7"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3977.html"><strong>RFC 3977</strong></a> (it's essentially the same as DOS or UNIX shell wildcard
+strings).  Return a pair <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">descriptions)</span></code>, where <em>descriptions</em>
+is a dictionary mapping group names to textual descriptions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">descs</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">descriptions</span><span class="p">(</span><span class="s1">&#39;gmane.comp.python.*&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">descs</span><span class="p">)</span> <span class="c1"># doctest: +SKIP</span>
+<span class="go">295</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">descs</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span> <span class="c1"># doctest: +SKIP</span>
+<span class="go">(&#39;gmane.comp.python.bio.general&#39;, &#39;BioPython discussion list (Moderated)&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.description">
+<code class="descclassname">NNTP.</code><code class="descname">description</code><span class="sig-paren">(</span><em>group</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.description" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>単一のグループ <em>group</em> から説明文字列を取り出します。 ('group' が実際には wildmat 文字列で) 複数のグループがマッチした場合、 最初にマッチしたものを返します。何もマッチしなければ空文字列を返します。</p>
+<p>このメソッドはサーバからの応答コードを省略します。応答コードが必要なら、 <a class="reference internal" href="#nntplib.NNTP.descriptions" title="nntplib.NNTP.descriptions"><code class="xref py py-meth docutils literal notranslate"><span class="pre">descriptions()</span></code></a> を使ってください。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.group">
+<code class="descclassname">NNTP.</code><code class="descname">group</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.group" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">GROUP</span></code> command, where <em>name</em> is the group name.  The group is
+selected as the current group, if it exists.  Return a tuple
+<code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">count,</span> <span class="pre">first,</span> <span class="pre">last,</span> <span class="pre">name)</span></code> where <em>count</em> is the (estimated)
+number of articles in the group, <em>first</em> is the first article number in
+the group, <em>last</em> is the last article number in the group, and <em>name</em>
+is the group name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.over">
+<code class="descclassname">NNTP.</code><code class="descname">over</code><span class="sig-paren">(</span><em>message_spec</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.over" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send an <code class="docutils literal notranslate"><span class="pre">OVER</span></code> command, or an <code class="docutils literal notranslate"><span class="pre">XOVER</span></code> command on legacy servers.
+<em>message_spec</em> can be either a string representing a message id, or
+a <code class="docutils literal notranslate"><span class="pre">(first,</span> <span class="pre">last)</span></code> tuple of numbers indicating a range of articles in
+the current group, or a <code class="docutils literal notranslate"><span class="pre">(first,</span> <span class="pre">None)</span></code> tuple indicating a range of
+articles starting from <em>first</em> to the last article in the current group,
+or <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> to select the current article in the current group.</p>
+<p>Return a pair <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">overviews)</span></code>.  <em>overviews</em> is a list of
+<code class="docutils literal notranslate"><span class="pre">(article_number,</span> <span class="pre">overview)</span></code> tuples, one for each article selected
+by <em>message_spec</em>.  Each <em>overview</em> is a dictionary with the same number
+of items, but this number depends on the server.  These items are either
+message headers (the key is then the lower-cased header name) or metadata
+items (the key is then the metadata name prepended with <code class="docutils literal notranslate"><span class="pre">&quot;:&quot;</span></code>).  The
+following items are guaranteed to be present by the NNTP specification:</p>
+<ul class="simple">
+<li>the <code class="docutils literal notranslate"><span class="pre">subject</span></code>, <code class="docutils literal notranslate"><span class="pre">from</span></code>, <code class="docutils literal notranslate"><span class="pre">date</span></code>, <code class="docutils literal notranslate"><span class="pre">message-id</span></code> and <code class="docutils literal notranslate"><span class="pre">references</span></code>
+headers</li>
+<li>the <code class="docutils literal notranslate"><span class="pre">:bytes</span></code> metadata: the number of bytes in the entire raw article
+(including headers and body)</li>
+<li>the <code class="docutils literal notranslate"><span class="pre">:lines</span></code> metadata: the number of lines in the article body</li>
+</ul>
+<p>The value of each item is either a string, or <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a> if not present.</p>
+<p>It is advisable to use the <a class="reference internal" href="#nntplib.decode_header" title="nntplib.decode_header"><code class="xref py py-func docutils literal notranslate"><span class="pre">decode_header()</span></code></a> function on header
+values when they may contain non-ASCII characters:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;gmane.comp.python.devel&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">overviews</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">over</span><span class="p">((</span><span class="n">last</span><span class="p">,</span> <span class="n">last</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">art_num</span><span class="p">,</span> <span class="n">over</span> <span class="o">=</span> <span class="n">overviews</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">art_num</span>
+<span class="go">117216</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">over</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">[&#39;xref&#39;, &#39;from&#39;, &#39;:lines&#39;, &#39;:bytes&#39;, &#39;references&#39;, &#39;date&#39;, &#39;message-id&#39;, &#39;subject&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">over</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">]</span>
+<span class="go">&#39;=?UTF-8?B?Ik1hcnRpbiB2LiBMw7Z3aXMi?= &lt;martin@v.loewis.de&gt;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nntplib</span><span class="o">.</span><span class="n">decode_header</span><span class="p">(</span><span class="n">over</span><span class="p">[</span><span class="s1">&#39;from&#39;</span><span class="p">])</span>
+<span class="go">&#39;&quot;Martin v. Löwis&quot; &lt;martin@v.loewis.de&gt;&#39;</span>
+</pre></div>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 3.2 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.help">
+<code class="descclassname">NNTP.</code><code class="descname">help</code><span class="sig-paren">(</span><em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.help" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">HELP</span></code> command.  Return a pair <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">list)</span></code> where <em>list</em> is a
+list of help strings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.stat">
+<code class="descclassname">NNTP.</code><code class="descname">stat</code><span class="sig-paren">(</span><em>message_spec=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.stat" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send a <code class="docutils literal notranslate"><span class="pre">STAT</span></code> command, where <em>message_spec</em> is either a message id
+(enclosed in <code class="docutils literal notranslate"><span class="pre">'&lt;'</span></code> and <code class="docutils literal notranslate"><span class="pre">'&gt;'</span></code>) or an article number in the current group.
+If <em>message_spec</em> is omitted or <a class="reference internal" href="constants.html#None" title="None"><code class="xref py py-const docutils literal notranslate"><span class="pre">None</span></code></a>, the current article in the
+current group is considered.  Return a triple <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">number,</span> <span class="pre">id)</span></code>
+where <em>number</em> is the article number and <em>id</em> is the message id.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;gmane.comp.python.devel&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">message_id</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">number</span><span class="p">,</span> <span class="n">message_id</span>
+<span class="go">(9099, &#39;&lt;20030112190404.GE29873@epoch.metaslash.com&gt;&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.next">
+<code class="descclassname">NNTP.</code><code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.next" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">NEXT</span></code> 命令を送信します。 <a class="reference internal" href="#nntplib.NNTP.stat" title="nntplib.NNTP.stat"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stat()</span></code></a> のような応答を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.last">
+<code class="descclassname">NNTP.</code><code class="descname">last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.last" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">LAST</span></code> 命令を送信します。 <a class="reference internal" href="#nntplib.NNTP.stat" title="nntplib.NNTP.stat"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stat()</span></code></a> のような応答を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.article">
+<code class="descclassname">NNTP.</code><code class="descname">article</code><span class="sig-paren">(</span><em>message_spec=None</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.article" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send an <code class="docutils literal notranslate"><span class="pre">ARTICLE</span></code> command, where <em>message_spec</em> has the same meaning as
+for <a class="reference internal" href="#nntplib.NNTP.stat" title="nntplib.NNTP.stat"><code class="xref py py-meth docutils literal notranslate"><span class="pre">stat()</span></code></a>.  Return a tuple <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">info)</span></code> where <em>info</em>
+is a <a class="reference internal" href="collections.html#collections.namedtuple" title="collections.namedtuple"><code class="xref py py-class docutils literal notranslate"><span class="pre">namedtuple</span></code></a> with three attributes <em>number</em>,
+<em>message_id</em> and <em>lines</em> (in that order).  <em>number</em> is the article number
+in the group (or 0 if the information is not available), <em>message_id</em> the
+message id as a string, and <em>lines</em> a list of lines (without terminating
+newlines) comprising the raw message including headers and body.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">resp</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">article</span><span class="p">(</span><span class="s1">&#39;&lt;20030112190404.GE29873@epoch.metaslash.com&gt;&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">number</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">message_id</span>
+<span class="go">&#39;&lt;20030112190404.GE29873@epoch.metaslash.com&gt;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span>
+<span class="go">65</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">b&#39;Path: main.gmane.org!not-for-mail&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">b&#39;From: Neal Norwitz &lt;neal@metaslash.com&gt;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+<span class="go">[b&#39;There is a patch for 2.3 as well as 2.2.&#39;, b&#39;&#39;, b&#39;Neal&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.head">
+<code class="descclassname">NNTP.</code><code class="descname">head</code><span class="sig-paren">(</span><em>message_spec=None</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.head" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#nntplib.NNTP.article" title="nntplib.NNTP.article"><code class="xref py py-meth docutils literal notranslate"><span class="pre">article()</span></code></a>, but sends a <code class="docutils literal notranslate"><span class="pre">HEAD</span></code> command.  The <em>lines</em>
+returned (or written to <em>file</em>) will only contain the message headers, not
+the body.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.body">
+<code class="descclassname">NNTP.</code><code class="descname">body</code><span class="sig-paren">(</span><em>message_spec=None</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.body" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#nntplib.NNTP.article" title="nntplib.NNTP.article"><code class="xref py py-meth docutils literal notranslate"><span class="pre">article()</span></code></a>, but sends a <code class="docutils literal notranslate"><span class="pre">BODY</span></code> command.  The <em>lines</em>
+returned (or written to <em>file</em>) will only contain the message body, not the
+headers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.post">
+<code class="descclassname">NNTP.</code><code class="descname">post</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.post" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Post an article using the <code class="docutils literal notranslate"><span class="pre">POST</span></code> command.  The <em>data</em> argument is either
+a <a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">file object</span></a> opened for binary reading, or any iterable of bytes
+objects (representing raw lines of the article to be posted).  It should
+represent a well-formed news article, including the required headers.  The
+<a class="reference internal" href="#nntplib.NNTP.post" title="nntplib.NNTP.post"><code class="xref py py-meth docutils literal notranslate"><span class="pre">post()</span></code></a> method automatically escapes lines beginning with <code class="docutils literal notranslate"><span class="pre">.</span></code> and
+appends the termination line.</p>
+<p>If the method succeeds, the server's response is returned.  If the server
+refuses posting, a <a class="reference internal" href="#nntplib.NNTPReplyError" title="nntplib.NNTPReplyError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NNTPReplyError</span></code></a> is raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.ihave">
+<code class="descclassname">NNTP.</code><code class="descname">ihave</code><span class="sig-paren">(</span><em>message_id</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.ihave" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send an <code class="docutils literal notranslate"><span class="pre">IHAVE</span></code> command. <em>message_id</em> is the id of the message to send
+to the server (enclosed in  <code class="docutils literal notranslate"><span class="pre">'&lt;'</span></code> and <code class="docutils literal notranslate"><span class="pre">'&gt;'</span></code>).  The <em>data</em> parameter
+and the return value are the same as for <a class="reference internal" href="#nntplib.NNTP.post" title="nntplib.NNTP.post"><code class="xref py py-meth docutils literal notranslate"><span class="pre">post()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.date">
+<code class="descclassname">NNTP.</code><code class="descname">date</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.date" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return a pair <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">date)</span></code>.  <em>date</em> is a <a class="reference internal" href="datetime.html#datetime.datetime" title="datetime.datetime"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>
+object containing the current date and time of the server.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.slave">
+<code class="descclassname">NNTP.</code><code class="descname">slave</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.slave" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">SLAVE</span></code> 命令を送信します。サーバの <em>response</em> を返します。</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.set_debuglevel">
+<code class="descclassname">NNTP.</code><code class="descname">set_debuglevel</code><span class="sig-paren">(</span><em>level</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.set_debuglevel" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>インスタンスのデバッグレベルを設定します。このメソッドは印字されるデバッグ出力の量を制御します。標準では <code class="docutils literal notranslate"><span class="pre">0</span></code> に設定されていて、 これはデバッグ出力を全く印字しません。 <code class="docutils literal notranslate"><span class="pre">1</span></code> はそこそこの量、一般に NNTP 要求や応答あたり 1 行のデバッグ出力を生成します。値が <code class="docutils literal notranslate"><span class="pre">2</span></code> やそれ以上の場合、(メッセージテキストを含めて) NNTP 接続上で送受信された全ての内容を一行ごとにログ出力する、最大限のデバッグ出力を生成します。</p>
+</dd></dl>
+
+<p>The following are optional NNTP extensions defined in <span class="target" id="index-8"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc2980.html"><strong>RFC 2980</strong></a>.  Some of
+them have been superseded by newer commands in <span class="target" id="index-9"></span><a class="rfc reference external" href="https://tools.ietf.org/html/rfc3977.html"><strong>RFC 3977</strong></a>.</p>
+<dl class="method">
+<dt id="nntplib.NNTP.xhdr">
+<code class="descclassname">NNTP.</code><code class="descname">xhdr</code><span class="sig-paren">(</span><em>hdr</em>, <em>str</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.xhdr" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send an <code class="docutils literal notranslate"><span class="pre">XHDR</span></code> command.  The <em>hdr</em> argument is a header keyword, e.g.
+<code class="docutils literal notranslate"><span class="pre">'subject'</span></code>.  The <em>str</em> argument should have the form <code class="docutils literal notranslate"><span class="pre">'first-last'</span></code>
+where <em>first</em> and <em>last</em> are the first and last article numbers to search.
+Return a pair <code class="docutils literal notranslate"><span class="pre">(response,</span> <span class="pre">list)</span></code>, where <em>list</em> is a list of pairs <code class="docutils literal notranslate"><span class="pre">(id,</span>
+<span class="pre">text)</span></code>, where <em>id</em> is an article number (as a string) and <em>text</em> is the text of
+the requested header for that article. If the <em>file</em> parameter is supplied, then
+the output of the  <code class="docutils literal notranslate"><span class="pre">XHDR</span></code> command is stored in a file.  If <em>file</em> is a string,
+then the method will open a file with that name, write to it  then close it.
+If <em>file</em> is a <a class="reference internal" href="../glossary.html#term-file-object"><span class="xref std std-term">file object</span></a>, then it will start calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code> on
+it to store the lines of the command output. If <em>file</em> is supplied, then the
+returned <em>list</em> is an empty list.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.xover">
+<code class="descclassname">NNTP.</code><code class="descname">xover</code><span class="sig-paren">(</span><em>start</em>, <em>end</em>, <em>*</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.xover" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Send an <code class="docutils literal notranslate"><span class="pre">XOVER</span></code> command.  <em>start</em> and <em>end</em> are article numbers
+delimiting the range of articles to select.  The return value is the
+same of for <a class="reference internal" href="#nntplib.NNTP.over" title="nntplib.NNTP.over"><code class="xref py py-meth docutils literal notranslate"><span class="pre">over()</span></code></a>.  It is recommended to use <a class="reference internal" href="#nntplib.NNTP.over" title="nntplib.NNTP.over"><code class="xref py py-meth docutils literal notranslate"><span class="pre">over()</span></code></a>
+instead, since it will automatically use the newer <code class="docutils literal notranslate"><span class="pre">OVER</span></code> command
+if available.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="nntplib.NNTP.xpath">
+<code class="descclassname">NNTP.</code><code class="descname">xpath</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.NNTP.xpath" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Return a pair <code class="docutils literal notranslate"><span class="pre">(resp,</span> <span class="pre">path)</span></code>, where <em>path</em> is the directory path to the
+article with message ID <em>id</em>.  Most of the time, this extension is not
+enabled by NNTP server administrators.</p>
+<div class="deprecated">
+<p><span class="versionmodified">バージョン 3.3 で非推奨: </span>XPATH 拡張は積極的に使われません。</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="utility-functions">
+<h2>ユーティリティー関数<a class="headerlink" href="#utility-functions" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>このモジュールは以下のユーティリティ関数も定義しています:</p>
+<dl class="function">
+<dt id="nntplib.decode_header">
+<code class="descclassname">nntplib.</code><code class="descname">decode_header</code><span class="sig-paren">(</span><em>header_str</em><span class="sig-paren">)</span><a class="headerlink" href="#nntplib.decode_header" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Decode a header value, un-escaping any escaped non-ASCII characters.
+<em>header_str</em> must be a <a class="reference internal" href="stdtypes.html#str" title="str"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> object.  The unescaped value is
+returned.  Using this function is recommended to display some headers
+in a human readable form:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">decode_header</span><span class="p">(</span><span class="s2">&quot;Some subject&quot;</span><span class="p">)</span>
+<span class="go">&#39;Some subject&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">decode_header</span><span class="p">(</span><span class="s2">&quot;=?ISO-8859-15?Q?D=E9buter_en_Python?=&quot;</span><span class="p">)</span>
+<span class="go">&#39;Débuter en Python&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">decode_header</span><span class="p">(</span><span class="s2">&quot;Re: =?UTF-8?B?cHJvYmzDqG1lIGRlIG1hdHJpY2U=?=&quot;</span><span class="p">)</span>
+<span class="go">&#39;Re: problème de matrice&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../contents.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">nntplib</span></code> --- NNTP プロトコルクライアント</a><ul>
+<li><a class="reference internal" href="#nntp-objects">NNTP オブジェクト</a><ul>
+<li><a class="reference internal" href="#attributes">属性</a></li>
+<li><a class="reference internal" href="#methods">メソッド</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utility-functions">ユーティリティー関数</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="imaplib.html"
+                        title="前の章へ"><code class="docutils literal notranslate"><span class="pre">imaplib</span></code> --- IMAP4 プロトコルクライアント</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="smtplib.html"
+                        title="次の章へ"><code class="docutils literal notranslate"><span class="pre">smtplib</span></code> --- SMTP プロトコルクライアント</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="../bugs.html">バグ報告</a></li>
+      <li>
+        <a href="https://github.com/python/cpython/blob/3.8/Doc/library/nntplib.rst"
+            rel="nofollow">ソースコードを表示
+        </a>
+      </li>
+    </ul>
+  </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>  
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="smtplib.html" title="smtplib --- SMTP プロトコルクライアント"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="imaplib.html" title="imaplib --- IMAP4 プロトコルクライアント"
+             >前へ</a> |</li>
+
+    <li><img src="../_static/py.png" alt=""
+             style="vertical-align: middle; margin-top: -1px"/></li>
+    <li><a href="https://www.python.org/">Python</a> &#187;</li>
+    
+
+    <li>
+      <a href="../index.html">3.8.3rc1 Documentation</a> &#187;
+    </li>
+
+          <li class="nav-item nav-item-1"><a href="index.html" >Python 標準ライブラリ</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="internet.html" >インターネットプロトコルとサポート</a> &#187;</li>
+    <li class="right">
+        
+
+    <div class="inline-search" style="display: none" role="search">
+        <form class="inline-search" action="../search.html" method="get">
+          <input placeholder="クイック検索" type="text" name="q" />
+          <input type="submit" value="検索" />
+          <input type="hidden" name="check_keywords" value="yes" />
+          <input type="hidden" name="area" value="default" />
+        </form>
+    </div>
+    <script type="text/javascript">$('.inline-search').show(0);</script>
+         |
+    </li>
+
+      </ul>
+    </div>  
+    <div class="footer">
+    &copy; <a href="../copyright.html">著作権</a> 2001-2020, Python Software Foundation.
+    <br />
+
+    The Python Software Foundation is a non-profit corporation.
+<a href="https://www.python.org/psf/donations/">Please donate.</a>
+<br />
+    <br />
+
+    最終更新: 5月 13, 2020
+    <a href="https://docs.python.org/3/bugs.html">Found a bug</a>?
+    <br />
+
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 1.8.2.
+    </div>
+
+  </body>
+</html>
