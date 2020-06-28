@@ -5,6 +5,7 @@
 # 
 # Translators:
 # tomo, 2020
+# Tetsuo Koyama <tkoyama010@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-09 12:40+0000\n"
 "PO-Revision-Date: 2020-05-30 12:17+0000\n"
-"Last-Translator: tomo, 2020\n"
+"Last-Translator: Tetsuo Koyama <tkoyama010@gmail.com>, 2020\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -225,6 +226,10 @@ msgid ""
 ":pep:`253` for the details --- but it's easier to just subclass "
 ":class:`object`.)"
 msgstr ""
+"これは、Python 2.2 では、基底クラスを持たない :keyword:`class` "
+"文はいつでも旧スタイルクラスになることを意味します。(実際には、モジュールレベルの変数 :attr:`__metaclass__` "
+"をセットすることでこれは変更出来ます --- 詳細は :pep:`253` 参照 --- ですが :class:`object` "
+"をサブクラス化する方が簡単です。)"
 
 #: ../../whatsnew/2.2.rst:126
 msgid ""
@@ -833,6 +838,13 @@ msgid ""
 "import generators`` statement near the top of the module's source code.  In "
 "Python 2.3 this statement will become unnecessary."
 msgstr ""
+"新しいキーワード :keyword:`yield` がジェネレータのために導入されました。 :keyword:`!yield` "
+"ステートメントを含むどんな関数もジェネレータ関数です; Python "
+"バイトコードコンパイラはこれを検知し、関数が特別に扱われるように翻訳します。新たなキーワードの導入なので、ジェネレータを使えるようにするには "
+"``from __future__ import generators`` "
+"ステートメントをモジュールソースコードの先頭付近に含めなければなりません。Python 2.3 ではこのステートメントは不要になります。(---訳注: "
+"Python 2.5 の PEP 342 も参照して下さい。この 2.2 で導入時点の ``yield`` "
+"はステートメントではなく式に変更されています。---)"
 
 #: ../../whatsnew/2.2.rst:570
 msgid ""
@@ -850,6 +862,18 @@ msgid ""
 " full explanation of the interaction between :keyword:`!yield` and "
 "exceptions.)"
 msgstr ""
+"ジェネレータ関数を呼び出すと、単一の値の代わりにイテレータプロトコルに対応したオブジェクトを返します。上の例で :keyword:`!yield` "
+"を実行したとき、ジェネレータは :keyword:`!return` 文のようにして ``i`` の値を生成します。 ``yield`` と "
+"``return`` 文の大きな違いは、 ``yield`` "
+"に到達した段階でジェネレータの実行状態が一時停止になって、ローカル変数が保存される点です。次回そのジェネレータの ``.next()`` "
+"メソッドを呼ぶと、 :keyword:`!yield` の直後から関数が実行を再開します。(複雑な理由により、 :keyword:`!yield` は "
+":keyword:`!try`...\\ :keyword:`finally` の :keyword:`!try` "
+"ブロック内に含めることは許されていません; :pep:`255` に :keyword:`!yield` "
+"と例外の相互作用についての詳細説明がありますので参照して下さい。) --- (---訳注: Python 2.5 の PEP 342 で "
+":keyword:`try`...\\ :keyword:`finally` 内に置けないという制約はなくなりました。また、 "
+":keyword:`try`...\\ :keyword:`finally` の :keyword:`try` 、とここであえて特定しているのは、同じく"
+" 2.5 の PEP 341 によって try/except/finally の一体化されるまでは、 ``finally`` の ``try`` と "
+"``except`` の ``try`` が別物だったからです。---)"
 
 #: ../../whatsnew/2.2.rst:583
 msgid "Here's a sample usage of the :func:`generate_ints` generator::"
@@ -873,6 +897,13 @@ msgid ""
 " indicated by raising :exc:`StopIteration` manually, or by just letting the "
 "flow of execution fall off the bottom of the function."
 msgstr ""
+"ジェネレータ関数内で :keyword:`return` 文は、引数を付けずに、処理の終わりを知らせるためにだけ使うことができます; "
+"``return`` を実行したあとは、もうそのジェネレータが値を返すことはできません。ジェネレータ関数の中では、 ``return 5`` "
+"などと値を付けた :keyword:`!return` は構文エラーです。ジェネレータの出力が終わったことを示すには、ほかにも、手動で "
+":exc:`StopIteration`  を投げてもいいですし、関数の最後まで実行するだけでも同じことになります。(---訳注: Python 2.7"
+" まではジェネレータ内での戻り値のある ``return 5`` は構文エラーになりますが、少なくとも Python 3.4 "
+"で構文エラーとはなりません。単に無視されます。リファレンスに言及されていない振舞いなので、何かの事故かもしれません。いずれにせよジェネレータ内では "
+"Python 3 でも ``return`` で値は戻せません。---)"
 
 #: ../../whatsnew/2.2.rst:611
 msgid ""
@@ -1286,6 +1317,11 @@ msgid ""
 "find local variables being copied by passing them as the default values of "
 "arguments. ::"
 msgstr ""
+"名前 ``g`` はローカルの名前空間にもモジュールレベルの名前空間にも紐付かないので、関数 :func:`g` は常に "
+":exc:`NameError` 例外を上げます。これは実際には大した問題ではありません "
+"(このような内部関数を再帰的に定義する頻度はそう多くありません)が、 :keyword:`lambda` "
+"式をより使いにくくするのでこれについては問題です。 :keyword:`!lambda` "
+"を使うコードにおいて、デフォルトの引数としてこれらを渡してコピーされるローカル変数を頻繁に見かけます。::"
 
 #: ../../whatsnew/2.2.rst:876
 msgid ""
