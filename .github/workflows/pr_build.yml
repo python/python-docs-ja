@@ -1,0 +1,72 @@
+name: PR build for ver 3.8
+
+on:
+  pull_request:
+    branches: [ "3.9" ]
+    types:
+      - opened      # open PR
+      - synchronize # update the branch which pulled from
+      - reopened    # re-open PR
+
+jobs:
+  pr_build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Prepare environment variables
+      run: |
+        ref=${GITHUB_REF#refs/pull/}
+        pr_num=${ref%/merge}
+        
+        echo "::set-env name=PR_BUILD_ID::${GITHUB_BASE_REF}/${pr_num}"
+        echo "::set-env name=DOCS_BASE_DIR::build/html"
+        echo "::set-env name=DOCS_OUTPUT_DIR::build/html/${GITHUB_BASE_REF}/${pr_num}"
+          
+    - name: Checkout cpython repository
+      uses: actions/checkout@v2
+      with:
+        repository: python-doc-ja/cpython-doc-catalog
+        ref: catalog-3.8
+        path: cpython
+
+
+    - name: Checkout PR branch
+      uses: actions/checkout@v2
+      with: 
+        ref: ${{ github.ref }}
+        path: cpython/Doc/locales/ja/LC_MESSAGES
+
+    - name: Checkout GitHub Pages
+      uses: actions/checkout@v2
+      with:
+        ref: gh-pages
+        path: build/html
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends python3-venv
+
+    - name: Build docs
+      run: |
+        cd cpython/Doc
+        make venv
+        rm -rf ${DOCS_OUTPUT_DIR}
+        make build ALLSPHINXOPTS="-b html -D language=ja -D gettext_compact=0 -E -d build/doctrees . ${GITHUB_WORKSPACE}/${DOCS_OUTPUT_DIR}"
+        ls -l ${GITHUB_WORKSPACE}/${DOCS_OUTPUT_DIR}
+
+    - name: Publish docs
+      run: |
+        cd ${GITHUB_WORKSPACE}/${DOCS_BASE_DIR}
+        git config --local user.name "Autobuild bot on GitHub Actions"
+        git config --local user.email "githubaction-build-bot@example.com"
+        git add .
+        if [ $(git status -s | wc -l) -eq 0 ]; then echo "nothing to commit"; exit 0; fi
+        git commit -m 'update html'
+        git push --quiet "https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages:gh-pages
+
+    - name: Notify the URL of the built docs
+      uses: thollander/actions-comment-pull-request@master
+      with:
+        message: 'Please check the built documentation!!! https://python.github.io/python-docs-ja/${{ env.PR_BUILD_ID }}'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,42 @@
+name: Delete docs built with PR
+
+on:
+  pull_request:
+    branches: [ "3.9" ]
+    types:
+      - closed # PR closed
+
+jobs:
+  delete_pr_docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Prepare environment variables
+      run: |
+        ref=${GITHUB_REF#refs/pull/}
+        pr_num=${ref%/merge}
+        
+        echo "::set-env name=PR_NUM::${pr_num}"
+        echo "::set-env name=PR_BUILD_ID::${GITHUB_BASE_REF}/${pr_num}"
+        echo "::set-env name=DOCS_BASE_DIR::build/html"
+        echo "::set-env name=DOCS_OUTPUT_DIR::build/html/${GITHUB_BASE_REF}/${pr_num}"
+
+    - name: Checkout GitHub Pages
+      uses: actions/checkout@v2
+      with:
+        ref: gh-pages
+        path: build/html
+
+    - name: Delete docs
+      run: |
+        cd ${GITHUB_WORKSPACE}/${DOCS_BASE_DIR}
+        pwd
+        git rm -r ${GITHUB_WORKSPACE}/${DOCS_OUTPUT_DIR}
+        git config --local user.name "Autobuild bot on GitHub Actions"
+        git config --local user.email "githubaction-build-bot@example.com"
+        pwd
+        git add .
+        # if [ $(git status -s | wc -l) -eq 0 ]; then echo "nothing to commit"; exit 0; fi
+        git commit -m "Delete docs, branch: ${GITHUB_BASE_REF} pr_num: ${PR_NUM}"
+        git push --quiet "https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages:gh-pages
+  
