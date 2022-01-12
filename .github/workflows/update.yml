@@ -1,1 +1,43 @@
+name: Sync po files
 
+on:
+  schedule:
+  - cron: "0 9 * * *"
+
+env:
+    # branch name of python-docs-ja repository
+    DOCS_BRANCH: "3.10"
+    # branch name of cpython repository
+    CPYTHON_BRANCH: "3.10"
+    # branch name of cpython-doc-catalog repository
+    CATALOG_BRANCH: "catalog-3.10"
+    # Transifex project name
+    TRANSIFEX_PROJECT: "python-newest"
+    # Directory where repositories are cloned
+    BASEDIR: "$(dirname ${TRAVIS_BUILD_DIR})"
+
+jobs:
+  main:
+    name: Sync po/pot fiels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+      - uses: actions/checkout@v2
+        
+      - name: Setup Python
+      - uses: actions/setup-python@v2.3.1
+        with:
+          python-version: "3.10"
+          architecture: "x64"
+      
+      - name: Install packages
+        run: |
+          pip install sphinx sphinx-intl blurb trasifex-client
+      
+      - name: Run scripts
+        run: |
+          bash ${TRAVIS_BUILD_DIR}/scripts/prepare-build_3.10
+          bash ${TRAVIS_BUILD_DIR}/scripts/upload-catalog
+          bash ${TRAVIS_BUILD_DIR}/scripts/renew-catalog-template
+
+      
