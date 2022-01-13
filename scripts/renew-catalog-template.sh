@@ -2,7 +2,7 @@
 set -eux
 
 # merge from upstream
-cd "${BASEDIR}"/cpython-doc-catalog
+cd "${{ GITHUB_ACTION_PATH }}"/cpython-doc-catalog
 git remote add upstream https://github.com/python/cpython.git
 git remote -v
 git fetch --quiet upstream
