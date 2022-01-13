@@ -2,15 +2,15 @@
 set -eux
 
 # clone an additional repository
-cd "${BASEDIR}"
+cd "${{ GITHUB_ACTION_PATH }}"
 git clone --branch ${CATALOG_BRANCH} https://github.com/python-doc-ja/cpython-doc-catalog.git cpython-doc-catalog
-mkdir -p "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
-cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
-ln -s "${BASEDIR}"/python-docs-ja LC_MESSAGES
+mkdir -p "${{ GITHUB_ACTION_PATH }}"/cpython-doc-catalog/Doc/locales/ja
+cd "${{ GITHUB_ACTION_PATH }}"/cpython-doc-catalog/Doc/locales/ja
+ln -s "${{ GITHUB_ACTION_PATH }}"/python-docs-ja LC_MESSAGES
 ls -lF LC_MESSAGES
 
 # upload catalogs to python-docs-ja
-cd "${BASEDIR}"/cpython-doc-catalog/Doc/locales
+cd "${{ GITHUB_ACTION_PATH }}"/cpython-doc-catalog/Doc/locales
 if [ ! -e .tx/config ]; then
   echo ".tx/config does not exist. Skip uploading catalogs to python-docs-ja"
   exit 0
@@ -27,4 +27,4 @@ else
   git commit --message="[skip ci] Update .po files"
   git push --quiet "git@python-docs-ja.github.com:python/python-docs-ja.git" ${DOCS_BRANCH}:${DOCS_BRANCH}
 fi
-rm -rf "${BASEDIR}"/cpython-doc-catalog/Doc/locales/ja
+rm -rf "${{ GITHUB_ACTION_PATH }}"/cpython-doc-catalog/Doc/locales/ja
