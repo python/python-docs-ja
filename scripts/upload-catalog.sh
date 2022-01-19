@@ -16,6 +16,9 @@ if [ ! -e .tx/config ]; then
   exit 0
 fi
 
+# setup transifex-client
+tx init
+ls HOME
 tx pull --force --language ja --parallel
 cd ja/LC_MESSAGES
 git add *.po **/*.po
