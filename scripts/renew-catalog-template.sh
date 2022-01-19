@@ -6,7 +6,7 @@ cd ${GITHUB_ACTION_PATH}/cpython-doc-catalog
 git remote add upstream https://github.com/python/cpython.git
 git remote -v
 git fetch --quiet upstream
-git merge --no-ff upstream/${env.CPYTHON_BRANCH} -m "Merge remote-tracking branch 'upstream/${env.CPYTHON_BRANCH}' into ${env.CATALOG_BRANCH} by GitHub Actions"
+git merge --no-ff upstream/${CPYTHON_BRANCH} -m "Merge remote-tracking branch 'upstream/${CPYTHON_BRANCH}' into ${CATALOG_BRANCH} by GitHub Actions"
 
 # generate catalog
 cd Doc
@@ -30,4 +30,4 @@ sphinx-intl update-txconfig-resources --transifex-project-name=${env.TRANSIFEX_P
 tx push --source --parallel
 git add .tx
 git commit --message="[skip ci] Update .pot files and .tx/config"
-git push --quiet "git@cpython-doc-catalog.github.com:python-doc-ja/cpython-doc-catalog.git" ${env.CATALOG_BRANCH}:${env.CATALOG_BRANCH}
+git push --quiet "git@cpython-doc-catalog.github.com:python-doc-ja/cpython-doc-catalog.git" ${CATALOG_BRANCH}:${CATALOG_BRANCH}
