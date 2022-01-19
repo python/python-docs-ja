@@ -3,7 +3,7 @@ set -eux
 
 # clone an additional repository
 cd ${GITHUB_WORKSPACE}
-git clone --branch ${env.CATALOG_BRANCH} https://github.com/python-doc-ja/cpython-doc-catalog.git cpython-doc-catalog
+git clone --branch ${CATALOG_BRANCH} https://github.com/python-doc-ja/cpython-doc-catalog.git cpython-doc-catalog
 mkdir -p ${GITHUB_WORKSPACE}/cpython-doc-catalog/Doc/locales/ja
 cd ${GITHUB_WORKSPACE}/cpython-doc-catalog/Doc/locales/ja
 ln -s ${GITHUB_WORKSPACE}/python-docs-ja LC_MESSAGES
@@ -25,6 +25,6 @@ if [[ $(git status --short | wc -l) == 0 ]]; then
 else
   echo "I have .po file(s) to upload"
   git commit --message="[skip ci] Update .po files"
-  git push --quiet "git@python-docs-ja.github.com:python/python-docs-ja.git" ${env.DOCS_BRANCH}:${env.DOCS_BRANCH}
+  git push --quiet "git@python-docs-ja.github.com:python/python-docs-ja.git" ${DOCS_BRANCH}:${DOCS_BRANCH}
 fi
 rm -rf ${GITHUB_WORKSPACE}/cpython-doc-catalog/Doc/locales/ja
