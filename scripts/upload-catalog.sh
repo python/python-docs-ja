@@ -17,7 +17,7 @@ if [ ! -e .tx/config ]; then
 fi
 
 # setup transifex-client
-tx pull --force --language ja --parallel
+tx pull --force --language ja
 cd ja/LC_MESSAGES
 git add *.po **/*.po
 git status
