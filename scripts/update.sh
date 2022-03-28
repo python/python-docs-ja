@@ -4,8 +4,8 @@
 [ -n "$GITHUB_ACTIONS" ] && set -x
 set -e
 
-# Allow language being passed as 1st argument, defaults to pt_BR
-LANGUAGE=${1:-pt_BR}
+# Allow language being passed as 1st argument, defaults to ja
+LANGUAGE=${1:-ja}
 
 ROOTDIR=$(dirname $0)/..
 
