@@ -4,6 +4,9 @@
 [ -n "$GITHUB_ACTIONS" ] && set -x
 set -e
 
+# Update Sphinx
+python -m pip install --upgrade sphinx
+
 # Allow language being passed as 1st argument, defaults to ja
 LANGUAGE=${1:-ja}
 
