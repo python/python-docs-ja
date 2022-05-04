@@ -33,5 +33,9 @@ sed cpython/Doc/locales/.tx/config \
   -e 's|<lang>/LC_MESSAGES/||' \
   -e "s|^file_filter|trans.${LANGUAGE}|" \
   > .tx/config
-
+  
+if [ "$CI" = true ]
+then
+    tx push --source --no-interactive --skip
+fi
 tx pull -l ${LANGUAGE} --use-git-timestamps --parallel
