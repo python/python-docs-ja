@@ -25,6 +25,11 @@ cd  locales
 sphinx-intl create-txconfig
 sphinx-intl update-txconfig-resources -p pot -d . --transifex-project-name python-newest
 
+if [ "$CI" = true ]
+then
+    tx push --source --no-interactive --skip
+fi
+
 # Update the translation project's .tx/config
 cd ../../..     # back to $ROOTDIR
 mkdir -p .tx
@@ -33,9 +38,5 @@ sed cpython/Doc/locales/.tx/config \
   -e 's|<lang>/LC_MESSAGES/||' \
   -e "s|^file_filter|trans.${LANGUAGE}|" \
   > .tx/config
-  
-if [ "$CI" = true ]
-then
-    tx push --source --no-interactive --skip
-fi
+
 tx pull -l ${LANGUAGE} --use-git-timestamps --parallel
