@@ -51,6 +51,15 @@ msgid ""
 "for various header types, but also provides an extension mechanism for "
 "applications to add their own custom header types."
 msgstr ""
+"ヘッダーは:class:`str` のカスタマイズされたサブクラスで表現されます。 与えら"
+"れたヘッダーを表現するために使用される特定のクラスは、ヘッダーが作成されると"
+"きに有効な :mod:`~email.policy` の :attr:`~email.policy.EmailPolicy."
+"header_factory` で決定されます。 このセクションでは、email ライブラリが :RFC:"
+"`5322` に準拠したメールメッセージを扱うために実装している、特定の "
+"``header_factory`` について説明します。このヘッダーは、様々なヘッダータイプに"
+"対してカスタマイズされたヘッダーオブジェクトを提供するだけでなく、アプリケー"
+"ションが独自のカスタムヘッダータイプを追加できるような拡張メカニズムも備えて"
+"います。"
 
 #: ../../library/email.headerregistry.rst:25
 msgid ""
@@ -65,6 +74,16 @@ msgid ""
 "application program, but interfaces are provided for modifying the default "
 "behavior for use by more complex applications."
 msgstr ""
+":data:`~email.policy.EmailPolicy` から派生したポリシーオブジェクトのいずれか"
+"を使用する場合、すべてのヘッダーは :class:`.HeaderRegistry` によって生成さ"
+"れ、最終的な基底クラスとして :class:`.BaseHeader` を有します。 各ヘッダクラス"
+"には、ヘッダの種類によって決まる追加のベースクラスがあります。 例えば、多くの"
+"ヘッダーは :class:`.UnstructuredHeader` というクラスをもうひとつの基底クラス"
+"として持っています。 ヘッダーに特化した第二のクラスは、ヘッダーの名前によって"
+"決定され、 :class:`.HeaderRegistry` に格納されたルックアップテーブルを使用し"
+"ます。 これらすべては、典型的なアプリケーションプログラムに対しては透過的に管"
+"理されますが、より複雑なアプリケーションで使用するためにデフォルトの動作を変"
+"更するためのインタフェースが提供されています。"
 
 #: ../../library/email.headerregistry.rst:36
 msgid ""
@@ -73,6 +92,9 @@ msgid ""
 "HeaderRegistry`, and finally the support classes used to represent the data "
 "parsed from structured headers."
 msgstr ""
+"以下のセクションでは、まずヘッダーの基本クラスとその属性を説明し、次に :"
+"class:`.HeaderRegistry` の動作を変更するための API、そして最後に構造化ヘッ"
+"ダーからパースされたデータを表現するためのサポートクラスについて説明します。"
 
 #: ../../library/email.headerregistry.rst:44
 msgid ""
@@ -80,6 +102,9 @@ msgid ""
 "policy.EmailPolicy.header_factory` call.  The string value of any header "
 "object is the *value* fully decoded to unicode."
 msgstr ""
+"*name* と *value* は :attr:`~email.policy.EmailPolicy.header_factory` 呼び出"
+"しから ``BaseHeader`` に渡されます。 どのヘッダーオブジェクトの文字列値も、完"
+"全にユニコードにデコードされた *value* です。"
 
 #: ../../library/email.headerregistry.rst:48
 msgid "This base class defines the following read-only properties:"
@@ -91,6 +116,9 @@ msgid ""
 "exactly the value passed in the :attr:`~email.policy.EmailPolicy."
 "header_factory` call for *name*; that is, case is preserved."
 msgstr ""
+"ヘッダーの名前(フィールドの':'の前の部分)。これは :attr:`~email.policy."
+"EmailPolicy.header_factory` の *name* の呼び出しで渡された値と全く同じです; "
+"つまり、大文字・小文字が保持されます。"
 
 #: ../../library/email.headerregistry.rst:61
 msgid ""
@@ -99,6 +127,10 @@ msgid ""
 "complete about detecting compliance issues.  See the :mod:`~email.errors` "
 "module for a discussion of the types of defects that may be reported."
 msgstr ""
+"パース中に見つかったRFCのコンプライアンス問題を報告する :exc:`~email.errors."
+"HeaderDefect` インスタンスのタプルです。 email パッケージはコンプライアンスに"
+"関する問題を完全に検出するように努めています。 報告されるかもしれない欠陥の種"
+"類の議論については、 :mod:`~email.errors` モジュールを参照してください。"
 
 #: ../../library/email.headerregistry.rst:69
 msgid ""
@@ -107,6 +139,10 @@ msgid ""
 "attribute is ``None``; it is expected that specialized header classes will "
 "override this value as needed."
 msgstr ""
+"このタイプのヘッダーで、同じ ``name`` を持つことができる最大数。 値として "
+"``None`` を指定すると、無制限になります。 この属性の ``BaseHeader`` の値は "
+"``None`` です; 特殊な header クラスでは、必要に応じてこの値をオーバーライドす"
+"ることが期待されます。"
 
 #: ../../library/email.headerregistry.rst:74
 msgid ""
@@ -114,6 +150,9 @@ msgid ""
 "email library code and should not in general be called by application "
 "programs:"
 msgstr ""
+"``BaseHeader`` は以下のメソッドも提供します。このメソッドはemail ライブラリの"
+"コードから呼び出され、一般にアプリケーションプログラムからは呼び出されませ"
+"ん："
 
 #: ../../library/email.headerregistry.rst:80
 msgid ""
@@ -124,6 +163,12 @@ msgid ""
 "`~email.policy.EmailPolicy.utf8` is ``False``, non-ASCII data will be :rfc:"
 "`2047` encoded."
 msgstr ""
+"ヘッダを *policy* に従って正しく折りたたむために必要な :attr:`~email.policy."
+"Policy.linesep` 文字を含む文字列を返します。 ヘッダには任意のバイナリデータを"
+"含めることができないため、 :attr:`~email.policy.Policy.cte_type` が ``8bit`` "
+"の場合は ``7bit`` と同じように扱われます。 もし :attr:`~email.policy."
+"EmailPolicy.utf8` が ``False`` であれば、非ASCIIデータは :rfc:`2047` でエン"
+"コードされます。"
 
 #: ../../library/email.headerregistry.rst:88
 msgid ""
@@ -133,6 +178,11 @@ msgid ""
 "specialized class provide a :func:`classmethod` named ``parse``.  This "
 "method is called as follows::"
 msgstr ""
+"``BaseHeader`` 自身はヘッダーオブジェクトを生成するために使用することはできま"
+"せん。このクラスは、それぞれの特殊化ヘッダーがヘッダーオブジェクトを生成する"
+"ために協力するプロトコルを定義しています。 具体的には、 ``BaseHeader`` は "
+"``parse`` という名前の :func:`classmethod` を特殊化されたクラスが提供すること"
+"を要求しています。このメソッドは以下のように呼び出されます::"
 
 #: ../../library/email.headerregistry.rst:96
 msgid ""
@@ -146,6 +196,14 @@ msgid ""
 "valid unicode characters as well so that it can parse un-encoded header "
 "values."
 msgstr ""
+"``kwds`` は、初期化されたキー ``defects`` を含む辞書です。``defects`` は空の"
+"リストです。 解析メソッドは、検出された不具合をこのリストに追加するべきで"
+"す。 returnの際には、 ``kwds`` 辞書に少なくとも ``decoded`` と``defects`` の"
+"キーを含む必要があります。 ``decoded`` はヘッダの文字列値 (つまり、ヘッダを "
+"Unicode に完全にデコードした値) でなければなりません。 parseメソッドは、 "
+"*string* がcontent-transfer-encodedな部分を含む可能性があると仮定すべきです"
+"が、エンコードされていないヘッダ値をパースできるように、すべての有効なUnicode"
+"文字も正しく処理する必要があります。"
 
 #: ../../library/email.headerregistry.rst:105
 msgid ""
@@ -154,6 +212,10 @@ msgid ""
 "method if it wishes to set additional attributes beyond those provided by "
 "``BaseHeader`` itself.  Such an ``init`` method should look like this::"
 msgstr ""
+"その後、 ``BaseHeader`` の ``__new__`` がヘッダのインスタンスを生成し、 "
+"``init`` メソッドを呼び出します。 特殊クラスは、 ``BaseHeader`` が提供しない"
+"属性を設定したい場合にのみ ``init`` メソッドを提供する必要があります。 このよ"
+"うな``init`` メソッドは以下のようなものです："
 
 #: ../../library/email.headerregistry.rst:114
 msgid ""
@@ -161,6 +223,9 @@ msgid ""
 "dictionary should be removed and handled, and the remaining contents of "
 "``kw`` (and ``args``) passed to the ``BaseHeader`` ``init`` method."
 msgstr ""
+"つまり、特殊クラスが ``kwds`` の辞書に追加したものはすべて削除して処理し、 "
+"``kw``の残りの内容 (と ``args``) は``BaseHeader`` の``init`` メソッドに渡す必"
+"要があるのです。"
 
 #: ../../library/email.headerregistry.rst:121
 msgid ""
@@ -169,6 +234,9 @@ msgid ""
 "The classic example of an unstructured header is the :mailheader:`Subject` "
 "header."
 msgstr ""
+"\"unstructured\" ヘッダは :rfc:`5322` におけるデフォルトのヘッダのタイプで"
+"す。指定された構文を持たないすべてのヘッダは、unstructuredとして扱われます。 "
+"構造化されていないヘッダの典型的な例は :mailheader:`Subject` ヘッダです。"
 
 #: ../../library/email.headerregistry.rst:126
 msgid ""
@@ -182,6 +250,15 @@ msgid ""
 "words.  Defects are registered in such cases, as well as defects for issues "
 "such as invalid characters within the encoded words or the non-encoded text."
 msgstr ""
+":rfc:`5322` では、非構造化ヘッダは ASCII 文字セットの任意のテキストの集まりで"
+"す。しかし、 :rfc:`2047` にはヘッダ値の中で非 ASCII テキストを ASCII 文字とし"
+"てエンコードするための :rfc:`5322` と互換性のあるメカニズムが備わっていま"
+"す。 エンコードされた単語を含む *value* がコンストラクタに渡されると、 "
+"``UnstructuredHeader`` パーサは非構造化テキストに対する :rfc:`2047` 規則に"
+"従って、エンコードされた単語を unicode に変換します。 パーサは特定の非適合な"
+"エンコードされた単語のデコードを試みるためにヒューリスティックを使用します。 "
+"このような場合、欠陥が登録されます。また、エンコードされた単語やエンコードさ"
+"れていないテキスト内の無効な文字などの問題に対しても欠陥が登録されます。"
 
 #: ../../library/email.headerregistry.rst:136
 msgid "This header type provides no additional attributes."
@@ -194,6 +271,10 @@ msgid ""
 "recognizing a number of variant forms that are sometimes found \"in the "
 "wild\"."
 msgstr ""
+":rfc:`5322` specifies a very specific format for dates within email headers. "
+"The ``DateHeader`` parser recognizes that date format, as well as "
+"recognizing a number of variant forms that are sometimes found \"in the "
+"wild\"."
 
 #: ../../library/email.headerregistry.rst:146
 #: ../../library/email.headerregistry.rst:188
@@ -217,6 +298,8 @@ msgid ""
 "The ``decoded`` value of the header is determined by formatting the "
 "``datetime`` according to the :rfc:`5322` rules; that is, it is set to::"
 msgstr ""
+"ヘッダーの ``decoded`` 値は、 ``datetime`` を :rfc:`5322` のルールに従って"
+"フォーマットすることで決定されます。"
 
 #: ../../library/email.headerregistry.rst:165
 msgid ""
@@ -224,6 +307,9 @@ msgid ""
 "instance.  This means, for example, that the following code is valid and "
 "does what one would expect::"
 msgstr ""
+"``DateHeader`` を作成する際に、 *value* は :class:`~datetime.datetime` インス"
+"タンスである可能性があります。 これは、例えば、次のようなコードは有効であり、"
+"期待通りの動作をすることを意味します::"
 
 #: ../../library/email.headerregistry.rst:171
 msgid ""
@@ -232,18 +318,26 @@ msgid ""
 "more useful is to use the :func:`~email.utils.localtime` function from the :"
 "mod:`~email.utils` module::"
 msgstr ""
+"これは単純な ``datetime`` であるため、UTC タイムスタンプとして解釈され、結果"
+"として ``-0000`` というタイムゾーンを持つ値になります。 もっと便利なのは :"
+"mod:`~email.utils` モジュールの :func:`~email.utils.localtime` 関数を使用する"
+"ことです::"
 
 #: ../../library/email.headerregistry.rst:178
 msgid ""
 "This example sets the date header to the current time and date using the "
 "current timezone offset."
 msgstr ""
+"この例では、現在のタイムゾーンオフセットを使用して、日付ヘッダーを現在の時刻"
+"と日付に設定します。"
 
 #: ../../library/email.headerregistry.rst:184
 msgid ""
 "Address headers are one of the most complex structured header types. The "
 "``AddressHeader`` class provides a generic interface to any address header."
 msgstr ""
+"アドレスヘッダは最も複雑な構造のヘッダタイプの1つです。 ``AddressHeader`` ク"
+"ラスは、あらゆるアドレスヘッダに対する汎用的なインターフェースを提供します。"
 
 #: ../../library/email.headerregistry.rst:193
 msgid ""
@@ -252,6 +346,10 @@ msgid ""
 "in this list as single-address ``Groups`` whose :attr:`~.Group.display_name` "
 "is ``None``."
 msgstr ""
+"ヘッダー値に含まれるアドレスとグループをエンコードした :class:`.Group` オブ"
+"ジェクトのタプルです。 グループに属さないアドレスは、このリストでは :attr:`~."
+"Group.display_name` が ``None`` であるシングルアドレスの ``Groups`` として表"
+"現されます。"
 
 #: ../../library/email.headerregistry.rst:201
 msgid ""
@@ -261,6 +359,10 @@ msgid ""
 "point where the group occurs in the value (that is, the list of addresses is "
 "\"flattened\" into a one dimensional list)."
 msgstr ""
+"ヘッダー値に含まれる全ての個別アドレスをエンコードした :class:`.Address` オブ"
+"ジェクトのタプルです。 ヘッダ値にグループが含まれている場合、そのグループに含"
+"まれる個々のアドレスは、ヘッダ値でグループが出現した時点でリストに含まれます "
+"(つまり、アドレスのリストは一次元のリストに「フラット化」されます)。"
 
 #: ../../library/email.headerregistry.rst:207
 msgid ""
@@ -388,7 +490,7 @@ msgstr "デフォルトのマッピング:"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "subject"
-msgstr ""
+msgstr "subject"
 
 #: ../../library/email.headerregistry.rst:324
 msgid "UniqueUnstructuredHeader"
@@ -396,7 +498,7 @@ msgstr "UniqueUnstructuredHeader"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "date"
-msgstr ""
+msgstr "date"
 
 #: ../../library/email.headerregistry.rst:325
 #: ../../library/email.headerregistry.rst:327
@@ -405,7 +507,7 @@ msgstr "UniqueDateHeader"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "resent-date"
-msgstr ""
+msgstr "resent-date"
 
 #: ../../library/email.headerregistry.rst:326
 msgid "DateHeader"
@@ -413,11 +515,11 @@ msgstr "DateHeader"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "orig-date"
-msgstr ""
+msgstr "orig-date"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "sender"
-msgstr ""
+msgstr "sender"
 
 #: ../../library/email.headerregistry.rst:328
 msgid "UniqueSingleAddressHeader"
@@ -433,7 +535,7 @@ msgstr "SingleAddressHeader"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "to"
-msgstr ""
+msgstr "to"
 
 #: ../../library/email.headerregistry.rst:330
 #: ../../library/email.headerregistry.rst:332
@@ -445,7 +547,7 @@ msgstr "UniqueAddressHeader"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "resent-to"
-msgstr ""
+msgstr "resent-to"
 
 #: ../../library/email.headerregistry.rst:331
 #: ../../library/email.headerregistry.rst:333
@@ -456,11 +558,11 @@ msgstr "AddressHeader"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "cc"
-msgstr ""
+msgstr "cc"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "resent-cc"
-msgstr ""
+msgstr "resent-cc"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "bcc"
@@ -476,11 +578,11 @@ msgstr "from"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "resent-from"
-msgstr ""
+msgstr "resent-from"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "reply-to"
-msgstr ""
+msgstr "reply-to"
 
 #: ../../library/email.headerregistry.rst:0
 msgid "mime-version"

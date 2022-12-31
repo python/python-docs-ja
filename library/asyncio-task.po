@@ -367,6 +367,9 @@ msgid ""
 "run. This can be used by long-running functions to avoid blocking the event "
 "loop for the full duration of the function call."
 msgstr ""
+"delay を 0 に設定することで、他のタスクを実行可能にする最適な方針を提供しま"
+"す。この方法は、実行時間の長い関数が、その実行時間全体にわたってイベントルー"
+"プをブロックしないようにするために利用できます。"
 
 #: ../../library/asyncio-task.rst:302 ../../library/asyncio-task.rst:357
 #: ../../library/asyncio-task.rst:447 ../../library/asyncio-task.rst:478
@@ -458,6 +461,12 @@ msgid ""
 "calling ``gather.cancel()`` after catching an exception (raised by one of "
 "the awaitables) from gather won't cancel any other awaitables."
 msgstr ""
+"*return_exceptions* が False の場合、いったん完了状態となった gather() をキャ"
+"ンセルしても起動された awaitables がキャンセルされないことがあります。例え"
+"ば、 gather は例外を呼び出し元に送出したあと完了状態になることがあるため、 "
+"(起動した awaitable のいずれかから送出された) gather からの例外をキャッチした"
+"後で ``gather.cancel()`` を呼び出しても、他の awaitable がキャンセルされない"
+"可能性があります。"
 
 #: ../../library/asyncio-task.rst:405
 msgid ""
@@ -566,6 +575,9 @@ msgid ""
 "wait time may exceed the *timeout*. If an exception happens during "
 "cancellation, it is propagated."
 msgstr ""
+"この関数は future が実際にキャンセルされるまで待つため、待ち時間の合計は "
+"*timeout*  を超えることがあります。キャンセル中に例外が発生した場合は、その例"
+"外は伝達されます。"
 
 #: ../../library/asyncio-task.rst:474
 msgid "If the wait is cancelled, the future *aw* is also cancelled."
@@ -592,7 +604,7 @@ msgstr ""
 
 #: ../../library/asyncio-task.rst:517
 msgid "The *aws* iterable must not be empty."
-msgstr ""
+msgstr "イテラブル *aws* は空であってはなりません。"
 
 #: ../../library/asyncio-task.rst:519
 msgid "Returns two sets of Tasks/Futures: ``(done, pending)``."
@@ -710,6 +722,9 @@ msgid ""
 "be awaited to get the earliest next result from the iterable of the "
 "remaining awaitables."
 msgstr ""
+"イテラブル *aws* 内の :ref:`awaitable オブジェクト <asyncio-awaitables>` を並"
+"列実行します。コルーチンのイテレータを返します。戻り値の各コルーチンは、残り"
+"の awaitable のうちで最も早く得られた結果を待ち受けることができます。"
 
 #: ../../library/asyncio-task.rst:607
 msgid ""
@@ -721,11 +736,11 @@ msgstr ""
 
 #: ../../library/asyncio-task.rst:621
 msgid "Running in Threads"
-msgstr ""
+msgstr "スレッド内での実行"
 
 #: ../../library/asyncio-task.rst:625
 msgid "Asynchronously run function *func* in a separate thread."
-msgstr ""
+msgstr "別のスレッドで非同期的に関数 *func* を実行します。"
 
 #: ../../library/asyncio-task.rst:627
 msgid ""
@@ -734,11 +749,14 @@ msgid ""
 "allowing context variables from the event loop thread to be accessed in the "
 "separate thread."
 msgstr ""
+"この関数に渡された \\*args と \\*\\*kwargs は関数 *func* に直接渡されます。ま"
+"た、イベントループスレッドのコンテキスト変数に関数を実行するスレッドからアク"
+"セスできるように、現在の :class:`contextvars.Context` も伝播されます。"
 
 #: ../../library/asyncio-task.rst:632
 msgid ""
 "Return a coroutine that can be awaited to get the eventual result of *func*."
-msgstr ""
+msgstr "関数 *func* の最終結果を待ち受けできるコルーチンを返します。"
 
 #: ../../library/asyncio-task.rst:634
 msgid ""
@@ -948,6 +966,8 @@ msgid ""
 "This arranges for a :exc:`CancelledError` exception to be thrown into the "
 "wrapped coroutine on the next cycle of the event loop."
 msgstr ""
+"このメソッドは、イベントループの次のステップにおいて、タスクがラップしている"
+"コルーチン内で :exc:`CancelledError` 例外が送出されるように準備します。"
 
 #: ../../library/asyncio-task.rst:808
 msgid ""
@@ -958,6 +978,13 @@ msgid ""
 "be cancelled, although suppressing cancellation completely is not common and "
 "is actively discouraged."
 msgstr ""
+"コルーチン側では :keyword:`try` ... ... ``except CancelledError`` ... :"
+"keyword:`finally` ブロックで例外を処理することにより、クリーンアップ処理を行"
+"なったり、リクエストを拒否したりする機会が与えられます。この特性を使ってキャ"
+"ンセル処理を完全に抑え込むことも可能であることから、 :meth:`Future.cancel` と"
+"異なり、 :meth:`Task.cancel` は Task が実際にキャンセルされることを保証しませ"
+"ん。ただしそのような処理は一般的ではありませんし、そのような処理をしないこと"
+"が望ましいです。"
 
 #: ../../library/asyncio-task.rst:816
 msgid "Added the ``msg`` parameter."
@@ -968,10 +995,12 @@ msgid ""
 "The following example illustrates how coroutines can intercept the "
 "cancellation request::"
 msgstr ""
+"以下の例は、コルーチンがどのようにしてキャンセルのリクエストを阻止するかを示"
+"しています::"
 
 #: ../../library/asyncio-task.rst:860
 msgid "Return ``True`` if the Task is *cancelled*."
-msgstr ""
+msgstr "Task が *キャンセルされた* 場合に ``True`` を返します。"
 
 #: ../../library/asyncio-task.rst:862
 msgid ""
@@ -979,67 +1008,84 @@ msgid ""
 "`cancel` and the wrapped coroutine propagated the :exc:`CancelledError` "
 "exception thrown into it."
 msgstr ""
+":meth:`cancel` メソッドによりキャンセルがリクエストされ、かつ Task がラップし"
+"ているコルーチンが内部で送出された :exc:`CancelledError` 例外を伝達したと"
+"き、 Task は実際に *キャンセル* されます。"
 
 #: ../../library/asyncio-task.rst:868
 msgid "Return ``True`` if the Task is *done*."
-msgstr ""
+msgstr "Task が *完了* しているなら ``True`` を返します。"
 
 #: ../../library/asyncio-task.rst:870
 msgid ""
 "A Task is *done* when the wrapped coroutine either returned a value, raised "
 "an exception, or the Task was cancelled."
 msgstr ""
+"Task がラップしているコルーチンが値を返すか、例外を送出するか、または Task が"
+"キャンセルされたとき、 Task は *完了* します。"
 
 #: ../../library/asyncio-task.rst:875
 msgid "Return the result of the Task."
-msgstr ""
+msgstr "Task の結果を返します。"
 
 #: ../../library/asyncio-task.rst:877
 msgid ""
 "If the Task is *done*, the result of the wrapped coroutine is returned (or "
 "if the coroutine raised an exception, that exception is re-raised.)"
 msgstr ""
+"Task が *完了* している場合、ラップしているコルーチンの結果が返されます (コ"
+"ルーチンが例外を送出された場合、その例外が例外が再送出されます)"
 
 #: ../../library/asyncio-task.rst:881 ../../library/asyncio-task.rst:895
 msgid ""
 "If the Task has been *cancelled*, this method raises a :exc:`CancelledError` "
 "exception."
 msgstr ""
+"Task が *キャンセル* されている場合、このメソッドは :exc:`CancelledError` 例"
+"外を送出します。"
 
 #: ../../library/asyncio-task.rst:884
 msgid ""
 "If the Task's result isn't yet available, this method raises a :exc:"
 "`InvalidStateError` exception."
 msgstr ""
+"Task の結果がまだ未設定の場合、このメソッドは :exc:`InvalidStateError` 例外を"
+"送出します。"
 
 #: ../../library/asyncio-task.rst:889
 msgid "Return the exception of the Task."
-msgstr ""
+msgstr "Task の例外を返します。"
 
 #: ../../library/asyncio-task.rst:891
 msgid ""
 "If the wrapped coroutine raised an exception that exception is returned.  If "
 "the wrapped coroutine returned normally this method returns ``None``."
 msgstr ""
+"ラップされたコルーチンが例外を送出した場合、その例外が返されます。ラップされ"
+"たコルーチンが正常終了した場合、このメソッドは ``None`` を返します。"
 
 #: ../../library/asyncio-task.rst:898
 msgid ""
 "If the Task isn't *done* yet, this method raises an :exc:`InvalidStateError` "
 "exception."
 msgstr ""
+"Task がまだ *完了* していない場合、このメソッドは :exc:`InvalidStateError` 例"
+"外を送出します。"
 
 #: ../../library/asyncio-task.rst:903
 msgid "Add a callback to be run when the Task is *done*."
-msgstr ""
+msgstr "Task が *完了* したときに実行されるコールバックを追加します。"
 
 #: ../../library/asyncio-task.rst:905 ../../library/asyncio-task.rst:914
 msgid "This method should only be used in low-level callback-based code."
-msgstr ""
+msgstr "このメソッドは低水準のコールバックベースのコードでのみ使うべきです。"
 
 #: ../../library/asyncio-task.rst:907
 msgid ""
 "See the documentation of :meth:`Future.add_done_callback` for more details."
 msgstr ""
+"詳細については :meth:`Future.add_done_callback` のドキュメントを参照してくだ"
+"さい。"
 
 #: ../../library/asyncio-task.rst:912
 msgid "Remove *callback* from the callbacks list."
@@ -1050,10 +1096,12 @@ msgid ""
 "See the documentation of :meth:`Future.remove_done_callback` for more "
 "details."
 msgstr ""
+"詳細については :meth:`Future.remove_done_callback` のドキュメントを参照してく"
+"ださい。"
 
 #: ../../library/asyncio-task.rst:921
 msgid "Return the list of stack frames for this Task."
-msgstr ""
+msgstr "このタスクのスタックフレームのリストを返します。"
 
 #: ../../library/asyncio-task.rst:923
 msgid ""
@@ -1062,6 +1110,10 @@ msgid ""
 "this returns an empty list. If the coroutine was terminated by an exception, "
 "this returns the list of traceback frames."
 msgstr ""
+"コルーチンが完了していない場合、これはサスペンドされた時点でのスタックを返し"
+"ます。コルーチンが正常に処理を完了したか、キャンセルされていた場合は空のリス"
+"トを返します。コルーチンが例外で終了した場合はトレースバックフレームのリスト"
+"を返します。"
 
 #: ../../library/asyncio-task.rst:929
 msgid "The frames are always ordered from oldest to newest."
@@ -1070,6 +1122,7 @@ msgstr "フレームは常に古いものから新しい物へ並んでいます
 #: ../../library/asyncio-task.rst:931
 msgid "Only one stack frame is returned for a suspended coroutine."
 msgstr ""
+"サスペンドされているコルーチンの場合スタックフレームが 1 個だけ返されます。"
 
 #: ../../library/asyncio-task.rst:933
 msgid ""
@@ -1079,55 +1132,69 @@ msgid ""
 "newest frames of a stack are returned, but the oldest frames of a traceback "
 "are returned.  (This matches the behavior of the traceback module.)"
 msgstr ""
+"オプション引数 *limit* は返すフレームの最大数を指定します; デフォルトでは取得"
+"可能な全てのフレームを返します。返されるリストの順番は、スタックが返される"
+"か、トレースバックが返されるかによって変わります: スタックでは新しい順に並ん"
+"だリストが返されますが、トレースバックでは古い順に並んだリストが返されます"
+"（これは traceback モジュールの振る舞いと一致します）。"
 
 #: ../../library/asyncio-task.rst:942
 msgid "Print the stack or traceback for this Task."
-msgstr ""
+msgstr "このタスクのスタックまたはトレースバックを出力します。"
 
 #: ../../library/asyncio-task.rst:944
 msgid ""
 "This produces output similar to that of the traceback module for the frames "
 "retrieved by :meth:`get_stack`."
 msgstr ""
+"このメソッドは :meth:`get_stack` によって取得されるフレームに対し、 "
+"traceback モジュールと同じような出力を生成します。"
 
 #: ../../library/asyncio-task.rst:947
 msgid "The *limit* argument is passed to :meth:`get_stack` directly."
-msgstr ""
+msgstr "引数 *limit* は :meth:`get_stack` にそのまま渡されます。"
 
 #: ../../library/asyncio-task.rst:949
 msgid ""
 "The *file* argument is an I/O stream to which the output is written; by "
 "default output is written to :data:`sys.stderr`."
 msgstr ""
+"引数 *file* は出力を書き込む I/O ストリームを指定します; デフォルトでは出力は"
+"標準エラー出力 :data:`sys.stderr` に書き込まれます。"
 
 #: ../../library/asyncio-task.rst:954
 msgid "Return the coroutine object wrapped by the :class:`Task`."
-msgstr ""
+msgstr ":class:`Task` がラップしているコルーチンオブジェクトを返します。"
 
 #: ../../library/asyncio-task.rst:960
 msgid "Return the name of the Task."
-msgstr ""
+msgstr "Task の名前を返します。"
 
 #: ../../library/asyncio-task.rst:962
 msgid ""
 "If no name has been explicitly assigned to the Task, the default asyncio "
 "Task implementation generates a default name during instantiation."
 msgstr ""
+"Task に対して明示的に名前が設定されていない場合, デフォルトの asyncio Task 実"
+"装はタスクをインスタンス化する際にデフォルトの名前を生成します。"
 
 #: ../../library/asyncio-task.rst:970
 msgid "Set the name of the Task."
-msgstr ""
+msgstr "Task に名前を設定します。"
 
 #: ../../library/asyncio-task.rst:972
 msgid ""
 "The *value* argument can be any object, which is then converted to a string."
 msgstr ""
+"引数 *value* は文字列に変換可能なオブジェクトであれば何でもかまいません。"
 
 #: ../../library/asyncio-task.rst:975
 msgid ""
 "In the default Task implementation, the name will be visible in the :func:"
 "`repr` output of a task object."
 msgstr ""
+"Task のデフォルト実装では、名前はオブジェクトの :func:`repr` メソッドの出力で"
+"確認できます。"
 
 #: ../../library/asyncio-task.rst:984
 msgid "Generator-based Coroutines"
