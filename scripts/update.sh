@@ -24,6 +24,7 @@ sphinx-build -E -b gettext -D gettext_compact=0 -d build/.doctrees . locales/pot
 cd locales
 sphinx-intl create-txconfig
 sphinx-intl update-txconfig-resources -p pot -d . --transifex-organization-name python-doc --transifex-project-name python-newest
+install -Dm644 .tx/config "${ROOTDIR}/.tx/config"
 
 # Pull translations into cpython/Doc/locales/LANGUAGE/LC_MESSAGES/
 tx pull -l ${LANGUAGE} -t --use-git-timestamps
