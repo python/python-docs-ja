@@ -333,6 +333,8 @@ msgid ""
 "Non-identical instances of a class normally compare as non-equal unless the "
 "class defines the :meth:`~object.__eq__` method."
 msgstr ""
+"あるクラスの同一でないインスタンスは、通常等価でないとされますが、そのクラス"
+"が :meth:`~object.__eq__` メソッドを定義している場合は除きます。"
 
 #: ../../library/stdtypes.rst:183
 msgid ""
@@ -343,6 +345,11 @@ msgid ""
 "meth:`~object.__eq__` are sufficient, if you want the conventional meanings "
 "of the comparison operators)."
 msgstr ""
+"クラスのインスタンスは、そのクラスがメソッド :meth:`~object.__lt__` 、 :meth:"
+"`~object.__le__` 、 :meth:`~object.__gt__` 、 :meth:`~object.__ge__` のうち十"
+"分なものを定義していない限り、同じクラスの別のインスタンスや他の型のオブジェ"
+"クトとは順序付けできません (一般に、比較演算子の通常の意味を求めるなら、 :"
+"meth:`~object.__lt__` と :meth:`~object.__eq__` だけで十分です)。"
 
 #: ../../library/stdtypes.rst:190
 msgid ""
@@ -382,6 +389,15 @@ msgid ""
 "numeric types :mod:`fractions.Fraction`, for rationals, and :mod:`decimal."
 "Decimal`, for floating-point numbers with user-definable precision.)"
 msgstr ""
+"数値型には 3 種類あります: :dfn:`整数` 、 :dfn:`浮動小数点数` 、 :dfn:`複素数"
+"` です。さらに、ブール型は整数のサブタイプです。整数には精度の制限がありませ"
+"ん。浮動小数点型はたいていは C の :c:expr:`double` を使って実装されています; "
+"あなたのプログラムが動作するマシンでの浮動小数点型の精度と内部表現は、 :data:"
+"`sys.float_info` から利用できます。複素数は実部と虚部を持ち、それぞれ浮動小数"
+"点数です。複素数 *z* から実部および虚部を取り出すには、 ``z.real`` および "
+"``z.imag`` を使ってください。 (標準ライブラリには、さらに分数のための数値型 :"
+"mod:`fractions.Fraction` や、ユーザによる精度の定義が可能な浮動小数点数のため"
+"の :mod:`decimal.Decimal` があります。)"
 
 #: ../../library/stdtypes.rst:237
 msgid ""
@@ -1080,6 +1096,17 @@ msgid ""
 "value of ``P`` is made available to Python as the :attr:`modulus` attribute "
 "of :data:`sys.hash_info`."
 msgstr ""
+"数 ``x`` と ``y`` に対して、型が異なっていたとしても、 ``x == y`` であれば必"
+"ず ``hash(x) == hash(y)`` であることが要請されます (詳細は :meth:`~object."
+"__hash__`  メソッドドキュメントを参照してください)。実装の簡単さと 複数の数値"
+"型 (:class:`int` 、 :class:`float` 、 :class:`decimal.Decimal` 、 :class:"
+"`fractions.Fraction` を含みます) 間の効率のため、Python の 数値型に対するハッ"
+"シュ値はある単一の数学的関数に基づいていて、 その関数はすべての有理数に対し定"
+"義されているため、 :class:`int` と :class:`fractions.Fraction` のすべてのイン"
+"スタンスと、 :class:`float` と :class:`decimal.Decimal` のすべての有限なイン"
+"スタンスに 対して適用されます。本質的には、この関数は定数の素数 ``P`` に対し"
+"て ``P`` を法とする還元で与えられます。 値 ``P`` は、 :data:`sys.hash_info` "
+"の :attr:`modulus` 属性として Python で利用できます。"
 
 #: ../../library/stdtypes.rst:678
 msgid ""
@@ -1186,6 +1213,12 @@ msgid ""
 "member:`~PyTypeObject.tp_iter` slot of the type structure for Python objects "
 "in the Python/C API."
 msgstr ""
+"term:`iterator` オブジェクトを返します。オブジェクトは後述するイテレータプロ"
+"トコルをサポートする必要があります。もしコンテナが異なる型の反復処理をサポー"
+"トするなら、それらの反復処理毎に追加のメソッドを提供しても構いません (複数の"
+"形式の反復処理を提供するオブジェクトの例として、幅優先探索と深さ優先探索をサ"
+"ポートする木構造が挙げられます)。このメソッドは Python/C API での Python オブ"
+"ジェクトの型構造体の :c:member:`~PyTypeObject.tp_iter` スロットに対応します。"
 
 #: ../../library/stdtypes.rst:792
 msgid ""
@@ -1203,6 +1236,10 @@ msgid ""
 "`in` statements.  This method corresponds to the :c:member:`~PyTypeObject."
 "tp_iter` slot of the type structure for Python objects in the Python/C API."
 msgstr ""
+":term:`iterator` オブジェクト自体を返します。このメソッドはコンテナとイテレー"
+"タの両方を :keyword:`for` および :keyword:`in` 文で使えるようにするために必要"
+"です。このメソッドは Python/C API において Python オブジェクトを表す型構造体"
+"の :c:member:`~PyTypeObject.tp_iter` スロットに対応します。"
 
 #: ../../library/stdtypes.rst:807
 msgid ""
@@ -1211,6 +1248,10 @@ msgid ""
 "the :c:member:`~PyTypeObject.tp_iternext` slot of the type structure for "
 "Python objects in the Python/C API."
 msgstr ""
+":term:`iterator` の次のアイテムを返します。もしそれ以上アイテムが無ければ :"
+"exc:`StopIteration` 例外を送出します。 このメソッドは Python/C APIでのPython"
+"オブジェクトの型構造体の :c:member:`~PyTypeObject.tp_iternext` スロットに対応"
+"します。"
 
 #: ../../library/stdtypes.rst:812
 msgid ""
@@ -2109,6 +2150,11 @@ msgid ""
 "If the *start* argument is omitted, it defaults to ``0``. If *step* is "
 "zero, :exc:`ValueError` is raised."
 msgstr ""
+"range コンストラクタの引数は整数 (組み込みの :class:`int` または :meth:"
+"`~object.__index__` 特殊メソッドを実装するオブジェクト) でなければなりませ"
+"ん。*step* 引数が省略された場合のデフォルト値は ``1`` です。*start* 引数が省"
+"略された場合のデフォルト値は  ``0`` です。 *step* が 0 の場合、:exc:"
+"`ValueError` が送出されます。"
 
 #: ../../library/stdtypes.rst:1315
 msgid ""
@@ -2247,6 +2293,8 @@ msgid ""
 "how to implement a lazy version of range suitable for floating point "
 "applications."
 msgstr ""
+"`linspace レシピ <https://code.activestate.com/recipes/579000/>`_ には、遅延"
+"評価される浮動小数点版の range の実装方法が載っています。"
 
 #: ../../library/stdtypes.rst:1430
 msgid "Text Sequence Type --- :class:`str`"
@@ -2268,7 +2316,7 @@ msgstr "シングルクォート: ``'\"ダブル\" クォートを埋め込む�
 
 #: ../../library/stdtypes.rst:1438
 msgid "Double quotes: ``\"allows embedded 'single' quotes\"``"
-msgstr ""
+msgstr "ダブルクォート: ``\"'シングル' クォートを埋め込むことができます\"``。"
 
 #: ../../library/stdtypes.rst:1439
 msgid ""
@@ -2360,6 +2408,12 @@ msgid ""
 "__str__` method, then :func:`str` falls back to returning :meth:"
 "`repr(object) <repr>`."
 msgstr ""
+"*encoding* も *errors* も与えられない場合、 ``str(object)`` は :meth:"
+"`type(object).__str__(object) <object.__str__>` の結果を返します。これは \"略"
+"式の\" つまり読み易い *object* の文字列表現です。文字列オブジェクトに対しては"
+"その文字列自体を返します。 *object* が :meth:`~object.__str__` メソッドを持た"
+"ない場合、:func:`str` は代わりに :meth:`repr(object) <repr>` の結果を返しま"
+"す。"
 
 #: ../../library/stdtypes.rst:1493
 msgid ""
@@ -3836,7 +3890,7 @@ msgstr "シングルクォート: ``b'still allows embedded \"double\" quotes'``
 
 #: ../../library/stdtypes.rst:2457
 msgid "Double quotes: ``b\"still allows embedded 'single' quotes\"``"
-msgstr ""
+msgstr "ダブルクォート: ``b\"still allows embedded 'single' quotes\"``."
 
 #: ../../library/stdtypes.rst:2458
 msgid ""
