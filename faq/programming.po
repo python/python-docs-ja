@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-27 14:14+0000\n"
+"POT-Creation-Date: 2023-02-03 14:14+0000\n"
 "PO-Revision-Date: 2021-06-28 00:52+0000\n"
 "Last-Translator: 菊池 健志, 2023\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/"
@@ -1902,7 +1902,7 @@ msgstr ""
 
 #: ../../faq/programming.rst:1325
 msgid "How do I apply a method or function to a sequence of objects?"
-msgstr ""
+msgstr "オブジェクトのシーケンスにメソッドや関数を適用するにはどうしますか？"
 
 #: ../../faq/programming.rst:1327
 msgid ""
@@ -1990,6 +1990,12 @@ msgid ""
 "why we say that for lists, ``+=`` is a \"shorthand\" for :meth:`!list."
 "extend`::"
 msgstr ""
+"なぜこれが起きるかを調べるためには、次の 2 点を知っている必要があります。(a) "
+"オブジェクトに :meth:`~object.__iadd__` 特殊メソッドが実装されている場合、拡"
+"張代入 ``+=`` が実行されるときにそれが呼び出され、その返り値が代入文で使われ"
+"ます; (b) リストでは、:meth:`!__iadd__` は :meth:`~list.extend` の呼び出しと"
+"等価で、リストを返します。こんな理由で、リストでは ``+=`` は :meth:`!list."
+"extend` の \"略記\" だと言ったのでした::"
 
 #: ../../faq/programming.rst:1409
 msgid "This is equivalent to::"
@@ -2018,6 +2024,9 @@ msgid ""
 "points to, that final assignment still results in an error, because tuples "
 "are immutable."
 msgstr ""
+":meth:`!__iadd__` は成功し、リストは拡張 (extend) されますが、``result`` が "
+"``a_tuple[0]`` が既に指しているオブジェクトと同じオブジェクトを指していたとし"
+"ても、タプルは不変なので、その最後の代入はやはりエラーとなります。"
 
 #: ../../faq/programming.rst:1433
 msgid ""
@@ -2135,6 +2144,11 @@ msgid ""
 "built-in types, e.g. ``isinstance(obj, str)`` or ``isinstance(obj, (int, "
 "float, complex))``."
 msgstr ""
+"ビルトイン関数 :func:`isinstance(obj, cls) <isinstance>` を使ってください。ク"
+"ラスのタプルを与えて ``isinstance(obj, (class1, class2, ...))`` のようにすれ"
+"ば、あるオブジェクトが任意の数のクラスのオブジェクトであるかを調べられます"
+"し、``isinstance(obj, str)`` や ``isinstance(obj, (int, float, complex))`` の"
+"ようにすれば、Python のビルトイン型のオブジェクトであるかも調べられます。"
 
 #: ../../faq/programming.rst:1511
 msgid ""
@@ -2212,6 +2226,10 @@ msgid ""
 "implementation of :meth:`!__setattr__` is roughly equivalent to the "
 "following::"
 msgstr ""
+"なお、一般的に委譲はトリッキーになりがちです。属性が設定される時には読み出さ"
+"れる時と同様に、そのクラスに :meth:`~object.__setattr__` メソッドを定義する必"
+"要があり、それには細心の注意が必要です。 :meth:`!__setattr__` の基本的な実装"
+"はおおよそ以下のようになります::"
 
 #: ../../faq/programming.rst:1616
 msgid ""
@@ -2219,12 +2237,17 @@ msgid ""
 "<object.__dict__>` to store local state for self without causing an infinite "
 "recursion."
 msgstr ""
+"たいてい、 :meth:`!__setattr__` 実装は :meth:`self.__dict__ <object."
+"__dict__>` を変更して、無限再帰を起こすことなくローカルな状態を保存するように"
+"しなければなりません。"
 
 #: ../../faq/programming.rst:1622
 msgid ""
 "How do I call a method defined in a base class from a derived class that "
 "extends it?"
 msgstr ""
+"基底クラスで定義されたメソッドを、そのクラスを継承した派生クラスから呼び出す"
+"にはどうしますか？"
 
 #: ../../faq/programming.rst:1624
 msgid "Use the built-in :func:`super` function::"
@@ -2249,6 +2272,10 @@ msgid ""
 "this trick is also handy if you want to decide dynamically (e.g. depending "
 "on availability of resources) which base class to use.  Example::"
 msgstr ""
+"基底クラスをエイリアス (alias) に代入しておいてから、そのエイリアスを継承する"
+"といいかもしれません。そうすればエイリアスに代入する値を変えるだけで済みま"
+"す。ちなみに、この手法は使用する基底クラスを動的に選びたいとき、例えば使える"
+"リソースによって選びたいときなどにも便利です。例::"
 
 #: ../../faq/programming.rst:1654
 msgid "How do I create static class data and static class methods?"
@@ -2398,6 +2425,9 @@ msgid ""
 "__del__` -- it simply decrements the object's reference count, and if this "
 "reaches zero :meth:`!__del__` is called."
 msgstr ""
+":keyword:`del` 文は必ずしも :meth:`~object.__del__` を呼び出すとは限りません "
+"-- これは単純にオブジェクトの参照カウントを減らすもので、カウントがゼロになっ"
+"たときに :meth:`!__del__` が呼び出されます。"
 
 #: ../../faq/programming.rst:1759
 msgid ""
@@ -2412,6 +2442,15 @@ msgid ""
 "run :func:`gc.collect` to force a collection, but there *are* pathological "
 "cases where objects will never be collected."
 msgstr ""
+"データ構造が循環リンク (子のそれぞれが親の参照を持ち、親のそれぞれが子のリス"
+"トを持つツリーなど) を含む場合、その参照カウントは決して 0 にはなりません。"
+"時々、Python はこのようなサイクルを検出するアルゴリズムを実行しますが、データ"
+"構造への参照がなくなってからこのガベージコレクタが実行されるまでいくらか時間"
+"が掛かるかもしれないので、 :meth:`!__del__` メソッドは不都合な予期できないタ"
+"イミングで呼び出されるかもしれません。これは問題を再現しようとするときに不便"
+"です。さらに悪いことに、オブジェクトの :meth:`!__del__` メソッドが実行される"
+"順序は任意です。 :func:`gc.collect` を起動して収集を強制することができます"
+"が、オブジェクトが決して回収されないような本当に病的な場合も *あります* 。"
 
 #: ../../faq/programming.rst:1770
 msgid ""
@@ -2422,6 +2461,13 @@ msgid ""
 "``close()`` and ``close()`` should make sure that it can be called more than "
 "once for the same object."
 msgstr ""
+"循環参照コレクタがあるとはいえ、オブジェクトに ``close()`` メソッドを明示的に"
+"定義し、使い終わったらいつでも呼び出せるようにするのはいいことです。\n"
+"``close()`` メソッドを使うと、サブオブジェクトを参照している属性を取り除けま"
+"す。\n"
+":meth:`!__del__` を直接呼び出さないでください -- :meth:`!__del__` は "
+"``close()`` を呼び出すでしょうし、 ``close()`` なら同じオブジェクトに対して複"
+"数回呼ばれてもいいことが保証されているでしょう。"
 
 #: ../../faq/programming.rst:1777
 msgid ""
@@ -2439,6 +2485,8 @@ msgid ""
 "Finally, if your :meth:`!__del__` method raises an exception, a warning "
 "message is printed to :data:`sys.stderr`."
 msgstr ""
+"最後に、 :meth:`!__del__` メソッドが例外を発生させた場合、警告のメッセージ"
+"が :data:`sys.stderr` に書きこまれます。"
 
 #: ../../faq/programming.rst:1795
 msgid "How do I get a list of all instances of a given class?"
@@ -2804,33 +2852,35 @@ msgstr "問題はインタプリタが以下の段階を実行することです
 
 #: ../../faq/programming.rst:2132
 msgid "main imports ``foo``"
-msgstr ""
+msgstr "main が ``foo`` をインポートする"
 
 #: ../../faq/programming.rst:2133
 msgid "Empty globals for ``foo`` are created"
-msgstr ""
+msgstr "``foo`` の空のグローバルが生成される"
 
 #: ../../faq/programming.rst:2134
 msgid "``foo`` is compiled and starts executing"
-msgstr ""
+msgstr "``foo`` がコンパイルされ実行を始める"
 
 #: ../../faq/programming.rst:2135
 msgid "``foo`` imports ``bar``"
-msgstr ""
+msgstr "``foo`` が ``bar`` をインポートする"
 
 #: ../../faq/programming.rst:2136
 msgid "Empty globals for ``bar`` are created"
-msgstr ""
+msgstr "``bar`` の空のグローバルが生成される"
 
 #: ../../faq/programming.rst:2137
 msgid "``bar`` is compiled and starts executing"
-msgstr ""
+msgstr "``bar`` がコンパイルされ実行を始める"
 
 #: ../../faq/programming.rst:2138
 msgid ""
 "``bar`` imports ``foo`` (which is a no-op since there already is a module "
 "named ``foo``)"
 msgstr ""
+"``bar`` が ``foo`` をインポートする(すでに ``foo`` という名前のモジュールがあ"
+"るので no-op となる)"
 
 #: ../../faq/programming.rst:2139
 msgid ""
@@ -2901,6 +2951,8 @@ msgid ""
 "Van Rossum doesn't like this approach much because the imports appear in a "
 "strange place, but it does work."
 msgstr ""
+"インポートが奇妙な場所に現れることから Van Rossum はこの方法をそれほど好みま"
+"せんが、これは有効です。"
 
 #: ../../faq/programming.rst:2164
 msgid ""

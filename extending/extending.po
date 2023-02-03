@@ -8,15 +8,16 @@
 # Yusuke Miyazaki <miyazaki.dev@gmail.com>, 2021
 # mollinaca, 2021
 # Shin Saito, 2021
+# 菊池 健志, 2023
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 14:15+0000\n"
+"POT-Creation-Date: 2023-02-03 14:14+0000\n"
 "PO-Revision-Date: 2021-06-28 00:51+0000\n"
-"Last-Translator: Shin Saito, 2021\n"
+"Last-Translator: 菊池 健志, 2023\n"
 "Language-Team: Japanese (https://www.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -304,6 +305,15 @@ msgid ""
 "interpreter's main loop, this aborts the currently executing Python code and "
 "tries to find an exception handler specified by the Python programmer."
 msgstr ""
+"関数 *g* を呼び出す *f* が、前者の関数の呼び出しに失敗したことを検出すると、 "
+"*f* 自体はエラー値 (大抵は ``NULL`` や ``-1``) を返さねばなりません。しか"
+"し、 ``PyErr_*`` 関数群のいずれかを呼び出す必要は *ありません* --- なぜな"
+"ら、 *g* がすでに呼び出しているからです。次いで *f* を呼び出したコードもエ"
+"ラーを示す値を *自らを呼び出したコード* に返すことになりますが、同様に "
+"``PyErr_*`` は *呼び出しません* 。以下同様に続きます --- エラーの最も詳しい原"
+"因は、最初にエラーを検出した関数がすでに報告しているからです。エラーが "
+"Python インタプリタのメインループに到達すると、現在実行中の Python コードは一"
+"時停止し、 Python プログラマが指定した例外ハンドラを探し出そうとします。"
 
 #: ../../extending/extending.rst:168
 msgid ""
@@ -313,6 +323,11 @@ msgid ""
 "cause information about the cause of the error to be lost: most operations "
 "can fail for a variety of reasons.)"
 msgstr ""
+"(モジュールが ``PyErr_*`` 関数をもう一度呼び出して、より詳細なエラーメッセー"
+"ジを提供するような状況があります。このような状況ではそうすべきです。とはい"
+"え、一般的な規則としては、この関数を何度も呼び出す必要はなく、ともすればエ"
+"ラーの原因に関する情報を失う結果になりがちです: これにより、ほとんどの操作が"
+"様々な理由から失敗するかもしれません)"
 
 #: ../../extending/extending.rst:174
 msgid ""
@@ -508,6 +523,10 @@ msgid ""
 "``None``.   You need this idiom to do so (which is implemented by the :c:"
 "macro:`Py_RETURN_NONE` macro)::"
 msgstr ""
+"何ら有用な値を返さない関数 (:c:expr:`void` を返す関数) に対応する Python の関"
+"数は ``None`` を返さねばなりません。関数に ``None`` を返させるには、以下のよ"
+"うな慣用句を使います (この慣用句は :c:macro:`Py_RETURN_NONE` マクロに実装され"
+"ています)::"
 
 #: ../../extending/extending.rst:308
 msgid ""
@@ -1696,6 +1715,13 @@ msgid ""
 "module, retrieve the value of this name, and then retrieve the pointer from "
 "the Capsule."
 msgstr ""
+"Python はある拡張モジュールの C レベルの情報 (ポインタ) を別のモジュールに渡"
+"すための特殊な機構: Capsule (カプセル)を提供しています。 Capsule はポインタ "
+"(:c:expr:`void \\*`) を記憶する Python のデータ型です。 Capsule は C API を介"
+"してのみ生成したりアクセスしたりできますが、他の Python オブジェクトと同じよ"
+"うに受け渡しできます。とりわけ、Capsule は拡張モジュールの名前空間内にある名"
+"前に代入できます。他の拡張モジュールはこのモジュールを import でき、次に名前"
+"を取得し、最後にCapsule へのポインタを取得します。"
 
 #: ../../extending/extending.rst:1180
 msgid ""
@@ -1721,6 +1747,12 @@ msgid ""
 "of runtime type-safety; there is no feasible way to tell one unnamed Capsule "
 "from another."
 msgstr ""
+"どの方法を選ぶにしても、 Capsule の name を正しく設定することは重要です。 :c:"
+"func:`PyCapsule_New` は name 引数 (:c:expr:`const char \\*`) を取ります。 "
+"``NULL`` を name に渡すことも許可されていますが、 name を設定することを強く推"
+"奨します。正しく名前を付けられた Capsule はある程度の実行時型安全性を持ちま"
+"す。名前を付けられていない Capsule を他の Capsule と区別する現実的な方法はあ"
+"りません。"
 
 #: ../../extending/extending.rst:1193
 msgid ""
@@ -1752,6 +1784,13 @@ msgid ""
 "takes care of importing the module and retrieving its C API pointers; client "
 "modules only have to call this macro before accessing the C API."
 msgstr ""
+"以下の例では、名前を公開するモジュールの作者にほとんどの負荷が掛かりますが、"
+"よく使われるライブラリを作る際に適切なアプローチを実演します。このアプローチ"
+"では、全ての C API ポインタ (例中では一つだけですが!) を、 Capsule の値とな"
+"る :c:expr:`void` ポインタの配列に保存します。拡張モジュールに対応するヘッダ"
+"ファイルは、モジュールの import と C API ポインタを取得するよう手配するマクロ"
+"を提供します; クライアントモジュールは、C API にアクセスする前にこのマクロを"
+"呼ぶだけです。"
 
 #: ../../extending/extending.rst:1211
 msgid ""
