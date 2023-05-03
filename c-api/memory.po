@@ -7,6 +7,7 @@
 # tomo, 2021
 # mollinaca, 2021
 # yaakiyu, 2022
+# Arihiro TAKASE, 2023
 #
 #, fuzzy
 msgid ""
@@ -15,7 +16,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-04-28 14:13+0000\n"
 "PO-Revision-Date: 2021-06-28 00:49+0000\n"
-"Last-Translator: yaakiyu, 2022\n"
+"Last-Translator: Arihiro TAKASE, 2023\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -136,6 +137,19 @@ msgid ""
 "in the previous example, the allocated memory for the I/O buffer escapes "
 "completely the Python memory manager."
 msgstr ""
+"とはいえ、ほとんどの状況では、メモリの操作は Python ヒープに固定して行うよう"
+"勧めます。なぜなら、Python ヒープは Python メモリマネジャの管理下にあるからで"
+"す。例えば、インタプリタを C で書かれた新たなオブジェクト型で拡張する際には、"
+"ヒープでのメモリ管理が必要です。Python ヒープを使った方がよいもう一つの理由と"
+"して、拡張モジュールが必要としているメモリについて Python メモリマネージャに "
+"*情報を提供* してほしいということがあります。たとえ必要なメモリが内部的かつ非"
+"常に特化した用途に対して排他的に用いられるものだとしても、全てのメモリ操作要"
+"求を Python メモリマネージャに委譲すれば、インタプリタはより正確なメモリフッ"
+"トプリントの全体像を把握できます。その結果、特定の状況では、Python メモリマ"
+"ネージャがガベージコレクションやメモリのコンパクト化、その他何らかの予防措置"
+"といった、適切な動作をトリガできることがあります。上の例で示したように C ライ"
+"ブラリのメモリ操作関数を使うと、I/O バッファ用に確保したメモリは Python メモ"
+"リマネージャの管理から完全に外れることに注意してください。"
 
 #: ../../c-api/memory.rst:88
 msgid ""
@@ -241,6 +255,8 @@ msgid ""
 "Allocates *n* bytes and returns a pointer of type :c:expr:`void*` to the "
 "allocated memory, or ``NULL`` if the request fails."
 msgstr ""
+"*n* バイトを割り当て、そのメモリを指す :c:expr:`void*` 型のポインタを返しま"
+"す。要求が失敗した場合 ``NULL`` を返します。"
 
 #: ../../c-api/memory.rst:149
 msgid ""
@@ -259,6 +275,9 @@ msgid ""
 "a pointer of type :c:expr:`void*` to the allocated memory, or ``NULL`` if "
 "the request fails. The memory is initialized to zeros."
 msgstr ""
+"各要素が *elsize* バイトの要素 *nelem* 個分のメモリーを確保し、そのメモリーを"
+"指す :c:expr:`void*` 型のポインタを返します。アロケートに失敗した場合は "
+"``NULL`` を返します。確保されたメモリー領域はゼロで初期化されます。"
 
 #: ../../c-api/memory.rst:160
 msgid ""
@@ -430,6 +449,9 @@ msgid ""
 "of memory.  Returns a pointer cast to :c:expr:`TYPE*`.  The memory will not "
 "have been initialized in any way."
 msgstr ""
+":c:func:`PyMem_Malloc` と同じですが、 ``(n * sizeof(TYPE))`` バイトのメモリを"
+"確保します。 :c:expr:`TYPE*` に型キャストされたポインタを返します。メモリには"
+"何の初期化も行われていません。"
 
 #: ../../c-api/memory.rst:276
 msgid ""
@@ -438,6 +460,11 @@ msgid ""
 "return, *p* will be a pointer to the new memory area, or ``NULL`` in the "
 "event of failure."
 msgstr ""
+":c:func:`PyMem_Realloc` と同じですが、 ``(n * sizeof(TYPE))`` バイトにサイズ"
+"変更されたメモリを確保します。\n"
+":c:expr:`TYPE*` に型キャストされたポインタを返します。\n"
+"関数が終わったとき、 *p* は新しいメモリ領域のポインタか、失敗した場合は "
+"``NULL`` になります。"
 
 #: ../../c-api/memory.rst:281
 msgid ""
@@ -511,6 +538,9 @@ msgid ""
 "as if ``PyObject_Malloc(1)`` had been called instead. The memory will not "
 "have been initialized in any way."
 msgstr ""
+"0バイトを要求すると、 ``PyObject_Malloc(1)`` が呼ばれたときと同じように、可能"
+"なら ``NULL`` でないユニークなポインタを返します。\n"
+"確保されたメモリーにはいかなる初期化も行われません。"
 
 #: ../../c-api/memory.rst:339
 msgid ""
@@ -518,6 +548,8 @@ msgid ""
 "non-``NULL`` pointer if possible, as if ``PyObject_Calloc(1, 1)`` had been "
 "called instead."
 msgstr ""
+"要素数か要素のサイズが0バイトの要求に対しては、可能なら ``PyObject_Calloc(1, "
+"1)`` が呼ばれたのと同じように、ユニークな ``NULL`` でないポインタを返します。"
 
 #: ../../c-api/memory.rst:351
 msgid ""
@@ -525,6 +557,9 @@ msgid ""
 "if *n* is equal to zero, the memory block is resized but is not freed, and "
 "the returned pointer is non-``NULL``."
 msgstr ""
+"*p* が ``NULL`` の場合呼び出しは ``PyObject_Malloc(n)`` と等価です。そうでな"
+"く、 *n* がゼロに等しい場合、メモリブロックはリサイズされますが解放されませ"
+"ん。返されたポインタは非 ``NULL`` です。"
 
 #: ../../c-api/memory.rst:355
 msgid ""
@@ -532,12 +567,17 @@ msgid ""
 "func:`PyObject_Malloc`, :c:func:`PyObject_Realloc` or :c:func:"
 "`PyObject_Calloc`."
 msgstr ""
+"*p* が ``NULL`` でない限り、*p* はそれより前の :c:func:`PyObject_Malloc`, :c:"
+"func:`PyObject_Realloc` または :c:func:`PyObject_Calloc` の呼び出しにより返さ"
+"れなければなりません。"
 
 #: ../../c-api/memory.rst:358
 msgid ""
 "If the request fails, :c:func:`PyObject_Realloc` returns ``NULL`` and *p* "
 "remains a valid pointer to the previous memory area."
 msgstr ""
+"要求が失敗した場合 :c:func:`PyObject_Realloc` は ``NULL`` を返し、 *p* は前の"
+"メモリエリアをさす有効なポインタのままです。"
 
 #: ../../c-api/memory.rst:364
 msgid ""
