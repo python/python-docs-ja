@@ -42,6 +42,14 @@ msgid ""
 "specifically with :term:`text encodings <text encoding>` or with codecs that "
 "encode to :class:`bytes`."
 msgstr ""
+"このモジュールは、標準的な Python codec (エンコーダとデコーダ) 用の基底クラス"
+"を定義し、codec とエラー処理検索プロセスを管理する内部の Python codec レジス"
+"トリへのアクセスを提供します。多くの codec はテキストをバイトにエンコードす"
+"る (そしてバイトをテキストにデコードする) :term:`テキストエンコーディング "
+"<text encoding>` ですが、テキストをテキストに、またはバイトをバイトにエンコー"
+"ドする codec も提供されています。カスタムの codec は任意の型間でエンコードと"
+"デコードを行えますが、一部のモジュール機能は :term:`テキストエンコーディング "
+"<text encoding>` か :class:`bytes` へのエンコードのみに制限されています。"
 
 #: ../../library/codecs.rst:33
 msgid ""
@@ -292,6 +300,10 @@ msgid ""
 "reading and writing. The *mode* argument may be any binary mode acceptable "
 "to the built-in :func:`open` function; the ``'b'`` is automatically added."
 msgstr ""
+"*encoding* が ``None`` でなければ、下層のエンコードされたファイルは、常にバイ"
+"ナリモードで開きます。読み書き時に、 ``'\\n'`` の自動変換は行われません。"
+"*mode* 引数は、組み込みの :func:`open` 関数が受け入れる任意のバイナリモードに"
+"することができます。``'b'`` が自動的に付加されます。"
 
 #: ../../library/codecs.rst:198
 msgid ""
@@ -470,6 +482,8 @@ msgid ""
 "To simplify and standardize error handling, codecs may implement different "
 "error handling schemes by accepting the *errors* string argument:"
 msgstr ""
+"エラー処理の簡便化と標準化のため、コーデックは、*errors* 文字列引数を指定した"
+"場合に別のエラー処理を行うような仕組みを実装してもかまいません\\:"
 
 #: ../../library/codecs.rst:321
 msgid ""
@@ -497,6 +511,8 @@ msgid ""
 "Raise :exc:`UnicodeError` (or a subclass), this is the default. Implemented "
 "in :func:`strict_errors`."
 msgstr ""
+":exc:`UnicodeError` (または、そのサブクラス) を送出します。これがデフォルトの"
+"動作です。 :func:`strict_errors` で実装されています。"
 
 #: ../../library/codecs.rst:333
 msgid "``'ignore'``"
@@ -507,6 +523,8 @@ msgid ""
 "Ignore the malformed data and continue without further notice. Implemented "
 "in :func:`ignore_errors`."
 msgstr ""
+"不正な形式のデータを無視し、何も通知することなく処理を継続します。:func:"
+"`ignore_errors` で実装されています。"
 
 #: ../../library/codecs.rst:337
 msgid "``'replace'``"
@@ -542,6 +560,10 @@ msgid ""
 "byte when the ``'surrogateescape'`` error handler is used when encoding the "
 "data. (See :pep:`383` for more.)"
 msgstr ""
+"デコード時には、バイト列を ``U+DC80`` から ``U+DCFF`` の範囲の個々のサロゲー"
+"トコードで置き換えます。データのエンコード時に ``'surrogateescape'`` エラーハ"
+"ンドラが使用されると、このコードは同じバイト列に戻されます。 (詳しくは :pep:"
+"`383` を参照。)"
 
 #: ../../library/codecs.rst:365
 msgid ""
@@ -647,6 +669,16 @@ msgid ""
 "treated as being relative to the end of the input string. If the resulting "
 "position is out of bound an :exc:`IndexError` will be raised."
 msgstr ""
+"*error_handler* はエラーの場所に関する情報の入った :exc:`UnicodeEncodeError` "
+"インスタンスとともに呼び出されます。エラー処理関数はこの例外を送出するか、別"
+"の例外を送出するか、入力のエンコードできなかった部分の代替文字列とエンコード"
+"を再開する場所が入ったタプルを返す必要があります。代替文字列は :class:`str` "
+"または :class:`bytes` のいずれかにすることができます。代替文字列がバイト列で"
+"ある場合、エンコーダは単に出力バッファにそれをコピーします。代替文字列が文字"
+"列である場合、エンコーダは代替文字列をエンコードします。元の入力中の指定位置"
+"からエンコードが再開されます。位置を負の値にすると、入力文字列の末端からの相"
+"対位置として扱われます。境界の外側にある位置を返した場合には :exc:"
+"`IndexError` が送出されます。"
 
 #: ../../library/codecs.rst:432
 msgid ""
@@ -808,6 +840,10 @@ msgid ""
 "bytes object encoded using a particular character set encoding to a string "
 "object."
 msgstr ""
+"オブジェクト *input* をデコードし、(出力オブジェクト, 消費した長さ) のタプル"
+"を返します。例えば、 :term:`テキストエンコーディング <text encoding>` は、特"
+"定の文字集合エンコーディングでエンコードされたバイト列オブジェクトを文字列オ"
+"ブジェクトに変換します。"
 
 #: ../../library/codecs.rst:542
 msgid ""
@@ -950,6 +986,10 @@ msgid ""
 "marshaling/pickling the state and encoding the bytes of the resulting string "
 "into an integer.)"
 msgstr ""
+"エンコーダの現在の状態を返します。それは必ず整数でなければなりません。実装"
+"は、``0`` が最も一般的な状態であることを保証すべきです。 (整数より複雑な状態"
+"は、状態を marshal/pickle して生じた文字列のバイトを整数にコード化することに"
+"よって整数に変換することができます。)"
 
 #: ../../library/codecs.rst:627
 msgid ""
@@ -1147,7 +1187,7 @@ msgstr ""
 
 #: ../../library/codecs.rst:749 ../../library/codecs.rst:844
 msgid "Resets the codec buffers used for keeping internal state."
-msgstr ""
+msgstr "内部状態保持に使われた codec のバッファをリセットします。"
 
 #: ../../library/codecs.rst:751
 msgid ""
@@ -1254,6 +1294,10 @@ msgid ""
 "much as possible. This parameter is intended to prevent having to decode "
 "huge files in one step."
 msgstr ""
+"*size* 引数は、デコード用に読み込むエンコードされたバイト列またはコードポイン"
+"トの、およその最大バイト数を表します。デコーダはこの値を適切な値に変更できま"
+"す。デフォルト値 -1 の場合、可能な限り多くのデータを読み込みます。この引数の"
+"目的は、巨大なファイルの一括デコードを防ぐことにあります。"
 
 #: ../../library/codecs.rst:809
 msgid ""
@@ -1303,6 +1347,8 @@ msgid ""
 "Line-endings are implemented using the codec's :meth:`decode` method and are "
 "included in the list entries if *keepends* is true."
 msgstr ""
+"*keepends* が真なら、改行は、codec の :meth:`decode` メソッドを使って実装さ"
+"れ、リスト要素の中に含まれます。"
 
 #: ../../library/codecs.rst:838
 msgid ""
@@ -1317,6 +1363,8 @@ msgid ""
 "Note that no stream repositioning should take place. This method is "
 "primarily intended to be able to recover from decoding errors."
 msgstr ""
+"ストリームの読み位置を再設定してはならないので注意してください。このメソッド"
+"はデコードの際にエラーから復帰できるようにするためのものです。"
 
 #: ../../library/codecs.rst:850
 msgid ""
@@ -1399,6 +1447,8 @@ msgid ""
 "You can use these objects to do transparent transcodings, e.g., from Latin-1 "
 "to UTF-8 and back."
 msgstr ""
+"これらのオブジェクトを使って、たとえば、 Latin-1 から UTF-8 への変換、あるい"
+"は逆向きの変換を、透過的に行うことができます。"
 
 #: ../../library/codecs.rst:899
 msgid "The *stream* argument must be a file-like object."
@@ -1449,6 +1499,18 @@ msgid ""
 "*decoding*. There are a variety of different text serialisation codecs, "
 "which are collectivity referred to as :term:`text encodings <text encoding>`."
 msgstr ""
+"文字列は内部的に ``U+0000``--``U+10FFFF`` の範囲のコードポイントのシーケンス"
+"として格納されます (実装に関する詳細については :pep:`393` を参照してくださ"
+"い)。\n"
+"文字列オブジェクトが CPU とメモリの外で使用されるようになると、エンディアンや"
+"これらの配列をバイト列として格納する方法が問題になります。\n"
+"他のコーデックでも同様ですが、文字列オブジェクトをバイト列に変換することは *"
+"エンコード* と呼ばれます。\n"
+"また、バイト列から文字列オブジェクトを再生成することは *デコード* と呼ばれま"
+"す。\n"
+"テキストをシリアライズするコーデックには多くの種類があります。\n"
+"それらは、集合的に term:`テキストエンコーディング <text encoding>` と呼ばれま"
+"す。"
 
 #: ../../library/codecs.rst:930
 msgid ""
@@ -1516,6 +1578,33 @@ msgid ""
 "has been decoded into a string; as a ``ZERO WIDTH NO-BREAK SPACE`` it's a "
 "normal character that will be decoded like any other."
 msgstr ""
+"これらのエンコーディングはすべて、 Unicode に定義された 1114112 のコードポイ"
+"ントのうちの 256 だけをエンコードすることができます。 Unicode のすべてのコー"
+"ドポイントを格納するための単純で直接的な方法は、各コードポイントを連続する4バ"
+"イトとして格納することです。これには2つの可能性があります: ビッグエンディアン"
+"またはリトルエンディアンの順にバイトを格納することです。これら2つのエンコー"
+"ディングはそれぞれ ``UTF-32-BE`` および ``UTF-32-LE`` と呼ばれます。それらの"
+"デメリットは、例えばリトルエンディアンのマシン上で ``UTF-32-BE`` を使用する"
+"と、エンコードでもデコードでも常にバイト順を交換する必要があることです。"
+"``UTF-32`` はこの問題を回避します: バイト順は、常に自然なエンディアンに従いま"
+"す。しかし、これらのバイト順が異なるエンディアン性を持つ CPU によって読まれる"
+"場合、結局バイト順を交換しなければなりません。``UTF-16`` あるいは ``UTF-32`` "
+"バイト列のエンディアン性を検出する目的で、いわゆる BOM (「バイト・オーダー・"
+"マーク」) があります。これは Unicode 文字 ``U+FEFF`` です。この文字はすべて"
+"の ``UTF-16`` あるいは ``UTF-32`` バイト列の前に置くことができます。この文字"
+"のバイトが交換されたバージョン (``0xFFFE``) は、 Unicode テキストに現われては"
+"ならない不正な文字です。したがって、``UTF-16`` あるいは ``UTF-32`` バイト列中"
+"の最初の文字が ``U+FFFE`` であるように見える場合、デコードの際にバイトを交換"
+"しなければなりません。不運にも文字 ``U+FEFF`` は ``ZERO WIDTH NO-BREAK "
+"SPACE`` として別の目的を持っていました: 幅を持たず、単語を分割することを許容"
+"しない文字。それは、例えばリガチャアルゴリズムにヒントを与えるために使用する"
+"ことができます。 Unicode  4.0 で、``ZERO WIDTH NO-BREAK SPACE`` としての "
+"``U+FEFF`` の使用は廃止予定になりました (この役割は ``U+2060`` (``WORD "
+"JOINER``) によって引き継がれました)。しかしながら、 Unicode ソフトウェアは、"
+"依然として両方の役割の ``U+FEFF`` を扱うことができなければなりません: BOM と"
+"して、エンコードされたバイトのメモリレイアウトを決定する手段であり、一旦バイ"
+"ト列が文字列にデコードされたならば消えます; ``ZERO WIDTH NO-BREAK SPACE`` と"
+"して、他の任意の文字のようにデコードされる通常の文字です。"
 
 #: ../../library/codecs.rst:971
 msgid ""
@@ -1527,6 +1616,13 @@ msgid ""
 "bit. Unicode characters are encoded like this (with x being payload bits, "
 "which when concatenated give the Unicode character):"
 msgstr ""
+"さらにもう一つ Unicode 文字全てをエンコードできるエンコーディングがあり、"
+"UTF-8 と呼ばれています。UTF-8 は8ビットエンコーディングで、したがって UTF-8 "
+"にはバイト順の問題はありません。UTF-8 バイト列の各バイトは二つのパートから成"
+"ります。二つはマーカ(上位数ビット)とペイロードです。マーカは0ビットから4ビッ"
+"トの ``1`` の列に ``0`` のビットが一つ続いたものです。Unicode 文字は次のよう"
+"にエンコードされます (x はペイロードを表わし、連結されると一つの Unicode 文字"
+"を表わします):"
 
 #: ../../library/codecs.rst:980
 msgid "Range"
@@ -1596,6 +1692,16 @@ msgid ""
 "``0xef``, ``0xbb``, ``0xbf``) is written. As it's rather improbable that any "
 "charmap encoded file starts with these byte values (which would e.g. map to"
 msgstr ""
+"外部からの情報無しには、文字列のエンコーディングにどのエンコーディングが使わ"
+"れたのか信頼できる形で決定することは不可能です。どの charmap エンコーディング"
+"もどんなランダムなバイト列でもデコードできます。しかし UTF-8 ではそれは可能で"
+"はありません。任意のバイト列を許さないような構造を持っているからです。UTF-8 "
+"エンコーディングであることを検知する信頼性を向上させるために、Microsoft は "
+"Notepad プログラム用に UTF-8 の変種 (Python では ``\"utf-8-sig\"`` と呼んでい"
+"ます) を考案しました。Unicode 文字がファイルに書き込まれる前に UTF-8 でエン"
+"コードした BOM (バイト列では ``0xef``, ``0xbb``, ``0xbf`` のように見えます) "
+"が書き込まれます。このようなバイト値で charmap エンコードされたファイルが始ま"
+"ることはほとんどあり得ない (たとえば iso-8859-1 では"
 
 #: ../../library/codecs.rst:0
 msgid "LATIN SMALL LETTER I WITH DIAERESIS"
@@ -1620,6 +1726,13 @@ msgid ""
 "three bytes if they appear as the first three bytes in the file. In UTF-8, "
 "the use of the BOM is discouraged and should generally be avoided."
 msgstr ""
+"のようになる)ので、``utf-8-sig`` エンコーディングがバイト列から正しく推測され"
+"る確率を高めます。つまりここでは BOM はバイト列を生成する際のバイト順を決定で"
+"きるように使われているのではなく、エンコーディングを推測する助けになる印とし"
+"て使われているのです。``utf-8-sig`` codec はエンコーディングの際ファイルに最"
+"初の3文字として ``0xef``, ``0xbb``, ``0xbf`` を書き込みます。デコーディングの"
+"際はファイルの先頭に現れたこれら3バイトはスキップします。UTF-8 では BOM の使"
+"用は推奨されておらず、一般的には避けるべきです。"
 
 #: ../../library/codecs.rst:1026
 msgid "Standard Encodings"
@@ -1653,6 +1766,14 @@ msgid ""
 "utf16, utf-32, utf32, and the same using underscores instead of dashes. "
 "Using alternative aliases for these encodings may result in slower execution."
 msgstr ""
+"いくつかの一般的なエンコーディングは、パフォーマンスを改善するために codec の"
+"検索機構を回避することがあります。\n"
+"このような最適化の機会を認識するのは、 CPython の限定された (大文字小文字を区"
+"別しない) 別名に対してのみです: utf-8, utf8, latin-1, latin1, iso-8859-1, "
+"iso8859-1, mbcs (Windows のみ), ascii, us-ascii, utf-16, utf16, utf-32, "
+"utf32 およびダッシュの代わりにアンダースコアを用いたもの。\n"
+"これらのエンコーディングの別のつづりを使用すると実行時間の低下を招くかもしれ"
+"ません。"
 
 #: ../../library/codecs.rst:1046
 msgid "Optimization opportunity recognized for us-ascii."
@@ -2627,6 +2748,13 @@ msgid ""
 "supports arbitrary data transforms rather than just text encodings). For "
 "asymmetric codecs, the stated meaning describes the encoding direction."
 msgstr ""
+"予め定義された codec のいくつかは Python 特有のものなので、それらの codec 名"
+"は Python の外では無意味なものとなります。以下に、想定されている入出力のタイ"
+"プに基づいて、それらを表にしました（テキストエンコーディングは codec の最も一"
+"般的な使用例ですが、その根底にある codec 基盤は、ただのテキストエンコーディン"
+"グというよりも、任意のデータの変換をサポートしていることに注意してくださ"
+"い）。非対称的な codec については、記載された意味がエンコーディングの方向を説"
+"明しています。"
 
 #: ../../library/codecs.rst:1312
 msgid "Text Encodings"
@@ -2651,6 +2779,8 @@ msgid ""
 "Implement :rfc:`3490`, see also :mod:`encodings.idna`. Only "
 "``errors='strict'`` is supported."
 msgstr ""
+":rfc:`3490` の実装です。 :mod:`encodings.idna` も参照してください。 "
+"``errors='strict'`` のみがサポートされています。"
 
 #: ../../library/codecs.rst:1329
 msgid "mbcs"
@@ -2664,6 +2794,8 @@ msgstr "ansi, dbcs"
 msgid ""
 "Windows only: Encode the operand according to the ANSI codepage (CP_ACP)."
 msgstr ""
+"Windows のみ: 被演算子を ANSI コードページ (CP_ACP) に従ってエンコードしま"
+"す。"
 
 #: ../../library/codecs.rst:1333
 msgid "oem"
@@ -2673,6 +2805,8 @@ msgstr "oem"
 msgid ""
 "Windows only: Encode the operand according to the OEM codepage (CP_OEMCP)."
 msgstr ""
+"Windows のみ: 被演算子を OEM コードページ (CP_OEMCP) に従ってエンコードしま"
+"す。"
 
 #: ../../library/codecs.rst:1339
 msgid "palmos"
@@ -2680,7 +2814,7 @@ msgstr "palmos"
 
 #: ../../library/codecs.rst:1339
 msgid "Encoding of PalmOS 3.5."
-msgstr ""
+msgstr "PalmOS 3.5 のエンコーディングです。"
 
 #: ../../library/codecs.rst:1341
 msgid "punycode"
@@ -2688,7 +2822,7 @@ msgstr "punycode"
 
 #: ../../library/codecs.rst:1341
 msgid "Implement :rfc:`3492`. Stateful codecs are not supported."
-msgstr ""
+msgstr ":rfc:`3492` の実装です。ステートフル codecs は、サポートされません。"
 
 #: ../../library/codecs.rst:1345
 msgid "raw_unicode_escape"
@@ -2726,6 +2860,10 @@ msgid ""
 "Python source code, except that quotes are not escaped. Decode from Latin-1 "
 "source code. Beware that Python source code actually uses UTF-8 by default."
 msgstr ""
+"ASCII でエンコードされた Python ソースコード内の、Unicode リテラルに適したエ"
+"ンコーディングです。ただし、引用符はエスケープされません。Latin-1 ソースコー"
+"ドからデコードします。実際には、Python のソースコードはデフォルトでは UTF-8 "
+"を使用することに注意してください。"
 
 #: ../../library/codecs.rst:1371
 msgid "\"unicode_internal\" codec is removed."
@@ -2741,6 +2879,9 @@ msgid ""
 "to :class:`bytes` mappings. They are not supported by :meth:`bytes.decode` "
 "(which only produces :class:`str` output)."
 msgstr ""
+"以下の codec は、:term:`bytes-like object` から :class:`bytes` マッピングへの"
+"バイナリ変換を提供します。:meth:`bytes.decode` はこの変換をサポートしておら"
+"ず、 :class:`str`  を出力するだけです。"
 
 #: ../../library/codecs.rst:1388
 msgid "Encoder / decoder"
@@ -2759,6 +2900,8 @@ msgid ""
 "Convert the operand to multiline MIME base64 (the result always includes a "
 "trailing ``'\\n'``)."
 msgstr ""
+"被演算子をマルチラインの MIME base64 に変換します (結果は常に末尾の "
+"``'\\n'`` を含みます)。"
 
 #: ../../library/codecs.rst:1395
 msgid ""
@@ -2781,7 +2924,7 @@ msgstr "bz2"
 
 #: ../../library/codecs.rst:1401
 msgid "Compress the operand using bz2."
-msgstr ""
+msgstr "被演算子をbz2を使って圧縮します。"
 
 #: ../../library/codecs.rst:1401
 msgid ":meth:`bz2.compress` / :meth:`bz2.decompress`"
@@ -2798,7 +2941,7 @@ msgstr "hex"
 #: ../../library/codecs.rst:1404
 msgid ""
 "Convert the operand to hexadecimal representation, with two digits per byte."
-msgstr ""
+msgstr "被演算子をバイトあたり 2 桁の 16 進数の表現に変換します。"
 
 #: ../../library/codecs.rst:1404
 msgid ":meth:`binascii.b2a_hex` / :meth:`binascii.a2b_hex`"
@@ -2814,7 +2957,7 @@ msgstr "quopri, quotedprintable, quoted_printable"
 
 #: ../../library/codecs.rst:1409
 msgid "Convert the operand to MIME quoted printable."
-msgstr ""
+msgstr "被演算子を MIME quoted printable 形式に変換します。"
 
 #: ../../library/codecs.rst:1409
 msgid ":meth:`quopri.encode` with ``quotetabs=True`` / :meth:`quopri.decode`"
@@ -2831,7 +2974,7 @@ msgstr "uu"
 
 #: ../../library/codecs.rst:1413
 msgid "Convert the operand using uuencode."
-msgstr ""
+msgstr "被演算子を uuencode を用いて変換します。"
 
 #: ../../library/codecs.rst:1413
 msgid ":meth:`uu.encode` / :meth:`uu.decode`"
@@ -2847,7 +2990,7 @@ msgstr "zip, zlib"
 
 #: ../../library/codecs.rst:1416
 msgid "Compress the operand using gzip."
-msgstr ""
+msgstr "被演算子を gzip を用いて圧縮します。"
 
 #: ../../library/codecs.rst:1416
 msgid ":meth:`zlib.compress` / :meth:`zlib.decompress`"
@@ -2885,6 +3028,9 @@ msgid ""
 "`str` mapping. It is not supported by :meth:`str.encode` (which only "
 "produces :class:`bytes` output)."
 msgstr ""
+"以下の codec は、:class:`str` から :class:`str` マッピングへのテキスト変換を"
+"提供します。:meth:`str.encode` はこの変換をサポートしておらず、 :class:"
+"`bytes`  を出力するだけです。"
 
 #: ../../library/codecs.rst:1445
 msgid "rot_13"
@@ -2896,7 +3042,7 @@ msgstr "rot13"
 
 #: ../../library/codecs.rst:1445
 msgid "Return the Caesar-cypher encryption of the operand."
-msgstr ""
+msgstr "被演算子のシーザー暗号 (Caesar-cypher) を返します。"
 
 #: ../../library/codecs.rst:1450
 msgid "Restoration of the ``rot_13`` text transform."
@@ -2975,6 +3121,17 @@ msgid ""
 "transparently sends an IDNA hostname in the :mailheader:`Host` field if it "
 "sends that field at all)."
 msgstr ""
+"Python ではこの変換をいくつかの方法でサポートします: ``idna`` codec は "
+"Unicode と ACE 間の変換を行い、入力文字列を :rfc:`RFC 3490 の section 3.1 "
+"<3490#section-3.1>` で定義されている区切り文字に基づいてラベルに分解し、各ラ"
+"ベルを要求通りに ACE に変換します。逆に、入力のバイト文字列を ``.`` 区切り文"
+"字でラベルに分解し、 ACE ラベルを Unicode に変換します。さらに、 :mod:"
+"`socket` モジュールは Unicode ホスト名を ACE に透過的に変換するため、アプリ"
+"ケーションはホスト名を :mod:`socket` モジュールに渡す際にホスト名の変換に煩わ"
+"されることがありません。その上で、ホスト名を関数パラメタとして持つ、 :mod:"
+"`http.client` や :mod:`ftplib` のようなモジュールでは Unicode ホスト名を受理"
+"します (:mod:`http.client` でもまた、 :mailheader:`Host` フィールドにある "
+"IDNA ホスト名を、フィールド全体を送信する場合に透過的に送信します)。"
 
 #: ../../library/codecs.rst:1496
 msgid ""
@@ -2982,6 +3139,9 @@ msgid ""
 "automatic conversion to Unicode is performed: applications wishing to "
 "present such host names to the user should decode them to Unicode."
 msgstr ""
+"(逆引きなどによって) ネットワーク越しにホスト名を受信する際、Unicode への自動"
+"変換は行われません: こうしたホスト名をユーザに提供したいアプリケーションで"
+"は、Unicode にデコードしてやる必要があります。"
 
 #: ../../library/codecs.rst:1500
 msgid ""
@@ -3051,3 +3211,8 @@ msgid ""
 "decoding, an optional UTF-8 encoded BOM at the start of the data will be "
 "skipped."
 msgstr ""
+"このモジュールは UTF-8 codec の変種を実装します。エンコーディング時は、UTF-8 "
+"でエンコードしたバイト列の前に UTF-8 でエンコードした BOM を追加します。これ"
+"は内部状態を持つエンコーダで、この動作は (バイトストリームの最初の書き込み時"
+"に) 一度だけ行なわれます。デコーディング時は、データの最初に UTF-8 でエンコー"
+"ドされた BOM があれば、それをスキップします。"
