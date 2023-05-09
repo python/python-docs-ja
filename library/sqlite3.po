@@ -1644,8 +1644,8 @@ msgid ""
 "does not support deterministic functions. ``NotSupportedError`` is a "
 "subclass of :exc:`DatabaseError`."
 msgstr ""
-"メソッドまたはデータベース API が 背後の SQLite ライブラリでサポートされてい"
-"ない場合に送出される例外。たとえば、背後 SQLite ライブラリが決定論的関数"
+"メソッドまたはデータベース API が 背後の SQLite ライブラリでサポートしていな"
+"い場合に送出される例外。たとえば、背後の SQLite ライブラリが決定論的関数"
 "(deterministic functions)をサポートしていない場合に、:meth:`~Connection."
 "create_function` で *deterministic* を ``True`` に設定したとき。 "
 "``NotSupportedError``  は :exc:`DatabaseError` のサブクラスです。"
@@ -1732,6 +1732,11 @@ msgid ""
 "convert SQLite types to Python types via :ref:`converters <sqlite3-"
 "converters>`."
 msgstr ""
+":mod:`!sqlite3` モジュールの型システムは 2 つの方法で拡張可能です。 :ref:`オ"
+"ブジェクト適合関数(adapter) <sqlite3-adapters>` を介して SQLite データベース"
+"に追加の Python 型を格納できます。 または、 :ref:`変換関数(converter) "
+"<sqlite3-converters>` を介して :mod:`!sqlite3` モジュールが SQLite 型を "
+"Python 型に変換できます。"
 
 #: ../../library/sqlite3.rst:1389
 msgid "Default adapters and converters"
@@ -1784,6 +1789,10 @@ msgid ""
 "offsets in timestamps, either leave converters disabled, or register an "
 "offset-aware converter with :func:`register_converter`."
 msgstr ""
+"デフォルトの \"timestamp\" 変換関数は、データベース内の UTC オフセットを無視"
+"し、常に素朴(naive)な :class:`datetime.datetime` オブジェクトを返します。 "
+"timestamp で UTC オフセットを保持するには、変換関数を無効のままにするか、ある"
+"いは、オフセット対応の変換関数を :func:`register_converter` に登録します。"
 
 #: ../../library/sqlite3.rst:1421
 msgid "How-to guides"
@@ -1832,6 +1841,9 @@ msgid ""
 "Python types in SQLite databases, *adapt* them to one of the :ref:`Python "
 "types SQLite natively understands <sqlite3-types>`."
 msgstr ""
+"SQLite は、 限られたデータ型のみをネイティブにサポートします。 カスタム "
+"Python 型を SQLite データベースに保存するには、 :ref:`SQLite がネイティブに理"
+"解できる Python 型 <sqlite3-types>` のいずれかに *適合* (adapt)させます。"
 
 #: ../../library/sqlite3.rst:1489
 msgid ""
@@ -1842,10 +1854,16 @@ msgid ""
 "developer, it may make more sense to take direct control by registering "
 "custom adapter functions."
 msgstr ""
+"Python オブジェクトを SQLite の型に適合させる方法は 2 つあります。それは、オ"
+"ブジェクト自体を適合させる方法と、 *adapter callable* を使用する方法です。 後"
+"者は前者よりも優先されます。 カスタム型をエクスポートするライブラリの場合、 "
+"その型がそれ自体を適合させる事ができるようにすることが理にかなっている場合が"
+"あります。 アプリケーション開発者としては、カスタム適合関数を登録して直接制御"
+"する方が理にかなっている場合もあります。"
 
 #: ../../library/sqlite3.rst:1501
 msgid "How to write adaptable objects"
-msgstr ""
+msgstr "適合可能オブジェクトの書き方"
 
 #: ../../library/sqlite3.rst:1503
 msgid ""
@@ -1856,10 +1874,16 @@ msgid ""
 "``__conform__(self, protocol)`` method which returns the adapted value. The "
 "object passed to *protocol* will be of type :class:`PrepareProtocol`."
 msgstr ""
+"直交座標系(Cartesian coordinate system)で ``x`` と ``y`` のペアで座標を表"
+"す、 :class:`!Point` クラスがあるとします。 この ``x`` と ``y`` のペアはセミ"
+"コロンで区切られたテキスト文字列としてデータベースに保存されます。 これは、適"
+"合した値を返す ``__conform__(self, protocol)`` メソッドを追加することで実装で"
+"きます。 *protocol*  に渡されるオブジェクトは、 :class:`PrepareProtocol` 型に"
+"なります。"
 
 #: ../../library/sqlite3.rst:1534
 msgid "How to register adapter callables"
-msgstr "適合関数の登録方法"
+msgstr "適合用呼び出し可能オブジェクト(adapter callables)の登録方法"
 
 #: ../../library/sqlite3.rst:1536
 msgid ""
@@ -1867,6 +1891,9 @@ msgid ""
 "object to an SQLite-compatible type. This function can then be registered "
 "using :func:`register_adapter`."
 msgstr ""
+"別の策としては、Python オブジェクトを SQLite 互換の型に変換する関数を作成する"
+"ことが挙げられます。 この関数は、 :func:`register_adapter` を使用して登録でき"
+"ます。"
 
 #: ../../library/sqlite3.rst:1566
 msgid "How to convert SQLite values to custom Python types"
@@ -1878,24 +1905,33 @@ msgid ""
 "values. To be able to convert *from* SQLite values *to* custom Python types, "
 "we use *converters*."
 msgstr ""
+"適合関数(adapter)を使用すると、カスタム Python 型から SQLite 値に変換できま"
+"す。SQLite 値 から カスタム Python 型に変換できるようにするためには、 *変換関"
+"数* (converters)を使用します。"
 
 #: ../../library/sqlite3.rst:1573
 msgid ""
 "Let's go back to the :class:`!Point` class. We stored the x and y "
 "coordinates separated via semicolons as strings in SQLite."
 msgstr ""
+"それでは :class:`!Point` クラスの話に戻るとしましょう。 先程は x 座標と y 座"
+"標をセミコロンで区切られた文字列として SQLite に格納しました。"
 
 #: ../../library/sqlite3.rst:1576
 msgid ""
 "First, we'll define a converter function that accepts the string as a "
 "parameter and constructs a :class:`!Point` object from it."
 msgstr ""
+"まず、 文字列をパラメーターとして受け取り、そこから :class:`!Point` オブジェ"
+"クトを構築する変換関数を定義します。"
 
 #: ../../library/sqlite3.rst:1581
 msgid ""
 "Converter functions are **always** passed a :class:`bytes` object, no matter "
 "the underlying SQLite data type."
 msgstr ""
+"変換関数には、基になる SQLite データ型に関係なく、 **常に** :class:`bytes` オ"
+"ブジェクトで渡されます。"
 
 #: ../../library/sqlite3.rst:1590
 msgid ""
@@ -1903,24 +1939,30 @@ msgid ""
 "value. This is done when connecting to a database, using the *detect_types* "
 "parameter of :func:`connect`. There are three options:"
 msgstr ""
+"与えられた SQLite 値をどの時点で変換すべきかを :mod:`!sqlite3` に伝える必要が"
+"あります。これは、 :func:`connect` の *detect_types* パラメータを使用して、"
+"データベースに接続する際に行います。 以下の 3 つの選択肢があります:"
 
 #: ../../library/sqlite3.rst:1594
 msgid "Implicit: set *detect_types* to :const:`PARSE_DECLTYPES`"
-msgstr ""
+msgstr "暗黙的: *detect_types* に :const:`PARSE_DECLTYPES` と設定。"
 
 #: ../../library/sqlite3.rst:1595
 msgid "Explicit: set *detect_types* to :const:`PARSE_COLNAMES`"
-msgstr ""
+msgstr "明示的: *detect_types* に :const:`PARSE_COLNAMES` と設定。"
 
 #: ../../library/sqlite3.rst:1596
 msgid ""
 "Both: set *detect_types* to ``sqlite3.PARSE_DECLTYPES | sqlite3."
 "PARSE_COLNAMES``. Column names take precedence over declared types."
 msgstr ""
+"両方: *detect_types* に ``sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES`` "
+"を設定。列名での指定は、宣言時の型よりも優先されます。"
 
 #: ../../library/sqlite3.rst:1600
 msgid "The following example illustrates the implicit and explicit approaches:"
 msgstr ""
+"以下の例では、暗黙的なアプローチと明示的なアプローチについて表しています:"
 
 #: ../../library/sqlite3.rst:1651
 msgid "Adapter and converter recipes"
@@ -1932,7 +1974,7 @@ msgstr "この節では一般的な適合関数と変換関数のレシピを紹
 
 #: ../../library/sqlite3.rst:1715
 msgid "How to use connection shortcut methods"
-msgstr ""
+msgstr "接続(connection)ショートカット・メソッドの使い方"
 
 #: ../../library/sqlite3.rst:1717
 msgid ""
@@ -1945,10 +1987,17 @@ msgid ""
 "iterate over it directly using only a single call on the :class:`Connection` "
 "object."
 msgstr ""
+":class:`Connection` クラスのメソッド :meth:`~Connection.execute`, :meth:"
+"`~Connection.executemany`, :meth:`~Connection.executescript` を使うことで、 "
+"(しばしば余計な) :class:`Cursor` オブジェクトをわざわざ作り出さずに済むので、"
+"コードをより簡潔に書くことができます。 :class:`Cursor` オブジェクトは暗黙裡に"
+"生成されショートカットメソッドの戻り値として受け取ることができます。この方法"
+"を使えば、 ``SELECT`` 文を実行してその結果について反復することが、 :class:"
+"`Connection` オブジェクトに対する呼び出し一つで行なえます。"
 
 #: ../../library/sqlite3.rst:1758
 msgid "How to use the connection context manager"
-msgstr ""
+msgstr "接続(connection)コンテキストマネージャの使い方"
 
 #: ../../library/sqlite3.rst:1760
 msgid ""
@@ -1959,18 +2008,34 @@ msgid ""
 "fails, or if the body of the ``with`` statement raises an uncaught "
 "exception, the transaction is rolled back."
 msgstr ""
+"Connection object can be used as a context manager that automatically "
+"commits or rolls back open transactions when leaving the body of the context "
+"manager. If the body of the with statement finishes without exceptions, the "
+"transaction is committed. If this commit fails, or if the body of the "
+"``with`` statement raises an uncaught exception, the transaction is rolled "
+"back.\n"
+":class:`Connection` ブジェクトは、コンテキストマネージャのブロックから離れる"
+"ときに、開いているトランザクションを自動的にコミットまたはロールバックするコ"
+"ンテキストマネージャとして使用できます。 :keyword:`with` 文のブロックが例外無"
+"しに終了した場合、トランザクションはコミットされます。このコミットが失敗した"
+"場合、または ``with`` 文のブロック内でキャッチされない例外が発生した場合、ト"
+"ランザクションはロールバックされます。"
 
 #: ../../library/sqlite3.rst:1769
 msgid ""
 "If there is no open transaction upon leaving the body of the ``with`` "
 "statement, the context manager is a no-op."
 msgstr ""
+"``with`` 文のブロックを離れるときに開いているトランザクションがない場合、コン"
+"テキストマネージャは何もしません。"
 
 #: ../../library/sqlite3.rst:1774
 msgid ""
 "The context manager neither implicitly opens a new transaction nor closes "
 "the connection."
 msgstr ""
+"コンテキストマネージャは、新しいトランザクションを暗黙的に開いたり、接続を閉"
+"じたりしません。"
 
 #: ../../library/sqlite3.rst:1807
 msgid "How to work with SQLite URIs"
