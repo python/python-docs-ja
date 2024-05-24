@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-11 02:33+0000\n"
+"POT-Creation-Date: 2024-05-24 14:15+0000\n"
 "PO-Revision-Date: 2021-06-28 01:15+0000\n"
 "Last-Translator: souma987, 2023\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -899,7 +899,7 @@ msgid ""
 "which returned an instance of the underlying private lock type."
 msgstr ""
 
-#: ../../library/threading.rst:545 ../../library/threading.rst:625
+#: ../../library/threading.rst:545 ../../library/threading.rst:636
 msgid "Acquire a lock, blocking or non-blocking."
 msgstr "ブロックあり、またはブロックなしでロックを獲得します。"
 
@@ -944,8 +944,8 @@ msgstr ""
 "ロックを獲得すると ``True`` を、ロックを獲得できなかったとき (例えば "
 "*timeout* が過ぎた場合) には ``False`` を返します。"
 
-#: ../../library/threading.rst:563 ../../library/threading.rst:647
-#: ../../library/threading.rst:894
+#: ../../library/threading.rst:563 ../../library/threading.rst:674
+#: ../../library/threading.rst:921
 msgid "The *timeout* parameter is new."
 msgstr "新しい *timeout* 引数。"
 
@@ -979,7 +979,7 @@ msgstr ""
 "アンロック状態のロックに対して呼び出された場合、:exc:`RuntimeError` が送出さ"
 "れます。"
 
-#: ../../library/threading.rst:582 ../../library/threading.rst:663
+#: ../../library/threading.rst:582 ../../library/threading.rst:690
 msgid "There is no return value."
 msgstr "戻り値はありません。"
 
@@ -1008,32 +1008,36 @@ msgstr ""
 
 #: ../../library/threading.rst:601
 msgid ""
-"To lock the lock, a thread calls its :meth:`~RLock.acquire` method; this "
-"returns once the thread owns the lock.  To unlock the lock, a thread calls "
-"its :meth:`~Lock.release` method. :meth:`~Lock.acquire`/:meth:`~Lock."
-"release` call pairs may be nested; only the final :meth:`~Lock.release` "
-"(the :meth:`~Lock.release` of the outermost pair) resets the lock to "
-"unlocked and allows another thread blocked in :meth:`~Lock.acquire` to "
-"proceed."
+"Threads call a lock's :meth:`~RLock.acquire` method to lock it, and its :"
+"meth:`~Lock.release` method to unlock it."
 msgstr ""
-"このロックの状態をロックにするには、スレッドがロックの :meth:`~RLock."
-"acquire` メソッドを呼び出します。このメソッドはスレッドがロックを所有すると処"
-"理を戻します。ロックの状態をアンロックにするには :meth:`~Lock.release` メソッ"
-"ドを呼び出します。 :meth:`~Lock.acquire` / :meth:`~Lock.release` からなるペア"
-"の呼び出しはネストできます; 最後に呼び出した :meth:`~Lock.release` (最も外側"
-"の呼び出しペアの :meth:`~Lock.release`) だけがロックの状態をアンロックにリ"
-"セットして、 :meth:`~Lock.acquire` でブロック中の別のスレッドの処理を進行させ"
-"ることができます。"
 
-#: ../../library/threading.rst:608
+#: ../../library/threading.rst:606
 msgid ""
-"Reentrant locks also support the :ref:`context management protocol <with-"
-"locks>`."
+"Reentrant locks support the :ref:`context management protocol <with-locks>`, "
+"so it is recommended to use :keyword:`with` instead of manually calling :"
+"meth:`~RLock.acquire` and :meth:`~RLock.release` to handle acquiring and "
+"releasing the lock for a block of code."
 msgstr ""
-"再入可能ロックは :ref:`コンテキストマネージメントプロトコル <with-locks>` も"
-"サポートします。"
 
-#: ../../library/threading.rst:613
+#: ../../library/threading.rst:611
+msgid ""
+"RLock's :meth:`~RLock.acquire`/:meth:`~RLock.release` call pairs may be "
+"nested, unlike Lock's :meth:`~Lock.acquire`/:meth:`~Lock.release`. Only the "
+"final :meth:`~RLock.release` (the :meth:`~Lock.release` of the outermost "
+"pair) resets the lock to an unlocked state and allows another thread blocked "
+"in :meth:`~RLock.acquire` to proceed."
+msgstr ""
+
+#: ../../library/threading.rst:617
+msgid ""
+":meth:`~RLock.acquire`/:meth:`~RLock.release` must be used in pairs: each "
+"acquire must have a release in the thread that has acquired the lock. "
+"Failing to call release as many times the lock has been acquired can lead to "
+"deadlock."
+msgstr ""
+
+#: ../../library/threading.rst:624
 msgid ""
 "This class implements reentrant lock objects.  A reentrant lock must be "
 "released by the thread that acquired it.  Once a thread has acquired a "
@@ -1045,7 +1049,7 @@ msgstr ""
 "ロックを獲得すると、同じスレッドはブロックされずにもう一度それを獲得できま"
 "す ; そのスレッドは獲得した回数だけ解放しなければいけません。"
 
-#: ../../library/threading.rst:618
+#: ../../library/threading.rst:629
 msgid ""
 "Note that ``RLock`` is actually a factory function which returns an instance "
 "of the most efficient version of the concrete RLock class that is supported "
@@ -1055,57 +1059,68 @@ msgstr ""
 "率的なバージョンの具体的な RLock クラスのインスタンスを返すことに注意してくだ"
 "さい。"
 
-#: ../../library/threading.rst:627
-msgid ""
-"When invoked without arguments: if this thread already owns the lock, "
-"increment the recursion level by one, and return immediately.  Otherwise, if "
-"another thread owns the lock, block until the lock is unlocked.  Once the "
-"lock is unlocked (not owned by any thread), then grab ownership, set the "
-"recursion level to one, and return.  If more than one thread is blocked "
-"waiting until the lock is unlocked, only one at a time will be able to grab "
-"ownership of the lock. There is no return value in this case."
+#: ../../library/threading.rst:640
+msgid ":ref:`Using RLock as a context manager <with-locks>`"
 msgstr ""
-"引数なしで呼び出した場合: スレッドが既にロックを所有している場合、再帰レベル"
-"をインクリメントして即座に処理を戻します。それ以外の場合、他のスレッドがロッ"
-"クを所有していれば、そのロックの状態がアンロックになるまでブロックします。そ"
-"の後、ロックの状態がアンロックになる (いかなるスレッドもロックを所有しない状"
-"態になる) と、ロックの所有権を獲得し、再帰レベルを 1 にセットして処理を戻しま"
-"す。ロックの状態がアンロックになるのを待っているスレッドが複数ある場合、その"
-"中の一つだけがロックの所有権を獲得できます。この場合、戻り値はありません。"
 
-#: ../../library/threading.rst:635
+#: ../../library/threading.rst:641
 msgid ""
-"When invoked with the *blocking* argument set to ``True``, do the same thing "
-"as when called without arguments, and return ``True``."
+"Recommended over manual :meth:`!acquire` and :meth:`release` calls whenever "
+"practical."
 msgstr ""
-"引数 *blocking* の値を ``True`` にして呼び出した場合、引数なしで呼び出したと"
-"きと同じことを行ない、 ``True`` を返します。"
 
-#: ../../library/threading.rst:638
+#: ../../library/threading.rst:645
 msgid ""
-"When invoked with the *blocking* argument set to ``False``, do not block.  "
-"If a call without an argument would block, return ``False`` immediately; "
-"otherwise, do the same thing as when called without arguments, and return "
-"``True``."
+"When invoked with the *blocking* argument set to ``True`` (the default):"
 msgstr ""
-"引数 *blocking* の値を ``False`` にして呼び出すとブロックしません。引数なしで"
-"呼び出した場合にブロックするような状況であった場合には直ちに ``False`` を返し"
-"ます。それ以外の場合には、引数なしで呼び出したときと同じ処理を行い ``True`` "
-"を返します。"
 
-#: ../../library/threading.rst:642
+#: ../../library/threading.rst:647 ../../library/threading.rst:659
+msgid "If no thread owns the lock, acquire the lock and return immediately."
+msgstr ""
+
+#: ../../library/threading.rst:649
 msgid ""
-"When invoked with the floating-point *timeout* argument set to a positive "
-"value, block for at most the number of seconds specified by *timeout* and as "
-"long as the lock cannot be acquired.  Return ``True`` if the lock has been "
-"acquired, ``False`` if the timeout has elapsed."
+"If another thread owns the lock, block until we are able to acquire lock, or "
+"*timeout*, if set to a positive float value."
 msgstr ""
-"正の値に設定された浮動小数点の *timeout* 引数とともに起動された場合、ロックを"
-"得られなければ最大で *timeout* によって指定された秒数だけブロックします。ロッ"
-"クを獲得した場合 ``True`` を返し、タイムアウトが過ぎた場合は ``False`` を返し"
-"ます。"
 
-#: ../../library/threading.rst:653
+#: ../../library/threading.rst:652
+msgid ""
+"If the same thread owns the lock, acquire the lock again, and return "
+"immediately. This is the difference between :class:`Lock` and :class:`!"
+"RLock`; :class:`Lock` handles this case the same as the previous, blocking "
+"until the lock can be acquired."
+msgstr ""
+
+#: ../../library/threading.rst:657
+msgid "When invoked with the *blocking* argument set to ``False``:"
+msgstr ""
+
+#: ../../library/threading.rst:661
+msgid "If another thread owns the lock, return immediately."
+msgstr ""
+
+#: ../../library/threading.rst:663
+msgid ""
+"If the same thread owns the lock, acquire the lock again and return "
+"immediately."
+msgstr ""
+
+#: ../../library/threading.rst:666
+msgid ""
+"In all cases, if the thread was able to acquire the lock, return ``True``. "
+"If the thread was unable to acquire the lock (i.e. if not blocking or the "
+"timeout was reached) return ``False``."
+msgstr ""
+
+#: ../../library/threading.rst:670
+msgid ""
+"If called multiple times, failing to call :meth:`~RLock.release` as many "
+"times may lead to deadlock. Consider using :class:`!RLock` as a context "
+"manager rather than calling acquire/release directly."
+msgstr ""
+
+#: ../../library/threading.rst:680
 msgid ""
 "Release a lock, decrementing the recursion level.  If after the decrement it "
 "is zero, reset the lock to unlocked (not owned by any thread), and if any "
@@ -1120,20 +1135,18 @@ msgstr ""
 "す。デクリメント後も再帰レベルがゼロでない場合、ロックの状態はロックのまま"
 "で、呼び出し側のスレッドに所有されたままになります。"
 
-#: ../../library/threading.rst:659
+#: ../../library/threading.rst:686
 msgid ""
 "Only call this method when the calling thread owns the lock. A :exc:"
-"`RuntimeError` is raised if this method is called when the lock is unlocked."
+"`RuntimeError` is raised if this method is called when the lock is not "
+"acquired."
 msgstr ""
-"呼び出し側のスレッドがロックを所有しているときにのみこのメソッドを呼び出して"
-"ください。ロックの状態がアンロックの時にこのメソッドを呼び出すと、 :exc:"
-"`RuntimeError` が送出されます。"
 
-#: ../../library/threading.rst:669
+#: ../../library/threading.rst:696
 msgid "Condition Objects"
 msgstr "Condition オブジェクト"
 
-#: ../../library/threading.rst:671
+#: ../../library/threading.rst:698
 msgid ""
 "A condition variable is always associated with some kind of lock; this can "
 "be passed in or one will be created by default.  Passing one in is useful "
@@ -1146,7 +1159,7 @@ msgstr ""
 "便利です。ロックは条件オブジェクトの一部です: それを別々に扱う必要はありませ"
 "ん。"
 
-#: ../../library/threading.rst:676
+#: ../../library/threading.rst:703
 msgid ""
 "A condition variable obeys the :ref:`context management protocol <with-"
 "locks>`: using the ``with`` statement acquires the associated lock for the "
@@ -1160,7 +1173,7 @@ msgstr ""
 "release` メソッドは、さらに関連付けられたロックの対応するメソッドを呼び出しま"
 "す。"
 
-#: ../../library/threading.rst:682
+#: ../../library/threading.rst:709
 msgid ""
 "Other methods must be called with the associated lock held.  The :meth:"
 "`~Condition.wait` method releases the lock, and then blocks until another "
@@ -1175,7 +1188,7 @@ msgstr ""
 "`~Condition.wait` は再びロックを得て戻ります。タイムアウトを指定することも可"
 "能です。"
 
-#: ../../library/threading.rst:688
+#: ../../library/threading.rst:715
 msgid ""
 "The :meth:`~Condition.notify` method wakes up one of the threads waiting for "
 "the condition variable, if any are waiting.  The :meth:`~Condition."
@@ -1185,7 +1198,7 @@ msgstr ""
 "meth:`~Condition.notify_all` メソッドは条件変数待ちの全てのスレッドを起こしま"
 "す。"
 
-#: ../../library/threading.rst:692
+#: ../../library/threading.rst:719
 msgid ""
 "Note: the :meth:`~Condition.notify` and :meth:`~Condition.notify_all` "
 "methods don't release the lock; this means that the thread or threads "
@@ -1199,7 +1212,7 @@ msgstr ""
 "`~Condition.notify_all` を呼び出したスレッドが最終的にロックの所有権を放棄し"
 "たときに初めて処理を返すのです。"
 
-#: ../../library/threading.rst:698
+#: ../../library/threading.rst:725
 msgid ""
 "The typical programming style using condition variables uses the lock to "
 "synchronize access to some shared state; threads that are interested in a "
@@ -1219,7 +1232,7 @@ msgstr ""
 "す。例えば、以下のコードは無制限のバッファ容量のときの一般的な生産者-消費者問"
 "題です::"
 
-#: ../../library/threading.rst:718
+#: ../../library/threading.rst:745
 msgid ""
 "The ``while`` loop checking for the application's condition is necessary "
 "because :meth:`~Condition.wait` can return after an arbitrary long time, and "
@@ -1235,7 +1248,7 @@ msgstr ""
 "`~Condition.wait_for` メソッドを使うことができ、それはタイムアウトの計算を簡"
 "略化します::"
 
-#: ../../library/threading.rst:730
+#: ../../library/threading.rst:757
 msgid ""
 "To choose between :meth:`~Condition.notify` and :meth:`~Condition."
 "notify_all`, consider whether one state change can be interesting for only "
@@ -1248,7 +1261,7 @@ msgstr ""
 "数なのかで考えます。例えば、典型的な生産者-消費者問題では、バッファに1つの要"
 "素を加えた場合には消費者スレッドを 1 つしか起こさなくてかまいません。"
 
-#: ../../library/threading.rst:738
+#: ../../library/threading.rst:765
 msgid ""
 "This class implements condition variable objects.  A condition variable "
 "allows one or more threads to wait until they are notified by another thread."
@@ -1256,7 +1269,7 @@ msgstr ""
 "このクラスは条件変数 (condition variable) オブジェクトを実装します。条件変数"
 "を使うと、1つ以上のスレッドを別のスレッドの通知があるまで待機させておけます。"
 
-#: ../../library/threading.rst:741
+#: ../../library/threading.rst:768
 msgid ""
 "If the *lock* argument is given and not ``None``, it must be a :class:`Lock` "
 "or :class:`RLock` object, and it is used as the underlying lock.  Otherwise, "
@@ -1267,13 +1280,13 @@ msgstr ""
 "この場合、 *lock* は根底にあるロックオブジェクトとして使われます。\n"
 "それ以外の場合には、 :class:`RLock` オブジェクトを新しく作成して使います。"
 
-#: ../../library/threading.rst:745 ../../library/threading.rst:869
-#: ../../library/threading.rst:915 ../../library/threading.rst:967
-#: ../../library/threading.rst:1035
+#: ../../library/threading.rst:772 ../../library/threading.rst:896
+#: ../../library/threading.rst:942 ../../library/threading.rst:994
+#: ../../library/threading.rst:1062
 msgid "changed from a factory function to a class."
 msgstr "ファクトリ関数からクラスに変更されました。"
 
-#: ../../library/threading.rst:750
+#: ../../library/threading.rst:777
 msgid ""
 "Acquire the underlying lock. This method calls the corresponding method on "
 "the underlying lock; the return value is whatever that method returns."
@@ -1281,7 +1294,7 @@ msgstr ""
 "根底にあるロックを獲得します。このメソッドは根底にあるロックの対応するメソッ"
 "ドを呼び出します。そのメソッドの戻り値を返します。"
 
-#: ../../library/threading.rst:755
+#: ../../library/threading.rst:782
 msgid ""
 "Release the underlying lock. This method calls the corresponding method on "
 "the underlying lock; there is no return value."
@@ -1289,7 +1302,7 @@ msgstr ""
 "根底にあるロックを解放します。このメソッドは根底にあるロックの対応するメソッ"
 "ドを呼び出します。戻り値はありません。"
 
-#: ../../library/threading.rst:760
+#: ../../library/threading.rst:787
 msgid ""
 "Wait until notified or until a timeout occurs. If the calling thread has not "
 "acquired the lock when this method is called, a :exc:`RuntimeError` is "
@@ -1299,7 +1312,7 @@ msgstr ""
 "ドがロックを獲得していないときにこのメソッドを呼び出すと :exc:`RuntimeError` "
 "が送出されます。"
 
-#: ../../library/threading.rst:764
+#: ../../library/threading.rst:791
 msgid ""
 "This method releases the underlying lock, and then blocks until it is "
 "awakened by a :meth:`notify` or :meth:`notify_all` call for the same "
@@ -1311,7 +1324,7 @@ msgstr ""
 "か、オプションのタイムアウトが発生するまでブロックします。一度スレッドが起こ"
 "されると、再度ロックを獲得して処理を戻します。"
 
-#: ../../library/threading.rst:769
+#: ../../library/threading.rst:796
 msgid ""
 "When the *timeout* argument is present and not ``None``, it should be a "
 "floating point number specifying a timeout for the operation in seconds (or "
@@ -1320,7 +1333,7 @@ msgstr ""
 "*timeout* 引数を指定して、 ``None`` 以外の値にする場合、タイムアウトを秒 (ま"
 "たは端数秒) を表す浮動小数点数でなければなりません。"
 
-#: ../../library/threading.rst:773
+#: ../../library/threading.rst:800
 msgid ""
 "When the underlying lock is an :class:`RLock`, it is not released using its :"
 "meth:`release` method, since this may not actually unlock the lock when it "
@@ -1337,7 +1350,7 @@ msgstr ""
 "得する時に、もう一つの内部インターフェースを使ってロックの再帰レベルを復帰し"
 "ます。"
 
-#: ../../library/threading.rst:781
+#: ../../library/threading.rst:808
 msgid ""
 "The return value is ``True`` unless a given *timeout* expired, in which case "
 "it is ``False``."
@@ -1345,11 +1358,11 @@ msgstr ""
 "与えられた *timeout* が過ぎていなければ返り値は ``True`` です。タイムアウトし"
 "た場合には ``False`` が返ります。"
 
-#: ../../library/threading.rst:784 ../../library/threading.rst:1000
+#: ../../library/threading.rst:811 ../../library/threading.rst:1027
 msgid "Previously, the method always returned ``None``."
 msgstr "以前は、このメソッドは常に ``None`` を返していました。"
 
-#: ../../library/threading.rst:789
+#: ../../library/threading.rst:816
 msgid ""
 "Wait until a condition evaluates to true.  *predicate* should be a callable "
 "which result will be interpreted as a boolean value. A *timeout* may be "
@@ -1360,7 +1373,7 @@ msgstr ""
 "して解釈されます。\n"
 "最大の待ち時間を指定する *timeout* を与えることができます。"
 
-#: ../../library/threading.rst:793
+#: ../../library/threading.rst:820
 msgid ""
 "This utility method may call :meth:`wait` repeatedly until the predicate is "
 "satisfied, or until a timeout occurs. The return value is the last return "
@@ -1371,7 +1384,7 @@ msgstr ""
 "meth:`wait` を繰り返し呼び出す場合があります。戻り値は述語の最後の戻り値で、"
 "もしメソッドがタイムアウトすれば、 ``False`` と評価されます。"
 
-#: ../../library/threading.rst:798
+#: ../../library/threading.rst:825
 msgid ""
 "Ignoring the timeout feature, calling this method is roughly equivalent to "
 "writing::"
@@ -1379,7 +1392,7 @@ msgstr ""
 "タイムアウト機能を無視すれば、このメソッドの呼び出しは以下のように書くのとほ"
 "ぼ等価です::"
 
-#: ../../library/threading.rst:804
+#: ../../library/threading.rst:831
 msgid ""
 "Therefore, the same rules apply as with :meth:`wait`: The lock must be held "
 "when called and is re-acquired on return.  The predicate is evaluated with "
@@ -1389,7 +1402,7 @@ msgstr ""
 "を保持していなければならず、戻るときにロックが再度獲得されます。述語はロック"
 "を保持した状態で評価されます。"
 
-#: ../../library/threading.rst:812
+#: ../../library/threading.rst:839
 msgid ""
 "By default, wake up one thread waiting on this condition, if any.  If the "
 "calling thread has not acquired the lock when this method is called, a :exc:"
@@ -1399,7 +1412,7 @@ msgstr ""
 "のスレッドがロックを獲得していないときにこのメソッドを呼び出すと :exc:"
 "`RuntimeError` が送出されます。"
 
-#: ../../library/threading.rst:816
+#: ../../library/threading.rst:843
 msgid ""
 "This method wakes up at most *n* of the threads waiting for the condition "
 "variable; it is a no-op if no threads are waiting."
@@ -1407,7 +1420,7 @@ msgstr ""
 "何らかの待機中スレッドがある場合、そのうち *n* スレッドを起こします。待機中の"
 "スレッドがなければ何もしません。"
 
-#: ../../library/threading.rst:819
+#: ../../library/threading.rst:846
 msgid ""
 "The current implementation wakes up exactly *n* threads, if at least *n* "
 "threads are waiting.  However, it's not safe to rely on this behavior. A "
@@ -1418,7 +1431,7 @@ msgstr ""
 "ドを起こします。とはいえ、この挙動に依存するのは安全ではありません。将来、実"
 "装の最適化によって、複数のスレッドを起こすようになるかもしれないからです。"
 
-#: ../../library/threading.rst:824
+#: ../../library/threading.rst:851
 msgid ""
 "Note: an awakened thread does not actually return from its :meth:`wait` call "
 "until it can reacquire the lock.  Since :meth:`notify` does not release the "
@@ -1428,7 +1441,7 @@ msgstr ""
 "しから戻りません。 :meth:`notify` はロックを解放しないので、 :meth:`notify` "
 "呼び出し側は明示的にロックを解放しなければなりません。"
 
-#: ../../library/threading.rst:830
+#: ../../library/threading.rst:857
 msgid ""
 "Wake up all threads waiting on this condition.  This method acts like :meth:"
 "`notify`, but wakes up all waiting threads instead of one. If the calling "
@@ -1440,15 +1453,15 @@ msgstr ""
 "す。呼び出し側のスレッドがロックを獲得していない場合、 :exc:`RuntimeError` が"
 "送出されます。"
 
-#: ../../library/threading.rst:835
+#: ../../library/threading.rst:862
 msgid "The method ``notifyAll`` is a deprecated alias for this method."
 msgstr "関数``notifyAll``はこの関数の非推奨エイリアスです。"
 
-#: ../../library/threading.rst:841
+#: ../../library/threading.rst:868
 msgid "Semaphore Objects"
 msgstr "Semaphore オブジェクト"
 
-#: ../../library/threading.rst:843
+#: ../../library/threading.rst:870
 msgid ""
 "This is one of the oldest synchronization primitives in the history of "
 "computer science, invented by the early Dutch computer scientist Edsger W. "
@@ -1460,7 +1473,7 @@ msgstr ""
 "meth:`~Semaphore.acquire` と :meth:`~Semaphore.release` の代わりに ``P()`` "
 "と ``V()`` を使いました)。"
 
-#: ../../library/threading.rst:848
+#: ../../library/threading.rst:875
 msgid ""
 "A semaphore manages an internal counter which is decremented by each :meth:"
 "`~Semaphore.acquire` call and incremented by each :meth:`~Semaphore.release` "
@@ -1474,14 +1487,14 @@ msgstr ""
 "になっている場合、他のスレッドが :meth:`~Semaphore.release` を呼び出すまでブ"
 "ロックします。"
 
-#: ../../library/threading.rst:854
+#: ../../library/threading.rst:881
 msgid ""
 "Semaphores also support the :ref:`context management protocol <with-locks>`."
 msgstr ""
 "セマフォは :ref:`コンテキストマネージメントプロトコル <with-locks>` もサポー"
 "トします。"
 
-#: ../../library/threading.rst:859
+#: ../../library/threading.rst:886
 msgid ""
 "This class implements semaphore objects.  A semaphore manages an atomic "
 "counter representing the number of :meth:`release` calls minus the number "
@@ -1495,7 +1508,7 @@ msgstr ""
 "ウンタの値を負にせずに処理を戻せるまで必要ならば処理をブロックします。 "
 "*value* を指定しない場合、デフォルトの値は 1 になります。"
 
-#: ../../library/threading.rst:865
+#: ../../library/threading.rst:892
 msgid ""
 "The optional argument gives the initial *value* for the internal counter; it "
 "defaults to ``1``. If the *value* given is less than 0, :exc:`ValueError` is "
@@ -1505,21 +1518,21 @@ msgstr ""
 "す。与えられた *value* が 0 より小さい場合、 :exc:`ValueError` が送出されま"
 "す。"
 
-#: ../../library/threading.rst:874
+#: ../../library/threading.rst:901
 msgid "Acquire a semaphore."
 msgstr "セマフォを獲得します。"
 
-#: ../../library/threading.rst:876
+#: ../../library/threading.rst:903
 msgid "When invoked without arguments:"
 msgstr ""
 
-#: ../../library/threading.rst:878
+#: ../../library/threading.rst:905
 msgid ""
 "If the internal counter is larger than zero on entry, decrement it by one "
 "and return ``True`` immediately."
 msgstr ""
 
-#: ../../library/threading.rst:880
+#: ../../library/threading.rst:907
 msgid ""
 "If the internal counter is zero on entry, block until awoken by a call to :"
 "meth:`~Semaphore.release`.  Once awoken (and the counter is greater than 0), "
@@ -1528,7 +1541,7 @@ msgid ""
 "threads are awoken should not be relied on."
 msgstr ""
 
-#: ../../library/threading.rst:886
+#: ../../library/threading.rst:913
 msgid ""
 "When invoked with *blocking* set to ``False``, do not block.  If a call "
 "without an argument would block, return ``False`` immediately; otherwise, do "
@@ -1539,7 +1552,7 @@ msgstr ""
 "れ以外の場合には、引数なしで呼び出したときと同じ処理を行い ``True`` を返しま"
 "す。"
 
-#: ../../library/threading.rst:890
+#: ../../library/threading.rst:917
 msgid ""
 "When invoked with a *timeout* other than ``None``, it will block for at most "
 "*timeout* seconds.  If acquire does not complete successfully in that "
@@ -1550,7 +1563,7 @@ msgstr ""
 "acquire が その間隔の間で完了しなかった場合は ``False`` が返ります。そうでな"
 "ければ ``True`` が返ります。"
 
-#: ../../library/threading.rst:899
+#: ../../library/threading.rst:926
 msgid ""
 "Release a semaphore, incrementing the internal counter by *n*.  When it was "
 "zero on entry and other threads are waiting for it to become larger than "
@@ -1561,11 +1574,11 @@ msgstr ""
 "くなるのを待っている別のスレッドがあった場合、それらのスレッドから *n* 個を起"
 "こします。"
 
-#: ../../library/threading.rst:903
+#: ../../library/threading.rst:930
 msgid "Added the *n* parameter to release multiple waiting threads at once."
 msgstr "複数の待機中のスレッドを一度に解放する *n* パラメータを追加しました。"
 
-#: ../../library/threading.rst:909
+#: ../../library/threading.rst:936
 msgid ""
 "Class implementing bounded semaphore objects.  A bounded semaphore checks to "
 "make sure its current value doesn't exceed its initial value.  If it does, :"
@@ -1580,11 +1593,11 @@ msgstr ""
 "の解放はバグが生じているしるしです。 *value* を指定しない場合、デフォルトの値"
 "は 1 になります。"
 
-#: ../../library/threading.rst:922
+#: ../../library/threading.rst:949
 msgid ":class:`Semaphore` Example"
 msgstr ":class:`Semaphore` の例"
 
-#: ../../library/threading.rst:924
+#: ../../library/threading.rst:951
 msgid ""
 "Semaphores are often used to guard resources with limited capacity, for "
 "example, a database server.  In any situation where the size of the resource "
@@ -1596,7 +1609,7 @@ msgstr ""
 "ばなりません。主スレッドは、作業スレッドを立ち上げる前にセマフォを初期化しま"
 "す::"
 
-#: ../../library/threading.rst:933
+#: ../../library/threading.rst:960
 msgid ""
 "Once spawned, worker threads call the semaphore's acquire and release "
 "methods when they need to connect to the server::"
@@ -1604,7 +1617,7 @@ msgstr ""
 "作業スレッドは、ひとたび立ち上がると、サーバへ接続する必要が生じたときにセマ"
 "フォの :meth:`acquire` および :meth:`release` メソッドを呼び出します::"
 
-#: ../../library/threading.rst:943
+#: ../../library/threading.rst:970
 msgid ""
 "The use of a bounded semaphore reduces the chance that a programming error "
 "which causes the semaphore to be released more than it's acquired will go "
@@ -1613,11 +1626,11 @@ msgstr ""
 "有限セマフォを使うと、セマフォを獲得回数以上に解放してしまうというプログラム"
 "上の間違いを見逃しにくくします。"
 
-#: ../../library/threading.rst:950
+#: ../../library/threading.rst:977
 msgid "Event Objects"
 msgstr "Event オブジェクト"
 
-#: ../../library/threading.rst:952
+#: ../../library/threading.rst:979
 msgid ""
 "This is one of the simplest mechanisms for communication between threads: "
 "one thread signals an event and other threads wait for it."
@@ -1625,7 +1638,7 @@ msgstr ""
 "イベントは、あるスレッドがイベントを発信し、他のスレッドはそれを待つという、"
 "スレッド間で通信を行うための最も単純なメカニズムの一つです。"
 
-#: ../../library/threading.rst:955
+#: ../../library/threading.rst:982
 msgid ""
 "An event object manages an internal flag that can be set to true with the :"
 "meth:`~Event.set` method and reset to false with the :meth:`~Event.clear` "
@@ -1636,7 +1649,7 @@ msgstr ""
 "セットします。 :meth:`~Event.wait` メソッドはフラグが true になるまでブロック"
 "します。"
 
-#: ../../library/threading.rst:962
+#: ../../library/threading.rst:989
 msgid ""
 "Class implementing event objects.  An event manages a flag that can be set "
 "to true with the :meth:`~Event.set` method and reset to false with the :meth:"
@@ -1649,15 +1662,15 @@ msgstr ""
 "てのフラグが true になるまでブロックするようになっています。フラグの初期値は "
 "false です。"
 
-#: ../../library/threading.rst:972
+#: ../../library/threading.rst:999
 msgid "Return ``True`` if and only if the internal flag is true."
 msgstr "内部フラグが真のとき ``True`` を返します。"
 
-#: ../../library/threading.rst:974
+#: ../../library/threading.rst:1001
 msgid "The method ``isSet`` is a deprecated alias for this method."
 msgstr "メソッド ``isSet`` はこのメソッドの非推奨エイリアスです。"
 
-#: ../../library/threading.rst:978
+#: ../../library/threading.rst:1005
 msgid ""
 "Set the internal flag to true. All threads waiting for it to become true are "
 "awakened. Threads that call :meth:`wait` once the flag is true will not "
@@ -1667,7 +1680,7 @@ msgstr ""
 "全てのスレッドを起こします。一旦フラグが true になると、スレッドが :meth:"
 "`wait` を呼び出しても全くブロックしなくなります。"
 
-#: ../../library/threading.rst:984
+#: ../../library/threading.rst:1011
 msgid ""
 "Reset the internal flag to false. Subsequently, threads calling :meth:`wait` "
 "will block until :meth:`.set` is called to set the internal flag to true "
@@ -1677,7 +1690,7 @@ msgstr ""
 "び内部フラグの値を true にセットするまで、 :meth:`wait` を呼び出したスレッド"
 "はブロックするようになります。"
 
-#: ../../library/threading.rst:990
+#: ../../library/threading.rst:1017
 msgid ""
 "Block as long as the internal flag is false and the timeout, if given, has "
 "not expired. The return value represents the reason that this blocking "
@@ -1686,18 +1699,18 @@ msgid ""
 "become true within the given wait time."
 msgstr ""
 
-#: ../../library/threading.rst:996
+#: ../../library/threading.rst:1023
 msgid ""
 "When the timeout argument is present and not ``None``, it should be a "
 "floating point number specifying a timeout for the operation in seconds, or "
 "fractions thereof."
 msgstr ""
 
-#: ../../library/threading.rst:1007
+#: ../../library/threading.rst:1034
 msgid "Timer Objects"
 msgstr "Timer オブジェクト"
 
-#: ../../library/threading.rst:1009
+#: ../../library/threading.rst:1036
 msgid ""
 "This class represents an action that should be run only after a certain "
 "amount of time has passed --- a timer.  :class:`Timer` is a subclass of :"
@@ -1708,7 +1721,7 @@ msgstr ""
 "す。 :class:`Timer` は :class:`Thread` のサブクラスであり、自作のスレッドを構"
 "築した一例でもあります。"
 
-#: ../../library/threading.rst:1013
+#: ../../library/threading.rst:1040
 msgid ""
 "Timers are started, as with threads, by calling their :meth:`Timer.start "
 "<Thread.start>` method.  The timer can be stopped (before its action has "
@@ -1717,11 +1730,11 @@ msgid ""
 "interval specified by the user."
 msgstr ""
 
-#: ../../library/threading.rst:1019
+#: ../../library/threading.rst:1046
 msgid "For example::"
 msgstr "例えば::"
 
-#: ../../library/threading.rst:1030
+#: ../../library/threading.rst:1057
 msgid ""
 "Create a timer that will run *function* with arguments *args* and  keyword "
 "arguments *kwargs*, after *interval* seconds have passed. If *args* is "
@@ -1732,7 +1745,7 @@ msgstr ""
 "ようなタイマを生成します。*args*が ``None`` (デフォルト) なら空のリストが使用"
 "されます。*kwargs* が ``None`` (デフォルト) なら空の辞書が使用されます。"
 
-#: ../../library/threading.rst:1040
+#: ../../library/threading.rst:1067
 msgid ""
 "Stop the timer, and cancel the execution of the timer's action.  This will "
 "only work if the timer is still in its waiting stage."
@@ -1740,11 +1753,11 @@ msgstr ""
 "タイマをストップして、その動作の実行をキャンセルします。このメソッドはタイマ"
 "がまだ活動待ち状態にある場合にのみ動作します。"
 
-#: ../../library/threading.rst:1045
+#: ../../library/threading.rst:1072
 msgid "Barrier Objects"
 msgstr "バリアオブジェクト"
 
-#: ../../library/threading.rst:1049
+#: ../../library/threading.rst:1076
 msgid ""
 "This class provides a simple synchronization primitive for use by a fixed "
 "number of threads that need to wait for each other.  Each of the threads "
@@ -1758,12 +1771,12 @@ msgstr ""
 "ぞれの :meth:`~Barrier.wait` メソッドを呼び出した時点で、すべてのスレッドが同"
 "時に解放されます。"
 
-#: ../../library/threading.rst:1055
+#: ../../library/threading.rst:1082
 msgid ""
 "The barrier can be reused any number of times for the same number of threads."
 msgstr "バリアは同じ数のスレッドに対して何度でも再利用することができます。"
 
-#: ../../library/threading.rst:1057
+#: ../../library/threading.rst:1084
 msgid ""
 "As an example, here is a simple way to synchronize a client and server "
 "thread::"
@@ -1771,7 +1784,7 @@ msgstr ""
 "例として、クライアントとサーバの間でスレッドを同期させる単純な方法を紹介しま"
 "す::"
 
-#: ../../library/threading.rst:1077
+#: ../../library/threading.rst:1104
 msgid ""
 "Create a barrier object for *parties* number of threads.  An *action*, when "
 "provided, is a callable to be called by one of the threads when they are "
@@ -1783,7 +1796,7 @@ msgstr ""
 "ちの1つによって呼ばれます。 *timeout* は、 :meth:`wait` メソッドに対して "
 "none が指定された場合のデフォルトのタイムアウト値です。"
 
-#: ../../library/threading.rst:1084
+#: ../../library/threading.rst:1111
 msgid ""
 "Pass the barrier.  When all the threads party to the barrier have called "
 "this function, they are all released simultaneously.  If a *timeout* is "
@@ -1794,7 +1807,7 @@ msgstr ""
 "らは同時にすべて解放されます。*timeout* が提供される場合、それはクラスコンス"
 "トラクタに渡された値に優先して使用されます。"
 
-#: ../../library/threading.rst:1089
+#: ../../library/threading.rst:1116
 msgid ""
 "The return value is an integer in the range 0 to *parties* -- 1, different "
 "for each thread.  This can be used to select a thread to do some special "
@@ -1804,7 +1817,7 @@ msgstr ""
 "ります。これは、特別な後始末 (housekeeping) を行うスレッドを選択するために使"
 "用することができます。例えば::"
 
-#: ../../library/threading.rst:1098
+#: ../../library/threading.rst:1125
 msgid ""
 "If an *action* was provided to the constructor, one of the threads will have "
 "called it prior to being released.  Should this call raise an error, the "
@@ -1814,11 +1827,11 @@ msgstr ""
 "にそれを呼び出します。万一この呼び出しでエラーが発生した場合、バリアは "
 "broken な状態に陥ります。"
 
-#: ../../library/threading.rst:1102
+#: ../../library/threading.rst:1129
 msgid "If the call times out, the barrier is put into the broken state."
 msgstr "この呼び出しがタイムアウトする場合、バリアは broken な状態に陥ります。"
 
-#: ../../library/threading.rst:1104
+#: ../../library/threading.rst:1131
 msgid ""
 "This method may raise a :class:`BrokenBarrierError` exception if the barrier "
 "is broken or reset while a thread is waiting."
@@ -1826,7 +1839,7 @@ msgstr ""
 "スレッドが待っている間にバリアが broken になるかリセットされた場合、このメ"
 "ソッドは :class:`BrokenBarrierError` 例外を送出するかもしれません。"
 
-#: ../../library/threading.rst:1109
+#: ../../library/threading.rst:1136
 msgid ""
 "Return the barrier to the default, empty state.  Any threads waiting on it "
 "will receive the :class:`BrokenBarrierError` exception."
@@ -1834,7 +1847,7 @@ msgstr ""
 "バリアをデフォルトの空の状態に戻します。そのバリアの上で待っているすべてのス"
 "レッドは :class:`BrokenBarrierError` 例外を受け取ります。"
 
-#: ../../library/threading.rst:1112
+#: ../../library/threading.rst:1139
 msgid ""
 "Note that using this function may require some external synchronization if "
 "there are other threads whose state is unknown.  If a barrier is broken it "
@@ -1844,7 +1857,7 @@ msgstr ""
 "必要とするかもしれないことに注意してください。バリアが broken な場合、単にそ"
 "れをそのままにして新しいものを作成する方がよいでしょう。"
 
-#: ../../library/threading.rst:1118
+#: ../../library/threading.rst:1145
 msgid ""
 "Put the barrier into a broken state.  This causes any active or future calls "
 "to :meth:`wait` to fail with the :class:`BrokenBarrierError`.  Use this for "
@@ -1856,7 +1869,7 @@ msgstr ""
 "使うと、例えばスレッドが異常終了する必要がある場合にアプリケーションがデッド"
 "ロックするのを避けることができます。"
 
-#: ../../library/threading.rst:1123
+#: ../../library/threading.rst:1150
 msgid ""
 "It may be preferable to simply create the barrier with a sensible *timeout* "
 "value to automatically guard against one of the threads going awry."
@@ -1864,19 +1877,19 @@ msgstr ""
 "スレッドのうちの1つが返ってこないことに対して自動的に保護するように、単純に常"
 "識的な *timeout* 値でバリアを作成することは望ましいかもしれません。"
 
-#: ../../library/threading.rst:1129
+#: ../../library/threading.rst:1156
 msgid "The number of threads required to pass the barrier."
 msgstr "バリアを通るために要求されるスレッドの数。"
 
-#: ../../library/threading.rst:1133
+#: ../../library/threading.rst:1160
 msgid "The number of threads currently waiting in the barrier."
 msgstr "現在バリアの中で待っているスレッドの数。"
 
-#: ../../library/threading.rst:1137
+#: ../../library/threading.rst:1164
 msgid "A boolean that is ``True`` if the barrier is in the broken state."
 msgstr "バリアが broken な状態である場合に ``True`` となるブール値。"
 
-#: ../../library/threading.rst:1142
+#: ../../library/threading.rst:1169
 msgid ""
 "This exception, a subclass of :exc:`RuntimeError`, is raised when the :class:"
 "`Barrier` object is reset or broken."
@@ -1884,12 +1897,12 @@ msgstr ""
 ":class:`Barrier` オブジェクトがリセットされるか broken な場合に、この例外 (:"
 "exc:`RuntimeError` のサブクラス) が送出されます。"
 
-#: ../../library/threading.rst:1149
+#: ../../library/threading.rst:1176
 msgid ""
 "Using locks, conditions, and semaphores in the :keyword:`!with` statement"
 msgstr ":keyword:`!with` 文でのロック・条件変数・セマフォの使い方"
 
-#: ../../library/threading.rst:1151
+#: ../../library/threading.rst:1178
 msgid ""
 "All of the objects provided by this module that have ``acquire`` and "
 "``release`` methods can be used as context managers for a :keyword:`with` "
@@ -1898,11 +1911,11 @@ msgid ""
 "following snippet::"
 msgstr ""
 
-#: ../../library/threading.rst:1160
+#: ../../library/threading.rst:1187
 msgid "is equivalent to::"
 msgstr "は、以下と同じです ::"
 
-#: ../../library/threading.rst:1168
+#: ../../library/threading.rst:1195
 msgid ""
 "Currently, :class:`Lock`, :class:`RLock`, :class:`Condition`, :class:"
 "`Semaphore`, and :class:`BoundedSemaphore` objects may be used as :keyword:"
