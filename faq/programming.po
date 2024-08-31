@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 14:16+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 00:52+0000\n"
 "Last-Translator: TENMYO Masakazu, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -382,6 +382,13 @@ msgstr ""
 "for ループを使って、少しずつ異なるラムダを定義 (もしくは簡単な関数) するとし"
 "ます。例えば::"
 
+#: ../../faq/programming.rst:213
+msgid ""
+">>> squares = []\n"
+">>> for x in range(5):\n"
+"...     squares.append(lambda: x**2)"
+msgstr ""
+
 #: ../../faq/programming.rst:217
 msgid ""
 "This gives you a list that contains 5 lambdas that calculate ``x**2``.  You "
@@ -393,6 +400,14 @@ msgstr ""
 "たとき、それぞれ ``0``、``1``、``4``、``9``、``16`` を返すと予想するかもしれ"
 "ません。しかし実際にやってみると、全て ``16`` が返ってくるのを目にするでしょ"
 "う::"
+
+#: ../../faq/programming.rst:222
+msgid ""
+">>> squares[2]()\n"
+"16\n"
+">>> squares[4]()\n"
+"16"
+msgstr ""
 
 #: ../../faq/programming.rst:227
 msgid ""
@@ -408,6 +423,13 @@ msgstr ""
 "は ``4**2`` つまり ``16`` を返します。このことは ``x`` の値を変えてみることで"
 "検証でき、ラムダの返り値がどのように変わるのか観察できます::"
 
+#: ../../faq/programming.rst:233
+msgid ""
+">>> x = 8\n"
+">>> squares[2]()\n"
+"64"
+msgstr ""
+
 #: ../../faq/programming.rst:237
 msgid ""
 "In order to avoid this, you need to save the values in variables local to "
@@ -415,6 +437,13 @@ msgid ""
 msgstr ""
 "これを避けるためには、グローバルの ``x`` の値に依存しないために、ラムダにとっ"
 "てのローカル変数に値を保存する必要があります::"
+
+#: ../../faq/programming.rst:240
+msgid ""
+">>> squares = []\n"
+">>> for x in range(5):\n"
+"...     squares.append(lambda n=x: n**2)"
+msgstr ""
 
 #: ../../faq/programming.rst:244
 msgid ""
@@ -429,6 +458,14 @@ msgstr ""
 "ます。これは、1 つ目のラムダでは ``n`` の値は ``0`` になり、2 つ目では "
 "``1``、3 つ目では ``2`` 以下同様、となることを意味します。従って、それぞれの"
 "ラムダは今や正しい値を返すようになりました::"
+
+#: ../../faq/programming.rst:250
+msgid ""
+">>> squares[2]()\n"
+"4\n"
+">>> squares[4]()\n"
+"16"
+msgstr ""
 
 #: ../../faq/programming.rst:255
 msgid ""
@@ -462,13 +499,30 @@ msgstr ""
 msgid "config.py::"
 msgstr "config.py::"
 
+#: ../../faq/programming.rst:270
+msgid "x = 0   # Default value of the 'x' configuration setting"
+msgstr ""
+
 #: ../../faq/programming.rst:272
 msgid "mod.py::"
 msgstr "mod.py::"
 
+#: ../../faq/programming.rst:274
+msgid ""
+"import config\n"
+"config.x = 1"
+msgstr ""
+
 #: ../../faq/programming.rst:277
 msgid "main.py::"
 msgstr "main.py::"
+
+#: ../../faq/programming.rst:279
+msgid ""
+"import config\n"
+"import mod\n"
+"print(config.x)"
+msgstr ""
 
 #: ../../faq/programming.rst:283
 msgid ""
@@ -611,6 +665,14 @@ msgstr ""
 "この種のバグがよく初心者プログラマに噛み付きます。この関数を考えてみてくださ"
 "い::"
 
+#: ../../faq/programming.rst:342
+msgid ""
+"def foo(mydict={}):  # Danger: shared reference to one dict for all calls\n"
+"    ... compute something ...\n"
+"    mydict[key] = value\n"
+"    return mydict"
+msgstr ""
+
 #: ../../faq/programming.rst:347
 msgid ""
 "The first time you call this function, ``mydict`` contains a single item.  "
@@ -656,9 +718,22 @@ msgstr ""
 "が ``None`` である時にだけ、関数の内部で新しいリスト/辞書/その他をつくるよう"
 "にしてください。例えば、こう書かずに::"
 
+#: ../../faq/programming.rst:365
+msgid ""
+"def foo(mydict={}):\n"
+"    ..."
+msgstr ""
+
 #: ../../faq/programming.rst:368
 msgid "but::"
 msgstr "代わりに::"
+
+#: ../../faq/programming.rst:370
+msgid ""
+"def foo(mydict=None):\n"
+"    if mydict is None:\n"
+"        mydict = {}  # create a new dict for local namespace"
+msgstr ""
 
 #: ../../faq/programming.rst:374
 msgid ""
@@ -672,6 +747,20 @@ msgstr ""
 "る一般的な技法は、関数が呼び出されるごとにパラメタと結果の値をキャッシュし、"
 "再び同じ値が要求されたらキャッシュされた値を返すというものです。これは "
 "\"memoizing\" と呼ばれ、このように実装されます::"
+
+#: ../../faq/programming.rst:379
+msgid ""
+"# Callers can only provide two parameters and optionally pass _cache by "
+"keyword\n"
+"def expensive(arg1, arg2, *, _cache={}):\n"
+"    if (arg1, arg2) in _cache:\n"
+"        return _cache[(arg1, arg2)]\n"
+"\n"
+"    # Calculate the value\n"
+"    result = ... expensive computation ...\n"
+"    _cache[(arg1, arg2)] = result           # Store result in the cache\n"
+"    return result"
+msgstr ""
 
 #: ../../faq/programming.rst:389
 msgid ""
@@ -700,6 +789,15 @@ msgstr ""
 "ます。これで、他の関数を呼び出すときに ``*`` と ``**`` を使ってそれらの引数を"
 "渡せます::"
 
+#: ../../faq/programming.rst:401
+msgid ""
+"def f(x, *args, **kwargs):\n"
+"    ...\n"
+"    kwargs['width'] = '14.3c'\n"
+"    ...\n"
+"    g(x, *args, **kwargs)"
+msgstr ""
+
 #: ../../faq/programming.rst:415
 msgid "What is the difference between arguments and parameters?"
 msgstr "実引数と仮引数の違いは何ですか?"
@@ -717,6 +815,12 @@ msgstr ""
 "値のことです。仮引数は関数が受け取ることの出来る :term:`実引数の型 "
 "<parameter>` を定義します。例えば、以下のような関数定義があったとして::"
 
+#: ../../faq/programming.rst:423
+msgid ""
+"def func(foo, bar=None, **kwargs):\n"
+"    pass"
+msgstr ""
+
 #: ../../faq/programming.rst:426
 msgid ""
 "*foo*, *bar* and *kwargs* are parameters of ``func``.  However, when calling "
@@ -724,6 +828,10 @@ msgid ""
 msgstr ""
 "*foo*、*bar*、*kwargs* は ``func`` の仮引数です。一方、``func`` を呼び出すと"
 "きには、例えば::"
+
+#: ../../faq/programming.rst:429
+msgid "func(42, bar=314, extra=somevar)"
+msgstr ""
 
 #: ../../faq/programming.rst:431
 msgid "the values ``42``, ``314``, and ``somevar`` are arguments."
@@ -736,6 +844,17 @@ msgstr "なぜ list 'y' を変更すると list 'x' も変更されるのです�
 #: ../../faq/programming.rst:437
 msgid "If you wrote code like::"
 msgstr "次のようなコードを書いたとします::"
+
+#: ../../faq/programming.rst:439
+msgid ""
+">>> x = []\n"
+">>> y = x\n"
+">>> y.append(10)\n"
+">>> y\n"
+"[10]\n"
+">>> x\n"
+"[10]"
+msgstr ""
 
 #: ../../faq/programming.rst:447
 msgid ""
@@ -779,6 +898,17 @@ msgstr ""
 #: ../../faq/programming.rst:461
 msgid "If we instead assign an immutable object to ``x``::"
 msgstr "代わりに ``x`` にイミュータブルを代入すると::"
+
+#: ../../faq/programming.rst:463
+msgid ""
+">>> x = 5  # ints are immutable\n"
+">>> y = x\n"
+">>> x = x + 1  # 5 can't be mutated, we are creating a new object here\n"
+">>> x\n"
+"6\n"
+">>> y\n"
+"5"
+msgstr ""
 
 #: ../../faq/programming.rst:471
 msgid ""
@@ -887,6 +1017,18 @@ msgstr ""
 msgid "By returning a tuple of the results::"
 msgstr "結果のタプルを返すことによって::"
 
+#: ../../faq/programming.rst:519
+msgid ""
+">>> def func1(a, b):\n"
+"...     a = 'new-value'        # a and b are local names\n"
+"...     b = b + 1              # assigned to new objects\n"
+"...     return a, b            # return new values\n"
+"...\n"
+">>> x, y = 'old-value', 99\n"
+">>> func1(x, y)\n"
+"('new-value', 100)"
+msgstr ""
+
 #: ../../faq/programming.rst:528
 msgid "This is almost always the clearest solution."
 msgstr "これはたいてい一番明確な方法です。"
@@ -902,13 +1044,54 @@ msgid "By passing a mutable (changeable in-place) object::"
 msgstr ""
 "ミュータブルな (インプレースに変更可能な) オブジェクトを渡すことによって::"
 
+#: ../../faq/programming.rst:534
+msgid ""
+">>> def func2(a):\n"
+"...     a[0] = 'new-value'     # 'a' references a mutable list\n"
+"...     a[1] = a[1] + 1        # changes a shared object\n"
+"...\n"
+">>> args = ['old-value', 99]\n"
+">>> func2(args)\n"
+">>> args\n"
+"['new-value', 100]"
+msgstr ""
+
 #: ../../faq/programming.rst:543
 msgid "By passing in a dictionary that gets mutated::"
 msgstr "変更される辞書に渡すことによって::"
 
+#: ../../faq/programming.rst:545
+msgid ""
+">>> def func3(args):\n"
+"...     args['a'] = 'new-value'     # args is a mutable dictionary\n"
+"...     args['b'] = args['b'] + 1   # change it in-place\n"
+"...\n"
+">>> args = {'a': 'old-value', 'b': 99}\n"
+">>> func3(args)\n"
+">>> args\n"
+"{'a': 'new-value', 'b': 100}"
+msgstr ""
+
 #: ../../faq/programming.rst:554
 msgid "Or bundle up values in a class instance::"
 msgstr "または、クラスインスタンスに値を同梱することによって::"
+
+#: ../../faq/programming.rst:556
+msgid ""
+">>> class Namespace:\n"
+"...     def __init__(self, /, **args):\n"
+"...         for key, value in args.items():\n"
+"...             setattr(self, key, value)\n"
+"...\n"
+">>> def func4(args):\n"
+"...     args.a = 'new-value'        # args is a mutable Namespace\n"
+"...     args.b = args.b + 1         # change object in-place\n"
+"...\n"
+">>> args = Namespace(a='old-value', b=99)\n"
+">>> func4(args)\n"
+">>> vars(args)\n"
+"{'a': 'new-value', 'b': 100}"
+msgstr ""
 
 #: ../../faq/programming.rst:571
 msgid "There's almost never a good reason to get this complicated."
@@ -933,13 +1116,36 @@ msgstr ""
 "クトを使う方法です。例えば、``a*x+b`` の値を計算する ``f(x)`` 関数を返す "
 "``linear(a,b)`` を定義したいとします。ネストされたスコープを使うと::"
 
+#: ../../faq/programming.rst:583
+msgid ""
+"def linear(a, b):\n"
+"    def result(x):\n"
+"        return a * x + b\n"
+"    return result"
+msgstr ""
+
 #: ../../faq/programming.rst:588
 msgid "Or using a callable object::"
 msgstr "また、呼び出し可能オブジェクトを使うと::"
 
+#: ../../faq/programming.rst:590
+msgid ""
+"class linear:\n"
+"\n"
+"    def __init__(self, a, b):\n"
+"        self.a, self.b = a, b\n"
+"\n"
+"    def __call__(self, x):\n"
+"        return self.a * x + self.b"
+msgstr ""
+
 #: ../../faq/programming.rst:598
 msgid "In both cases, ::"
 msgstr "どちらの場合でも、 ::"
+
+#: ../../faq/programming.rst:600
+msgid "taxes = linear(0.3, 2)"
+msgstr ""
 
 #: ../../faq/programming.rst:602
 msgid "gives a callable object where ``taxes(10e6) == 0.3 * 10e6 + 2``."
@@ -957,9 +1163,36 @@ msgstr ""
 "という短所があります。ですが、継承を使って呼び出し可能オブジェクト同士で記号"
 "を共有することもできます::"
 
+#: ../../faq/programming.rst:608
+msgid ""
+"class exponential(linear):\n"
+"    # __init__ inherited\n"
+"    def __call__(self, x):\n"
+"        return self.a * (x ** self.b)"
+msgstr ""
+
 #: ../../faq/programming.rst:613
 msgid "Object can encapsulate state for several methods::"
 msgstr "オブジェクトはいくつかのメソッドに状態をカプセル化できます::"
+
+#: ../../faq/programming.rst:615
+msgid ""
+"class counter:\n"
+"\n"
+"    value = 0\n"
+"\n"
+"    def set(self, x):\n"
+"        self.value = x\n"
+"\n"
+"    def up(self):\n"
+"        self.value = self.value + 1\n"
+"\n"
+"    def down(self):\n"
+"        self.value = self.value - 1\n"
+"\n"
+"count = counter()\n"
+"inc, dec, reset = count.up, count.down, count.set"
+msgstr ""
 
 #: ../../faq/programming.rst:631
 msgid ""
@@ -989,9 +1222,17 @@ msgstr ""
 "もっと簡単にコピーできるオブジェクトもあります。辞書には :meth:`~dict.copy` "
 "メソッドがあります::"
 
+#: ../../faq/programming.rst:644
+msgid "newdict = olddict.copy()"
+msgstr ""
+
 #: ../../faq/programming.rst:646
 msgid "Sequences can be copied by slicing::"
 msgstr "シーケンスはスライシングでコピーできます::"
+
+#: ../../faq/programming.rst:648
+msgid "new_l = l[:]"
+msgstr ""
 
 #: ../../faq/programming.rst:652
 msgid "How can I find the methods or attributes of an object?"
@@ -1021,6 +1262,20 @@ msgstr ""
 "概して、オブジェクトは本当は名前を持たないので、見つけることはできません。本"
 "質的には、代入とはいつも値に名前を束縛することです。``def`` と ``class`` 文も"
 "同じですが、この場合は値はコーラブルです。以下のコードを考えてみましょう::"
+
+#: ../../faq/programming.rst:667
+msgid ""
+">>> class A:\n"
+"...     pass\n"
+"...\n"
+">>> B = A\n"
+">>> a = B()\n"
+">>> b = a\n"
+">>> print(b)\n"
+"<__main__.A object at 0x16D07CC>\n"
+">>> print(a)\n"
+"<__main__.A object at 0x16D07CC>"
+msgstr ""
 
 #: ../../faq/programming.rst:678
 msgid ""
@@ -1083,6 +1338,12 @@ msgid "Comma is not an operator in Python.  Consider this session::"
 msgstr ""
 "カンマは Python では演算子ではありません。このセッションを考えてください::"
 
+#: ../../faq/programming.rst:705
+msgid ""
+">>> \"a\" in \"b\", \"a\"\n"
+"(False, 'a')"
+msgstr ""
+
 #: ../../faq/programming.rst:708
 msgid ""
 "Since the comma is not an operator, but a separator between expressions the "
@@ -1091,9 +1352,17 @@ msgstr ""
 "カンマは演算子ではなく、式の分離子なので、上の式は次の式と同じように評価され"
 "ます::"
 
+#: ../../faq/programming.rst:711
+msgid "(\"a\" in \"b\"), \"a\""
+msgstr ""
+
 #: ../../faq/programming.rst:713
 msgid "not::"
 msgstr "こうではありません::"
+
+#: ../../faq/programming.rst:715
+msgid "\"a\" in (\"b\", \"a\")"
+msgstr ""
 
 #: ../../faq/programming.rst:717
 msgid ""
@@ -1112,6 +1381,14 @@ msgstr "C の \"?:\" 三項演算子と等価なものはありますか？"
 msgid "Yes, there is. The syntax is as follows::"
 msgstr "はい、あります。構文は以下のようになります::"
 
+#: ../../faq/programming.rst:726
+msgid ""
+"[on_true] if [expression] else [on_false]\n"
+"\n"
+"x, y = 50, 25\n"
+"small = x if x < y else y"
+msgstr ""
+
 #: ../../faq/programming.rst:731
 msgid ""
 "Before this syntax was introduced in Python 2.5, a common idiom was to use "
@@ -1119,6 +1396,10 @@ msgid ""
 msgstr ""
 "この構文が導入された 2.5 以前のバージョンに関しては、論理演算子を使ったこのイ"
 "ディオムが一般的でした::"
+
+#: ../../faq/programming.rst:734
+msgid "[expression] and [on_true] or [on_false]"
+msgstr ""
 
 #: ../../faq/programming.rst:736
 msgid ""
@@ -1143,6 +1424,34 @@ msgstr ""
 "はい。そういうものはたいてい、 :keyword:`!lambda` の中に :keyword:`lambda` が"
 "ネストされています。Ulf Bartelt によるものを少しアレンジした下の３つの例を見"
 "てください::"
+
+#: ../../faq/programming.rst:747
+msgid ""
+"from functools import reduce\n"
+"\n"
+"# Primes < 1000\n"
+"print(list(filter(None,map(lambda y:y*reduce(lambda x,y:x*y!=0,\n"
+"map(lambda x,y=y:y%x,range(2,int(pow(y,0.5)+1))),1),range(2,1000)))))\n"
+"\n"
+"# First 10 Fibonacci numbers\n"
+"print(list(map(lambda x,f=lambda x,f:(f(x-1,f)+f(x-2,f)) if x>1 else 1:\n"
+"f(x,f), range(10))))\n"
+"\n"
+"# Mandelbrot set\n"
+"print((lambda Ru,Ro,Iu,Io,IM,Sx,Sy:reduce(lambda x,y:x+'\\n'+y,map(lambda "
+"y,\n"
+"Iu=Iu,Io=Io,Ru=Ru,Ro=Ro,Sy=Sy,L=lambda yc,Iu=Iu,Io=Io,Ru=Ru,Ro=Ro,i=IM,\n"
+"Sx=Sx,Sy=Sy:reduce(lambda x,y:x+y,map(lambda x,xc=Ru,yc=yc,Ru=Ru,Ro=Ro,\n"
+"i=i,Sx=Sx,F=lambda xc,yc,x,y,k,f=lambda xc,yc,x,y,k,f:(k<=0)or (x*x+y*y\n"
+">=4.0) or 1+f(xc,yc,x*x-y*y+xc,2.0*x*y+yc,k-1,f):f(xc,yc,x,y,k,f):chr(\n"
+"64+F(Ru+x*(Ro-Ru)/Sx,yc,0,0,i)),range(Sx))):L(Iu+y*(Io-Iu)/Sy),range(Sy\n"
+"))))(-2.1, 0.7, -1.2, 1.2, 30, 80, 24))\n"
+"#    \\___ ___/  \\___ ___/  |   |   |__ lines on screen\n"
+"#        V          V      |   |______ columns on screen\n"
+"#        |          |      |__________ maximum of \"iterations\"\n"
+"#        |          |_________________ range on y axis\n"
+"#        |____________________________ range on x axis"
+msgstr ""
 
 #: ../../faq/programming.rst:771
 msgid "Don't try this at home, kids!"
@@ -1169,6 +1478,15 @@ msgstr ""
 "例えば、 :func:`divmod` は位置専用引数を受け付けます。\n"
 "そのドキュメントは次のようになります::"
 
+#: ../../faq/programming.rst:786
+msgid ""
+">>> help(divmod)\n"
+"Help on built-in function divmod in module builtins:\n"
+"\n"
+"divmod(x, y, /)\n"
+"    Return the tuple (x//y, x%y).  Invariant: div*y + mod == x."
+msgstr ""
+
 #: ../../faq/programming.rst:792
 msgid ""
 "The slash at the end of the parameter list means that both parameters are "
@@ -1179,6 +1497,14 @@ msgstr ""
 "ることを意味します。\n"
 "したがって、:func:`divmod` をキーワード引数を使って呼び出すとエラーになりま"
 "す::"
+
+#: ../../faq/programming.rst:796
+msgid ""
+">>> divmod(x=3, y=4)\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"TypeError: divmod() takes no keyword arguments"
+msgstr ""
 
 #: ../../faq/programming.rst:803
 msgid "Numbers and strings"
@@ -1198,6 +1524,13 @@ msgstr ""
 "加えてください。たとえば、変数 \"a\" に八進数での \"10\" (十進数での\"8\") を"
 "代入するには、こう打ってください::"
 
+#: ../../faq/programming.rst:812
+msgid ""
+">>> a = 0o10\n"
+">>> a\n"
+"8"
+msgstr ""
+
 #: ../../faq/programming.rst:816
 msgid ""
 "Hexadecimal is just as easy.  Simply precede the hexadecimal number with a "
@@ -1207,6 +1540,16 @@ msgstr ""
 "十六進数も簡単です。ただ十六進数での値の先頭に 0 と \"x\" (小文字または大文"
 "字) を加えてください。十六進数は小文字でも大文字でも指定できます。たとえば、"
 "Python インタプリタで::"
+
+#: ../../faq/programming.rst:820
+msgid ""
+">>> a = 0xa5\n"
+">>> a\n"
+"165\n"
+">>> b = 0XB2\n"
+">>> b\n"
+"178"
+msgstr ""
 
 #: ../../faq/programming.rst:829
 msgid "Why does -22 // 10 return -3?"
@@ -1219,6 +1562,10 @@ msgid ""
 msgstr ""
 "``i % j`` が ``j`` と同じ符号であってほしいことに基づいています。それに加えて"
 "以下のようにもしたいとすると::"
+
+#: ../../faq/programming.rst:834
+msgid "i == (i // j) * j + (i % j)"
+msgstr ""
 
 #: ../../faq/programming.rst:836
 msgid ""
@@ -1254,6 +1601,15 @@ msgid ""
 msgstr ""
 "ふつうの方法で ``int`` リテラルの属性を探そうとすると、ピリオドが小数点とみな"
 "され、:exc:`SyntaxError` となります::"
+
+#: ../../faq/programming.rst:853
+msgid ""
+">>> 1.__class__\n"
+"  File \"<stdin>\", line 1\n"
+"  1.__class__\n"
+"   ^\n"
+"SyntaxError: invalid decimal literal"
+msgstr ""
 
 #: ../../faq/programming.rst:859
 msgid ""
@@ -1352,6 +1708,31 @@ msgstr ""
 "プレースに変更できるオブジェクトが必要なら、 :mod:`array` モジュールの :"
 "class:`io.StringIO` オブジェクトを試してください::"
 
+#: ../../faq/programming.rst:914
+msgid ""
+">>> import io\n"
+">>> s = \"Hello, world\"\n"
+">>> sio = io.StringIO(s)\n"
+">>> sio.getvalue()\n"
+"'Hello, world'\n"
+">>> sio.seek(7)\n"
+"7\n"
+">>> sio.write(\"there!\")\n"
+"6\n"
+">>> sio.getvalue()\n"
+"'Hello, there!'\n"
+"\n"
+">>> import array\n"
+">>> a = array.array('w', s)\n"
+">>> print(a)\n"
+"array('w', 'Hello, world')\n"
+">>> a[0] = 'y'\n"
+">>> print(a)\n"
+"array('w', 'yello, world')\n"
+">>> a.tounicode()\n"
+"'yello, world'"
+msgstr ""
+
 #: ../../faq/programming.rst:938
 msgid "How do I use strings to call functions/methods?"
 msgstr "関数やメソッドを呼ぶのに文字列を使うにはどうしたらいいですか？"
@@ -1371,9 +1752,28 @@ msgstr ""
 "番の利点は、文字列が関数の名前と同じ必要がないことです。この方法は case 構造"
 "をエミュレートするための一番のテクニックでもあります::"
 
+#: ../../faq/programming.rst:947
+msgid ""
+"def a():\n"
+"    pass\n"
+"\n"
+"def b():\n"
+"    pass\n"
+"\n"
+"dispatch = {'go': a, 'stop': b}  # Note lack of parens for funcs\n"
+"\n"
+"dispatch[get_input()]()  # Note trailing parens to call function"
+msgstr ""
+
 #: ../../faq/programming.rst:957
 msgid "Use the built-in function :func:`getattr`::"
 msgstr "組み込み関数の :func:`getattr` を使う方法::"
+
+#: ../../faq/programming.rst:959
+msgid ""
+"import foo\n"
+"getattr(foo, 'bar')()"
+msgstr ""
 
 #: ../../faq/programming.rst:962
 msgid ""
@@ -1387,9 +1787,33 @@ msgstr ""
 msgid "This is used in several places in the standard library, like this::"
 msgstr "これは標準ライブラリでも何箇所か使われています。このように::"
 
+#: ../../faq/programming.rst:967
+msgid ""
+"class Foo:\n"
+"    def do_foo(self):\n"
+"        ...\n"
+"\n"
+"    def do_bar(self):\n"
+"        ...\n"
+"\n"
+"f = getattr(foo_instance, 'do_' + opname)\n"
+"f()"
+msgstr ""
+
 #: ../../faq/programming.rst:978
 msgid "Use :func:`locals` to resolve the function name::"
 msgstr ":func:`locals` を使って関数名を決める方法::"
+
+#: ../../faq/programming.rst:980
+msgid ""
+"def myFunc():\n"
+"    print(\"hello\")\n"
+"\n"
+"fname = \"myFunc\"\n"
+"\n"
+"f = locals()[fname]\n"
+"f()"
+msgstr ""
 
 #: ../../faq/programming.rst:990
 msgid ""
@@ -1409,6 +1833,15 @@ msgstr ""
 "``S.rstrip(\"\\r\\n\")`` を使って文字列 ``S`` の終端から他の空白文字を取り除"
 "くことなくすべての行末記号を取り除くことができます。文字列 ``S`` が複数行を表"
 "し、終端に空行があるとき、そのすべての空行も取り除かれます::"
+
+#: ../../faq/programming.rst:998
+msgid ""
+">>> lines = (\"line 1 \\r\\n\"\n"
+"...          \"\\r\\n\"\n"
+"...          \"\\r\\n\")\n"
+">>> lines.rstrip(\"\\n\\r\")\n"
+"'line 1 '"
+msgstr ""
 
 #: ../../faq/programming.rst:1004
 msgid ""
@@ -1469,6 +1902,15 @@ msgstr ""
 "奇数個のバックスラッシュで終わる raw string は文字列のクォートをエスケープし"
 "ます::"
 
+#: ../../faq/programming.rst:1036
+msgid ""
+">>> r'C:\\this\\will\\not\\work\\'\n"
+"  File \"<stdin>\", line 1\n"
+"    r'C:\\this\\will\\not\\work\\'\n"
+"         ^\n"
+"SyntaxError: unterminated string literal (detected at line 1)"
+msgstr ""
+
 #: ../../faq/programming.rst:1042
 msgid ""
 "There are several workarounds for this. One is to use regular strings and "
@@ -1476,6 +1918,12 @@ msgid ""
 msgstr ""
 "これにはいくつかの回避策があります。ひとつは通常文字列と二重バックスラッシュ"
 "を使うことです::"
+
+#: ../../faq/programming.rst:1045
+msgid ""
+">>> 'C:\\\\this\\\\will\\\\work\\\\'\n"
+"'C:\\\\this\\\\will\\\\work\\\\'"
+msgstr ""
 
 #: ../../faq/programming.rst:1048
 msgid ""
@@ -1485,6 +1933,12 @@ msgstr ""
 "もうひとつは、エスケープされたバックスラッシュを含む通常の文字列を、 raw "
 "string に連結します::"
 
+#: ../../faq/programming.rst:1051
+msgid ""
+">>> r'C:\\this\\will\\work' '\\\\'\n"
+"'C:\\\\this\\\\will\\\\work\\\\'"
+msgstr ""
+
 #: ../../faq/programming.rst:1054
 msgid ""
 "It is also possible to use :func:`os.path.join` to append a backslash on "
@@ -1492,6 +1946,12 @@ msgid ""
 msgstr ""
 "Windowsでは、 :func:`os.path.join` を使ってバックスラッシュを追加することもで"
 "きます::"
+
+#: ../../faq/programming.rst:1056
+msgid ""
+">>> os.path.join(r'C:\\this\\will\\work', '')\n"
+"'C:\\\\this\\\\will\\\\work\\\\'"
+msgstr ""
 
 #: ../../faq/programming.rst:1059
 msgid ""
@@ -1503,6 +1963,12 @@ msgstr ""
 "注意点として、バックスラッシュは raw string 終端のクォートを「エスケープ」し"
 "ますが、 raw string の値を解釈する際にはエスケープが生じません。つまり、バッ"
 "クスラッシュは raw string 値の中に残ったままになります::"
+
+#: ../../faq/programming.rst:1064
+msgid ""
+">>> r'backslash\\'preserved'\n"
+"\"backslash\\\\'preserved\""
+msgstr ""
 
 #: ../../faq/programming.rst:1067
 msgid "Also see the specification in the :ref:`language reference <strings>`."
@@ -1670,6 +2136,14 @@ msgstr ""
 "多くの :class:`str` オブジェクトを累積するのにおすすめのイディオムは、すべて"
 "をリストに配置してから最後に :meth:`str.join` を呼び出すことです::"
 
+#: ../../faq/programming.rst:1141
+msgid ""
+"chunks = []\n"
+"for s in my_strings:\n"
+"    chunks.append(s)\n"
+"result = ''.join(chunks)"
+msgstr ""
+
 #: ../../faq/programming.rst:1146
 msgid "(another reasonably efficient idiom is to use :class:`io.StringIO`)"
 msgstr "(他の割と効率的なイディオムは、 :class:`io.StringIO` を使うことです)"
@@ -1683,6 +2157,13 @@ msgstr ""
 "多くの :class:`bytes` オブジェクトを累積するのにおすすめのイディオムは、 :"
 "class:`bytearray` オブジェクトをインプレース結合 (``+=`` 演算子) で拡張するこ"
 "とです::"
+
+#: ../../faq/programming.rst:1151
+msgid ""
+"result = bytearray()\n"
+"for b in my_bytes_objects:\n"
+"    result += b"
+msgstr ""
 
 #: ../../faq/programming.rst:1157
 msgid "Sequences (Tuples/Lists)"
@@ -1758,6 +2239,12 @@ msgstr "シーケンスを逆順にイテレートするにはどうしたらい
 msgid "Use the :func:`reversed` built-in function::"
 msgstr "組み込み関数 :func:`reversed` を使ってください。"
 
+#: ../../faq/programming.rst:1194
+msgid ""
+"for x in reversed(sequence):\n"
+"    ...  # do something with x ..."
+msgstr ""
+
 #: ../../faq/programming.rst:1197
 msgid ""
 "This won't touch your original sequence, but build a new copy with reversed "
@@ -1786,6 +2273,18 @@ msgstr ""
 "リストを並び替えて構わないのなら、ソートした上でリストの最初から最後までを調"
 "べ、次のように重複を削除してください::"
 
+#: ../../faq/programming.rst:1211
+msgid ""
+"if mylist:\n"
+"    mylist.sort()\n"
+"    last = mylist[-1]\n"
+"    for i in range(len(mylist)-2, -1, -1):\n"
+"        if last == mylist[i]:\n"
+"            del mylist[i]\n"
+"        else:\n"
+"            last = mylist[i]"
+msgstr ""
+
 #: ../../faq/programming.rst:1220
 msgid ""
 "If all elements of the list may be used as set keys (i.e. they are all :term:"
@@ -1793,6 +2292,10 @@ msgid ""
 msgstr ""
 "リストのすべての要素が集合のキーとして使える (つまり、すべての要素が :term:"
 "`hashable`) なら、おそらくこのほうが速いです ::"
+
+#: ../../faq/programming.rst:1223
+msgid "mylist = list(set(mylist))"
+msgstr ""
 
 #: ../../faq/programming.rst:1225
 msgid ""
@@ -1817,6 +2320,13 @@ msgstr ""
 "明示的/暗黙的な反復でスライス置換する方が速くて簡単です。こちらは３つのバリ"
 "エーションです。::"
 
+#: ../../faq/programming.rst:1237
+msgid ""
+"mylist[:] = filter(keep_function, mylist)\n"
+"mylist[:] = (x for x in mylist if keep_condition)\n"
+"mylist[:] = [x for x in mylist if keep_condition]"
+msgstr ""
+
 #: ../../faq/programming.rst:1241
 msgid "The list comprehension may be fastest."
 msgstr "リスト内包表記がおそらく最も高速です。"
@@ -1828,6 +2338,10 @@ msgstr "Python で配列を作るにはどうしますか？"
 #: ../../faq/programming.rst:1247
 msgid "Use a list::"
 msgstr "リストを使ってください::"
+
+#: ../../faq/programming.rst:1249
+msgid "[\"this\", 1, \"is\", \"an\", \"array\"]"
+msgstr ""
 
 #: ../../faq/programming.rst:1251
 msgid ""
@@ -1857,6 +2371,10 @@ msgstr ""
 "Lisp 方式の連結リストを得るのに、タプルを使って *cons cells* をエミュレートで"
 "きます::"
 
+#: ../../faq/programming.rst:1262
+msgid "lisp_list = (\"like\",  (\"this\",  (\"example\", None) ) )"
+msgstr ""
+
 #: ../../faq/programming.rst:1264
 msgid ""
 "If mutability is desired, you could use lists instead of tuples.  Here the "
@@ -1877,13 +2395,30 @@ msgstr "多次元のリストを作るにはどうしますか？"
 msgid "You probably tried to make a multidimensional array like this::"
 msgstr "このようにして多次元の配列を作ろうとしてしまったことがあるでしょう::"
 
+#: ../../faq/programming.rst:1277
+msgid ">>> A = [[None] * 2] * 3"
+msgstr ""
+
 #: ../../faq/programming.rst:1279
 msgid "This looks correct if you print it:"
 msgstr "これを表示したときには問題なさそうに見えます:"
 
+#: ../../faq/programming.rst:1285
+msgid ""
+">>> A\n"
+"[[None, None], [None, None], [None, None]]"
+msgstr ""
+
 #: ../../faq/programming.rst:1290
 msgid "But when you assign a value, it shows up in multiple places:"
 msgstr "しかし値を代入すると、その値が複数の場所に現れてしまいます:"
+
+#: ../../faq/programming.rst:1296
+msgid ""
+">>> A[0][0] = 5\n"
+">>> A\n"
+"[[5, None], [5, None], [5, None]]"
+msgstr ""
 
 #: ../../faq/programming.rst:1302
 msgid ""
@@ -1905,6 +2440,13 @@ msgstr ""
 "おすすめの方法は、最初に望んだ長さのリストを作り、それから新しく作ったリスト"
 "でそれぞれの要素を埋めていくことです::"
 
+#: ../../faq/programming.rst:1310
+msgid ""
+"A = [None] * 3\n"
+"for i in range(3):\n"
+"    A[i] = [None] * 2"
+msgstr ""
+
 #: ../../faq/programming.rst:1314
 msgid ""
 "This generates a list containing 3 different lists of length two.  You can "
@@ -1912,6 +2454,12 @@ msgid ""
 msgstr ""
 "これは長さ 2 の異なるリスト 3 つを含むリストを生成します。リスト内包表記も使"
 "えます::"
+
+#: ../../faq/programming.rst:1317
+msgid ""
+"w, h = 2, 3\n"
+"A = [[None] * w for i in range(h)]"
+msgstr ""
 
 #: ../../faq/programming.rst:1320
 msgid ""
@@ -1933,6 +2481,13 @@ msgstr ""
 "メソッドや関数を呼び出して結果を蓄積するのには、 :term:`list comprehension` "
 "（リスト内包表記） がエレガントな解決策です::"
 
+#: ../../faq/programming.rst:1330
+msgid ""
+"result = [obj.method() for obj in mylist]\n"
+"\n"
+"result = [function(obj) for obj in mylist]"
+msgstr ""
+
 #: ../../faq/programming.rst:1334
 msgid ""
 "To just run the method or function without saving the return values, a "
@@ -1940,6 +2495,15 @@ msgid ""
 msgstr ""
 "戻り値を保存せずにメソッドや関数を実行するだけなら、ただの :keyword:`for` "
 "ループで十分です::"
+
+#: ../../faq/programming.rst:1337
+msgid ""
+"for obj in mylist:\n"
+"    obj.method()\n"
+"\n"
+"for obj in mylist:\n"
+"    function(obj)"
+msgstr ""
 
 #: ../../faq/programming.rst:1346
 msgid ""
@@ -1968,6 +2532,15 @@ msgstr ""
 msgid "If you wrote::"
 msgstr "次のように書いたとします::"
 
+#: ../../faq/programming.rst:1358
+msgid ""
+">>> a_tuple = (1, 2)\n"
+">>> a_tuple[0] += 1\n"
+"Traceback (most recent call last):\n"
+"   ...\n"
+"TypeError: 'tuple' object does not support item assignment"
+msgstr ""
+
 #: ../../faq/programming.rst:1364
 msgid ""
 "The reason for the exception should be immediately clear: ``1`` is added to "
@@ -1987,6 +2560,15 @@ msgid ""
 "approximately this::"
 msgstr "このような裏事情の元、累算代入文はだいたい次のようなことをしています::"
 
+#: ../../faq/programming.rst:1373
+msgid ""
+">>> result = a_tuple[0] + 1\n"
+">>> a_tuple[0] = result\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"TypeError: 'tuple' object does not support item assignment"
+msgstr ""
+
 #: ../../faq/programming.rst:1379
 msgid ""
 "It is the assignment part of the operation that produces the error, since a "
@@ -1997,6 +2579,15 @@ msgstr "タプルは不変なので、例外を生み出しているのは操作
 msgid "When you write something like::"
 msgstr "次のように書いたとします::"
 
+#: ../../faq/programming.rst:1384
+msgid ""
+">>> a_tuple = (['foo'], 'bar')\n"
+">>> a_tuple[0] += ['item']\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"TypeError: 'tuple' object does not support item assignment"
+msgstr ""
+
 #: ../../faq/programming.rst:1390
 msgid ""
 "The exception is a bit more surprising, and even more surprising is the fact "
@@ -2004,6 +2595,12 @@ msgid ""
 msgstr ""
 "この例外にはちょっと驚きますが、もっと驚くべきことは、エラーがあったとしても"
 "追記はきちんと動いている、という事実です::"
+
+#: ../../faq/programming.rst:1393
+msgid ""
+">>> a_tuple[0]\n"
+"['foo', 'item']"
+msgstr ""
 
 #: ../../faq/programming.rst:1396
 msgid ""
@@ -2021,9 +2618,23 @@ msgstr ""
 "で、リストを返します。こんな理由で、リストでは ``+=`` は :meth:`!list."
 "extend` の \"略記\" だと言ったのでした::"
 
+#: ../../faq/programming.rst:1404
+msgid ""
+">>> a_list = []\n"
+">>> a_list += [1]\n"
+">>> a_list\n"
+"[1]"
+msgstr ""
+
 #: ../../faq/programming.rst:1409
 msgid "This is equivalent to::"
 msgstr "これは次と等価です::"
+
+#: ../../faq/programming.rst:1411
+msgid ""
+">>> result = a_list.__iadd__([1])\n"
+">>> a_list = result"
+msgstr ""
 
 #: ../../faq/programming.rst:1414
 msgid ""
@@ -2040,6 +2651,15 @@ msgstr ""
 #: ../../faq/programming.rst:1419
 msgid "Thus, in our tuple example what is happening is equivalent to::"
 msgstr "従って、今のタプルの例では、次のと同じことが起きています::"
+
+#: ../../faq/programming.rst:1421
+msgid ""
+">>> result = a_tuple[0].__iadd__(['item'])\n"
+">>> a_tuple[0] = result\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"TypeError: 'tuple' object does not support item assignment"
+msgstr ""
 
 #: ../../faq/programming.rst:1427
 msgid ""
@@ -2070,6 +2690,12 @@ msgstr ""
 "ます。Python では、 :meth:`list.sort` メソッドに ``key`` 引数を使ってくださ"
 "い::"
 
+#: ../../faq/programming.rst:1439
+msgid ""
+"Isorted = L[:]\n"
+"Isorted.sort(key=lambda s: int(s[10:15]))"
+msgstr ""
+
 #: ../../faq/programming.rst:1444
 msgid "How can I sort one list by values from another list?"
 msgstr "リストを別のリストの値によってソートするにはどうしますか？"
@@ -2081,6 +2707,20 @@ msgid ""
 msgstr ""
 "二つのイテレータを混ぜあわせてタプルのイテレータにしてから、必要な要素を選ん"
 "でください。 ::"
+
+#: ../../faq/programming.rst:1449
+msgid ""
+">>> list1 = [\"what\", \"I'm\", \"sorting\", \"by\"]\n"
+">>> list2 = [\"something\", \"else\", \"to\", \"sort\"]\n"
+">>> pairs = zip(list1, list2)\n"
+">>> pairs = sorted(pairs)\n"
+">>> pairs\n"
+"[(\"I'm\", 'else'), ('by', 'sort'), ('sorting', 'to'), ('what', "
+"'something')]\n"
+">>> result = [x[1] for x in pairs]\n"
+">>> result\n"
+"['else', 'sort', 'to', 'something']"
+msgstr ""
 
 #: ../../faq/programming.rst:1461
 msgid "Objects"
@@ -2130,6 +2770,13 @@ msgid ""
 msgstr ""
 "メソッドは、オブジェクト ``x`` が持つ関数で、通常 ``x.name(arguments...)`` と"
 "して呼び出されるものです。メソッドはクラス定義の中で関数として定義されます::"
+
+#: ../../faq/programming.rst:1485
+msgid ""
+"class C:\n"
+"    def meth(self, arg):\n"
+"        return arg * 2 + self.attribute"
+msgstr ""
 
 #: ../../faq/programming.rst:1491
 msgid "What is self?"
@@ -2186,6 +2833,38 @@ msgstr ""
 "的にそれを継承していなくても ``True`` を返します。「真のインスタンス」をテス"
 "トする場合は、クラスの :term:`MRO` を調べます:"
 
+#: ../../faq/programming.rst:1516
+msgid ""
+"from collections.abc import Mapping\n"
+"\n"
+"class P:\n"
+"     pass\n"
+"\n"
+"class C(P):\n"
+"    pass\n"
+"\n"
+"Mapping.register(P)"
+msgstr ""
+
+#: ../../faq/programming.rst:1528
+msgid ""
+">>> c = C()\n"
+">>> isinstance(c, C)        # direct\n"
+"True\n"
+">>> isinstance(c, P)        # indirect\n"
+"True\n"
+">>> isinstance(c, Mapping)  # virtual\n"
+"True\n"
+"\n"
+"# Actual inheritance chain\n"
+">>> type(c).__mro__\n"
+"(<class 'C'>, <class 'P'>, <class 'object'>)\n"
+"\n"
+"# Test for \"true inheritance\"\n"
+">>> Mapping in type(c).__mro__\n"
+"False"
+msgstr ""
+
 #: ../../faq/programming.rst:1546
 msgid ""
 "Note that most programs do not use :func:`isinstance` on user-defined "
@@ -2201,6 +2880,16 @@ msgstr ""
 "であって、オブジェクトのクラスを調べてそのクラスに応じて違うことをするもので"
 "はありません。例えば、何かをする関数があったとして::"
 
+#: ../../faq/programming.rst:1553
+msgid ""
+"def search(obj):\n"
+"    if isinstance(obj, Mailbox):\n"
+"        ...  # code to search a mailbox\n"
+"    elif isinstance(obj, Document):\n"
+"        ...  # code to search a document\n"
+"    elif ..."
+msgstr ""
+
 #: ../../faq/programming.rst:1560
 msgid ""
 "A better approach is to define a ``search()`` method on all the classes and "
@@ -2208,6 +2897,19 @@ msgid ""
 msgstr ""
 "よりよいアプローチは、``search()`` メソッドをすべてのクラスに定義して、それを"
 "ただ呼び出すことです::"
+
+#: ../../faq/programming.rst:1563
+msgid ""
+"class Mailbox:\n"
+"    def search(self):\n"
+"        ...  # code to search a mailbox\n"
+"\n"
+"class Document:\n"
+"    def search(self):\n"
+"        ...  # code to search a document\n"
+"\n"
+"obj.search()"
+msgstr ""
 
 #: ../../faq/programming.rst:1575
 msgid "What is delegation?"
@@ -2235,6 +2937,20 @@ msgid ""
 msgstr ""
 "Python プログラマは簡単に委譲を実装できます。例えば、以下のクラスは、ファイル"
 "のように振る舞いながらすべての文字を大文字に変換するクラスを実装します::"
+
+#: ../../faq/programming.rst:1587
+msgid ""
+"class UpperOut:\n"
+"\n"
+"    def __init__(self, outfile):\n"
+"        self._outfile = outfile\n"
+"\n"
+"    def write(self, s):\n"
+"        self._outfile.write(s.upper())\n"
+"\n"
+"    def __getattr__(self, name):\n"
+"        return getattr(self._outfile, name)"
+msgstr ""
 
 #: ../../faq/programming.rst:1598
 msgid ""
@@ -2265,6 +2981,15 @@ msgstr ""
 "要があり、それには細心の注意が必要です。 :meth:`!__setattr__` の基本的な実装"
 "はおおよそ以下のようになります::"
 
+#: ../../faq/programming.rst:1610
+msgid ""
+"class X:\n"
+"    ...\n"
+"    def __setattr__(self, name, value):\n"
+"        self.__dict__[name] = value\n"
+"    ..."
+msgstr ""
+
 #: ../../faq/programming.rst:1616
 msgid ""
 "Most :meth:`!__setattr__` implementations must modify :meth:`self.__dict__ "
@@ -2286,6 +3011,13 @@ msgstr ""
 #: ../../faq/programming.rst:1624
 msgid "Use the built-in :func:`super` function::"
 msgstr "組み込みの :func:`super` 関数を使ってください::"
+
+#: ../../faq/programming.rst:1626
+msgid ""
+"class Derived(Base):\n"
+"    def meth(self):\n"
+"        super().meth()  # calls Base.meth"
+msgstr ""
 
 #: ../../faq/programming.rst:1630
 msgid ""
@@ -2314,6 +3046,17 @@ msgstr ""
 "す。ちなみに、この手法は使用する基底クラスを動的に選びたいとき、例えば使える"
 "リソースによって選びたいときなどにも便利です。例::"
 
+#: ../../faq/programming.rst:1644
+msgid ""
+"class Base:\n"
+"    ...\n"
+"\n"
+"BaseAlias = Base\n"
+"\n"
+"class Derived(BaseAlias):\n"
+"    ..."
+msgstr ""
+
 #: ../../faq/programming.rst:1654
 msgid "How do I create static class data and static class methods?"
 msgstr "静的なクラスデータや静的なクラスメソッドを作るにはどうしますか？"
@@ -2333,6 +3076,18 @@ msgid ""
 msgstr ""
 "静的なデータを作るには、単純にクラス属性を定義してください。その属性に新しい"
 "値を代入するには、代入するクラス名を明示する必要があります::"
+
+#: ../../faq/programming.rst:1662
+msgid ""
+"class C:\n"
+"    count = 0   # number of times C.__init__ called\n"
+"\n"
+"    def __init__(self):\n"
+"        C.count = C.count + 1\n"
+"\n"
+"    def getcount(self):\n"
+"        return C.count  # or return self.count"
+msgstr ""
 
 #: ../../faq/programming.rst:1671
 msgid ""
@@ -2356,9 +3111,22 @@ msgstr ""
 "静的なデータの再束縛には、メソッド内であるか否かにかかわらず、いつもクラスを"
 "指定しなければなりません::"
 
+#: ../../faq/programming.rst:1680
+msgid "C.count = 314"
+msgstr ""
+
 #: ../../faq/programming.rst:1682
 msgid "Static methods are possible::"
 msgstr "静的メソッドが使えます::"
+
+#: ../../faq/programming.rst:1684
+msgid ""
+"class C:\n"
+"    @staticmethod\n"
+"    def static(arg1, arg2, arg3):\n"
+"        # No 'self' parameter!\n"
+"        ..."
+msgstr ""
 
 #: ../../faq/programming.rst:1690
 msgid ""
@@ -2367,6 +3135,12 @@ msgid ""
 msgstr ""
 "しかし、静的メソッドの効果を得るもっと簡単な方法は、単にモジュールレベル関数"
 "を使うことです::"
+
+#: ../../faq/programming.rst:1693
+msgid ""
+"def getcount():\n"
+"    return C.count"
+msgstr ""
 
 #: ../../faq/programming.rst:1696
 msgid ""
@@ -2395,6 +3169,14 @@ msgstr ""
 msgid "In C++ you'd write"
 msgstr "C++ では、このように書けます"
 
+#: ../../faq/programming.rst:1708
+msgid ""
+"class C {\n"
+"    C() { cout << \"No arguments\\n\"; }\n"
+"    C(int i) { cout << \"Argument is \" << i << \"\\n\"; }\n"
+"}"
+msgstr ""
+
 #: ../../faq/programming.rst:1715
 msgid ""
 "In Python you have to write a single constructor that catches all cases "
@@ -2403,6 +3185,16 @@ msgstr ""
 "Python では、一つのコンストラクタでデフォルトの引数を使ってすべての場合に対応"
 "するように書かなければなりません。例えば::"
 
+#: ../../faq/programming.rst:1718
+msgid ""
+"class C:\n"
+"    def __init__(self, i=None):\n"
+"        if i is None:\n"
+"            print(\"No arguments\")\n"
+"        else:\n"
+"            print(\"Argument is\", i)"
+msgstr ""
+
 #: ../../faq/programming.rst:1725
 msgid "This is not entirely equivalent, but close enough in practice."
 msgstr "これで完全に等価とは言えませんが、実用上は十分に近いです。"
@@ -2410,6 +3202,12 @@ msgstr "これで完全に等価とは言えませんが、実用上は十分に
 #: ../../faq/programming.rst:1727
 msgid "You could also try a variable-length argument list, e.g. ::"
 msgstr "長さが変えられる引数のリストを試すには、例えば ::"
+
+#: ../../faq/programming.rst:1729
+msgid ""
+"def __init__(self, *args):\n"
+"    ..."
+msgstr ""
 
 #: ../../faq/programming.rst:1732
 msgid "The same approach works for all method definitions."
@@ -2438,6 +3236,21 @@ msgstr ""
 msgid ""
 "The identifier can be used unchanged within the class, but to access it "
 "outside the class, the mangled name must be used:"
+msgstr ""
+
+#: ../../faq/programming.rst:1747
+msgid ""
+"class A:\n"
+"    def __one(self):\n"
+"        return 1\n"
+"    def two(self):\n"
+"        return 2 * self.__one()\n"
+"\n"
+"class B(A):\n"
+"    def three(self):\n"
+"        return 3 * self._A__one()\n"
+"\n"
+"four = 4 * A()._A__one()"
 msgstr ""
 
 #: ../../faq/programming.rst:1761
@@ -2650,10 +3463,33 @@ msgstr ""
 "特に、シングルトンであることが保証されていない :class:`int` や :class:`str` "
 "などの定数をチェックするために同一性テストを使わないでください。"
 
+#: ../../faq/programming.rst:1879
+msgid ""
+">>> a = 1000\n"
+">>> b = 500\n"
+">>> c = b + 500\n"
+">>> a is c\n"
+"False\n"
+"\n"
+">>> a = 'Python'\n"
+">>> b = 'Py'\n"
+">>> c = b + 'thon'\n"
+">>> a is c\n"
+"False"
+msgstr ""
+
 #: ../../faq/programming.rst:1891
 msgid "Likewise, new instances of mutable containers are never identical::"
 msgstr ""
 "同様に、ミュータブルなコンテナの新しいインスタンスは同一ではありません::"
+
+#: ../../faq/programming.rst:1893
+msgid ""
+">>> a = []\n"
+">>> b = []\n"
+">>> a is b\n"
+"False"
+msgstr ""
 
 #: ../../faq/programming.rst:1898
 msgid ""
@@ -2686,6 +3522,20 @@ msgstr ""
 "ルトンの番兵オブジェクトを作れます。  例えば、これは :meth:`dict.pop` のよう"
 "に振る舞うメソッドを実装する方法です:"
 
+#: ../../faq/programming.rst:1910
+msgid ""
+"_sentinel = object()\n"
+"\n"
+"def pop(self, key, default=_sentinel):\n"
+"    if key in self:\n"
+"        value = self[key]\n"
+"        del self[key]\n"
+"        return value\n"
+"    if default is _sentinel:\n"
+"        raise KeyError(key)\n"
+"    return default"
+msgstr ""
+
 #: ../../faq/programming.rst:1921
 msgid ""
 "3) Container implementations sometimes need to augment equality tests with "
@@ -2702,6 +3552,15 @@ msgid ""
 "__contains__`::"
 msgstr ""
 "例えば、これは :meth:`!collections.abc.Sequence.__contains__`: の実装です:"
+
+#: ../../faq/programming.rst:1928
+msgid ""
+"def __contains__(self, value):\n"
+"    for v in self:\n"
+"        if v is value or v == value:\n"
+"            return True\n"
+"    return False"
+msgstr ""
 
 #: ../../faq/programming.rst:1936
 msgid ""
@@ -2729,9 +3588,45 @@ msgid ""
 msgstr ""
 "これらのイミュータブルクラスはすべて、親クラスと異なるシグネチャを持ちます:"
 
+#: ../../faq/programming.rst:1946
+msgid ""
+"from datetime import date\n"
+"\n"
+"class FirstOfMonthDate(date):\n"
+"    \"Always choose the first day of the month\"\n"
+"    def __new__(cls, year, month, day):\n"
+"        return super().__new__(cls, year, month, 1)\n"
+"\n"
+"class NamedInt(int):\n"
+"    \"Allow text names for some numbers\"\n"
+"    xlat = {'zero': 0, 'one': 1, 'ten': 10}\n"
+"    def __new__(cls, value):\n"
+"        value = cls.xlat.get(value, value)\n"
+"        return super().__new__(cls, value)\n"
+"\n"
+"class TitleStr(str):\n"
+"    \"Convert str to name suitable for a URL path\"\n"
+"    def __new__(cls, s):\n"
+"        s = s.lower().replace(' ', '-')\n"
+"        s = ''.join([c for c in s if c.isalnum() or c == '-'])\n"
+"        return super().__new__(cls, s)"
+msgstr ""
+
 #: ../../faq/programming.rst:1969
 msgid "The classes can be used like this:"
 msgstr "クラスはこのように使えます:"
+
+#: ../../faq/programming.rst:1971
+msgid ""
+">>> FirstOfMonthDate(2012, 2, 14)\n"
+"FirstOfMonthDate(2012, 2, 1)\n"
+">>> NamedInt('ten')\n"
+"10\n"
+">>> NamedInt(20)\n"
+"20\n"
+">>> TitleStr('Blog: Why Python Rocks')\n"
+"'blog-why-python-rocks'"
+msgstr ""
 
 #: ../../faq/programming.rst:1986
 msgid "How do I cache method calls?"
@@ -2793,6 +3688,31 @@ msgstr ""
 msgid "This example shows the various techniques::"
 msgstr "この例は各種テクニックを示します::"
 
+#: ../../faq/programming.rst:2013
+msgid ""
+"class Weather:\n"
+"    \"Lookup weather information on a government website\"\n"
+"\n"
+"    def __init__(self, station_id):\n"
+"        self._station_id = station_id\n"
+"        # The _station_id is private and immutable\n"
+"\n"
+"    def current_temperature(self):\n"
+"        \"Latest hourly observation\"\n"
+"        # Do not cache this because old results\n"
+"        # can be out of date.\n"
+"\n"
+"    @cached_property\n"
+"    def location(self):\n"
+"        \"Return the longitude/latitude coordinates of the station\"\n"
+"        # Result only depends on the station_id\n"
+"\n"
+"    @lru_cache(maxsize=20)\n"
+"    def historic_rainfall(self, date, units='mm'):\n"
+"        \"Rainfall on a given date\"\n"
+"        # Depends on the station_id, date, and units."
+msgstr ""
+
 #: ../../faq/programming.rst:2035
 msgid ""
 "The above example assumes that the *station_id* never changes.  If the "
@@ -2812,6 +3732,29 @@ msgstr ""
 "*station_id* が可変の場合に *lru_cache* アプローチを機能させるには、クラス"
 "で :meth:`~object.__eq__` と :meth:`~object.__hash__` メソッドを定義する必要"
 "があります。これにより、キャッシュは関連する属性の更新を検出できます::"
+
+#: ../../faq/programming.rst:2044
+msgid ""
+"class Weather:\n"
+"    \"Example with a mutable station identifier\"\n"
+"\n"
+"    def __init__(self, station_id):\n"
+"        self.station_id = station_id\n"
+"\n"
+"    def change_station(self, station_id):\n"
+"        self.station_id = station_id\n"
+"\n"
+"    def __eq__(self, other):\n"
+"        return self.station_id == other.station_id\n"
+"\n"
+"    def __hash__(self):\n"
+"        return hash(self.station_id)\n"
+"\n"
+"    @lru_cache(maxsize=20)\n"
+"    def historic_rainfall(self, date, units='cm'):\n"
+"        'Rainfall on a given date'\n"
+"        # Depends on the station_id, date, and units."
+msgstr ""
 
 #: ../../faq/programming.rst:2066
 msgid "Modules"
@@ -2900,6 +3843,12 @@ msgstr ""
 "り方の一つは、このモジュールの ``compile()`` 関数をインタラクティブに実行する"
 "ことです::"
 
+#: ../../faq/programming.rst:2103
+msgid ""
+">>> import py_compile\n"
+">>> py_compile.compile('foo.py')                 "
+msgstr ""
+
 #: ../../faq/programming.rst:2106
 msgid ""
 "This will write the ``.pyc`` to a ``__pycache__`` subdirectory in the same "
@@ -2921,6 +3870,10 @@ msgstr ""
 "のファイルをコンパイルできます。シェルプロンプトから ``compileall.py`` を起動"
 "して、コンパイルしたいファイルを含むディレクトリのパスを指定してください::"
 
+#: ../../faq/programming.rst:2115
+msgid "python -m compileall ."
+msgstr ""
+
 #: ../../faq/programming.rst:2119
 msgid "How do I find the current module name?"
 msgstr "現在のモジュール名を知るにはどうしますか？"
@@ -2939,6 +3892,16 @@ msgstr ""
 "モジュールはコマンドラインインターフェースや自己テストも提供していて、"
 "``__name__`` をチェックしてからそのコードだけを実行します::"
 
+#: ../../faq/programming.rst:2127
+msgid ""
+"def main():\n"
+"    print('Running test...')\n"
+"    ...\n"
+"\n"
+"if __name__ == '__main__':\n"
+"    main()"
+msgstr ""
+
 #: ../../faq/programming.rst:2136
 msgid "How can I have modules that mutually import each other?"
 msgstr "相互にインポートしあうモジュールを作るにはどうしたらいいですか？"
@@ -2951,9 +3914,21 @@ msgstr "以下のモジュールがあったとしましょう:"
 msgid ":file:`foo.py`::"
 msgstr ":file:`foo.py`::"
 
+#: ../../faq/programming.rst:2142
+msgid ""
+"from bar import bar_var\n"
+"foo_var = 1"
+msgstr ""
+
 #: ../../faq/programming.rst:2145
 msgid ":file:`bar.py`::"
 msgstr ":file:`bar.py`::"
+
+#: ../../faq/programming.rst:2147
+msgid ""
+"from foo import foo_var\n"
+"bar_var = 2"
+msgstr ""
 
 #: ../../faq/programming.rst:2150
 msgid "The problem is that the interpreter will perform the following steps:"
@@ -3091,6 +4066,10 @@ msgstr ""
 ":mod:`importlib` に :func:`~importlib.import_module` という便利な関数があるの"
 "で、代わりにそちらを使用することを検討してください。"
 
+#: ../../faq/programming.rst:2196
+msgid "z = importlib.import_module('x.y.z')"
+msgstr ""
+
 #: ../../faq/programming.rst:2200
 msgid ""
 "When I edit an imported module and reimport it, the changes don't show up.  "
@@ -3113,11 +4092,22 @@ msgstr ""
 "その基本モジュールの解析と再解析が繰り返されることになります。変更されさたモ"
 "ジュールの再読込を強制するには、こうしてください::"
 
+#: ../../faq/programming.rst:2208
+msgid ""
+"import importlib\n"
+"import modname\n"
+"importlib.reload(modname)"
+msgstr ""
+
 #: ../../faq/programming.rst:2212
 msgid ""
 "Warning: this technique is not 100% fool-proof.  In particular, modules "
 "containing statements like ::"
 msgstr "注意:この手法は 100%安全とは言えません。とりわけ ::"
+
+#: ../../faq/programming.rst:2215
+msgid "from modname import some_objects"
+msgstr ""
 
 #: ../../faq/programming.rst:2217
 msgid ""
@@ -3131,6 +4121,17 @@ msgstr ""
 "スタンスは新しいクラス定義を使うようにアップデート *されません*。これによって"
 "以下の矛盾した振舞いがなされえます::"
 
+#: ../../faq/programming.rst:2222
+msgid ""
+">>> import importlib\n"
+">>> import cls\n"
+">>> c = cls.C()                # Create an instance of C\n"
+">>> importlib.reload(cls)\n"
+"<module 'cls' from 'cls.py'>\n"
+">>> isinstance(c, cls.C)       # isinstance is false?!?\n"
+"False"
+msgstr ""
+
 #: ../../faq/programming.rst:2230
 msgid ""
 "The nature of the problem is made clear if you print out the \"identity\" of "
@@ -3138,6 +4139,14 @@ msgid ""
 msgstr ""
 "この問題の本質は、クラスオブジェクトの \"固有値\" を印字することで明らかにな"
 "ります::"
+
+#: ../../faq/programming.rst:2233
+msgid ""
+">>> hex(id(c.__class__))\n"
+"'0x7352a0'\n"
+">>> hex(id(cls.C))\n"
+"'0x4198d0'"
+msgstr ""
 
 #: ../../faq/programming.rst:408
 msgid "argument"

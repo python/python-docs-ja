@@ -7,16 +7,16 @@
 # tomo, 2021
 # Arihiro TAKASE, 2023
 # Taichi Haradaguchi, 2024
-# qqfunc, 2024
+# 石井明久, 2024
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-09 16:36+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 01:09+0000\n"
-"Last-Translator: qqfunc, 2024\n"
+"Last-Translator: 石井明久, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -482,6 +482,12 @@ msgstr ""
 "うな形式を使いたい場合、代わりに使われる文字を指定する必要があります。感嘆符 "
 "(``'!'``) を使うのが一般的な選択です。以下の例を見てください::"
 
+#: ../../library/mailbox.rst:362
+msgid ""
+"import mailbox\n"
+"mailbox.Maildir.colon = '!'"
+msgstr ""
+
 #: ../../library/mailbox.rst:365
 msgid "The :attr:`!colon` attribute may also be set on a per-instance basis."
 msgstr ""
@@ -557,6 +563,13 @@ msgid ""
 "similar to ::"
 msgstr ""
 
+#: ../../library/mailbox.rst:431
+msgid ""
+"one_message = some_mailbox.get_message(key)\n"
+"one_message.set_flags(flags)\n"
+"some_mailbox[key] = one_message"
+msgstr ""
+
 #: ../../library/mailbox.rst:435 ../../library/mailbox.rst:498
 msgid "but faster, because it does not open the message file."
 msgstr ""
@@ -617,6 +630,13 @@ msgstr ""
 msgid ""
 "Set the info of the message corresponding to *key* to *info*. Calling "
 "``some_mailbox.set_info(key, flags)`` is similar to ::"
+msgstr ""
+
+#: ../../library/mailbox.rst:494
+msgid ""
+"one_message = some_mailbox.get_message(key)\n"
+"one_message.set_info(info)\n"
+"some_mailbox[key] = one_message"
 msgstr ""
 
 #: ../../library/mailbox.rst:500
@@ -2165,6 +2185,15 @@ msgid ""
 msgstr ""
 "メールボックス中の面白そうなメッセージのサブジェクトを全て印字する簡単な例::"
 
+#: ../../library/mailbox.rst:1657
+msgid ""
+"import mailbox\n"
+"for message in mailbox.mbox('~/mbox'):\n"
+"    subject = message['subject']       # Could possibly be None.\n"
+"    if subject and 'python' in subject.lower():\n"
+"        print(subject)"
+msgstr ""
+
 #: ../../library/mailbox.rst:1663
 msgid ""
 "To copy all mail from a Babyl mailbox to an MH mailbox, converting all of "
@@ -2172,6 +2201,17 @@ msgid ""
 msgstr ""
 "Babyl メールボックスから MH メールボックスへ全てのメールをコピーし、変換可能"
 "な全ての形式固有の情報を変換する::"
+
+#: ../../library/mailbox.rst:1666
+msgid ""
+"import mailbox\n"
+"destination = mailbox.MH('~/Mail')\n"
+"destination.lock()\n"
+"for message in mailbox.Babyl('~/RMAIL'):\n"
+"    destination.add(mailbox.MHMessage(message))\n"
+"destination.flush()\n"
+"destination.unlock()"
+msgstr ""
 
 #: ../../library/mailbox.rst:1674
 msgid ""
@@ -2184,3 +2224,44 @@ msgstr ""
 "と平行して変更を加えることでメールが破損したり、プログラムを中断することで"
 "メールを失ったり、はたまた半端なメッセージがメールボックス中にあることで途中"
 "で終了してしまう、といったことを避けるように注意深く扱っています::"
+
+#: ../../library/mailbox.rst:1679
+msgid ""
+"import mailbox\n"
+"import email.errors\n"
+"\n"
+"list_names = ('python-list', 'python-dev', 'python-bugs')\n"
+"\n"
+"boxes = {name: mailbox.mbox('~/email/%s' % name) for name in list_names}\n"
+"inbox = mailbox.Maildir('~/Maildir', factory=None)\n"
+"\n"
+"for key in inbox.iterkeys():\n"
+"    try:\n"
+"        message = inbox[key]\n"
+"    except email.errors.MessageParseError:\n"
+"        continue                # The message is malformed. Just leave it.\n"
+"\n"
+"    for name in list_names:\n"
+"        list_id = message['list-id']\n"
+"        if list_id and name in list_id:\n"
+"            # Get mailbox to use\n"
+"            box = boxes[name]\n"
+"\n"
+"            # Write copy to disk before removing original.\n"
+"            # If there's a crash, you might duplicate a message, but\n"
+"            # that's better than losing a message completely.\n"
+"            box.lock()\n"
+"            box.add(message)\n"
+"            box.flush()\n"
+"            box.unlock()\n"
+"\n"
+"            # Remove original message\n"
+"            inbox.lock()\n"
+"            inbox.discard(key)\n"
+"            inbox.flush()\n"
+"            inbox.unlock()\n"
+"            break               # Found destination, so stop looking.\n"
+"\n"
+"for box in boxes.itervalues():\n"
+"    box.close()"
+msgstr ""

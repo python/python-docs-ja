@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 14:16+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 01:14+0000\n"
 "Last-Translator: 石井明久, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -1060,8 +1060,7 @@ msgid ""
 "default, although, since it affects all uses of *tarfile*, it is best "
 "practice to only do so in top-level applications or :mod:`site configuration "
 "<site>`. To set a global default this way, a filter function needs to be "
-"wrapped in :func:`staticmethod()` to prevent injection of a ``self`` "
-"argument."
+"wrapped in :func:`staticmethod` to prevent injection of a ``self`` argument."
 msgstr ""
 
 #: ../../library/tarfile.rst:624
@@ -1348,6 +1347,10 @@ msgid ""
 "set to ``'staff'``, use::"
 msgstr ""
 
+#: ../../library/tarfile.rst:899
+msgid "new_tarinfo = old_tarinfo.replace(gname='staff')"
+msgstr ""
+
 #: ../../library/tarfile.rst:901
 msgid ""
 "By default, a deep copy is made. If *deep* is false, the copy is shallow, i."
@@ -1479,6 +1482,10 @@ msgid ""
 "`TarInfo <tarinfo-objects>` describing the member and the destination path "
 "to where the archive is extracted (i.e. the same path is used for all "
 "members)::"
+msgstr ""
+
+#: ../../library/tarfile.rst:1007
+msgid "filter(member: TarInfo, path: str, /) -> TarInfo | None"
 msgstr ""
 
 #: ../../library/tarfile.rst:1009
@@ -1718,22 +1725,55 @@ msgstr ""
 msgid "Fully trusted archive::"
 msgstr ""
 
+#: ../../library/tarfile.rst:1145
+msgid ""
+"my_tarfile.extraction_filter = (lambda member, path: member)\n"
+"my_tarfile.extractall()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1148
 msgid ""
 "Use the ``'data'`` filter if available, but revert to Python 3.11 behavior "
 "(``'fully_trusted'``) if this feature is not available::"
 msgstr ""
 
+#: ../../library/tarfile.rst:1151
+msgid ""
+"my_tarfile.extraction_filter = getattr(tarfile, 'data_filter',\n"
+"                                       (lambda member, path: member))\n"
+"my_tarfile.extractall()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1155
 msgid "Use the ``'data'`` filter; *fail* if it is not available::"
+msgstr ""
+
+#: ../../library/tarfile.rst:1157
+msgid "my_tarfile.extractall(filter=tarfile.data_filter)"
 msgstr ""
 
 #: ../../library/tarfile.rst:1159
 msgid "or::"
 msgstr "もしくは::"
 
+#: ../../library/tarfile.rst:1161
+msgid ""
+"my_tarfile.extraction_filter = tarfile.data_filter\n"
+"my_tarfile.extractall()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1164
 msgid "Use the ``'data'`` filter; *warn* if it is not available::"
+msgstr ""
+
+#: ../../library/tarfile.rst:1166
+msgid ""
+"if hasattr(tarfile, 'data_filter'):\n"
+"    my_tarfile.extractall(filter='data')\n"
+"else:\n"
+"    # remove this when no longer needed\n"
+"    warn_the_user('Extracting may be unsafe; consider updating Python')\n"
+"    my_tarfile.extractall()"
 msgstr ""
 
 #: ../../library/tarfile.rst:1175
@@ -1747,8 +1787,31 @@ msgid ""
 "to write these as context managers, to be used like this::"
 msgstr ""
 
+#: ../../library/tarfile.rst:1181
+msgid ""
+"with StatefulFilter() as filter_func:\n"
+"    tar.extractall(path, filter=filter_func)"
+msgstr ""
+
 #: ../../library/tarfile.rst:1184
 msgid "Such a filter can be written as, for example::"
+msgstr ""
+
+#: ../../library/tarfile.rst:1186
+msgid ""
+"class StatefulFilter:\n"
+"    def __init__(self):\n"
+"        self.file_count = 0\n"
+"\n"
+"    def __enter__(self):\n"
+"        return self\n"
+"\n"
+"    def __call__(self, member, path):\n"
+"        self.file_count += 1\n"
+"        return member\n"
+"\n"
+"    def __exit__(self, *exc_info):\n"
+"        print(f'{self.file_count} files extracted')"
 msgstr ""
 
 #: ../../library/tarfile.rst:1206
@@ -1771,9 +1834,17 @@ msgstr ""
 "tar アーカイブを新規に作成したい場合、:option:`-c` オプションの後にまとめたい"
 "ファイル名のリストを指定してください:"
 
+#: ../../library/tarfile.rst:1216
+msgid "$ python -m tarfile -c monty.tar  spam.txt eggs.txt"
+msgstr ""
+
 #: ../../library/tarfile.rst:1220
 msgid "Passing a directory is also acceptable:"
 msgstr "ディレクトリを渡すこともできます:"
+
+#: ../../library/tarfile.rst:1222
+msgid "$ python -m tarfile -c monty.tar life-of-brian_1979/"
+msgstr ""
 
 #: ../../library/tarfile.rst:1226
 msgid ""
@@ -1783,6 +1854,10 @@ msgstr ""
 "tar アーカイブをカレントディレクトリに展開したい場合、:option:`-e` オプション"
 "を使用してください:"
 
+#: ../../library/tarfile.rst:1229
+msgid "$ python -m tarfile -e monty.tar"
+msgstr ""
+
 #: ../../library/tarfile.rst:1233
 msgid ""
 "You can also extract a tar archive into a different directory by passing the "
@@ -1791,10 +1866,18 @@ msgstr ""
 "ディレクトリ名を渡すことで tar アーカイブを別のディレクトリに取り出すこともで"
 "きます:"
 
+#: ../../library/tarfile.rst:1236
+msgid "$ python -m tarfile -e monty.tar  other-dir/"
+msgstr ""
+
 #: ../../library/tarfile.rst:1240
 msgid "For a list of the files in a tar archive, use the :option:`-l` option:"
 msgstr ""
 "tar アーカイブ内のファイル一覧を表示するには :option:`-l` を使用してください:"
+
+#: ../../library/tarfile.rst:1242
+msgid "$ python -m tarfile -l monty.tar"
+msgstr ""
 
 #: ../../library/tarfile.rst:1248
 msgid "Command-line options"
@@ -1838,6 +1921,14 @@ msgstr "使用例"
 msgid "How to extract an entire tar archive to the current working directory::"
 msgstr "tar アーカイブから現在のディレクトリにすべて抽出する方法::"
 
+#: ../../library/tarfile.rst:1288
+msgid ""
+"import tarfile\n"
+"tar = tarfile.open(\"sample.tar.gz\")\n"
+"tar.extractall(filter='data')\n"
+"tar.close()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1293
 msgid ""
 "How to extract a subset of a tar archive with :meth:`TarFile.extractall` "
@@ -1846,13 +1937,45 @@ msgstr ""
 "tar アーカイブの一部を、リストの代わりにジェネレーター関数を利用して :meth:"
 "`TarFile.extractall` で展開する方法::"
 
+#: ../../library/tarfile.rst:1296
+msgid ""
+"import os\n"
+"import tarfile\n"
+"\n"
+"def py_files(members):\n"
+"    for tarinfo in members:\n"
+"        if os.path.splitext(tarinfo.name)[1] == \".py\":\n"
+"            yield tarinfo\n"
+"\n"
+"tar = tarfile.open(\"sample.tar.gz\")\n"
+"tar.extractall(members=py_files(tar))\n"
+"tar.close()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1308
 msgid "How to create an uncompressed tar archive from a list of filenames::"
 msgstr "非圧縮 tar アーカイブをファイル名のリストから作成する方法::"
 
+#: ../../library/tarfile.rst:1310
+msgid ""
+"import tarfile\n"
+"tar = tarfile.open(\"sample.tar\", \"w\")\n"
+"for name in [\"foo\", \"bar\", \"quux\"]:\n"
+"    tar.add(name)\n"
+"tar.close()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1316
 msgid "The same example using the :keyword:`with` statement::"
 msgstr ":keyword:`with` 文を利用した同じ例::"
+
+#: ../../library/tarfile.rst:1318
+msgid ""
+"import tarfile\n"
+"with tarfile.open(\"sample.tar\", \"w\") as tar:\n"
+"    for name in [\"foo\", \"bar\", \"quux\"]:\n"
+"        tar.add(name)"
+msgstr ""
 
 #: ../../library/tarfile.rst:1323
 msgid ""
@@ -1861,6 +1984,22 @@ msgid ""
 msgstr ""
 "gzip 圧縮 tar アーカイブを作成してメンバー情報のいくつかを表示する方法::"
 
+#: ../../library/tarfile.rst:1325
+msgid ""
+"import tarfile\n"
+"tar = tarfile.open(\"sample.tar.gz\", \"r:gz\")\n"
+"for tarinfo in tar:\n"
+"    print(tarinfo.name, \"is\", tarinfo.size, \"bytes in size and is \", "
+"end=\"\")\n"
+"    if tarinfo.isreg():\n"
+"        print(\"a regular file.\")\n"
+"    elif tarinfo.isdir():\n"
+"        print(\"a directory.\")\n"
+"    else:\n"
+"        print(\"something else.\")\n"
+"tar.close()"
+msgstr ""
+
 #: ../../library/tarfile.rst:1337
 msgid ""
 "How to create an archive and reset the user information using the *filter* "
@@ -1868,6 +2007,18 @@ msgid ""
 msgstr ""
 ":meth:`TarFile.add` 関数の *filter* 引数を利用してユーザー情報をリセットしな"
 "がらアーカイブを作成する方法::"
+
+#: ../../library/tarfile.rst:1340
+msgid ""
+"import tarfile\n"
+"def reset(tarinfo):\n"
+"    tarinfo.uid = tarinfo.gid = 0\n"
+"    tarinfo.uname = tarinfo.gname = \"root\"\n"
+"    return tarinfo\n"
+"tar = tarfile.open(\"sample.tar.gz\", \"w:gz\")\n"
+"tar.add(\"foo\", filter=reset)\n"
+"tar.close()"
+msgstr ""
 
 #: ../../library/tarfile.rst:1353
 msgid "Supported tar formats"

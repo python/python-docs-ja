@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 14:16+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-29 13:04+0000\n"
 "Last-Translator: Taichi Haradaguchi, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -726,6 +726,22 @@ msgstr ""
 "新たな例外のおかげで :mod:`errno` の一般的な使い方を避けることが出来ます。\n"
 "例えば、Python 3.2 向けに書かれた以下のコード::"
 
+#: ../../whatsnew/3.3.rst:366
+msgid ""
+"from errno import ENOENT, EACCES, EPERM\n"
+"\n"
+"try:\n"
+"    with open(\"document.txt\") as f:\n"
+"        content = f.read()\n"
+"except IOError as err:\n"
+"    if err.errno == ENOENT:\n"
+"        print(\"document.txt file is missing\")\n"
+"    elif err.errno in (EACCES, EPERM):\n"
+"        print(\"You are not allowed to read document.txt\")\n"
+"    else:\n"
+"        raise"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:379
 msgid ""
 "can now be written without the :mod:`errno` import and without manual "
@@ -733,6 +749,17 @@ msgid ""
 msgstr ""
 "は :mod:`errno` をインポートしたり手動で例外属性を調べたりせずに書くことが出"
 "来ます::"
+
+#: ../../whatsnew/3.3.rst:382
+msgid ""
+"try:\n"
+"    with open(\"document.txt\") as f:\n"
+"        content = f.read()\n"
+"except FileNotFoundError:\n"
+"    print(\"document.txt file is missing\")\n"
+"except PermissionError:\n"
+"    print(\"You are not allowed to read document.txt\")"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:392
 msgid ":pep:`3151` - Reworking the OS and IO Exception Hierarchy"
@@ -777,6 +804,16 @@ msgstr ""
 "単純なイテレータに対して、 ``yield from iterable`` は本質的には ``for item "
 "in iterable: yield item`` への単なる速記法です::"
 
+#: ../../whatsnew/3.3.rst:417
+msgid ""
+">>> def g(x):\n"
+"...     yield from range(x, 0, -1)\n"
+"...     yield from range(x)\n"
+"...\n"
+">>> list(g(5))\n"
+"[5, 4, 3, 2, 1, 0, 1, 2, 3, 4]"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:424
 msgid ""
 "However, unlike an ordinary loop, ``yield from`` allows subgenerators to "
@@ -787,6 +824,36 @@ msgstr ""
 "側スコープから :meth:`~generator.send` されたり :meth:`~generator.throw` され"
 "た値を直接受け取ることができ、また、外側のジェネレータに最終的な値を返せま"
 "す::"
+
+#: ../../whatsnew/3.3.rst:428
+msgid ""
+">>> def accumulate():\n"
+"...     tally = 0\n"
+"...     while 1:\n"
+"...         next = yield\n"
+"...         if next is None:\n"
+"...             return tally\n"
+"...         tally += next\n"
+"...\n"
+">>> def gather_tallies(tallies):\n"
+"...     while 1:\n"
+"...         tally = yield from accumulate()\n"
+"...         tallies.append(tally)\n"
+"...\n"
+">>> tallies = []\n"
+">>> acc = gather_tallies(tallies)\n"
+">>> next(acc)  # Ensure the accumulator is ready to accept values\n"
+">>> for i in range(4):\n"
+"...     acc.send(i)\n"
+"...\n"
+">>> acc.send(None)  # Finish the first tally\n"
+">>> for i in range(5):\n"
+"...     acc.send(i)\n"
+"...\n"
+">>> acc.send(None)  # Finish the second tally\n"
+">>> tallies\n"
+"[6, 10]"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:455
 msgid ""
@@ -828,6 +895,24 @@ msgstr ""
 "入します。これを使えば例外翻訳して投げ直すようなアプリケーションで、エラー"
 "メッセージをわかりやすくすることが出来ます::"
 
+#: ../../whatsnew/3.3.rst:475
+msgid ""
+">>> class D:\n"
+"...     def __init__(self, extra):\n"
+"...         self._extra_attributes = extra\n"
+"...     def __getattr__(self, attr):\n"
+"...         try:\n"
+"...             return self._extra_attributes[attr]\n"
+"...         except KeyError:\n"
+"...             raise AttributeError(attr) from None\n"
+"...\n"
+">>> D({}).x\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"  File \"<stdin>\", line 8, in __getattr__\n"
+"AttributeError: x"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:490
 msgid ""
 "Without the ``from None`` suffix to suppress the cause, the original "
@@ -835,6 +920,30 @@ msgid ""
 msgstr ""
 "元となる要因例外を抑制する ``from None`` を後置しなければ、もとの例外はデフォ"
 "ルトで表示されます::"
+
+#: ../../whatsnew/3.3.rst:493
+msgid ""
+">>> class C:\n"
+"...     def __init__(self, extra):\n"
+"...         self._extra_attributes = extra\n"
+"...     def __getattr__(self, attr):\n"
+"...         try:\n"
+"...             return self._extra_attributes[attr]\n"
+"...         except KeyError:\n"
+"...             raise AttributeError(attr)\n"
+"...\n"
+">>> C({}).x\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 6, in __getattr__\n"
+"KeyError: 'x'\n"
+"\n"
+"During handling of the above exception, another exception occurred:\n"
+"\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"  File \"<stdin>\", line 8, in __getattr__\n"
+"AttributeError: x"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:514
 msgid ""
@@ -845,6 +954,16 @@ msgstr ""
 "抑制することでデバッグ能力が失われるというわけではなくて、元々の例外コンテキ"
 "ストは利用可能なままです。(例えば介在するライブラリが有益な背後の詳細を不適切"
 "に隠してしまっているなど、必要な場合はあるでしょう。)"
+
+#: ../../whatsnew/3.3.rst:518
+msgid ""
+">>> try:\n"
+"...     D({}).x\n"
+"... except AttributeError as exc:\n"
+"...     print(repr(exc.__context__))\n"
+"...\n"
+"KeyError('x',)"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:527
 msgid ":pep:`409` - Suppressing exception context"
@@ -910,13 +1029,55 @@ msgstr ""
 msgid "Example with (non-bound) methods::"
 msgstr "(束縛されていない) メソッドでの例::"
 
+#: ../../whatsnew/3.3.rst:560
+msgid ""
+">>> class C:\n"
+"...     def meth(self):\n"
+"...         pass\n"
+"...\n"
+">>> C.meth.__name__\n"
+"'meth'\n"
+">>> C.meth.__qualname__\n"
+"'C.meth'"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:569
 msgid "Example with nested classes::"
 msgstr "入れ子のクラスでの例::"
 
+#: ../../whatsnew/3.3.rst:571
+msgid ""
+">>> class C:\n"
+"...     class D:\n"
+"...         def meth(self):\n"
+"...             pass\n"
+"...\n"
+">>> C.D.__name__\n"
+"'D'\n"
+">>> C.D.__qualname__\n"
+"'C.D'\n"
+">>> C.D.meth.__name__\n"
+"'meth'\n"
+">>> C.D.meth.__qualname__\n"
+"'C.D.meth'"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:585
 msgid "Example with nested functions::"
 msgstr "入れ子の関数の例::"
+
+#: ../../whatsnew/3.3.rst:587
+msgid ""
+">>> def outer():\n"
+"...     def inner():\n"
+"...         pass\n"
+"...     return inner\n"
+"...\n"
+">>> outer().__name__\n"
+"'inner'\n"
+">>> outer().__qualname__\n"
+"'outer.<locals>.inner'"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:597
 msgid ""
@@ -925,6 +1086,14 @@ msgid ""
 msgstr ""
 "それらオブジェクトの文字列表現も、この新しくてより正確な情報を含むように変更"
 "されています::"
+
+#: ../../whatsnew/3.3.rst:600
+msgid ""
+">>> str(C.D)\n"
+"\"<class '__main__.C.D'>\"\n"
+">>> str(C.D.meth)\n"
+"'<function C.D.meth at 0x7f46b9fe31e0>'"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:607
 msgid ":pep:`3155` - Qualified name for classes and functions"
@@ -1269,14 +1438,9 @@ msgstr "Python 言語コアに小さな変更がいくつか行われました:"
 #: ../../whatsnew/3.3.rst:781
 msgid ""
 "Added support for Unicode name aliases and named sequences. Both :func:"
-"`unicodedata.lookup()` and ``'\\N{...}'`` now resolve name aliases, and :"
-"func:`unicodedata.lookup()` resolves named sequences too."
+"`unicodedata.lookup` and ``'\\N{...}'`` now resolve name aliases, and :func:"
+"`unicodedata.lookup` resolves named sequences too."
 msgstr ""
-"Unicode `name aliases <http://www.unicode.org/Public/UCD/latest/ucd/"
-"NameAliases.txt>`_ と `named sequences <http://www.unicode.org/Public/UCD/"
-"latest/ucd/NamedSequences.txt>`_ のサポートが追加されました。 :func:"
-"`unicodedata.lookup()` と ``'\\N{...}'`` の両方が name aliases の解決を行"
-"い、 :func:`unicodedata.lookup()` は named sequences の解決も行います。"
 
 #: ../../whatsnew/3.3.rst:785
 msgid "(Contributed by Ezio Melotti in :issue:`12753`.)"
@@ -1484,6 +1648,20 @@ msgstr ""
 #: ../../whatsnew/3.3.rst:875
 msgid "Example of a segmentation fault on Linux:"
 msgstr "Linuxでのセグメンテーションフォールト時の例:"
+
+#: ../../whatsnew/3.3.rst:877
+msgid ""
+"$ python -q -X faulthandler\n"
+">>> import ctypes\n"
+">>> ctypes.string_at(0)\n"
+"Fatal Python error: Segmentation fault\n"
+"\n"
+"Current thread 0x00007fb899f39700:\n"
+"  File \"/home/python/cpython/Lib/ctypes/__init__.py\", line 486 in "
+"string_at\n"
+"  File \"<stdin>\", line 1 in <module>\n"
+"Segmentation fault"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:891
 msgid "ipaddress"
@@ -1729,6 +1907,15 @@ msgid ""
 msgstr ""
 "漸増的 CJK コーデックのエンコーダは以前は encode() メソッド呼び出しのたびにリ"
 "セットしていましたが、リセットしなくなりました。例えば::"
+
+#: ../../whatsnew/3.3.rst:1005
+msgid ""
+">>> import codecs\n"
+">>> encoder = codecs.getincrementalencoder('hz')('strict')\n"
+">>> b''.join(encoder.encode(x) for x in '\\u52ff\\u65bd\\u65bc\\u4eba\\u3002 "
+"Bye.')\n"
+"b'~{NpJ)l6HK!#~} Bye.'"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:1010
 msgid ""
@@ -2254,6 +2441,10 @@ msgstr ""
 "はデフォルトのまま残されます。ですので linesep 文字列として ``\\r\\n`` を使う"
 "ポリシーをこのようにして作れます::"
 
+#: ../../whatsnew/3.3.rst:1239
+msgid "mypolicy = compat32.clone(linesep='\\r\\n')"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:1241
 msgid ""
 "Policies can be used to make the generation of messages in the format needed "
@@ -2358,6 +2549,29 @@ msgstr ""
 "解析済み日付にアクセス出来るよう、追加の属性群を持ちます。以下のように使えま"
 "す::"
 
+#: ../../whatsnew/3.3.rst:1291
+msgid ""
+">>> m = Message(policy=SMTP)\n"
+">>> m['To'] = 'Éric <foo@example.com>'\n"
+">>> m['to']\n"
+"'Éric <foo@example.com>'\n"
+">>> m['to'].addresses\n"
+"(Address(display_name='Éric', username='foo', domain='example.com'),)\n"
+">>> m['to'].addresses[0].username\n"
+"'foo'\n"
+">>> m['to'].addresses[0].display_name\n"
+"'Éric'\n"
+">>> m['Date'] = email.utils.localtime()\n"
+">>> m['Date'].datetime\n"
+"datetime.datetime(2012, 5, 25, 21, 39, 24, 465484, tzinfo=datetime."
+"timezone(datetime.timedelta(-1, 72000), 'EDT'))\n"
+">>> m['Date']\n"
+"'Fri, 25 May 2012 21:44:27 -0400'\n"
+">>> print(m)\n"
+"To: =?utf-8?q?=C3=89ric?= <foo@example.com>\n"
+"Date: Fri, 25 May 2012 21:44:27 -0400"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:1310
 msgid ""
 "You will note that the unicode display name is automatically encoded as "
@@ -2376,9 +2590,28 @@ msgstr ""
 msgid "You can also create addresses from parts::"
 msgstr "アドレスを部品から組み立てることも出来ます::"
 
+#: ../../whatsnew/3.3.rst:1318
+msgid ""
+">>> m['cc'] = [Group('pals', [Address('Bob', 'bob', 'example.com'),\n"
+"...                           Address('Sally', 'sally', 'example.com')]),\n"
+"...            Address('Bonzo', addr_spec='bonz@laugh.com')]\n"
+">>> print(m)\n"
+"To: =?utf-8?q?=C3=89ric?= <foo@example.com>\n"
+"Date: Fri, 25 May 2012 21:44:27 -0400\n"
+"cc: pals: Bob <bob@example.com>, Sally <sally@example.com>;, Bonzo "
+"<bonz@laugh.com>"
+msgstr ""
+
 #: ../../whatsnew/3.3.rst:1326
 msgid "Decoding to unicode is done automatically::"
 msgstr "Unicode へデコードするのは自動で行われます::"
+
+#: ../../whatsnew/3.3.rst:1328
+msgid ""
+">>> m2 = message_from_string(str(m))\n"
+">>> m2['to']\n"
+"'Éric <foo@example.com>'"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:1332
 msgid ""
@@ -2388,6 +2621,20 @@ msgid ""
 msgstr ""
 "メッセージ解析の際、グループと個々のアドレスにアクセスするのにヘッダオブジェ"
 "クトの ``addresses`` 属性と ``groups`` 属性を使えます::"
+
+#: ../../whatsnew/3.3.rst:1336
+msgid ""
+">>> m2['cc'].addresses\n"
+"(Address(display_name='Bob', username='bob', domain='example.com'), "
+"Address(display_name='Sally', username='sally', domain='example.com'), "
+"Address(display_name='Bonzo', username='bonz', domain='laugh.com'))\n"
+">>> m2['cc'].groups\n"
+"(Group(display_name='pals', addresses=(Address(display_name='Bob', "
+"username='bob', domain='example.com'), Address(display_name='Sally', "
+"username='sally', domain='example.com')), Group(display_name=None, "
+"addresses=(Address(display_name='Bonzo', username='bonz', domain='laugh."
+"com'),))"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:1341
 msgid ""
@@ -2838,6 +3085,17 @@ msgid ""
 "The :class:`!nntplib.NNTP` class now supports the context management "
 "protocol to unconditionally consume :exc:`socket.error` exceptions and to "
 "close the NNTP connection when done::"
+msgstr ""
+
+#: ../../whatsnew/3.3.rst:1565
+msgid ""
+">>> from nntplib import NNTP\n"
+">>> with NNTP('news.gmane.org') as n:\n"
+"...     n.group('gmane.comp.python.committers')\n"
+"...\n"
+"('211 1755 1 1755 gmane.comp.python.committers', 1755, 1, 1755, 'gmane.comp."
+"python.committers')\n"
+">>>"
 msgstr ""
 
 #: ../../whatsnew/3.3.rst:1572
@@ -4004,6 +4262,10 @@ msgstr ""
 "get_method` で使われる *method* 引数を受け付けるようになりました。これはどの "
 "HTTP メソッドが使われるべきかを指定します。例えば以下は ``'HEAD'`` リクエスト"
 "を送信します::"
+
+#: ../../whatsnew/3.3.rst:2108
+msgid ">>> urlopen(Request('https://www.python.org', method='HEAD'))"
+msgstr ""
 
 #: ../../whatsnew/3.3.rst:2110
 msgid "(:issue:`1673007`)"

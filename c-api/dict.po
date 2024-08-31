@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 14:16+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 00:48+0000\n"
 "Last-Translator: tomo, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -334,6 +334,17 @@ msgstr ""
 msgid "For example::"
 msgstr "例えば::"
 
+#: ../../c-api/dict.rst:263
+msgid ""
+"PyObject *key, *value;\n"
+"Py_ssize_t pos = 0;\n"
+"\n"
+"while (PyDict_Next(self->dict, &pos, &key, &value)) {\n"
+"    /* do something interesting with the values... */\n"
+"    ...\n"
+"}"
+msgstr ""
+
 #: ../../c-api/dict.rst:271
 msgid ""
 "The dictionary *p* should not be mutated during iteration.  It is safe to "
@@ -344,11 +355,41 @@ msgstr ""
 "応する値を変更しても大丈夫になりましたが、キーの集合を変更しないことが前提で"
 "す。以下に例を示します::"
 
+#: ../../c-api/dict.rst:275
+msgid ""
+"PyObject *key, *value;\n"
+"Py_ssize_t pos = 0;\n"
+"\n"
+"while (PyDict_Next(self->dict, &pos, &key, &value)) {\n"
+"    long i = PyLong_AsLong(value);\n"
+"    if (i == -1 && PyErr_Occurred()) {\n"
+"        return -1;\n"
+"    }\n"
+"    PyObject *o = PyLong_FromLong(i + 1);\n"
+"    if (o == NULL)\n"
+"        return -1;\n"
+"    if (PyDict_SetItem(self->dict, key, o) < 0) {\n"
+"        Py_DECREF(o);\n"
+"        return -1;\n"
+"    }\n"
+"    Py_DECREF(o);\n"
+"}"
+msgstr ""
+
 #: ../../c-api/dict.rst:293
 msgid ""
 "The function is not thread-safe in the :term:`free-threaded <free "
 "threading>` build without external synchronization.  You can use :c:macro:"
 "`Py_BEGIN_CRITICAL_SECTION` to lock the dictionary while iterating over it::"
+msgstr ""
+
+#: ../../c-api/dict.rst:298
+msgid ""
+"Py_BEGIN_CRITICAL_SECTION(self->dict);\n"
+"while (PyDict_Next(self->dict, &pos, &key, &value)) {\n"
+"    ...\n"
+"}\n"
+"Py_END_CRITICAL_SECTION();"
 msgstr ""
 
 #: ../../c-api/dict.rst:307
@@ -396,6 +437,14 @@ msgstr ""
 "出現したキーを使います。成功した場合には ``0`` を返し、例外が送出された場合に"
 "は ``-1`` を返します。(戻り値以外は) 等価な Python コードを書くと、以下のよう"
 "になります::"
+
+#: ../../c-api/dict.rst:333
+msgid ""
+"def PyDict_MergeFromSeq2(a, seq2, override):\n"
+"    for key, value in seq2:\n"
+"        if override or key not in a:\n"
+"            a[key] = value"
+msgstr ""
 
 #: ../../c-api/dict.rst:340
 msgid ""

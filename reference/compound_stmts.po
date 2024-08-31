@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-16 14:15+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 01:19+0000\n"
 "Last-Translator: Takeshi Nakazato, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -84,6 +84,10 @@ msgstr ""
 "に限り、さらに複合文をネストできます; 以下の文は、 :keyword:`else` 節がどちら"
 "の :keyword:`if` 節に属するかがはっきりしないなどの理由から不正になります::"
 
+#: ../../reference/compound_stmts.rst:37
+msgid "if test1: if test2: print(x)"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:39
 msgid ""
 "Also note that the semicolon binds tighter than the colon in this context, "
@@ -93,6 +97,10 @@ msgstr ""
 "また、このコンテキスト中では、セミコロンによる結合はコロンより強いです。従っ"
 "て、以下の例では、 :func:`print` の呼び出しはは全て実行されるか、全く実行され"
 "ないかのどちらかです::"
+
+#: ../../reference/compound_stmts.rst:43
+msgid "if x < y < z: print(x); print(y); print(z)"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:45
 msgid "Summarizing:"
@@ -230,6 +238,15 @@ msgstr ""
 "for ループはターゲットリスト内の変数への代入を行います。\n"
 "これにより、for ループ内も含めて、それ以前の全ての代入は上書きされます::"
 
+#: ../../reference/compound_stmts.rst:183
+msgid ""
+"for i in range(10):\n"
+"    print(i)\n"
+"    i = 5             # this will not affect the for-loop\n"
+"                      # because i will be overwritten with the next\n"
+"                      # index in the range"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:193
 msgid ""
 "Names in the target list are not deleted when the loop is finished, but if "
@@ -345,9 +362,24 @@ msgstr ""
 "例外が ``as target`` を使って代入されたとき、それは :keyword:`!except` 節の終"
 "わりに消去されます。これはちょうど、以下のコード::"
 
+#: ../../reference/compound_stmts.rst:281
+msgid ""
+"except E as N:\n"
+"    foo"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:284
 msgid "was translated to ::"
 msgstr "が、以下のコードに翻訳されたかのようなものです::"
+
+#: ../../reference/compound_stmts.rst:286
+msgid ""
+"except E as N:\n"
+"    try:\n"
+"        foo\n"
+"    finally:\n"
+"        del N"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:292
 msgid ""
@@ -377,6 +409,27 @@ msgstr ""
 "例外ハンドラを抜けると、 :mod:`sys` モジュールに格納されている例外の値が、一"
 "つ前の値に戻ります::"
 
+#: ../../reference/compound_stmts.rst:308
+msgid ""
+">>> print(sys.exception())\n"
+"None\n"
+">>> try:\n"
+"...     raise TypeError\n"
+"... except:\n"
+"...     print(repr(sys.exception()))\n"
+"...     try:\n"
+"...          raise ValueError\n"
+"...     except:\n"
+"...         print(repr(sys.exception()))\n"
+"...     print(repr(sys.exception()))\n"
+"...\n"
+"TypeError()\n"
+"ValueError()\n"
+"TypeError()\n"
+">>> print(sys.exception())\n"
+"None"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:333
 msgid ":keyword:`!except*` clause"
 msgstr ":keyword:`!except*` 節"
@@ -394,6 +447,26 @@ msgid ""
 "that matches it. ::"
 msgstr ""
 
+#: ../../reference/compound_stmts.rst:345
+msgid ""
+">>> try:\n"
+"...     raise ExceptionGroup(\"eg\",\n"
+"...         [ValueError(1), TypeError(2), OSError(3), OSError(4)])\n"
+"... except* TypeError as e:\n"
+"...     print(f'caught {type(e)} with nested {e.exceptions}')\n"
+"... except* OSError as e:\n"
+"...     print(f'caught {type(e)} with nested {e.exceptions}')\n"
+"...\n"
+"caught <class 'ExceptionGroup'> with nested (TypeError(2),)\n"
+"caught <class 'ExceptionGroup'> with nested (OSError(3), OSError(4))\n"
+"  + Exception Group Traceback (most recent call last):\n"
+"  |   File \"<stdin>\", line 2, in <module>\n"
+"  | ExceptionGroup: eg\n"
+"  +-+---------------- 1 ----------------\n"
+"    | ValueError: 1\n"
+"    +------------------------------------"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:363
 msgid ""
 "Any remaining exceptions that were not handled by any :keyword:`!except*` "
@@ -407,6 +480,16 @@ msgid ""
 "If the raised exception is not an exception group and its type matches one "
 "of the :keyword:`!except*` clauses, it is caught and wrapped by an exception "
 "group with an empty message string. ::"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:373
+msgid ""
+">>> try:\n"
+"...     raise BlockingIOError\n"
+"... except* BlockingIOError as e:\n"
+"...     print(repr(e))\n"
+"...\n"
+"ExceptionGroup('', (BlockingIOError()))"
 msgstr ""
 
 #: ../../reference/compound_stmts.rst:380
@@ -468,6 +551,18 @@ msgstr ""
 "文、 :keyword:`break` 文あるいは :keyword:`continue` 文を実行した場合は、保存"
 "された例外は破棄されます::"
 
+#: ../../reference/compound_stmts.rst:425
+msgid ""
+">>> def f():\n"
+"...     try:\n"
+"...         1/0\n"
+"...     finally:\n"
+"...         return 42\n"
+"...\n"
+">>> f()\n"
+"42"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:434
 msgid ""
 "The exception information is not available to the program during execution "
@@ -497,6 +592,18 @@ msgstr ""
 "関数の返り値は最後に実行された :keyword:`return` 文によって決まります。\n"
 ":keyword:`!finally` 節は必ず実行されるため、:keyword:`!finally` 節で実行され"
 "た :keyword:`!return` 文は常に最後に実行されることになります::"
+
+#: ../../reference/compound_stmts.rst:451
+msgid ""
+">>> def foo():\n"
+"...     try:\n"
+"...         return 'try'\n"
+"...     finally:\n"
+"...         return 'finally'\n"
+"...\n"
+">>> foo()\n"
+"'finally'"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:460
 msgid ""
@@ -621,11 +728,37 @@ msgstr ""
 msgid "The following code::"
 msgstr "以下のコード::"
 
+#: ../../reference/compound_stmts.rst:528
+msgid ""
+"with EXPRESSION as TARGET:\n"
+"    SUITE"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:531
 #: ../../reference/compound_stmts.rst:556
 #: ../../reference/compound_stmts.rst:1587
 msgid "is semantically equivalent to::"
 msgstr "これは次と等価です::"
+
+#: ../../reference/compound_stmts.rst:533
+msgid ""
+"manager = (EXPRESSION)\n"
+"enter = type(manager).__enter__\n"
+"exit = type(manager).__exit__\n"
+"value = enter(manager)\n"
+"hit_except = False\n"
+"\n"
+"try:\n"
+"    TARGET = value\n"
+"    SUITE\n"
+"except:\n"
+"    hit_except = True\n"
+"    if not exit(manager, *sys.exc_info()):\n"
+"        raise\n"
+"finally:\n"
+"    if not hit_except:\n"
+"        exit(manager, None, None, None)"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:550
 msgid ""
@@ -635,6 +768,19 @@ msgstr ""
 "複数の要素があるとき、コンテキストマネージャは複数の :keyword:`with` 文がネス"
 "トされたかのように進行します::"
 
+#: ../../reference/compound_stmts.rst:553
+msgid ""
+"with A() as a, B() as b:\n"
+"    SUITE"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:558
+msgid ""
+"with A() as a:\n"
+"    with B() as b:\n"
+"        SUITE"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:562
 msgid ""
 "You can also write multi-item context managers in multiple lines if the "
@@ -643,6 +789,15 @@ msgstr ""
 "括弧で囲むことにより、複数のコンテキストマネージャを複数行に渡って書くことが"
 "できます。\n"
 "例::"
+
+#: ../../reference/compound_stmts.rst:565
+msgid ""
+"with (\n"
+"    A() as a,\n"
+"    B() as b,\n"
+"):\n"
+"    SUITE"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:571
 msgid "Support for multiple context expressions."
@@ -813,6 +968,22 @@ msgstr ""
 #: ../../reference/compound_stmts.rst:671
 msgid "A sample match statement::"
 msgstr "簡単な match 文の例::"
+
+#: ../../reference/compound_stmts.rst:673
+msgid ""
+">>> flag = False\n"
+">>> match (100, 200):\n"
+"...    case (100, 300):  # Mismatch: 200 != 300\n"
+"...        print('Case 1')\n"
+"...    case (100, 200) if flag:  # Successful match, but guard fails\n"
+"...        print('Case 2')\n"
+"...    case (100, y):  # Matches and binds y to 200\n"
+"...        print(f'Case 3, y: {y}')\n"
+"...    case _:  # Pattern not attempted\n"
+"...        print('Case 4, I match anything!')\n"
+"...\n"
+"Case 3, y: 200"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:687
 msgid ""
@@ -1709,10 +1880,23 @@ msgstr ""
 "ばなりません。関数オブジェクトの代わりに、返された値が関数名に束縛されます。"
 "複数のデコレータはネストして適用されます。例えば、以下のようなコード::"
 
+#: ../../reference/compound_stmts.rst:1246
+msgid ""
+"@f1(arg)\n"
+"@f2\n"
+"def func(): pass"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1250
 #: ../../reference/compound_stmts.rst:1440
 msgid "is roughly equivalent to ::"
 msgstr "は、だいたい次と等価です ::"
+
+#: ../../reference/compound_stmts.rst:1252
+msgid ""
+"def func(): pass\n"
+"func = f1(arg)(f2(func))"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1255
 msgid ""
@@ -1783,6 +1967,15 @@ msgstr ""
 "これは意図しない動作です。このような動作を避けるには、デフォルト値として "
 "``None`` を使い、この値を関数本体の中で明示的にテストします。例えば以下のよう"
 "にします::"
+
+#: ../../reference/compound_stmts.rst:1295
+msgid ""
+"def whats_on_the_telly(penguin=None):\n"
+"    if penguin is None:\n"
+"        penguin = []\n"
+"    penguin.append(\"property of the zoo\")\n"
+"    return penguin"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1306
 msgid ""
@@ -1954,9 +2147,21 @@ msgstr ""
 "トのそれぞれの要素の評価はサブクラス化しても良いクラスであるべきです。継承リ"
 "ストのないクラスは、デフォルトで、基底クラス :class:`object` を継承するので::"
 
+#: ../../reference/compound_stmts.rst:1407
+msgid ""
+"class Foo:\n"
+"    pass"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1410
 msgid "is equivalent to ::"
 msgstr "は、以下と同等です ::"
+
+#: ../../reference/compound_stmts.rst:1412
+msgid ""
+"class Foo(object):\n"
+"    pass"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1415
 msgid ""
@@ -2001,6 +2206,19 @@ msgstr ""
 msgid "Classes can also be decorated: just like when decorating functions, ::"
 msgstr ""
 "関数をデコレートするのと同じように、クラスもデコレートすることが出来ます、 ::"
+
+#: ../../reference/compound_stmts.rst:1436
+msgid ""
+"@f1(arg)\n"
+"@f2\n"
+"class Foo: pass"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1442
+msgid ""
+"class Foo: pass\n"
+"Foo = f1(arg)(f2(Foo))"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1445
 msgid ""
@@ -2110,6 +2328,13 @@ msgstr ""
 msgid "An example of a coroutine function::"
 msgstr "コルーチン関数の例::"
 
+#: ../../reference/compound_stmts.rst:1517
+msgid ""
+"async def func(param1, param2):\n"
+"    do_stuff()\n"
+"    await some_coroutine()"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1521
 msgid ""
 "``await`` and ``async`` are now keywords; previously they were only treated "
@@ -2138,9 +2363,34 @@ msgstr ""
 "``async for`` 文によって非同期なイテラブルを簡単にイテレーションすることがで"
 "きます。"
 
+#: ../../reference/compound_stmts.rst:1543
+msgid ""
+"async for TARGET in ITER:\n"
+"    SUITE\n"
+"else:\n"
+"    SUITE2"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1548
 msgid "Is semantically equivalent to::"
 msgstr "は意味論的に以下と等価です::"
+
+#: ../../reference/compound_stmts.rst:1550
+msgid ""
+"iter = (ITER)\n"
+"iter = type(iter).__aiter__(iter)\n"
+"running = True\n"
+"\n"
+"while running:\n"
+"    try:\n"
+"        TARGET = await type(iter).__anext__(iter)\n"
+"    except StopAsyncIteration:\n"
+"        running = False\n"
+"    else:\n"
+"        SUITE\n"
+"else:\n"
+"    SUITE2"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1564
 msgid ""
@@ -2168,6 +2418,32 @@ msgid ""
 msgstr ""
 ":term:`asynchronous context manager` は、 *enter* メソッドと *exit* メソッド"
 "内部で実行を一時停止できる :term:`context manager` です。"
+
+#: ../../reference/compound_stmts.rst:1584
+msgid ""
+"async with EXPRESSION as TARGET:\n"
+"    SUITE"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1589
+msgid ""
+"manager = (EXPRESSION)\n"
+"aenter = type(manager).__aenter__\n"
+"aexit = type(manager).__aexit__\n"
+"value = await aenter(manager)\n"
+"hit_except = False\n"
+"\n"
+"try:\n"
+"    TARGET = value\n"
+"    SUITE\n"
+"except:\n"
+"    hit_except = True\n"
+"    if not await aexit(manager, *sys.exc_info()):\n"
+"        raise\n"
+"finally:\n"
+"    if not hit_except:\n"
+"        await aexit(manager, None, None, None)"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1606
 msgid ""
@@ -2210,6 +2486,24 @@ msgid ""
 ":ref:`Functions <def>` (including :ref:`coroutines <async def>`), :ref:"
 "`classes <class>` and :ref:`type aliases <type>` may contain a type "
 "parameter list::"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1641
+msgid ""
+"def max[T](args: list[T]) -> T:\n"
+"    ...\n"
+"\n"
+"async def amax[T](args: list[T]) -> T:\n"
+"    ...\n"
+"\n"
+"class Bag[T]:\n"
+"    def __iter__(self) -> Iterator[T]:\n"
+"        ...\n"
+"\n"
+"    def add(self, arg: T) -> None:\n"
+"        ...\n"
+"\n"
+"type ListOrSet[T] = list[T] | set[T]"
 msgstr ""
 
 #: ../../reference/compound_stmts.rst:1656
@@ -2308,6 +2602,24 @@ msgid ""
 "declarations::"
 msgstr ""
 
+#: ../../reference/compound_stmts.rst:1713
+msgid ""
+"def overly_generic[\n"
+"   SimpleTypeVar,\n"
+"   TypeVarWithDefault = int,\n"
+"   TypeVarWithBound: int,\n"
+"   TypeVarWithConstraints: (str, bytes),\n"
+"   *SimpleTypeVarTuple = (int, float),\n"
+"   **SimpleParamSpec = (str, bytearray),\n"
+"](\n"
+"   a: SimpleTypeVar,\n"
+"   b: TypeVarWithDefault,\n"
+"   c: TypeVarWithBound,\n"
+"   d: Callable[SimpleParamSpec, TypeVarWithConstraints],\n"
+"   *e: SimpleTypeVarTuple,\n"
+"): ..."
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1731
 msgid "Generic functions"
 msgstr ""
@@ -2316,9 +2628,23 @@ msgstr ""
 msgid "Generic functions are declared as follows::"
 msgstr ""
 
+#: ../../reference/compound_stmts.rst:1735
+msgid "def func[T](arg: T): ..."
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1737
 #: ../../reference/compound_stmts.rst:1797
 msgid "This syntax is equivalent to::"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1739
+msgid ""
+"annotation-def TYPE_PARAMS_OF_func():\n"
+"    T = typing.TypeVar(\"T\")\n"
+"    def func(arg: T): ...\n"
+"    func.__type_params__ = (T,)\n"
+"    return func\n"
+"func = TYPE_PARAMS_OF_func()"
 msgstr ""
 
 #: ../../reference/compound_stmts.rst:1746
@@ -2343,10 +2669,39 @@ msgid ""
 "as for additional flavors of type parameters::"
 msgstr ""
 
+#: ../../reference/compound_stmts.rst:1759
+msgid ""
+"@decorator\n"
+"def func[T: int, *Ts, **P](*args: *Ts, arg: Callable[P, T] = some_default):\n"
+"    ..."
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1763
 msgid ""
 "Except for the :ref:`lazy evaluation <lazy-evaluation>` of the :class:"
 "`~typing.TypeVar` bound, this is equivalent to::"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1766
+msgid ""
+"DEFAULT_OF_arg = some_default\n"
+"\n"
+"annotation-def TYPE_PARAMS_OF_func():\n"
+"\n"
+"    annotation-def BOUND_OF_T():\n"
+"        return int\n"
+"    # In reality, BOUND_OF_T() is evaluated only on demand.\n"
+"    T = typing.TypeVar(\"T\", bound=BOUND_OF_T())\n"
+"\n"
+"    Ts = typing.TypeVarTuple(\"Ts\")\n"
+"    P = typing.ParamSpec(\"P\")\n"
+"\n"
+"    def func(*args: *Ts, arg: Callable[P, T] = DEFAULT_OF_arg):\n"
+"        ...\n"
+"\n"
+"    func.__type_params__ = (T, Ts, P)\n"
+"    return func\n"
+"func = decorator(TYPE_PARAMS_OF_func())"
 msgstr ""
 
 #: ../../reference/compound_stmts.rst:1785
@@ -2361,6 +2716,21 @@ msgstr ""
 
 #: ../../reference/compound_stmts.rst:1793
 msgid "Generic classes are declared as follows::"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1795
+msgid "class Bag[T]: ..."
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1799
+msgid ""
+"annotation-def TYPE_PARAMS_OF_Bag():\n"
+"    T = typing.TypeVar(\"T\")\n"
+"    class Bag(typing.Generic[T]):\n"
+"        __type_params__ = (T,)\n"
+"        ...\n"
+"    return Bag\n"
+"Bag = TYPE_PARAMS_OF_Bag()"
 msgstr ""
 
 #: ../../reference/compound_stmts.rst:1807
@@ -2378,9 +2748,26 @@ msgid ""
 "that scope. This is illustrated by this example::"
 msgstr ""
 
+#: ../../reference/compound_stmts.rst:1817
+msgid ""
+"@decorator\n"
+"class Bag(Base[T], arg=T): ..."
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1820
 msgid "This is equivalent to::"
 msgstr "これは次と等価です::"
+
+#: ../../reference/compound_stmts.rst:1822
+msgid ""
+"annotation-def TYPE_PARAMS_OF_Bag():\n"
+"    T = typing.TypeVar(\"T\")\n"
+"    class Bag(Base[T], typing.Generic[T], arg=T):\n"
+"        __type_params__ = (T,)\n"
+"        ...\n"
+"    return Bag\n"
+"Bag = decorator(TYPE_PARAMS_OF_Bag())"
+msgstr ""
 
 #: ../../reference/compound_stmts.rst:1833
 msgid "Generic type aliases"
@@ -2392,10 +2779,27 @@ msgid ""
 "alias::"
 msgstr ""
 
+#: ../../reference/compound_stmts.rst:1837
+msgid "type ListOrSet[T] = list[T] | set[T]"
+msgstr ""
+
 #: ../../reference/compound_stmts.rst:1839
 msgid ""
 "Except for the :ref:`lazy evaluation <lazy-evaluation>` of the value, this "
 "is equivalent to::"
+msgstr ""
+
+#: ../../reference/compound_stmts.rst:1842
+msgid ""
+"annotation-def TYPE_PARAMS_OF_ListOrSet():\n"
+"    T = typing.TypeVar(\"T\")\n"
+"\n"
+"    annotation-def VALUE_OF_ListOrSet():\n"
+"        return list[T] | set[T]\n"
+"    # In reality, the value is lazily evaluated\n"
+"    return typing.TypeAliasType(\"ListOrSet\", VALUE_OF_ListOrSet(), "
+"type_params=(T,))\n"
+"ListOrSet = TYPE_PARAMS_OF_ListOrSet()"
 msgstr ""
 
 #: ../../reference/compound_stmts.rst:1851

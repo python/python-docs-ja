@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 14:16+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 00:52+0000\n"
 "Last-Translator: TENMYO Masakazu, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -219,6 +219,13 @@ msgstr ""
 "す。パラメタは、オブジェクト、呼び出すメソッドの名前、 :c:func:"
 "`Py_BuildValue` で使われるようなフォーマット文字列、そして引数です::"
 
+#: ../../faq/extending.rst:117
+msgid ""
+"PyObject *\n"
+"PyObject_CallMethod(PyObject *object, const char *method_name,\n"
+"                    const char *arg_format, ...);"
+msgstr ""
+
 #: ../../faq/extending.rst:121
 msgid ""
 "This works for any object that has methods -- whether built-in or user-"
@@ -236,6 +243,17 @@ msgid ""
 msgstr ""
 "例えば、あるファイルオブジェクトの \"seek\" メソッドを 10, 0 を引数として呼ぶ"
 "とき (ファイルオブジェクトのポインタを \"f\" とします)::"
+
+#: ../../faq/extending.rst:127
+msgid ""
+"res = PyObject_CallMethod(f, \"seek\", \"(ii)\", 10, 0);\n"
+"if (res == NULL) {\n"
+"        ... an exception occurred ...\n"
+"}\n"
+"else {\n"
+"        Py_DECREF(res);\n"
+"}"
+msgstr ""
 
 #: ../../faq/extending.rst:135
 msgid ""
@@ -272,9 +290,38 @@ msgstr ""
 msgid "The easiest way to do this is to use the :class:`io.StringIO` class:"
 msgstr "最も簡単な方法は、 :class:`io.StringIO` クラスを使うことです:"
 
+#: ../../faq/extending.rst:151
+msgid ""
+">>> import io, sys\n"
+">>> sys.stdout = io.StringIO()\n"
+">>> print('foo')\n"
+">>> print('hello world!')\n"
+">>> sys.stderr.write(sys.stdout.getvalue())\n"
+"foo\n"
+"hello world!"
+msgstr ""
+
 #: ../../faq/extending.rst:161
 msgid "A custom object to do the same would look like this:"
 msgstr "これと同じことをするカスタムオブジェクトは次のようになるでしょう:"
+
+#: ../../faq/extending.rst:163
+msgid ""
+">>> import io, sys\n"
+">>> class StdoutCatcher(io.TextIOBase):\n"
+"...     def __init__(self):\n"
+"...         self.data = []\n"
+"...     def write(self, stuff):\n"
+"...         self.data.append(stuff)\n"
+"...\n"
+">>> import sys\n"
+">>> sys.stdout = StdoutCatcher()\n"
+">>> print('foo')\n"
+">>> print('hello world!')\n"
+">>> sys.stderr.write(''.join(sys.stdout.data))\n"
+"foo\n"
+"hello world!"
+msgstr ""
 
 #: ../../faq/extending.rst:182
 msgid "How do I access a module written in Python from C?"
@@ -283,6 +330,10 @@ msgstr "C から Python で書かれたモジュールにアクセスするに�
 #: ../../faq/extending.rst:184
 msgid "You can get a pointer to the module object as follows::"
 msgstr "以下のようにモジュールオブジェクトへのポインタを得られます::"
+
+#: ../../faq/extending.rst:186
+msgid "module = PyImport_ImportModule(\"<modulename>\");"
+msgstr ""
 
 #: ../../faq/extending.rst:188
 msgid ""
@@ -305,6 +356,10 @@ msgid ""
 msgstr ""
 "これで、モジュールの属性 (つまり、モジュールで定義された任意の名前) に以下の"
 "ようにアクセスできるようになります::"
+
+#: ../../faq/extending.rst:197
+msgid "attr = PyObject_GetAttrString(module, \"<attrname>\");"
+msgstr ""
 
 #: ../../faq/extending.rst:199
 msgid ""
@@ -370,9 +425,23 @@ msgstr ""
 msgid "In your ``.gdbinit`` file (or interactively), add the command:"
 msgstr "``.gdbinit`` ファイルに(または対話的に)、このコマンドを加えてください:"
 
+#: ../../faq/extending.rst:231
+msgid "br _PyImport_LoadDynamicModule"
+msgstr ""
+
 #: ../../faq/extending.rst:235
 msgid "Then, when you run GDB:"
 msgstr "そして、GDB を起動するときに:"
+
+#: ../../faq/extending.rst:237
+msgid ""
+"$ gdb /local/bin/python\n"
+"gdb) run myscript.py\n"
+"gdb) continue # repeat until your extension is loaded\n"
+"gdb) finish   # so that your extension is loaded\n"
+"gdb) br myfunction.c:50\n"
+"gdb) continue"
+msgstr ""
 
 #: ../../faq/extending.rst:247
 msgid ""

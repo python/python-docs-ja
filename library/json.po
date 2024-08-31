@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-23 14:16+0000\n"
+"POT-Creation-Date: 2024-08-31 10:59+0000\n"
 "PO-Revision-Date: 2021-06-28 01:08+0000\n"
 "Last-Translator: 石井明久, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -73,33 +73,140 @@ msgstr ""
 msgid "Encoding basic Python object hierarchies::"
 msgstr "基本的な Python オブジェクト階層のエンコーディング::"
 
+#: ../../library/json.rst:31
+msgid ""
+">>> import json\n"
+">>> json.dumps(['foo', {'bar': ('baz', None, 1.0, 2)}])\n"
+"'[\"foo\", {\"bar\": [\"baz\", null, 1.0, 2]}]'\n"
+">>> print(json.dumps(\"\\\"foo\\bar\"))\n"
+"\"\\\"foo\\bar\"\n"
+">>> print(json.dumps('\\u1234'))\n"
+"\"\\u1234\"\n"
+">>> print(json.dumps('\\\\'))\n"
+"\"\\\\\"\n"
+">>> print(json.dumps({\"c\": 0, \"b\": 0, \"a\": 0}, sort_keys=True))\n"
+"{\"a\": 0, \"b\": 0, \"c\": 0}\n"
+">>> from io import StringIO\n"
+">>> io = StringIO()\n"
+">>> json.dump(['streaming API'], io)\n"
+">>> io.getvalue()\n"
+"'[\"streaming API\"]'"
+msgstr ""
+
 #: ../../library/json.rst:48
 msgid "Compact encoding::"
 msgstr "コンパクトなエンコーディング::"
+
+#: ../../library/json.rst:50
+msgid ""
+">>> import json\n"
+">>> json.dumps([1, 2, 3, {'4': 5, '6': 7}], separators=(',', ':'))\n"
+"'[1,2,3,{\"4\":5,\"6\":7}]'"
+msgstr ""
 
 #: ../../library/json.rst:54
 msgid "Pretty printing::"
 msgstr "見やすい表示::"
 
+#: ../../library/json.rst:56
+msgid ""
+">>> import json\n"
+">>> print(json.dumps({'6': 7, '4': 5}, sort_keys=True, indent=4))\n"
+"{\n"
+"    \"4\": 5,\n"
+"    \"6\": 7\n"
+"}"
+msgstr ""
+
 #: ../../library/json.rst:63
 msgid "Specializing JSON object encoding::"
 msgstr "JSON オブジェクトのエンコーディングに特化する::"
+
+#: ../../library/json.rst:65
+msgid ""
+">>> import json\n"
+">>> def custom_json(obj):\n"
+"...     if isinstance(obj, complex):\n"
+"...         return {'__complex__': True, 'real': obj.real, 'imag': obj."
+"imag}\n"
+"...     raise TypeError(f'Cannot serialize object of {type(obj)}')\n"
+"...\n"
+">>> json.dumps(1 + 2j, default=custom_json)\n"
+"'{\"__complex__\": true, \"real\": 1.0, \"imag\": 2.0}'"
+msgstr ""
 
 #: ../../library/json.rst:74
 msgid "Decoding JSON::"
 msgstr "JSON のデコーディング::"
 
+#: ../../library/json.rst:76
+msgid ""
+">>> import json\n"
+">>> json.loads('[\"foo\", {\"bar\":[\"baz\", null, 1.0, 2]}]')\n"
+"['foo', {'bar': ['baz', None, 1.0, 2]}]\n"
+">>> json.loads('\"\\\\\"foo\\\\bar\"')\n"
+"'\"foo\\x08ar'\n"
+">>> from io import StringIO\n"
+">>> io = StringIO('[\"streaming API\"]')\n"
+">>> json.load(io)\n"
+"['streaming API']"
+msgstr ""
+
 #: ../../library/json.rst:86
 msgid "Specializing JSON object decoding::"
 msgstr "JSON オブジェクトのデコーディング方法を誂える::"
+
+#: ../../library/json.rst:88
+msgid ""
+">>> import json\n"
+">>> def as_complex(dct):\n"
+"...     if '__complex__' in dct:\n"
+"...         return complex(dct['real'], dct['imag'])\n"
+"...     return dct\n"
+"...\n"
+">>> json.loads('{\"__complex__\": true, \"real\": 1, \"imag\": 2}',\n"
+"...     object_hook=as_complex)\n"
+"(1+2j)\n"
+">>> import decimal\n"
+">>> json.loads('1.1', parse_float=decimal.Decimal)\n"
+"Decimal('1.1')"
+msgstr ""
 
 #: ../../library/json.rst:101
 msgid "Extending :class:`JSONEncoder`::"
 msgstr ":class:`JSONEncoder` の拡張::"
 
+#: ../../library/json.rst:103
+msgid ""
+">>> import json\n"
+">>> class ComplexEncoder(json.JSONEncoder):\n"
+"...     def default(self, obj):\n"
+"...         if isinstance(obj, complex):\n"
+"...             return [obj.real, obj.imag]\n"
+"...         # Let the base class default method raise the TypeError\n"
+"...         return super().default(obj)\n"
+"...\n"
+">>> json.dumps(2 + 1j, cls=ComplexEncoder)\n"
+"'[2.0, 1.0]'\n"
+">>> ComplexEncoder().encode(2 + 1j)\n"
+"'[2.0, 1.0]'\n"
+">>> list(ComplexEncoder().iterencode(2 + 1j))\n"
+"['[2.0', ', 1.0', ']']"
+msgstr ""
+
 #: ../../library/json.rst:119
 msgid "Using :mod:`json.tool` from the shell to validate and pretty-print:"
 msgstr "シェルから :mod:`json.tool` を使って妥当性チェックをして見やすく表示:"
+
+#: ../../library/json.rst:121
+msgid ""
+"$ echo '{\"json\":\"obj\"}' | python -m json.tool\n"
+"{\n"
+"    \"json\": \"obj\"\n"
+"}\n"
+"$ echo '{1.2:3.4}' | python -m json.tool\n"
+"Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+msgstr ""
 
 #: ../../library/json.rst:130
 msgid "See :ref:`json-commandline` for detailed documentation."
@@ -712,11 +819,30 @@ msgstr ""
 "例えば、任意のイテレータをサポートする場合、 :meth:`~JSONEncoder.default` を"
 "このように実装できます ::"
 
+#: ../../library/json.rst:499
+msgid ""
+"def default(self, o):\n"
+"   try:\n"
+"       iterable = iter(o)\n"
+"   except TypeError:\n"
+"       pass\n"
+"   else:\n"
+"       return list(iterable)\n"
+"   # Let the base class default method raise the TypeError\n"
+"   return super().default(o)"
+msgstr ""
+
 #: ../../library/json.rst:512
 msgid ""
 "Return a JSON string representation of a Python data structure, *o*.  For "
 "example::"
 msgstr "Python データ構造 *o* の JSON 文字列表現を返します。たとえば::"
+
+#: ../../library/json.rst:515
+msgid ""
+">>> json.JSONEncoder().encode({\"foo\": [\"bar\", \"baz\"]})\n"
+"'{\"foo\": [\"bar\", \"baz\"]}'"
+msgstr ""
 
 #: ../../library/json.rst:521
 msgid ""
@@ -725,6 +851,12 @@ msgid ""
 msgstr ""
 "与えられたオブジェクト *o* をエンコードし、得られた文字列表現ごとに yield し"
 "ます。たとえば::"
+
+#: ../../library/json.rst:524
+msgid ""
+"for chunk in json.JSONEncoder().iterencode(bigobject):\n"
+"    mysocket.write(chunk)"
+msgstr ""
 
 #: ../../library/json.rst:529
 msgid "Exceptions"
@@ -878,6 +1010,21 @@ msgstr ""
 "フォルトでは、このモジュールは ``Infinity``、``-Infinity``、``NaN`` を正しい "
 "JSON の数値リテラルの値であるかのように受け付け、出力します::"
 
+#: ../../library/json.rst:613
+msgid ""
+">>> # Neither of these calls raises an exception, but the results are not "
+"valid JSON\n"
+">>> json.dumps(float('-inf'))\n"
+"'-Infinity'\n"
+">>> json.dumps(float('nan'))\n"
+"'NaN'\n"
+">>> # Same when deserializing\n"
+">>> json.loads('-Infinity')\n"
+"-inf\n"
+">>> json.loads('NaN')\n"
+"nan"
+msgstr ""
+
 #: ../../library/json.rst:624
 msgid ""
 "In the serializer, the *allow_nan* parameter can be used to alter this "
@@ -903,6 +1050,13 @@ msgstr ""
 "が、JSONオブジェクトで名前が繰り返された場合の扱いについて指定していません。"
 "デフォルトでは、このモジュールは例外を送出せず、かわりに重複した名前のうち、"
 "最後に出現した名前と値のペア以外を無視します。"
+
+#: ../../library/json.rst:637
+msgid ""
+">>> weird_json = '{\"x\": 1, \"x\": 2, \"x\": 3}'\n"
+">>> json.loads(weird_json)\n"
+"{'x': 3}"
+msgstr ""
 
 #: ../../library/json.rst:641
 msgid "The *object_pairs_hook* parameter can be used to alter this behavior."
@@ -1010,6 +1164,16 @@ msgstr ""
 "オプション引数の ``infile`` と ``outfile`` が指定されない場合、それぞれ :"
 "data:`sys.stdin` と :data:`sys.stdout` が使用されます。"
 
+#: ../../library/json.rst:699
+msgid ""
+"$ echo '{\"json\": \"obj\"}' | python -m json.tool\n"
+"{\n"
+"    \"json\": \"obj\"\n"
+"}\n"
+"$ echo '{1.2:3.4}' | python -m json.tool\n"
+"Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+msgstr ""
+
 #: ../../library/json.rst:708
 msgid ""
 "The output is now in the same order as the input. Use the :option:`--sort-"
@@ -1025,6 +1189,21 @@ msgstr "コマンドラインオプション"
 #: ../../library/json.rst:719
 msgid "The JSON file to be validated or pretty-printed:"
 msgstr "検証を行う、あるいは整形出力を行う JSON ファイルを指定します:"
+
+#: ../../library/json.rst:721
+msgid ""
+"$ python -m json.tool mp_films.json\n"
+"[\n"
+"    {\n"
+"        \"title\": \"And Now for Something Completely Different\",\n"
+"        \"year\": 1971\n"
+"    },\n"
+"    {\n"
+"        \"title\": \"Monty Python and the Holy Grail\",\n"
+"        \"year\": 1975\n"
+"    }\n"
+"]"
+msgstr ""
 
 #: ../../library/json.rst:735
 msgid "If *infile* is not specified, read from :data:`sys.stdin`."
