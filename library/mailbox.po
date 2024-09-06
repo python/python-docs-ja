@@ -5,18 +5,18 @@
 #
 # Translators:
 # tomo, 2021
-# Arihiro TAKASE, 2023
 # Taichi Haradaguchi, 2024
 # 石井明久, 2024
+# Arihiro TAKASE, 2024
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-31 10:59+0000\n"
+"POT-Creation-Date: 2024-09-06 14:16+0000\n"
 "PO-Revision-Date: 2021-06-28 01:09+0000\n"
-"Last-Translator: 石井明久, 2024\n"
+"Last-Translator: Arihiro TAKASE, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -72,6 +72,9 @@ msgid ""
 "instantiated.  Instead, format-specific subclasses should inherit from :"
 "class:`!Mailbox` and your code should instantiate a particular subclass."
 msgstr ""
+":class:`!Mailbox` クラスはインターフェースを定義するもので、インスタンス化さ"
+"れることは想定していません。代わりに、:class:`!Mailbox` から継承した形式ごと"
+"のサブクラスを作り、コードでは特定のサブクラスをインスタンス化するべきです。"
 
 #: ../../library/mailbox.rst:41
 msgid ""
@@ -82,6 +85,11 @@ msgid ""
 "corresponding message is modified, such as by replacing it with another "
 "message."
 msgstr ""
+":class:`!Mailbox` のインターフェースは辞書風で、小さなキーがメッセージに対応"
+"します。キーは対象となる :class:`!Mailbox` インスタンスが発行するもので、そ"
+"の :class:`!Mailbox` インスタンスに対してのみ意味を持ちます。一つのキーは一つ"
+"のメッセージにひも付けられ、その対応はメッセージが他のメッセージで置き換えら"
+"れるような更新をされたあとも続きます。"
 
 #: ../../library/mailbox.rst:47
 msgid ""
@@ -89,6 +97,9 @@ msgid ""
 "method :meth:`add` and removed using a ``del`` statement or the set-like "
 "methods :meth:`remove` and :meth:`discard`."
 msgstr ""
+"メッセージを :class:`!Mailbox` インスタンスに追加するには集合風のメソッド :"
+"meth:`add` を使います。また削除は ``del`` 文または集合風の :meth:`remove` "
+"や :meth:`discard` を使って行ないます。"
 
 #: ../../library/mailbox.rst:51
 msgid ""
@@ -100,6 +111,12 @@ msgid ""
 "copied. In neither case is a reference to the message representation kept by "
 "the :class:`!Mailbox` instance."
 msgstr ""
+":class:`!Mailbox` インターフェースのセマンティクスと辞書のそれとは注意すべき"
+"違いがあります。メッセージは、要求されるたびに新しい表現(典型的には :class:"
+"`Message` インスタンス)が現在のメールボックスの状態に基づいて生成されます。同"
+"様に、メッセージが :class:`!Mailbox` インスタンスに追加される時も、渡された"
+"メッセージ表現の内容がコピーされます。どちらの場合も :class:`!Mailbox` インス"
+"タンスにメッセージ表現への参照は保たれません。"
 
 #: ../../library/mailbox.rst:59
 msgid ""
@@ -112,6 +129,14 @@ msgid ""
 "iterator may result in a :exc:`KeyError` exception if the corresponding "
 "message is subsequently removed."
 msgstr ""
+"デフォルトの :class:`!Mailbox` :term:`イテレータ <iterator>` はメッセージ表現"
+"ごとに繰り返すもので、:class:`辞書 <dict>` のイテレータのようにキーごとの繰り"
+"返しではありません。さらに、繰り返し中のメールボックスを変更することは安全で"
+"あり整合的に定義されています。イテレータが作られた後にメールボックスに追加さ"
+"れたメッセージはそのイテレータからは見えません。そのイテレータが yield するま"
+"えにメールボックスから削除されたメッセージは黙ってスキップされますが、イテ"
+"レータからのキーを使ったときにはそのキーに対応するメッセージが削除されている"
+"ならば :exc:`KeyError` を受け取ることになります。"
 
 #: ../../library/mailbox.rst:71
 msgid ""
@@ -124,10 +149,19 @@ msgid ""
 "deleting a message.  Failing to lock the mailbox runs the risk of losing "
 "messages or corrupting the entire mailbox."
 msgstr ""
+"十分な注意を、何か他のプロセスによっても同時に変更される可能性のあるメール"
+"ボックスを更新する時は、払わなければなりません。そのようなタスクをこなすのに"
+"最も安全なメールボックス形式は :class:`Maildir` で、 :class:`mbox` のような単"
+"一ファイルの形式を並行した書き込みに利用するのは避けるように努力しましょう。"
+"メールボックスを更新する場面では、 *必ず* :meth:`lock` と :meth:`unlock` メ"
+"ソッドを、ファイル内のメッセージを読んだり書き込んだり削除したりといった操作"
+"をする *前* に、呼び出してロックします。メールボックスをロックし損なうと、"
+"メッセージを失ったりメールボックス全体をぐちゃぐちゃにしたりする羽目に陥りま"
+"す。"
 
 #: ../../library/mailbox.rst:81
 msgid ":class:`!Mailbox` instances have the following methods:"
-msgstr ""
+msgstr ":class:`!Mailbox` インスタンスには次のメソッドがあります:"
 
 #: ../../library/mailbox.rst:86
 msgid ""
@@ -220,6 +254,10 @@ msgid ""
 "class:`Message` subclass unless a custom message factory was specified when "
 "the :class:`!Mailbox` instance was initialized."
 msgstr ""
+"全てのメッセージの表現についての :term:`イテレータ <iterator>` を返します。"
+"メッセージは適切な形式ごとの :class:`Message` サブクラスのインスタンスとして"
+"表現されるのが普通ですが、 :class:`!Mailbox` インスタンスが初期化されるときに"
+"指定すればお好みのメッセージファクトリを使うこともできます。"
 
 #: ../../library/mailbox.rst:153
 msgid ""
@@ -242,6 +280,11 @@ msgid ""
 "unless a custom message factory was specified when the :class:`!Mailbox` "
 "instance was initialized."
 msgstr ""
+"(*key*, *message*) ペア、ただし *key* はキーで *message* はメッセージ表現、の"
+"イテレータを返します。メッセージは適切な形式ごとの :class:`Message` サブクラ"
+"スのインスタンスとして表現されるのが普通ですが、 :class:`!Mailbox` インスタン"
+"スが初期化されるときに指定すればお好みのメッセージファクトリを使うこともでき"
+"ます。"
 
 #: ../../library/mailbox.rst:174
 msgid ""
@@ -259,6 +302,12 @@ msgid ""
 "message factory was specified when the :class:`!Mailbox` instance was "
 "initialized."
 msgstr ""
+"*key* に対応するメッセージの表現を返します。対応するメッセージが存在しない場"
+"合、 :meth:`get` として呼び出されたなら *default* を返しますが、 :meth:`!"
+"__getitem__` として呼び出されたなら :exc:`KeyError` 例外が送出されます。メッ"
+"セージは適切な形式ごとの :class:`Message` サブクラスのインスタンスとして表現"
+"されるのが普通ですが、 :class:`!Mailbox` スタンスが初期化されるときに指定すれ"
+"ばお好みのメッセージファクトリを使うこともできます。"
 
 #: ../../library/mailbox.rst:192
 msgid ""
@@ -296,6 +345,10 @@ msgid ""
 "message exists.  The file-like object behaves as if open in binary mode.  "
 "This file should be closed once it is no longer needed."
 msgstr ""
+"*key* に対応するメッセージの表現を :term:`ファイル風 <file-like object>` 表現"
+"として返します。もし対応するメッセージが存在しなければ :exc:`KeyError` 例外が"
+"送出されます。ファイル風オブジェクトはバイナリモードで開かれているように振る"
+"舞います。このファイルは必要がなくなったら閉じなければなりません。"
 
 #: ../../library/mailbox.rst:221
 msgid ""
@@ -304,6 +357,11 @@ msgid ""
 "supports the :term:`context manager` protocol: you can use a :keyword:`with` "
 "statement to automatically close it."
 msgstr ""
+"ファイルオブジェクトは実際は :term:`バイナリファイル <binary file>` です; 以"
+"前は誤ってテキストモードで返されていました。 また、現在 :term:`ファイル風オブ"
+"ジェクト <file-like object>` は :term:`コンテキストマネージャ <context "
+"manager>` プロトコルをサポートしています: :keyword:`with` 文を用いることで自"
+"動的にファイルを閉じることができます。"
 
 #: ../../library/mailbox.rst:229
 msgid ""
@@ -312,6 +370,9 @@ msgid ""
 "Mailbox` instance that created them or of the underlying mailbox.  More "
 "specific documentation is provided by each subclass."
 msgstr ""
+"他の表現方法とは違い、:term:`ファイル風 <file-like object>` 表現はそれを作り"
+"出した :class:`!Mailbox` インスタンスやそれが基づいているメールボックスと独立"
+"である必要がありません。より詳細な説明は各サブクラスごとにあります。"
 
 #: ../../library/mailbox.rst:238
 msgid "Return ``True`` if *key* corresponds to a message, ``False`` otherwise."
@@ -335,6 +396,10 @@ msgid ""
 "`Message` subclass unless a custom message factory was specified when the :"
 "class:`!Mailbox` instance was initialized."
 msgstr ""
+"*key* に対応するメッセージの表現を返します。メッセージは適切な形式ごとの :"
+"class:`Message` サブクラスのインスタンスとして表現されるのが普通ですが、 :"
+"class:`!Mailbox` インスタンスが初期化されるときに指定すればお好みのメッセージ"
+"ファクトリを使うこともできます。"
 
 #: ../../library/mailbox.rst:262
 msgid ""
@@ -345,6 +410,12 @@ msgid ""
 "`Message` subclass unless a custom message factory was specified when the :"
 "class:`!Mailbox` instance was initialized."
 msgstr ""
+"任意に選んだ (*key*, *message*) ペアを返します。ただしここで *key* はキーで "
+"*message* はメッセージ表現です。もしメールボックスが空ならば、 :exc:"
+"`KeyError` 例外を送出します。メッセージは適切な形式ごとの :class:`Message` サ"
+"ブクラスのインスタンスとして表現されるのが普通ですが、 :class:`!Mailbox` イン"
+"スタンスが初期化されるときに指定すればお好みのメッセージファクトリを使うこと"
+"もできます。"
 
 #: ../../library/mailbox.rst:272
 msgid ""
@@ -356,6 +427,14 @@ msgid ""
 "exception will be raised, so in general it is incorrect for *arg* to be a :"
 "class:`!Mailbox` instance."
 msgstr ""
+"引数 *arg* は *key* から *message* へのマッピングまたは (*key*, *message*) ペ"
+"アのイテレート可能オブジェクトでなければなりません。メールボックスは、各 "
+"*key* と *message* のペアについて :meth:`__setitem__` を使ったかのように "
+"*key* に対応するメッセージが *message* になるように更新されます。 :meth:"
+"`__setitem__` と同様に、 *key* は既存のメールボックス中のメッセージに対応して"
+"いるものでなければならず、そうでなければ :exc:`KeyError` が送出されます。です"
+"から、一般的には *arg* に :class:`!Mailbox` インスタンスを渡すのは間違いで"
+"す。"
 
 #: ../../library/mailbox.rst:282
 msgid "Unlike with dictionaries, keyword arguments are not supported."
@@ -367,6 +446,10 @@ msgid ""
 "subclasses, changes are always written immediately and :meth:`!flush` does "
 "nothing, but you should still make a habit of calling this method."
 msgstr ""
+"保留されている変更をファイルシステムに書き込みます。 :class:`Mailbox` のサブ"
+"クラスによっては変更はいつも直ちにファイルに書き込まれ :meth:`!flush` は何も"
+"しないということもありますが、それでもこのメソッドを呼ぶように習慣付けておき"
+"ましょう。"
 
 #: ../../library/mailbox.rst:294
 msgid ""
@@ -390,6 +473,8 @@ msgid ""
 "Flush the mailbox, unlock it if necessary, and close any open files. For "
 "some :class:`!Mailbox` subclasses, this method does nothing."
 msgstr ""
+"メールボックスをフラッシュし、必要ならばアンロックし、開いているファイルを閉"
+"じます。 :class:`!Mailbox` サブクラスによっては何もしないこともあります。"
 
 #: ../../library/mailbox.rst:315
 msgid ":class:`!Maildir` objects"
@@ -467,6 +552,12 @@ msgid ""
 "nesting is indicated using ``'.'`` to delimit levels, e.g., "
 "\"Archived.2005.07\"."
 msgstr ""
+"Courier メール転送エージェントによって導入されたスタイルのフォルダもサポート"
+"されます。主たるメールボックスのサブディレクトリは ``'.'`` がファイル名の先頭"
+"であればフォルダと見なされます。フォルダ名は :class:`!Maildir` によって先頭"
+"の ``'.'`` を除いて表現されます。各フォルダはまた Maildir メールボックスです"
+"がさらにフォルダを含むことはできません。その代わり、論理的包含関係は例えば "
+"\"Archived.2005.07\" のような ``'.'`` を使ったレベル分けで表わされます。"
 
 #: ../../library/mailbox.rst:355
 msgid ""
@@ -490,7 +581,7 @@ msgstr ""
 
 #: ../../library/mailbox.rst:365
 msgid "The :attr:`!colon` attribute may also be set on a per-instance basis."
-msgstr ""
+msgstr ":attr:`!colon` 属性はインスタンスごとにセットしても構いません。"
 
 #: ../../library/mailbox.rst:367
 msgid ":class:`Maildir` now ignores files with a leading dot."
@@ -501,6 +592,8 @@ msgid ""
 ":class:`!Maildir` instances have all of the methods of :class:`Mailbox` in "
 "addition to the following:"
 msgstr ""
+":class:`!Maildir` インスタンスには :class:`Mailbox` の全てのメソッドに加え以"
+"下のメソッドもあります:"
 
 #: ../../library/mailbox.rst:376 ../../library/mailbox.rst:654
 msgid "Return a list of the names of all folders."
@@ -512,12 +605,17 @@ msgid ""
 "*folder*. A :exc:`NoSuchMailboxError` exception is raised if the folder does "
 "not exist."
 msgstr ""
+"名前が *folder* であるフォルダを表わす :class:`!Maildir` インスタンスを返しま"
+"す。そのようなフォルダが存在しなければ :exc:`NoSuchMailboxError` 例外が送出さ"
+"れます。"
 
 #: ../../library/mailbox.rst:388
 msgid ""
 "Create a folder whose name is *folder* and return a :class:`!Maildir` "
 "instance representing it."
 msgstr ""
+"名前が *folder* であるフォルダを作り、それを表わす :class:`!Maildir` インスタ"
+"ンスを返します。"
 
 #: ../../library/mailbox.rst:394 ../../library/mailbox.rst:672
 msgid ""
@@ -652,6 +750,8 @@ msgid ""
 "Some :class:`Mailbox` methods implemented by :class:`!Maildir` deserve "
 "special remarks:"
 msgstr ""
+":class:`!Maildir` で実装された :class:`Mailbox` のいくつかのメソッドには特別"
+"な注意が必要です:"
 
 #: ../../library/mailbox.rst:517
 msgid ""
@@ -686,6 +786,8 @@ msgid ""
 ":class:`!Maildir` instances do not keep any open files and the underlying "
 "mailboxes do not support locking, so this method does nothing."
 msgstr ""
+":class:`!Maildir` インスタンスは開いたファイルを保持しませんしメールボックス"
+"はロックをサポートしませんので、このメソッドは何もしません。"
 
 #: ../../library/mailbox.rst:544
 msgid ""
@@ -764,12 +866,20 @@ msgid ""
 "message, although occurrences of \">From \" are not transformed to \"From \" "
 "when reading the message."
 msgstr ""
+"mbox 形式には幾つかのバリエーションがあり、それぞれオリジナルの形式にあった欠"
+"点を克服すると主張しています。互換性のために、 :class:`!mbox` はオリジナルの"
+"(時に :dfn:`mboxo` と呼ばれる) 形式を実装しています。すなわち、 :mailheader:"
+"`Content-Length` ヘッダはもしあっても無視され、メッセージのボディにある行頭"
+"の \"From \" はメッセージを保存する際に \">From \" に変換されますが、この "
+"\">From \" は読み出し時にも \"From \" に変換されません。"
 
 #: ../../library/mailbox.rst:586
 msgid ""
 "Some :class:`Mailbox` methods implemented by :class:`!mbox` deserve special "
 "remarks:"
 msgstr ""
+":class:`!mbox` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注"
+"意が必要です:"
 
 #: ../../library/mailbox.rst:592
 msgid ""
@@ -777,6 +887,9 @@ msgid ""
 "close` on the :class:`!mbox` instance may yield unpredictable results or "
 "raise an exception."
 msgstr ""
+":class:`!mbox` インスタンスに対し :meth:`~Mailbox.flush` や meth:`~Mailbox."
+"close` を呼び出した後でファイルを使用すると予期しない結果を引き起こしたり例外"
+"が送出されたりすることがあります。"
 
 #: ../../library/mailbox.rst:600 ../../library/mailbox.rst:813
 #: ../../library/mailbox.rst:864
@@ -784,6 +897,8 @@ msgid ""
 "Three locking mechanisms are used---dot locking and, if available, the :c:"
 "func:`!flock` and :c:func:`!lockf` system calls."
 msgstr ""
+"3種類のロック機構が使われます --- ドットロッキングと、もし使用可能ならば :c:"
+"func:`!flock` と :c:func:`!lockf` システムコールです。"
 
 #: ../../library/mailbox.rst:606
 msgid ""
@@ -868,12 +983,18 @@ msgid ""
 "and is not affected by the :file:`context` or :file:`.mh_profile` files that "
 "are used by :program:`mh` to store its state and configuration."
 msgstr ""
+":class:`!MH` クラスは MH メールボックスを操作しますが、 :program:`mh` の動作"
+"の全てを模倣しようとはしていません。特に、 :program:`mh` が状態と設定を保存す"
+"る :file:`context` や :file:`.mh_profile` といったファイルは書き換えませんし"
+"影響も受けません。"
 
 #: ../../library/mailbox.rst:644
 msgid ""
 ":class:`!MH` instances have all of the methods of :class:`Mailbox` in "
 "addition to the following:"
 msgstr ""
+":class:`!MH` インスタンスには :class:`Mailbox` の全てのメソッドの他に次のメ"
+"ソッドがあります:"
 
 #: ../../library/mailbox.rst:649
 msgid "Supported folders that don't contain a :file:`.mh_sequences` file."
@@ -885,20 +1006,24 @@ msgid ""
 "*folder*. A :exc:`NoSuchMailboxError` exception is raised if the folder does "
 "not exist."
 msgstr ""
+"*folder* という名前のフォルダを表わす :class:`!MH` インスタンスを返します。も"
+"しフォルダが存在しなければ :exc:`NoSuchMailboxError` 例外が送出されます。"
 
 #: ../../library/mailbox.rst:666
 msgid ""
 "Create a folder whose name is *folder* and return an :class:`!MH` instance "
 "representing it."
 msgstr ""
+"*folder* という名前のフォルダを作成し、それを表わす :class:`!MH` インスタンス"
+"を返します。"
 
 #: ../../library/mailbox.rst:679
 msgid ""
 "Return a dictionary of sequence names mapped to key lists. If there are no "
 "sequences, the empty dictionary is returned."
 msgstr ""
-"*folder* という名前のフォルダを削除します。フォルダにメッセージが一つでも残っ"
-"ていれば、:exc:`NotEmptyError` 例外が送出されフォルダは削除されません。"
+"シーケンス名をキーのリストに対応付ける辞書を返します。シーケンスが一つもなけ"
+"れば空の辞書を返します。"
 
 #: ../../library/mailbox.rst:685
 msgid ""
@@ -906,30 +1031,32 @@ msgid ""
 "dictionary of names mapped to key lists, like returned by :meth:"
 "`get_sequences`."
 msgstr ""
-"シーケンス名をキーのリストに対応付ける辞書を返します。シーケンスが一つもなけ"
-"れば空の辞書を返します。"
+"メールボックス中のシーケンスを :meth:`get_sequences` で返されるような名前と"
+"キーのリストを対応付ける辞書 *sequences* に基づいて再定義します。"
 
 #: ../../library/mailbox.rst:692
 msgid ""
 "Rename messages in the mailbox as necessary to eliminate gaps in numbering.  "
 "Entries in the sequences list are updated correspondingly."
 msgstr ""
-"メールボックス中のシーケンスを :meth:`get_sequences` で返されるような名前と"
-"キーのリストを対応付ける辞書 *sequences* に基づいて再定義します。"
+"番号付けの間隔を詰める必要に応じてメールボックス中のメッセージの名前を付け替"
+"えます。シーケンスのリストのエントリもそれに応じて更新されます。"
 
 #: ../../library/mailbox.rst:697
 msgid ""
 "Already-issued keys are invalidated by this operation and should not be "
 "subsequently used."
 msgstr ""
-"番号付けの間隔を詰める必要に応じてメールボックス中のメッセージの名前を付け替"
-"えます。シーケンスのリストのエントリもそれに応じて更新されます。"
+"既に発行されたキーはこの操作によって無効になるのでそれ以降使ってはなりませ"
+"ん。"
 
 #: ../../library/mailbox.rst:700
 msgid ""
 "Some :class:`Mailbox` methods implemented by :class:`!MH` deserve special "
 "remarks:"
 msgstr ""
+":class:`!MH` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注意"
+"が必要です:"
 
 #: ../../library/mailbox.rst:708
 msgid ""
@@ -947,6 +1074,10 @@ msgid ""
 "duration of any operations that affect them, locking individual message "
 "files."
 msgstr ""
+"3種類のロック機構が使われます --- ドットロッキングと、もし使用可能ならば :c:"
+"func:`!flock` と :c:func:`!lockf` システムコールです。 MH メールボックスに対"
+"するロックとは :file:`.mh_sequences` のロックと、それが影響を与える操作中だけ"
+"の個々のメッセージファイルに対するロックを意味します。"
 
 #: ../../library/mailbox.rst:724
 msgid ""
@@ -968,6 +1099,8 @@ msgid ""
 ":class:`!MH` instances do not keep any open files, so this method is "
 "equivalent to :meth:`unlock`."
 msgstr ""
+":class:`!MH` インスタンスは開いたファイルを保持しませんのでこのメソッドは :"
+"meth:`unlock` と同じです。"
 
 #: ../../library/mailbox.rst:742
 msgid "`nmh - Message Handling System <https://www.nongnu.org/nmh/>`_"
@@ -1052,6 +1185,8 @@ msgid ""
 ":class:`!Babyl` instances have all of the methods of :class:`Mailbox` in "
 "addition to the following:"
 msgstr ""
+":class:`!Babyl` インスタンスには :class:`Mailbox` の全てのメソッドの他に次の"
+"メソッドがあります:"
 
 #: ../../library/mailbox.rst:786
 msgid ""
@@ -1074,6 +1209,8 @@ msgid ""
 "Some :class:`Mailbox` methods implemented by :class:`!Babyl` deserve special "
 "remarks:"
 msgstr ""
+":class:`!Babyl` で実装された :class:`Mailbox` のいくつかのメソッドには特別な"
+"注意が必要です:"
 
 #: ../../library/mailbox.rst:801
 msgid ""
@@ -1157,6 +1294,8 @@ msgid ""
 "Some :class:`Mailbox` methods implemented by :class:`!MMDF` deserve special "
 "remarks:"
 msgstr ""
+":class:`!MMDF` で実装された :class:`Mailbox` のいくつかのメソッドには特別な注"
+"意が必要です:"
 
 #: ../../library/mailbox.rst:856
 msgid ""
@@ -1164,6 +1303,9 @@ msgid ""
 "close` on the :class:`!MMDF` instance may yield unpredictable results or "
 "raise an exception."
 msgstr ""
+":class:`!MMDF` インスタンスに対し :meth:`~Mailbox.flush` や meth:`~Mailbox."
+"close` を呼び出した後でファイルを使用すると予期しない結果を引き起こしたり例外"
+"が送出されたりすることがあります。"
 
 #: ../../library/mailbox.rst:870
 msgid ""
@@ -1200,6 +1342,9 @@ msgid ""
 "Message`. Subclasses of :class:`!mailbox.Message` add mailbox-format-"
 "specific state and behavior."
 msgstr ""
+":mod:`email.message` モジュールの :class:`~email.message.Message` のサブクラ"
+"ス。 :class:`!mailbox.Message` のサブクラスはメールボックス形式ごとの状態と動"
+"作を追加します。"
 
 #: ../../library/mailbox.rst:890
 msgid ""
@@ -1212,6 +1357,13 @@ msgid ""
 "open in binary mode, but text mode files are accepted for backward "
 "compatibility."
 msgstr ""
+"*message* が省略された場合、新しいインスタンスはデフォルトの空の状態で生成さ"
+"れます。 *message* が :class:`email.message.Message` インスタンスならばその内"
+"容がコピーされます。さらに、 *message* が :class:`!Message` インスタンスなら"
+"ば、形式固有の情報も可能な限り変換されます。 *message* が文字列かバイト列また"
+"はファイルならば、読まれ解析されるべき :rfc:`2822` 準拠のメッセージを含んでい"
+"なければなりません。ファイルはバイナリモードで開かれているべきですが、後方互"
+"換性のためテキストモードファイルも受け付けます。"
 
 #: ../../library/mailbox.rst:899
 msgid ""
@@ -1243,6 +1395,12 @@ msgid ""
 "custom message factory may be specified when a :class:`!Mailbox` instance is "
 "initialized."
 msgstr ""
+":class:`Mailbox` インスタンスを使って取得したメッセージを表現するのに :class:"
+"`!Message` インスタンスが使われなければいけないとは要求していません。ある種の"
+"状況では :class:`!Message` による表現を生成するのに必要な時間やメモリーが受け"
+"入れられないこともあります。そういった状況では :class:`!Mailbox` インスタンス"
+"は文字列やファイル風オブジェクトの表現も提供できますし、 :class:`!Mailbox` イ"
+"ンスタンスを初期化する際にメッセージファクトリーを指定することもできます。"
 
 #: ../../library/mailbox.rst:919
 msgid ":class:`!MaildirMessage` objects"
@@ -1378,7 +1536,7 @@ msgstr "削除予定とされたもの"
 
 #: ../../library/mailbox.rst:954
 msgid ":class:`!MaildirMessage` instances offer the following methods:"
-msgstr ""
+msgstr ":class:`!MaildirMessage` インスタンスは以下のメソッドを提供します:"
 
 #: ../../library/mailbox.rst:959
 msgid ""
@@ -1396,6 +1554,9 @@ msgid ""
 "mailbox has been accessed, whether or not the message has been read. A "
 "message ``msg`` has been read if ``\"S\" in msg.get_flags()`` is ``True``."
 msgstr ""
+"メッセージは通常メールボックスがアクセスされた後、メッセージが読まれたかどう"
+"かに関わらず :file:`new` から :file:`cur` に移動されます。メッセージ ``msg`` "
+"は ``\"S\" in msg.get_flags()`` が ``True`` ならば読まれています。"
 
 #: ../../library/mailbox.rst:973
 msgid ""
@@ -1482,6 +1643,9 @@ msgid ""
 "and :mailheader:`X-Status` headers are omitted and the following conversions "
 "take place:"
 msgstr ""
+":class:`!MaildirMessage` インスタンスが :class:`mboxMessage` や :class:"
+"`MMDFMessage` のインスタンスに基づいて生成されるとき、 :mailheader:`Status` "
+"および :mailheader:`X-Status` ヘッダは省かれ以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1037 ../../library/mailbox.rst:1055
 #: ../../library/mailbox.rst:1070 ../../library/mailbox.rst:1177
@@ -1563,6 +1727,8 @@ msgid ""
 "When a :class:`!MaildirMessage` instance is created based upon an :class:"
 "`MHMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!MaildirMessage` インスタンスが :class:`MHMessage` インスタンスに基づ"
+"いて生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1055 ../../library/mailbox.rst:1194
 #: ../../library/mailbox.rst:1449 ../../library/mailbox.rst:1566
@@ -1603,6 +1769,8 @@ msgid ""
 "When a :class:`!MaildirMessage` instance is created based upon a :class:"
 "`BabylMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!MaildirMessage` インスタンスが :class:`BabylMessage` インスタンスに"
+"基づいて生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1070 ../../library/mailbox.rst:1209
 #: ../../library/mailbox.rst:1321 ../../library/mailbox.rst:1581
@@ -1711,7 +1879,7 @@ msgstr ""
 
 #: ../../library/mailbox.rst:1123
 msgid ":class:`!mboxMessage` instances offer the following methods:"
-msgstr ""
+msgstr ":class:`!mboxMessage` インスタンスは以下のメソッドを提供します:"
 
 #: ../../library/mailbox.rst:1128 ../../library/mailbox.rst:1500
 msgid ""
@@ -1731,6 +1899,12 @@ msgid ""
 "tuple suitable for passing to :func:`time.strftime`, or ``True`` (to use :"
 "func:`time.gmtime`)."
 msgstr ""
+"\"From \" 行を *from_* にセットします。 *from_* は先頭の \"From \" や末尾の改"
+"行を含まない形で指定しなければなりません。利便性のために、 *time_* を指定して"
+"適切に整形して *from_* に追加させることができます。 *time_* を指定する場合、"
+"それは :class:`time.struct_time` インスタンス、 :func:`time.strftime` に渡す"
+"のに適したタプル、または ``True`` (この場合 :func:`time.gmtime` を使います) "
+"のいずれかでなければなりません。"
 
 #: ../../library/mailbox.rst:1145 ../../library/mailbox.rst:1517
 msgid ""
@@ -1778,6 +1952,9 @@ msgid ""
 "class:`MaildirMessage` instance's delivery date, and the following "
 "conversions take place:"
 msgstr ""
+":class:`!mboxMessage` インスタンスが :class:`MaildirMessage` インスタンスに基"
+"づいて生成されるとき、 :class:`MaildirMessage` インスタンスの配送日時に基づい"
+"て \"From \" 行が作り出され、次の変換が行われます:"
 
 #: ../../library/mailbox.rst:1177 ../../library/mailbox.rst:1292
 #: ../../library/mailbox.rst:1418 ../../library/mailbox.rst:1549
@@ -1789,6 +1966,8 @@ msgid ""
 "When an :class:`!mboxMessage` instance is created based upon an :class:"
 "`MHMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!mboxMessage` インスタンスが :class:`MHMessage` インスタンスに基づい"
+"て生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1196 ../../library/mailbox.rst:1211
 #: ../../library/mailbox.rst:1568 ../../library/mailbox.rst:1583
@@ -1800,6 +1979,8 @@ msgid ""
 "When an :class:`!mboxMessage` instance is created based upon a :class:"
 "`BabylMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!mboxMessage` インスタンスが :class:`BabylMessage` インスタンスに基づ"
+"いて生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1220
 msgid ""
@@ -1807,6 +1988,8 @@ msgid ""
 "`MMDFMessage` instance, the \"From \" line is copied and all flags directly "
 "correspond:"
 msgstr ""
+":class:`!mboxMessage` インスタンスが :class:`MMDFMessage` インスタンスに基づ"
+"いて生成されるとき、\"From \" 行はコピーされ全てのフラグは直接対応します:"
 
 #: ../../library/mailbox.rst:1225
 msgid ":class:`MMDFMessage` state"
@@ -1860,7 +2043,7 @@ msgstr "flagged"
 
 #: ../../library/mailbox.rst:1266
 msgid ":class:`!MHMessage` instances offer the following methods:"
-msgstr ""
+msgstr ":class:`!MHMessage` インスタンスは以下のメソッドを提供します:"
 
 #: ../../library/mailbox.rst:1271
 msgid "Return a list of the names of sequences that include this message."
@@ -1883,6 +2066,8 @@ msgid ""
 "When an :class:`!MHMessage` instance is created based upon a :class:"
 "`MaildirMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!MHMessage` インスタンスが :class:`MaildirMessage` インスタンスに基づ"
+"いて生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1294 ../../library/mailbox.rst:1420
 msgid "no S flag"
@@ -1895,6 +2080,9 @@ msgid ""
 "and :mailheader:`X-Status` headers are omitted and the following conversions "
 "take place:"
 msgstr ""
+":class:`!MHMessage` インスタンスが :class:`mboxMessage` や :class:"
+"`MMDFMessage` のインスタンスに基づいて生成されるとき、 :mailheader:`Status` "
+"および :mailheader:`X-Status` ヘッダは省かれ以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1310 ../../library/mailbox.rst:1438
 msgid "no R flag"
@@ -1905,6 +2093,8 @@ msgid ""
 "When an :class:`!MHMessage` instance is created based upon a :class:"
 "`BabylMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!MHMessage` インスタンスが :class:`BabylMessage` インスタンスに基づい"
+"て生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1332
 msgid ":class:`!BabylMessage` objects"
@@ -1976,10 +2166,13 @@ msgid ""
 "class, though, uses the original headers because they are more complete. "
 "Visible headers may be accessed explicitly if desired."
 msgstr ""
+"デフォルトでは Rmail は可視ヘッダのみ表示します。 :class:`!BabylMessage` クラ"
+"スはしかし、オリジナルヘッダをより完全だという理由で使います。可視ヘッダは望"
+"むならそのように指示してアクセスすることができます。"
 
 #: ../../library/mailbox.rst:1365
 msgid ":class:`!BabylMessage` instances offer the following methods:"
-msgstr ""
+msgstr ":class:`!BabylMessage` インスタンスは以下のメソッドを提供します:"
 
 #: ../../library/mailbox.rst:1370
 msgid "Return a list of labels on the message."
@@ -2002,6 +2195,8 @@ msgid ""
 "Return a :class:`Message` instance whose headers are the message's visible "
 "headers and whose body is empty."
 msgstr ""
+"ヘッダがメッセージの可視ヘッダでありボディが空であるような :class:`Message` "
+"インスタンスを返します。"
 
 #: ../../library/mailbox.rst:1396
 msgid ""
@@ -2027,12 +2222,22 @@ msgid ""
 "present in the original headers but not the visible headers are added to the "
 "visible headers."
 msgstr ""
+":class:`!BabylMessage` インスタンスのオリジナルヘッダが変更されたとき、可視"
+"ヘッダは自動的に対応して変更されるわけではありません。このメソッドは可視ヘッ"
+"ダを以下のように更新します。対応するオリジナルヘッダのある可視ヘッダはオリジ"
+"ナルヘッダの値がセットされます。対応するオリジナルヘッダの無い可視ヘッダは除"
+"去されます。そして、オリジナルヘッダにあって可視ヘッダに無い :mailheader:"
+"`Date` 、 :mailheader:`From` 、 :mailheader:`Reply-To` 、 :mailheader:"
+"`To` 、 :mailheader:`CC` 、 :mailheader:`Subject` は可視ヘッダに追加されま"
+"す。"
 
 #: ../../library/mailbox.rst:1414
 msgid ""
 "When a :class:`!BabylMessage` instance is created based upon a :class:"
 "`MaildirMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!BabylMessage` インスタンスが :class:`MaildirMessage` インスタンスに"
+"基づいて生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1426
 msgid "\"forwarded\" label"
@@ -2045,12 +2250,17 @@ msgid ""
 "and :mailheader:`X-Status` headers are omitted and the following conversions "
 "take place:"
 msgstr ""
+":class:`!BabylMessage` インスタンスが :class:`mboxMessage` や :class:"
+"`MMDFMessage` のインスタンスに基づいて生成されるとき、 :mailheader:`Status` "
+"および :mailheader:`X-Status` ヘッダは省かれ以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1445
 msgid ""
 "When a :class:`!BabylMessage` instance is created based upon an :class:"
 "`MHMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!BabylMessage` インスタンスが :class:`MHMessage` インスタンスに基づい"
+"て生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1460
 msgid ":class:`!MMDFMessage` objects"
@@ -2089,6 +2299,8 @@ msgid ""
 ":class:`!MMDFMessage` instances offer the following methods, which are "
 "identical to those offered by :class:`mboxMessage`:"
 msgstr ""
+":class:`!MMDFMessage` インスタンスは :class:`mboxMessage` インスタンスと同一"
+"の以下のメソッドを提供します:"
 
 #: ../../library/mailbox.rst:1543
 msgid ""
@@ -2097,18 +2309,25 @@ msgid ""
 "class:`MaildirMessage` instance's delivery date, and the following "
 "conversions take place:"
 msgstr ""
+":class:`!MMDFMessage` インスタンスが :class:`MaildirMessage` インスタンスに基"
+"づいて生成されるとき、\"From\"行が :class:`MaildirMessage` インスタンスの配信"
+"日をもとに生成され、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1562
 msgid ""
 "When an :class:`!MMDFMessage` instance is created based upon an :class:"
 "`MHMessage` instance, the following conversions take place:"
 msgstr ""
+" :class:`!MMDFMessage` インスタンスが :class:`MHMessage` インスタンスに基づい"
+"て生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1577
 msgid ""
 "When an :class:`!MMDFMessage` instance is created based upon a :class:"
 "`BabylMessage` instance, the following conversions take place:"
 msgstr ""
+":class:`!MMDFMessage` インスタンスが :class:`BabylMessage` インスタンスに基づ"
+"いて生成されるとき、以下の変換が行われます:"
 
 #: ../../library/mailbox.rst:1592
 msgid ""
@@ -2116,6 +2335,8 @@ msgid ""
 "`mboxMessage` instance, the \"From \" line is copied and all flags directly "
 "correspond:"
 msgstr ""
+":class:`!MMDFMessage` インスタンスが :class:`mboxMessage` インスタンスに基づ"
+"いて生成されるとき、\"From\"行がコピーされ、全てのフラグが直接対応します:"
 
 #: ../../library/mailbox.rst:1597
 msgid ":class:`mboxMessage` state"
@@ -2128,7 +2349,7 @@ msgstr "例外"
 #: ../../library/mailbox.rst:1614
 msgid ""
 "The following exception classes are defined in the :mod:`!mailbox` module:"
-msgstr ""
+msgstr ":mod:`!mailbox` モジュールでは以下の例外クラスが定義されています:"
 
 #: ../../library/mailbox.rst:1619
 msgid "The based class for all other module-specific exceptions."

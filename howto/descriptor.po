@@ -7,18 +7,18 @@
 # tomo, 2021
 # mollinaca, 2021
 # 渋川よしき <yoshiki@shibu.jp>, 2021
-# Arihiro TAKASE, 2023
 # souma987, 2023
 # TENMYO Masakazu, 2024
+# Arihiro TAKASE, 2024
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.13\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-31 10:59+0000\n"
+"POT-Creation-Date: 2024-09-06 14:16+0000\n"
 "PO-Revision-Date: 2021-06-28 00:53+0000\n"
-"Last-Translator: TENMYO Masakazu, 2024\n"
+"Last-Translator: Arihiro TAKASE, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -1095,7 +1095,7 @@ msgstr ""
 "完全な C での実装は :source:`Objects/typeobject.c` の中の :c:func:`!"
 "super_getattro` を参照してください。純粋な Python での同等なコードは "
 "`Guido's Tutorial <https://www.python.org/download/releases/2.2.3/descrintro/"
-"#cooperation>`_を参照してください。"
+"#cooperation>`_ を参照してください。"
 
 #: ../../howto/descriptor.rst:804
 msgid "Summary of invocation logic"
@@ -1103,11 +1103,9 @@ msgstr "呼び出しロジックのまとめ"
 
 #: ../../howto/descriptor.rst:806
 msgid ""
-"The mechanism for descriptors is embedded in the :meth:`__getattribute__()` "
+"The mechanism for descriptors is embedded in the :meth:`__getattribute__` "
 "methods for :class:`object`, :class:`type`, and :func:`super`."
 msgstr ""
-"デスクリプタのメカニズムは、 :class:`object` 、 :class:`type` 、 :func:"
-"`super` の  :meth:`__getattribute__()` メソッドの中に組み込まれています。"
 
 #: ../../howto/descriptor.rst:809
 msgid "The important points to remember are:"
@@ -1352,10 +1350,9 @@ msgstr ""
 #: ../../howto/descriptor.rst:992
 msgid ""
 "To see how :func:`property` is implemented in terms of the descriptor "
-"protocol, here is a pure Python equivalent:"
+"protocol, here is a pure Python equivalent that implements most of the core "
+"functionality:"
 msgstr ""
-"デスクリプタの見地から :func:`property` がどのように実装されているかを見るた"
-"めに、等価な Python 版をここに挙げます:"
 
 #: ../../howto/descriptor.rst:995
 msgid ""
@@ -1369,62 +1366,39 @@ msgid ""
 "        if doc is None and fget is not None:\n"
 "            doc = fget.__doc__\n"
 "        self.__doc__ = doc\n"
-"        self._name = None\n"
+"        self.__name__ = ''\n"
 "\n"
 "    def __set_name__(self, owner, name):\n"
-"        self._name = name\n"
-"\n"
-"    @property\n"
-"    def __name__(self):\n"
-"        return self._name if self._name is not None else self.fget.__name__\n"
-"\n"
-"    @__name__.setter\n"
-"    def __name__(self, value):\n"
-"        self._name = value\n"
+"        self.__name__ = name\n"
 "\n"
 "    def __get__(self, obj, objtype=None):\n"
 "        if obj is None:\n"
 "            return self\n"
 "        if self.fget is None:\n"
-"            raise AttributeError(\n"
-"                f'property {self.__name__!r} of {type(obj).__name__!r} '\n"
-"                'object has no getter'\n"
-"             )\n"
+"            raise AttributeError\n"
 "        return self.fget(obj)\n"
 "\n"
 "    def __set__(self, obj, value):\n"
 "        if self.fset is None:\n"
-"            raise AttributeError(\n"
-"                f'property {self.__name__!r} of {type(obj).__name__!r} '\n"
-"                'object has no setter'\n"
-"             )\n"
+"            raise AttributeError\n"
 "        self.fset(obj, value)\n"
 "\n"
 "    def __delete__(self, obj):\n"
 "        if self.fdel is None:\n"
-"            raise AttributeError(\n"
-"                f'property {self.__name__!r} of {type(obj).__name__!r} '\n"
-"                'object has no deleter'\n"
-"             )\n"
+"            raise AttributeError\n"
 "        self.fdel(obj)\n"
 "\n"
 "    def getter(self, fget):\n"
-"        prop = type(self)(fget, self.fset, self.fdel, self.__doc__)\n"
-"        prop._name = self._name\n"
-"        return prop\n"
+"        return type(self)(fget, self.fset, self.fdel, self.__doc__)\n"
 "\n"
 "    def setter(self, fset):\n"
-"        prop = type(self)(self.fget, fset, self.fdel, self.__doc__)\n"
-"        prop._name = self._name\n"
-"        return prop\n"
+"        return type(self)(self.fget, fset, self.fdel, self.__doc__)\n"
 "\n"
 "    def deleter(self, fdel):\n"
-"        prop = type(self)(self.fget, self.fset, fdel, self.__doc__)\n"
-"        prop._name = self._name\n"
-"        return prop"
+"        return type(self)(self.fget, self.fset, fdel, self.__doc__)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1143
+#: ../../howto/descriptor.rst:1120
 msgid ""
 "The :func:`property` builtin helps whenever a user interface has granted "
 "attribute access and then subsequent changes require the intervention of a "
@@ -1433,7 +1407,7 @@ msgstr ""
 "組み込みの :func:`property` 関数は、ユーザインターフェースへの属性アクセスが"
 "与えられ、続く変更がメソッドの介入を要求するときに役立ちます。"
 
-#: ../../howto/descriptor.rst:1147
+#: ../../howto/descriptor.rst:1124
 msgid ""
 "For instance, a spreadsheet class may grant access to a cell value through "
 "``Cell('b10').value``. Subsequent improvements to the program require the "
@@ -1448,7 +1422,7 @@ msgstr ""
 "ントコードに影響を与えたくありません。この解決策は、property データデスクリプ"
 "タ内に値属性へのアクセスをラップすることです:"
 
-#: ../../howto/descriptor.rst:1153
+#: ../../howto/descriptor.rst:1130
 msgid ""
 "class Cell:\n"
 "    ...\n"
@@ -1460,7 +1434,7 @@ msgid ""
 "        return self._value"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1164
+#: ../../howto/descriptor.rst:1141
 msgid ""
 "Either the built-in :func:`property` or our :func:`Property` equivalent "
 "would work in this example."
@@ -1468,11 +1442,11 @@ msgstr ""
 "組み込みの :func:`property` も、この :func:`Property` も、このサンプルの中で"
 "同じように利用できます。"
 
-#: ../../howto/descriptor.rst:1169
+#: ../../howto/descriptor.rst:1146
 msgid "Functions and methods"
 msgstr "関数とメソッド"
 
-#: ../../howto/descriptor.rst:1171
+#: ../../howto/descriptor.rst:1148
 msgid ""
 "Python's object oriented features are built upon a function based "
 "environment. Using non-data descriptors, the two are merged seamlessly."
@@ -1480,7 +1454,7 @@ msgstr ""
 "Python のオブジェクト指向機能は、関数に基づく環境の上に構築されています。非"
 "データデスクリプタを使って、この 2 つはシームレスに組み合わされています。"
 
-#: ../../howto/descriptor.rst:1174
+#: ../../howto/descriptor.rst:1151
 msgid ""
 "Functions stored in class dictionaries get turned into methods when invoked. "
 "Methods only differ from regular functions in that the object instance is "
@@ -1492,7 +1466,7 @@ msgstr ""
 "ます。監修ではインスタンスは *self* という名前が使われますが、 *this* や他の"
 "変数名も使えます。"
 
-#: ../../howto/descriptor.rst:1179
+#: ../../howto/descriptor.rst:1156
 msgid ""
 "Methods can be created manually with :class:`types.MethodType` which is "
 "roughly equivalent to:"
@@ -1500,7 +1474,7 @@ msgstr ""
 "メソッドは、ほぼ次のコードと同等な :class:`types.MethodType` を使えば手動で作"
 "れます。"
 
-#: ../../howto/descriptor.rst:1182
+#: ../../howto/descriptor.rst:1159
 msgid ""
 "class MethodType:\n"
 "    \"Emulate PyMethod_Type in Objects/classobject.c\"\n"
@@ -1529,7 +1503,7 @@ msgid ""
 "        return self"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1210
+#: ../../howto/descriptor.rst:1187
 msgid ""
 "To support automatic creation of methods, functions include the :meth:"
 "`__get__` method for binding methods during attribute access.  This means "
@@ -1541,7 +1515,7 @@ msgstr ""
 "ドットアクセスされたときに束縛されたメソッドを返す非データデスクリプタである"
 "ことを意味します。次のように動作します。"
 
-#: ../../howto/descriptor.rst:1215
+#: ../../howto/descriptor.rst:1192
 msgid ""
 "class Function:\n"
 "    ...\n"
@@ -1553,7 +1527,7 @@ msgid ""
 "        return MethodType(self, obj)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1226
+#: ../../howto/descriptor.rst:1203
 msgid ""
 "Running the following class in the interpreter shows how the function "
 "descriptor works in practice:"
@@ -1561,7 +1535,7 @@ msgstr ""
 "次のクラスをインタプリタを起動すると、この関数デスクリプタが実際にどう働くか"
 "を見られます::"
 
-#: ../../howto/descriptor.rst:1229
+#: ../../howto/descriptor.rst:1206
 msgid ""
 "class D:\n"
 "    def f(self):\n"
@@ -1571,20 +1545,20 @@ msgid ""
 "    pass"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1247
+#: ../../howto/descriptor.rst:1224
 msgid ""
 "The function has a :term:`qualified name` attribute to support introspection:"
 msgstr ""
 "この関数はイントロスペクションをサポートするために :term:`qualified name` も"
 "持っています。"
 
-#: ../../howto/descriptor.rst:1249
+#: ../../howto/descriptor.rst:1226
 msgid ""
 ">>> D.f.__qualname__\n"
 "'D.f'"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1254
+#: ../../howto/descriptor.rst:1231
 msgid ""
 "Accessing the function through the class dictionary does not invoke :meth:"
 "`__get__`.  Instead, it just returns the underlying function object::"
@@ -1592,13 +1566,13 @@ msgstr ""
 "クラス辞書を通じて関数にアクセスすると :meth:`__get__` が実行されません。その"
 "ため、裏にある関数オブジェクトをそのまま返します。"
 
-#: ../../howto/descriptor.rst:1257
+#: ../../howto/descriptor.rst:1234
 msgid ""
 ">>> D.__dict__['f']\n"
 "<function D.f at 0x00C45070>"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1260
+#: ../../howto/descriptor.rst:1237
 msgid ""
 "Dotted access from a class calls :meth:`__get__` which just returns the "
 "underlying function unchanged::"
@@ -1606,13 +1580,13 @@ msgstr ""
 "クラスのドットアクセスは :meth:`__get__` は呼び出しますが、これも裏にある関数"
 "を変更せずに返します。"
 
-#: ../../howto/descriptor.rst:1263
+#: ../../howto/descriptor.rst:1240
 msgid ""
 ">>> D.f\n"
 "<function D.f at 0x00C45070>"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1266
+#: ../../howto/descriptor.rst:1243
 msgid ""
 "The interesting behavior occurs during dotted access from an instance.  The "
 "dotted lookup calls :meth:`__get__` which returns a bound method object::"
@@ -1620,14 +1594,14 @@ msgstr ""
 "インスタンスに対してドットアクセスをすると面白い動作をします。ドットのルック"
 "アップは、束縛メソッドオブジェクトを返す :meth:`__get__` を呼び出します。"
 
-#: ../../howto/descriptor.rst:1269
+#: ../../howto/descriptor.rst:1246
 msgid ""
 ">>> d = D()\n"
 ">>> d.f\n"
 "<bound method D.f of <__main__.D object at 0x00B18C90>>"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1273
+#: ../../howto/descriptor.rst:1250
 msgid ""
 "Internally, the bound method stores the underlying function and the bound "
 "instance::"
@@ -1635,7 +1609,7 @@ msgstr ""
 "内部では、束縛メソッドはオリジナルの関数と束縛されたインスタンスを保持してい"
 "ます。"
 
-#: ../../howto/descriptor.rst:1276
+#: ../../howto/descriptor.rst:1253
 msgid ""
 ">>> d.f.__func__\n"
 "<function D.f at 0x00C45070>\n"
@@ -1644,7 +1618,7 @@ msgid ""
 "<__main__.D object at 0x00B18C90>"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1282
+#: ../../howto/descriptor.rst:1259
 msgid ""
 "If you have ever wondered where *self* comes from in regular methods or "
 "where *cls* comes from in class methods, this is it!"
@@ -1652,11 +1626,11 @@ msgstr ""
 "もし、通常のメソッドの *self* や、クラスメソッドの *cls* がどこから来るの疑問"
 "に思っている人がいるとしたら、これがその答えになります！"
 
-#: ../../howto/descriptor.rst:1287
+#: ../../howto/descriptor.rst:1264
 msgid "Kinds of methods"
 msgstr "メソッドの種類"
 
-#: ../../howto/descriptor.rst:1289
+#: ../../howto/descriptor.rst:1266
 msgid ""
 "Non-data descriptors provide a simple mechanism for variations on the usual "
 "patterns of binding functions into methods."
@@ -1664,7 +1638,7 @@ msgstr ""
 "非データデスクリプタは、関数をメソッドに束縛する、各種の一般的なパターンに、"
 "単純な機構を提供します。"
 
-#: ../../howto/descriptor.rst:1292
+#: ../../howto/descriptor.rst:1269
 msgid ""
 "To recap, functions have a :meth:`__get__` method so that they can be "
 "converted to a method when accessed as attributes.  The non-data descriptor "
@@ -1676,55 +1650,55 @@ msgstr ""
 "の呼び出しを ``f(obj, *args)`` に変換します。 ``cls.f(*args)`` を呼び出すと "
 "``f(*args)`` になります。"
 
-#: ../../howto/descriptor.rst:1297
+#: ../../howto/descriptor.rst:1274
 msgid "This chart summarizes the binding and its two most useful variants:"
 msgstr "このチャートは、束縛と、その 2 つの異なる便利な形をまとめています:"
 
-#: ../../howto/descriptor.rst:1300
+#: ../../howto/descriptor.rst:1277
 msgid "Transformation"
 msgstr "変換"
 
-#: ../../howto/descriptor.rst:1300
+#: ../../howto/descriptor.rst:1277
 msgid "Called from an object"
 msgstr "オブジェクトから呼び出される"
 
-#: ../../howto/descriptor.rst:1300
+#: ../../howto/descriptor.rst:1277
 msgid "Called from a class"
 msgstr "クラスから呼び出される"
 
-#: ../../howto/descriptor.rst:1303
+#: ../../howto/descriptor.rst:1280
 msgid "function"
 msgstr "関数"
 
-#: ../../howto/descriptor.rst:1303
+#: ../../howto/descriptor.rst:1280
 msgid "f(obj, \\*args)"
 msgstr "f(obj, \\*args)"
 
-#: ../../howto/descriptor.rst:1303 ../../howto/descriptor.rst:1305
+#: ../../howto/descriptor.rst:1280 ../../howto/descriptor.rst:1282
 msgid "f(\\*args)"
 msgstr "f(\\*args)"
 
-#: ../../howto/descriptor.rst:1305
+#: ../../howto/descriptor.rst:1282
 msgid "staticmethod"
 msgstr "静的メソッド"
 
-#: ../../howto/descriptor.rst:1307
+#: ../../howto/descriptor.rst:1284
 msgid "classmethod"
 msgstr "クラスメソッド"
 
-#: ../../howto/descriptor.rst:1307
+#: ../../howto/descriptor.rst:1284
 msgid "f(type(obj), \\*args)"
 msgstr "f(type(obj), \\*args)"
 
-#: ../../howto/descriptor.rst:1307
+#: ../../howto/descriptor.rst:1284
 msgid "f(cls, \\*args)"
 msgstr "f(cls, \\*args)"
 
-#: ../../howto/descriptor.rst:1312
+#: ../../howto/descriptor.rst:1289
 msgid "Static methods"
 msgstr "静的メソッド"
 
-#: ../../howto/descriptor.rst:1314
+#: ../../howto/descriptor.rst:1291
 msgid ""
 "Static methods return the underlying function without changes.  Calling "
 "either ``c.f`` or ``C.f`` is the equivalent of a direct lookup into ``object."
@@ -1737,14 +1711,14 @@ msgstr ""
 "\"f\")`` を直接探索するのと同じです。結果として、関数はオブジェクトとクラスか"
 "ら同じようにアクセスできます。"
 
-#: ../../howto/descriptor.rst:1320
+#: ../../howto/descriptor.rst:1297
 msgid ""
 "Good candidates for static methods are methods that do not reference the "
 "``self`` variable."
 msgstr ""
 "静的メソッドにすると良いのは、 ``self`` 変数への参照を持たないメソッドです。"
 
-#: ../../howto/descriptor.rst:1323
+#: ../../howto/descriptor.rst:1300
 msgid ""
 "For instance, a statistics package may include a container class for "
 "experimental data.  The class provides normal methods for computing the "
@@ -1762,14 +1736,14 @@ msgstr ""
 "セットに直接には依存しません。これは、オブジェクトからでもクラスからでも呼び"
 "出せます: ``s.erf(1.5) --> .9332`` または ``Sample.erf(1.5) --> .9332`` 。"
 
-#: ../../howto/descriptor.rst:1332
+#: ../../howto/descriptor.rst:1309
 msgid ""
 "Since static methods return the underlying function with no changes, the "
 "example calls are unexciting:"
 msgstr ""
 "静的メソッドは下にある関数をそのまま返すので、呼び出しの例は面白くありません:"
 
-#: ../../howto/descriptor.rst:1335
+#: ../../howto/descriptor.rst:1312
 msgid ""
 "class E:\n"
 "    @staticmethod\n"
@@ -1777,7 +1751,7 @@ msgid ""
 "        return x * 10"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1342
+#: ../../howto/descriptor.rst:1319
 msgid ""
 ">>> E.f(3)\n"
 "30\n"
@@ -1785,7 +1759,7 @@ msgid ""
 "30"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1349
+#: ../../howto/descriptor.rst:1326
 msgid ""
 "Using the non-data descriptor protocol, a pure Python version of :func:"
 "`staticmethod` would look like this:"
@@ -1793,7 +1767,7 @@ msgstr ""
 "非データデスクリプタプロトコルを使うと、pure Python 版の :func:"
 "`staticmethod` は以下のようになります:"
 
-#: ../../howto/descriptor.rst:1352
+#: ../../howto/descriptor.rst:1329
 msgid ""
 "import functools\n"
 "\n"
@@ -1811,7 +1785,7 @@ msgid ""
 "        return self.f(*args, **kwds)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1369
+#: ../../howto/descriptor.rst:1346
 msgid ""
 "The :func:`functools.update_wrapper` call adds a ``__wrapped__`` attribute "
 "that refers to the underlying function.  Also it carries forward the "
@@ -1825,11 +1799,11 @@ msgstr ""
 "`~function.__qualname__` 、 :attr:`~function.__doc__` 、 :attr:`~function."
 "__annotations__` 。"
 
-#: ../../howto/descriptor.rst:1438
+#: ../../howto/descriptor.rst:1415
 msgid "Class methods"
 msgstr "クラスメソッド"
 
-#: ../../howto/descriptor.rst:1440
+#: ../../howto/descriptor.rst:1417
 msgid ""
 "Unlike static methods, class methods prepend the class reference to the "
 "argument list before calling the function.  This format is the same for "
@@ -1839,7 +1813,7 @@ msgstr ""
 "ストの先頭に加えます。このフォーマットは、呼び出し元がオブジェクトでもクラス"
 "でも同じです:"
 
-#: ../../howto/descriptor.rst:1444
+#: ../../howto/descriptor.rst:1421
 msgid ""
 "class F:\n"
 "    @classmethod\n"
@@ -1847,7 +1821,7 @@ msgid ""
 "        return cls.__name__, x"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1451
+#: ../../howto/descriptor.rst:1428
 msgid ""
 ">>> F.f(3)\n"
 "('F', 3)\n"
@@ -1855,7 +1829,7 @@ msgid ""
 "('F', 3)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1458
+#: ../../howto/descriptor.rst:1435
 msgid ""
 "This behavior is useful whenever the method only needs to have a class "
 "reference and does not rely on data stored in a specific instance.  One use "
@@ -1868,7 +1842,7 @@ msgstr ""
 "クラスコンストラクタを作ることです。例えば、クラスメソッド :func:`dict."
 "fromkeys` は新しい辞書をキーのリストから生成します。等価な pure Python 版は:"
 
-#: ../../howto/descriptor.rst:1464
+#: ../../howto/descriptor.rst:1441
 msgid ""
 "class Dict(dict):\n"
 "    @classmethod\n"
@@ -1880,11 +1854,11 @@ msgid ""
 "        return d"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1475
+#: ../../howto/descriptor.rst:1452
 msgid "Now a new dictionary of unique keys can be constructed like this:"
 msgstr "これで一意なキーを持つ新しい辞書が以下のように構成できます:"
 
-#: ../../howto/descriptor.rst:1477
+#: ../../howto/descriptor.rst:1454
 msgid ""
 ">>> d = Dict.fromkeys('abracadabra')\n"
 ">>> type(d) is Dict\n"
@@ -1893,7 +1867,7 @@ msgid ""
 "{'a': None, 'b': None, 'r': None, 'c': None, 'd': None}"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1485
+#: ../../howto/descriptor.rst:1462
 msgid ""
 "Using the non-data descriptor protocol, a pure Python version of :func:"
 "`classmethod` would look like this:"
@@ -1901,7 +1875,7 @@ msgstr ""
 "非データデスクリプタプロトコルを使った、 :func:`classmethod` の pure Python "
 "版はこのようになります:"
 
-#: ../../howto/descriptor.rst:1488
+#: ../../howto/descriptor.rst:1465
 msgid ""
 "import functools\n"
 "\n"
@@ -1918,7 +1892,7 @@ msgid ""
 "        return MethodType(self.f, cls)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1550
+#: ../../howto/descriptor.rst:1527
 msgid ""
 "The :func:`functools.update_wrapper` call in ``ClassMethod`` adds a "
 "``__wrapped__`` attribute that refers to the underlying function.  Also it "
@@ -1933,11 +1907,11 @@ msgstr ""
 "__name__` 、 :attr:`~function.__qualname__` 、 :attr:`~function.__doc__` 、 :"
 "attr:`~function.__annotations__` 。"
 
-#: ../../howto/descriptor.rst:1559
+#: ../../howto/descriptor.rst:1536
 msgid "Member objects and __slots__"
 msgstr "メンバーオブジェクトと __slots__"
 
-#: ../../howto/descriptor.rst:1561
+#: ../../howto/descriptor.rst:1538
 msgid ""
 "When a class defines ``__slots__``, it replaces instance dictionaries with a "
 "fixed-length array of slot values.  From a user point of view that has "
@@ -1947,7 +1921,7 @@ msgstr ""
 "の配列と置き換えられます。ユーザーの目線からみると、いくつかの変化がありま"
 "す。"
 
-#: ../../howto/descriptor.rst:1565
+#: ../../howto/descriptor.rst:1542
 msgid ""
 "1. Provides immediate detection of bugs due to misspelled attribute "
 "assignments.  Only attribute names specified in ``__slots__`` are allowed:"
@@ -1955,13 +1929,13 @@ msgstr ""
 "1. 属性のアサイン時に、すぐにミススペルが原因のバグが検知される。 "
 "``__slots__`` で指定された属性名だけが許可されます:"
 
-#: ../../howto/descriptor.rst:1568
+#: ../../howto/descriptor.rst:1545
 msgid ""
 "class Vehicle:\n"
 "    __slots__ = ('id_number', 'make', 'model')"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1573
+#: ../../howto/descriptor.rst:1550
 msgid ""
 ">>> auto = Vehicle()\n"
 ">>> auto.id_nubmer = 'VYE483814LQEX'\n"
@@ -1970,7 +1944,7 @@ msgid ""
 "AttributeError: 'Vehicle' object has no attribute 'id_nubmer'"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1581
+#: ../../howto/descriptor.rst:1558
 msgid ""
 "2. Helps create immutable objects where descriptors manage access to private "
 "attributes stored in ``__slots__``:"
@@ -1978,7 +1952,7 @@ msgstr ""
 "2. デスクリプタが ``__slots__`` に格納されたプライベートな属性へのアクセスを"
 "制御するような、イミュータブルオブジェクトが作りやすくなる。"
 
-#: ../../howto/descriptor.rst:1584
+#: ../../howto/descriptor.rst:1561
 msgid ""
 "class Immutable:\n"
 "\n"
@@ -1998,7 +1972,7 @@ msgid ""
 "        return self._name"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1602
+#: ../../howto/descriptor.rst:1579
 msgid ""
 ">>> mark = Immutable('Botany', 'Mark Watney')\n"
 ">>> mark.dept\n"
@@ -2013,7 +1987,7 @@ msgid ""
 "AttributeError: 'Immutable' object has no attribute 'location'"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1616
+#: ../../howto/descriptor.rst:1593
 msgid ""
 "3. Saves memory.  On a 64-bit Linux build, an instance with two attributes "
 "takes 48 bytes with ``__slots__`` and 152 bytes without.  This `flyweight "
@@ -2026,7 +2000,7 @@ msgstr ""
 "Flyweight_%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3>`_ は大量のインスタンスを作成"
 "するときにのみ問題になります。"
 
-#: ../../howto/descriptor.rst:1621
+#: ../../howto/descriptor.rst:1598
 msgid ""
 "4. Improves speed.  Reading instance variables is 35% faster with "
 "``__slots__`` (as measured with Python 3.10 on an Apple M1 processor)."
@@ -2034,7 +2008,7 @@ msgstr ""
 "4. 速度の改善。 ``__slots__`` を使うとインスタンス変数の読み込み速度が35%早く"
 "なります（Apple M1プロセッサで動作させたPython 3.10で測定）"
 
-#: ../../howto/descriptor.rst:1624
+#: ../../howto/descriptor.rst:1601
 msgid ""
 "5. Blocks tools like :func:`functools.cached_property` which require an "
 "instance dictionary to function correctly:"
@@ -2042,7 +2016,7 @@ msgstr ""
 "5. :func:`functools.cached_property` のような、動作にインスタンス辞書が必要な"
 "ツールが使えなくなる。"
 
-#: ../../howto/descriptor.rst:1627
+#: ../../howto/descriptor.rst:1604
 msgid ""
 "from functools import cached_property\n"
 "\n"
@@ -2055,7 +2029,7 @@ msgid ""
 "                       for n in reversed(range(100_000)))"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1639
+#: ../../howto/descriptor.rst:1616
 msgid ""
 ">>> CP().pi\n"
 "Traceback (most recent call last):\n"
@@ -2063,7 +2037,7 @@ msgid ""
 "TypeError: No '__dict__' attribute on 'CP' instance to cache 'pi' property."
 msgstr ""
 
-#: ../../howto/descriptor.rst:1646
+#: ../../howto/descriptor.rst:1623
 msgid ""
 "It is not possible to create an exact drop-in pure Python version of "
 "``__slots__`` because it requires direct access to C structures and control "
@@ -2078,7 +2052,7 @@ msgstr ""
 "レートすることはできます。そのプライベートな構造体への読み書きはメンバーのデ"
 "スクリプタによって管理されます。"
 
-#: ../../howto/descriptor.rst:1653
+#: ../../howto/descriptor.rst:1630
 msgid ""
 "null = object()\n"
 "\n"
@@ -2117,7 +2091,7 @@ msgid ""
 "        return f'<Member {self.name!r} of {self.clsname!r}>'"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1691
+#: ../../howto/descriptor.rst:1668
 msgid ""
 "The :meth:`type.__new__` method takes care of adding member objects to class "
 "variables:"
@@ -2125,7 +2099,7 @@ msgstr ""
 ":meth:`type.__new__` メソッドはクラス変数へのメンバーオブジェクトの追加を処理"
 "します。"
 
-#: ../../howto/descriptor.rst:1694
+#: ../../howto/descriptor.rst:1671
 msgid ""
 "class Type(type):\n"
 "    'Simulate how the type metaclass adds member objects for slots'\n"
@@ -2139,7 +2113,7 @@ msgid ""
 "        return type.__new__(mcls, clsname, bases, mapping, **kwargs)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1707
+#: ../../howto/descriptor.rst:1684
 msgid ""
 "The :meth:`object.__new__` method takes care of creating instances that have "
 "slots instead of an instance dictionary.  Here is a rough simulation in pure "
@@ -2149,7 +2123,7 @@ msgstr ""
 "スタンスの作成の処理をします。おおざっぱにピュアPythonでのシミュレーションし"
 "たコードがこちらです。"
 
-#: ../../howto/descriptor.rst:1711
+#: ../../howto/descriptor.rst:1688
 msgid ""
 "class Object:\n"
 "    'Simulate how object.__new__() allocates memory for __slots__'\n"
@@ -2181,7 +2155,7 @@ msgid ""
 "        super().__delattr__(name)"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1742
+#: ../../howto/descriptor.rst:1719
 msgid ""
 "To use the simulation in a real class, just inherit from :class:`Object` and "
 "set the :term:`metaclass` to :class:`Type`:"
@@ -2189,7 +2163,7 @@ msgstr ""
 "実際のクラスでシミュレーションコードを利用するには、 :class:`Object` を継承"
 "し、 :term:`metaclass` を :class:`Type` にします。"
 
-#: ../../howto/descriptor.rst:1745
+#: ../../howto/descriptor.rst:1722
 msgid ""
 "class H(Object, metaclass=Type):\n"
 "    'Instance variables stored in slots'\n"
@@ -2201,13 +2175,13 @@ msgid ""
 "        self.y = y"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1756
+#: ../../howto/descriptor.rst:1733
 msgid ""
 "At this point, the metaclass has loaded member objects for *x* and *y*::"
 msgstr ""
 "この時点ではメタクラスは *x* と *y* のメンバーオブジェクトをロードします。"
 
-#: ../../howto/descriptor.rst:1758
+#: ../../howto/descriptor.rst:1735
 msgid ""
 ">>> from pprint import pp\n"
 ">>> pp(dict(vars(H)))\n"
@@ -2219,7 +2193,7 @@ msgid ""
 " 'y': <Member 'y' of 'H'>}"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1777
+#: ../../howto/descriptor.rst:1754
 msgid ""
 "When instances are created, they have a ``slot_values`` list where the "
 "attributes are stored:"
@@ -2227,7 +2201,7 @@ msgstr ""
 "インスタンスが作成されると、属性が保持される ``slot_values``  のリストをイン"
 "スタンスが保持します:"
 
-#: ../../howto/descriptor.rst:1780
+#: ../../howto/descriptor.rst:1757
 msgid ""
 ">>> h = H(10, 20)\n"
 ">>> vars(h)\n"
@@ -2237,11 +2211,11 @@ msgid ""
 "{'_slotvalues': [55, 20]}"
 msgstr ""
 
-#: ../../howto/descriptor.rst:1789
+#: ../../howto/descriptor.rst:1766
 msgid "Misspelled or unassigned attributes will raise an exception:"
 msgstr "スペルミスや、未アサインの属性は例外を送出します。"
 
-#: ../../howto/descriptor.rst:1791
+#: ../../howto/descriptor.rst:1768
 msgid ""
 ">>> h.xz\n"
 "Traceback (most recent call last):\n"
