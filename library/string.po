@@ -1025,6 +1025,11 @@ msgid ""
 "place value of the least significant digit is larger than 1, and fixed-point "
 "notation is used otherwise."
 msgstr ""
+"精度が指定されない場合、 :class:`float` に対しては有効桁数として ``6`` 桁を適"
+"用します。  :class:`~decimal.Decimal` では、フォーマット結果の係数部は実際の"
+"値の桁数によって決まります; 絶対値が ``1e-6`` より小さい値や、最下位桁の値が1"
+"より大きい値では科学的表記が使われます。それ以外の場合は固定小数点表記が使わ"
+"れます。"
 
 #: ../../library/string.rst:561
 msgid ""
@@ -1074,6 +1079,9 @@ msgid ""
 "past the decimal point. The precision used is as large as needed to "
 "represent the given value faithfully."
 msgstr ""
+":class:`float` に対しては、フォーマットに固定小数点表記が使われた場合に小数点"
+"以下に少なくとも1桁の数値を含むことを除けば、 ``'g'`` と同じです。精度は、そ"
+"の値を忠実に表現するのに十分な大きさが使われます。"
 
 #: ../../library/string.rst:583
 msgid ""
@@ -1081,12 +1089,17 @@ msgid ""
 "depending on the value of ``context.capitals`` for the current decimal "
 "context."
 msgstr ""
+":class:`~decimal.Decimal` に対しては、現在の decimal コンテキストにおける "
+"``context.capitals`` の値に応じて、 ``'g'`` か ``'G'`` のどちらかと同じになり"
+"ます。"
 
 #: ../../library/string.rst:587
 msgid ""
 "The overall effect is to match the output of :func:`str` as altered by the "
 "other format modifiers."
 msgstr ""
+"全体として、他の書式修正指定によって変更された :func:`str` の出力に一致するよ"
+"うな結果になります。"
 
 #: ../../library/string.rst:595
 msgid "Format examples"
@@ -1136,6 +1149,17 @@ msgid ""
 "repeated\n"
 "'abracadabra'"
 msgstr ""
+">>> '{0}, {1}, {2}'.format('a', 'b', 'c')\n"
+"'a, b, c'\n"
+">>> '{}, {}, {}'.format('a', 'b', 'c')  # 3.1+ only\n"
+"'a, b, c'\n"
+">>> '{2}, {1}, {0}'.format('a', 'b', 'c')\n"
+"'c, b, a'\n"
+">>> '{2}, {1}, {0}'.format(*'abc')      # unpacking argument sequence\n"
+"'c, b, a'\n"
+">>> '{0}{1}{0}'.format('abra', 'cad')   # arguments' indices can be "
+"repeated\n"
+"'abracadabra'"
 
 #: ../../library/string.rst:620
 msgid "Accessing arguments by name::"
@@ -1150,6 +1174,12 @@ msgid ""
 ">>> 'Coordinates: {latitude}, {longitude}'.format(**coord)\n"
 "'Coordinates: 37.24N, -115.81W'"
 msgstr ""
+">>> 'Coordinates: {latitude}, {longitude}'.format(latitude='37.24N', "
+"longitude='-115.81W')\n"
+"'Coordinates: 37.24N, -115.81W'\n"
+">>> coord = {'latitude': '37.24N', 'longitude': '-115.81W'}\n"
+">>> 'Coordinates: {latitude}, {longitude}'.format(**coord)\n"
+"'Coordinates: 37.24N, -115.81W'"
 
 #: ../../library/string.rst:628
 msgid "Accessing arguments' attributes::"
@@ -1171,6 +1201,19 @@ msgid ""
 ">>> str(Point(4, 2))\n"
 "'Point(4, 2)'"
 msgstr ""
+">>> c = 3-5j\n"
+">>> ('The complex number {0} is formed from the real part {0.real} '\n"
+"...  'and the imaginary part {0.imag}.').format(c)\n"
+"'The complex number (3-5j) is formed from the real part 3.0 and the "
+"imaginary part -5.0.'\n"
+">>> class Point:\n"
+"...     def __init__(self, x, y):\n"
+"...         self.x, self.y = x, y\n"
+"...     def __str__(self):\n"
+"...         return 'Point({self.x}, {self.y})'.format(self=self)\n"
+"...\n"
+">>> str(Point(4, 2))\n"
+"'Point(4, 2)'"
 
 #: ../../library/string.rst:643
 msgid "Accessing arguments' items::"
@@ -1182,6 +1225,9 @@ msgid ""
 ">>> 'X: {0[0]};  Y: {0[1]}'.format(coord)\n"
 "'X: 3;  Y: 5'"
 msgstr ""
+">>> coord = (3, 5)\n"
+">>> 'X: {0[0]};  Y: {0[1]}'.format(coord)\n"
+"'X: 3;  Y: 5'"
 
 #: ../../library/string.rst:649
 msgid "Replacing ``%s`` and ``%r``::"
@@ -1193,6 +1239,9 @@ msgid ""
 "'test2')\n"
 "\"repr() shows quotes: 'test1'; str() doesn't: test2\""
 msgstr ""
+">>> \"repr() shows quotes: {!r}; str() doesn't: {!s}\".format('test1', "
+"'test2')\n"
+"\"repr() shows quotes: 'test1'; str() doesn't: test2\""
 
 #: ../../library/string.rst:654
 msgid "Aligning the text and specifying a width::"
@@ -1209,6 +1258,14 @@ msgid ""
 ">>> '{:*^30}'.format('centered')  # use '*' as a fill char\n"
 "'***********centered***********'"
 msgstr ""
+">>> '{:<30}'.format('left aligned')\n"
+"'left aligned                  '\n"
+">>> '{:>30}'.format('right aligned')\n"
+"'                 right aligned'\n"
+">>> '{:^30}'.format('centered')\n"
+"'           centered           '\n"
+">>> '{:*^30}'.format('centered')  # use '*' as a fill char\n"
+"'***********centered***********'"
 
 #: ../../library/string.rst:665
 msgid "Replacing ``%+f``, ``%-f``, and ``% f`` and specifying a sign::"
@@ -1224,6 +1281,13 @@ msgid ""
 "f}; {:f}'\n"
 "'3.140000; -3.140000'"
 msgstr ""
+">>> '{:+f}; {:+f}'.format(3.14, -3.14)  # show it always\n"
+"'+3.140000; -3.140000'\n"
+">>> '{: f}; {: f}'.format(3.14, -3.14)  # show a space for positive numbers\n"
+"' 3.140000; -3.140000'\n"
+">>> '{:-f}; {:-f}'.format(3.14, -3.14)  # show only the minus -- same as '{:"
+"f}; {:f}'\n"
+"'3.140000; -3.140000'"
 
 #: ../../library/string.rst:674
 msgid ""
@@ -1239,6 +1303,12 @@ msgid ""
 ">>> \"int: {0:d};  hex: {0:#x};  oct: {0:#o};  bin: {0:#b}\".format(42)\n"
 "'int: 42;  hex: 0x2a;  oct: 0o52;  bin: 0b101010'"
 msgstr ""
+">>> # format also supports binary numbers\n"
+">>> \"int: {0:d};  hex: {0:x};  oct: {0:o};  bin: {0:b}\".format(42)\n"
+"'int: 42;  hex: 2a;  oct: 52;  bin: 101010'\n"
+">>> # with 0x, 0o, or 0b as prefix:\n"
+">>> \"int: {0:d};  hex: {0:#x};  oct: {0:#o};  bin: {0:#b}\".format(42)\n"
+"'int: 42;  hex: 0x2a;  oct: 0o52;  bin: 0b101010'"
 
 #: ../../library/string.rst:683
 msgid "Using the comma as a thousands separator::"
@@ -1249,6 +1319,8 @@ msgid ""
 ">>> '{:,}'.format(1234567890)\n"
 "'1,234,567,890'"
 msgstr ""
+">>> '{:,}'.format(1234567890)\n"
+"'1,234,567,890'"
 
 #: ../../library/string.rst:688
 msgid "Expressing a percentage::"
@@ -1261,6 +1333,10 @@ msgid ""
 ">>> 'Correct answers: {:.2%}'.format(points/total)\n"
 "'Correct answers: 86.36%'"
 msgstr ""
+">>> points = 19\n"
+">>> total = 22\n"
+">>> 'Correct answers: {:.2%}'.format(points/total)\n"
+"'Correct answers: 86.36%'"
 
 #: ../../library/string.rst:695
 msgid "Using type-specific formatting::"
@@ -1273,6 +1349,10 @@ msgid ""
 ">>> '{:%Y-%m-%d %H:%M:%S}'.format(d)\n"
 "'2010-07-04 12:15:58'"
 msgstr ""
+">>> import datetime\n"
+">>> d = datetime.datetime(2010, 7, 4, 12, 15, 58)\n"
+">>> '{:%Y-%m-%d %H:%M:%S}'.format(d)\n"
+"'2010-07-04 12:15:58'"
 
 #: ../../library/string.rst:702
 msgid "Nesting arguments and more complex examples::"
@@ -1308,6 +1388,33 @@ msgid ""
 "   10     A    12  1010\n"
 "   11     B    13  1011"
 msgstr ""
+">>> for align, text in zip('<^>', ['left', 'center', 'right']):\n"
+"...     '{0:{fill}{align}16}'.format(text, fill=align, align=align)\n"
+"...\n"
+"'left<<<<<<<<<<<<'\n"
+"'^^^^^center^^^^^'\n"
+"'>>>>>>>>>>>right'\n"
+">>>\n"
+">>> octets = [192, 168, 0, 1]\n"
+">>> '{:02X}{:02X}{:02X}{:02X}'.format(*octets)\n"
+"'C0A80001'\n"
+">>> int(_, 16)\n"
+"3232235521\n"
+">>>\n"
+">>> width = 5\n"
+">>> for num in range(5,12): \n"
+"...     for base in 'dXob':\n"
+"...         print('{0:{width}{base}}'.format(num, base=base, width=width), "
+"end=' ')\n"
+"...     print()\n"
+"...\n"
+"    5     5     5   101\n"
+"    6     6     6   110\n"
+"    7     7     7   111\n"
+"    8     8    10  1000\n"
+"    9     9    11  1001\n"
+"   10     A    12  1010\n"
+"   11     B    13  1011"
 
 #: ../../library/string.rst:736
 msgid "Template strings"
@@ -1437,12 +1544,16 @@ msgid ""
 "Returns false if the template has invalid placeholders that will cause :meth:"
 "`substitute` to raise :exc:`ValueError`."
 msgstr ""
+":meth:`substitute` が :exc:`ValueError` を送出する原因となるような、不正なプ"
+"レースホルダーをテンプレートが含む場合、偽を返します。"
 
 #: ../../library/string.rst:810
 msgid ""
 "Returns a list of the valid identifiers in the template, in the order they "
 "first appear, ignoring any invalid identifiers."
 msgstr ""
+"テンプレート内の有効な識別子のリストを、その識別子が最初に現れる順番で返しま"
+"す。不正な識別子は無視されます。"
 
 #: ../../library/string.rst:815
 msgid ":class:`Template` instances also provide one public data attribute:"
@@ -1480,6 +1591,21 @@ msgid ""
 ">>> Template('$who likes $what').safe_substitute(d)\n"
 "'tim likes $what'"
 msgstr ""
+">>> from string import Template\n"
+">>> s = Template('$who likes $what')\n"
+">>> s.substitute(who='tim', what='kung pao')\n"
+"'tim likes kung pao'\n"
+">>> d = dict(who='tim')\n"
+">>> Template('Give $who $100').substitute(d)\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"ValueError: Invalid placeholder in string: line 1, col 11\n"
+">>> Template('$who likes $what').substitute(d)\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"KeyError: 'what'\n"
+">>> Template('$who likes $what').safe_substitute(d)\n"
+"'tim likes $what'"
 
 #: ../../library/string.rst:840
 msgid ""
@@ -1516,6 +1642,10 @@ msgid ""
 "z][_a-z0-9]*)``.  If this is given and *braceidpattern* is ``None`` this "
 "pattern will also apply to braced placeholders."
 msgstr ""
+"*idpattern* -- これは波括弧なしのプレースホルダーを記述する正規表現です。デ"
+"フォルト値は正規表現 ``(?a:[_a-z][_a-z0-9]*)`` です。 *idpattern* が与えられ"
+"ており、かつ *braceidpattern* が ``None`` の場合、このパターンは波括弧付きの"
+"プレースホルダーにも適用されます。"
 
 #: ../../library/string.rst:859
 msgid ""
@@ -1542,6 +1672,11 @@ msgid ""
 "If given, this allows you to define different patterns for braced and "
 "unbraced placeholders."
 msgstr ""
+"*braceidpattern* -- これは *idpattern* に似ていますが、波括弧付きプレースホル"
+"ダーのパターンを記述します。デフォルトは ``None`` で、 *idpattern* が適用され"
+"ます (すなわち、波括弧の内側と外側の両方に同じパターンが使われます) 。 "
+"*braceidpattern* を使うと、波括弧付きと波括弧なしのプレースホルダーにそれぞれ"
+"異なるパターンを定義することができます。"
 
 #: ../../library/string.rst:875
 msgid ""
@@ -1607,6 +1742,8 @@ msgid ""
 "The methods on this class will raise :exc:`ValueError` if the pattern "
 "matches the template without one of these named groups matching."
 msgstr ""
+"このクラスのメソッドは、これらの名前付きグループに1つもマッチすることなくパ"
+"ターンがテンプレートにマッチした場合、 :exc:`ValueError` を送出します。"
 
 #: ../../library/string.rst:906
 msgid "Helper functions"
@@ -1629,14 +1766,14 @@ msgstr ""
 
 #: ../../library/string.rst:195
 msgid "{} (curly brackets)"
-msgstr ""
+msgstr "{} (波括弧)"
 
 #: ../../library/string.rst:195 ../../library/string.rst:335
 #: ../../library/string.rst:367 ../../library/string.rst:386
 #: ../../library/string.rst:395 ../../library/string.rst:409
 #: ../../library/string.rst:418
 msgid "in string formatting"
-msgstr ""
+msgstr "文字列のフォーマットで"
 
 #: ../../library/string.rst:195
 msgid ". (dot)"
@@ -1664,7 +1801,7 @@ msgstr "> (大きい)"
 
 #: ../../library/string.rst:335
 msgid "= (equals)"
-msgstr ""
+msgstr "= (等号)"
 
 #: ../../library/string.rst:335
 msgid "^ (caret)"
@@ -1680,7 +1817,7 @@ msgstr "- (負符号)"
 
 #: ../../library/string.rst:386
 msgid "z"
-msgstr ""
+msgstr "z"
 
 #: ../../library/string.rst:395
 msgid "# (hash)"
@@ -1688,16 +1825,16 @@ msgstr "# (hash)"
 
 #: ../../library/string.rst:409
 msgid ", (comma)"
-msgstr ""
+msgstr ", (カンマ)"
 
 #: ../../library/string.rst:418
 msgid "_ (underscore)"
-msgstr ""
+msgstr "_ (下線)"
 
 #: ../../library/string.rst:746
 msgid "$ (dollar)"
-msgstr ""
+msgstr "$ (ダラー)"
 
 #: ../../library/string.rst:746
 msgid "in template strings"
-msgstr ""
+msgstr "テンプレート文字列の中で"
