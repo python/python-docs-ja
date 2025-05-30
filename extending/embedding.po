@@ -14,15 +14,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-23 14:20+0000\n"
+"POT-Creation-Date: 2025-05-30 14:22+0000\n"
 "PO-Revision-Date: 2021-06-28 00:51+0000\n"
 "Last-Translator: 石井明久, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
-"Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../../extending/embedding.rst:8
@@ -513,25 +513,27 @@ msgid ""
 "    return PyLong_FromLong(numargs);\n"
 "}\n"
 "\n"
-"static PyMethodDef EmbMethods[] = {\n"
+"static PyMethodDef emb_module_methods[] = {\n"
 "    {\"numargs\", emb_numargs, METH_VARARGS,\n"
 "     \"Return the number of arguments received by the process.\"},\n"
 "    {NULL, NULL, 0, NULL}\n"
 "};\n"
 "\n"
-"static PyModuleDef EmbModule = {\n"
-"    PyModuleDef_HEAD_INIT, \"emb\", NULL, -1, EmbMethods,\n"
-"    NULL, NULL, NULL, NULL\n"
+"static struct PyModuleDef emb_module = {\n"
+"    .m_base = PyModuleDef_HEAD_INIT,\n"
+"    .m_name = \"emb\",\n"
+"    .m_size = 0,\n"
+"    .m_methods = emb_module_methods,\n"
 "};\n"
 "\n"
 "static PyObject*\n"
 "PyInit_emb(void)\n"
 "{\n"
-"    return PyModule_Create(&EmbModule);\n"
+"    return PyModuleDef_Init(&emb_module);\n"
 "}"
 msgstr ""
 
-#: ../../extending/embedding.rst:265
+#: ../../extending/embedding.rst:267
 msgid ""
 "Insert the above code just above the :c:func:`main` function. Also, insert "
 "the following two statements before the call to :c:func:`Py_Initialize`::"
@@ -539,26 +541,26 @@ msgstr ""
 "上のコードを :c:func:`main` 関数のすぐ上に挿入します。また、以下の二つの文"
 "を :c:func:`Py_Initialize` の呼び出しの前に挿入します::"
 
-#: ../../extending/embedding.rst:268
+#: ../../extending/embedding.rst:270
 msgid ""
 "numargs = argc;\n"
 "PyImport_AppendInittab(\"emb\", &PyInit_emb);"
 msgstr ""
 
-#: ../../extending/embedding.rst:271
+#: ../../extending/embedding.rst:273
 msgid ""
 "These two lines initialize the ``numargs`` variable, and make the :func:`!"
 "emb.numargs` function accessible to the embedded Python interpreter. With "
 "these extensions, the Python script can do things like"
 msgstr ""
 
-#: ../../extending/embedding.rst:275
+#: ../../extending/embedding.rst:277
 msgid ""
 "import emb\n"
 "print(\"Number of arguments\", emb.numargs())"
 msgstr ""
 
-#: ../../extending/embedding.rst:280
+#: ../../extending/embedding.rst:282
 msgid ""
 "In a real application, the methods will expose an API of the application to "
 "Python."
@@ -566,11 +568,11 @@ msgstr ""
 "実際のアプリケーションでは、こうしたメソッドでアプリケーション内の API を "
 "Python に公開することになります。"
 
-#: ../../extending/embedding.rst:290
+#: ../../extending/embedding.rst:292
 msgid "Embedding Python in C++"
 msgstr "C++による Python の埋め込み"
 
-#: ../../extending/embedding.rst:292
+#: ../../extending/embedding.rst:294
 msgid ""
 "It is also possible to embed Python in a C++ program; precisely how this is "
 "done will depend on the details of the C++ system used; in general you will "
@@ -583,11 +585,11 @@ msgstr ""
 "+で書き、C++ コンパイラを使ってプログラムをコンパイル・リンクする必要があるで"
 "しょう。 Python 自体を C++でコンパイルしなおす必要はありません。"
 
-#: ../../extending/embedding.rst:301
+#: ../../extending/embedding.rst:303
 msgid "Compiling and Linking under Unix-like systems"
 msgstr "Unix 系システムにおけるコンパイルとリンク"
 
-#: ../../extending/embedding.rst:303
+#: ../../extending/embedding.rst:305
 msgid ""
 "It is not necessarily trivial to find the right flags to pass to your "
 "compiler (and linker) in order to embed the Python interpreter into your "
@@ -599,7 +601,7 @@ msgstr ""
 "がライブラリモジュールに対してリンクされた C 動的拡張 (:file:`.so` ファイル) "
 "として実装されたものをロードする必要があるためです。"
 
-#: ../../extending/embedding.rst:309
+#: ../../extending/embedding.rst:311
 msgid ""
 "To find out the required compiler and linker flags, you can execute the :"
 "file:`python{X.Y}-config` script which is generated as part of the "
@@ -612,35 +614,35 @@ msgstr ""
 "で、 :file:`python3-config` スクリプトも利用出来るかもしれません)。このスクリ"
 "プトにはオプションが多くありますが、直接的に有用なのはこれでしょう:"
 
-#: ../../extending/embedding.rst:315
+#: ../../extending/embedding.rst:317
 msgid ""
 "``pythonX.Y-config --cflags`` will give you the recommended flags when "
 "compiling:"
 msgstr ""
 "``pythonX.Y-config --cflags`` は推奨のコンパイルオプションを出力します:"
 
-#: ../../extending/embedding.rst:318
+#: ../../extending/embedding.rst:320
 msgid ""
 "$ /opt/bin/python3.11-config --cflags\n"
 "-I/opt/include/python3.11 -I/opt/include/python3.11 -Wsign-compare  -DNDEBUG "
 "-g -fwrapv -O3 -Wall"
 msgstr ""
 
-#: ../../extending/embedding.rst:323
+#: ../../extending/embedding.rst:325
 msgid ""
 "``pythonX.Y-config --ldflags --embed`` will give you the recommended flags "
 "when linking:"
 msgstr ""
 "``pythonX.Y-config --ldflags --embed`` は推奨のリンクオプションを出力します:"
 
-#: ../../extending/embedding.rst:326
+#: ../../extending/embedding.rst:328
 msgid ""
 "$ /opt/bin/python3.11-config --ldflags --embed\n"
 "-L/opt/lib/python3.11/config-3.11-x86_64-linux-gnu -L/opt/lib -lpython3.11 -"
 "lpthread -ldl  -lutil -lm"
 msgstr ""
 
-#: ../../extending/embedding.rst:332
+#: ../../extending/embedding.rst:334
 msgid ""
 "To avoid confusion between several Python installations (and especially "
 "between the system Python and your own compiled Python), it is recommended "
@@ -651,7 +653,7 @@ msgstr ""
 "た Python)での混乱を避けるために、上での例のように :file:`python{X.Y}-"
 "config` は絶対パスで起動したほうが良いです。"
 
-#: ../../extending/embedding.rst:337
+#: ../../extending/embedding.rst:339
 msgid ""
 "If this procedure doesn't work for you (it is not guaranteed to work for all "
 "Unix-like platforms; however, we welcome :ref:`bug reports <reporting-"
@@ -671,7 +673,7 @@ msgstr ""
 "ます。これによってあなたが付け加えたいコンパイル・リンクのオプション構成をプ"
 "ログラム的に抽出できます。例えば:"
 
-#: ../../extending/embedding.rst:346
+#: ../../extending/embedding.rst:348
 msgid ""
 ">>> import sysconfig\n"
 ">>> sysconfig.get_config_var('LIBS')\n"
