@@ -22,18 +22,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out ${{ github.repository }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Check out CPython
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: python/cpython
           persist-credentials: false
           ref: ${{ env.CPYTHON_BRANCH }}
           path: cpython
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
           cache: 'pip'
           cache-dependency-path: '**/requirements*.txt'
       - name: Install Transifex CLI
@@ -42,7 +41,7 @@ jobs:
         working-directory: /usr/local/bin
       - name: Install dependencies
         run: |
-          sudo apt update -y && sudo apt install gettext -y
+          sudo apt-get update -y && sudo apt-get install gettext -y
           pip install --upgrade pip
           pip install -r requirements.txt -r cpython/Doc/requirements.txt
       - name: Update translations
@@ -74,52 +73,46 @@ jobs:
     strategy:
       matrix:
         branch: [ "3.13", "3.12", "3.11" ]
-        include:
-          - branch: "3.14"
-            overwrite: true
+
     runs-on: ubuntu-latest
     steps:
-      - name: Get current branch name
-        shell: bash
-        run:
-          echo "CURRENT_BRANCH=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
-      - name: Check out source branch (${{ env.CURRENT_BRANCH }})
-        uses: actions/checkout@v3
+      - name: Check out source branch (${{ env.CPYTHON_BRANCH }})
+        uses: actions/checkout@v4
         with:
-          path: ${{ env.CURRENT_BRANCH }}
+          path: ${{ env.CPYTHON_BRANCH }}
+
       - name: Check out target branch (${{ matrix.branch }})
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ matrix.branch }}
           path: ${{ matrix.branch }}
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
           cache: 'pip'
           cache-dependency-path: '**/requirements*.txt'
+
       - name: Install dependencies
         run: |
-          sudo apt update -y && sudo apt install gettext -y
+          sudo apt-get update -y && sudo apt-get install gettext -y
           pip install pomerge powrap
+
       - name: Merge overwriting on stable release branch
-        if: ${{ matrix.overwrite == true }}
         run: |
-          pomerge --from ${{ env.CURRENT_BRANCH }}/**/*.po --to ${{ matrix.branch }}/**/*.po
-      - name: Merge without overwriting on EOL or security-fix release branch
-        if: ${{ matrix.overwrite != true }}
-        run: |
-          pomerge --no-overwrite --from ${{ env.CURRENT_BRANCH }}/**/*.po --to ${{ matrix.branch }}/**/*.po
+          pomerge --from "${{ env.CPYTHON_BRANCH }}/**/*.po" --to "${{ matrix.branch }}/**/*.po"
+
       - name: Wrap catalog message files
         run: |
-          powrap --modified -C ${{ matrix.branch }}
+          powrap --modified -C "${{ matrix.branch }}"
+
       - name: Commit and push changes
         if: github.repository == 'python/python-docs-ja'
         run: |
-          cd ${{ matrix.branch }}
+          cd "${{ matrix.branch }}"
           git config user.name github-actions
           git config user.email github-actions@github.com
           git status
           git add -A
-          git diff-index --quiet HEAD || ( git commit -m "Merge ${{ env.CURRENT_BRANCH }} into ${{ matrix.branch }}" && git push )
+          git diff-index --quiet HEAD || ( git commit -m "Merge ${{ env.CPYTHON_BRANCH }} into ${{ matrix.branch }}" && git push )
 
