@@ -2030,6 +2030,16 @@ msgid ""
 "parameter names to annotations. The special key ``\"return\"`` is used to "
 "report the function return value annotation (if any)."
 msgstr ""
+"*args* は位置引数の名前のリストです。 *varargs* は ``*`` で始まる可変長位置引"
+"数の名前で、この引数を受け付けない場合は ``None`` です。 *varkw* は ``**`` で"
+"始まる可変長キーワード引数の名前で、この引数を受け付けない場合は ``None`` で"
+"す。 *defaults* は末尾 *n* 個の位置引数に対応するデフォルト引数の *n*-タプル"
+"で、 そのようなデフォルト値が定義されていない場合は ``None`` です。 "
+"*kwonlyargs* は宣言順に並んだキーワード専用引数の名前のリストです。 "
+"*kwonlydefaults* はそれらに対して値が渡されなかった場合の、 *kwonlyargs* の名"
+"前からデフォルト値へのマッピングを行う辞書です。 *annotations* 引数名からアノ"
+"テーションへのマッピングを行う辞書です。特殊キー ``\"return\"`` は (もしあれ"
+"ば) 関数の戻り値に対するアノテーションを伝えるために使われます。"
 
 #: ../../library/inspect.rst:1165
 msgid ""
@@ -2040,6 +2050,12 @@ msgid ""
 "for use in code that needs to maintain compatibility with the Python 2 "
 "``inspect`` module API."
 msgstr ""
+":func:`signature` と :ref:`Signature オブジェクト <inspect-signature-"
+"object>` が呼び出し可能オブジェクトのイントロスペクション (実行時オブジェクト"
+"調査) のための推奨される API を提供しており、かつ拡張モジュール API でときど"
+"き遭遇する追加の振る舞い (位置専用引数など) もサポートしていることに注意して"
+"ください。この関数は、主に Python 2 の ``inspect`` モジュール API との互換性"
+"を維持することが必要なコードで利用されるために残されています。"
 
 #: ../../library/inspect.rst:1172
 msgid ""
@@ -2047,6 +2063,9 @@ msgid ""
 "``__wrapped__`` attributes and includes the already bound first parameter in "
 "the signature output for bound methods."
 msgstr ""
+"この関数は :func:`signature` をもとに実装されています。ただし、 "
+"``__wrapped__`` 属性を無視します。また、束縛されたメソッドに対するシグネチャ"
+"の出力において、すでに束縛された最初のパラメータを含みます。"
 
 #: ../../library/inspect.rst:1177
 msgid ""
@@ -2055,6 +2074,10 @@ msgid ""
 "restore a clearly supported standard interface for single-source Python 2/3 "
 "code migrating away from the legacy :func:`getargspec` API."
 msgstr ""
+"Python 3.5 ではこのメソッドは非推奨とされ、代わりに :func:`signature` の利用"
+"が推奨されていました。ですが、レガシー API である :func:`getargspec` から移行"
+"し、明確にサポートされた標準インターフェースによる単一ソースでの Python 2/3 "
+"互換コードを復活させるため、非推奨の決定は取り消されました。"
 
 #: ../../library/inspect.rst:1192
 msgid ""
@@ -2072,7 +2095,7 @@ msgstr ""
 
 #: ../../library/inspect.rst:1199 ../../library/inspect.rst:1209
 msgid "This function was inadvertently marked as deprecated in Python 3.5."
-msgstr ""
+msgstr "この関数は Python 3.5 において、不注意により非推奨とされていました。"
 
 #: ../../library/inspect.rst:1204
 msgid ""
@@ -2107,6 +2130,14 @@ msgid ""
 "exception of the same type and the same or similar message is raised. For "
 "example:"
 msgstr ""
+"*args* と *kwds* を、あたかもそれらをパラメータとして呼ばれたかのように、 "
+"Python 関数またはメソッド *func* に束縛します。また、第一引数 (通常 ``self`` "
+"という名前です) を関連するインスタンスに束縛します。引数名 (もし存在すれば "
+"``*`` や ``**`` で始まる引数も含む) を *args* および *kwds* で与えられた値に"
+"マッピングする辞書を返します。 *func* を不正に呼び出した場合、すなわち "
+"``func(*args, **kwds)`` の呼び出しが不完全なシグネチャにより例外を送出するよ"
+"うな場合は、同じ型の例外を同一またはよく似たメッセージとともに送出します。以"
+"下は使用例です:"
 
 #: ../../library/inspect.rst:1231
 msgid ""
@@ -2124,10 +2155,25 @@ msgid ""
 "...\n"
 "TypeError: f() missing 1 required positional argument: 'a'"
 msgstr ""
+">>> from inspect import getcallargs\n"
+">>> def f(a, b=1, *pos, **named):\n"
+"...     pass\n"
+"...\n"
+">>> getcallargs(f, 1, 2, 3) == {'a': 1, 'named': {}, 'b': 2, 'pos': (3,)}\n"
+"True\n"
+">>> getcallargs(f, a=2, x=4) == {'a': 2, 'named': {'x': 4}, 'b': 1, 'pos': "
+"()}\n"
+"True\n"
+">>> getcallargs(f)\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"TypeError: f() missing 1 required positional argument: 'a'"
 
 #: ../../library/inspect.rst:1248
 msgid "Use :meth:`Signature.bind` and :meth:`Signature.bind_partial` instead."
 msgstr ""
+"代わりに :meth:`Signature.bind` や :meth:`Signature.bind_partial` を使ってく"
+"ださい。"
 
 #: ../../library/inspect.rst:1254
 msgid ""
@@ -2152,6 +2198,8 @@ msgid ""
 "Get the object wrapped by *func*. It follows the chain of :attr:"
 "`__wrapped__` attributes returning the last object in the chain."
 msgstr ""
+"*func* によりラップされたオブジェクトを取得します。 :attr:`__wrapped__` 属性"
+"の連鎖をたどり、ラップの連鎖の最後にあるオブジェクトを返します。"
 
 #: ../../library/inspect.rst:1273
 msgid ""
@@ -2165,23 +2213,27 @@ msgstr ""
 
 #: ../../library/inspect.rst:1280
 msgid ":exc:`ValueError` is raised if a cycle is encountered."
-msgstr ""
+msgstr "循環を検知した場合は :exc:`ValueError` を送出します。　"
 
 #: ../../library/inspect.rst:1287
 msgid "Compute the annotations dict for an object."
-msgstr ""
+msgstr "オブジェクトに対するアノテーション辞書を計算します。"
 
 #: ../../library/inspect.rst:1289
 msgid ""
 "This is an alias for :func:`annotationlib.get_annotations`; see the "
 "documentation of that function for more information."
 msgstr ""
+"これは :func:`annotationlib.get_annotations` のエイリアスです; 詳細はその関数"
+"のドキュメントを参照してください。"
 
 #: ../../library/inspect.rst:1294
 msgid ""
 "This function is now an alias for :func:`annotationlib.get_annotations`. "
 "Calling it as ``inspect.get_annotations`` will continue to work."
 msgstr ""
+"この関数は :func:`annotationlib.get_annotations` のエイリアスになりました。 "
+"``inspect.get_annotations`` として呼び出しても、引き続き正しく動作します。"
 
 #: ../../library/inspect.rst:1302
 msgid "The interpreter stack"
