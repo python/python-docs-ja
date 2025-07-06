@@ -68,6 +68,17 @@ msgid ""
 "    def total_cost(self) -> float:\n"
 "        return self.unit_price * self.quantity_on_hand"
 msgstr ""
+"from dataclasses import dataclass\n"
+"\n"
+"@dataclass\n"
+"class InventoryItem:\n"
+"    \"\"\"Class for keeping track of an item in inventory.\"\"\"\n"
+"    name: str\n"
+"    unit_price: float\n"
+"    quantity_on_hand: int = 0\n"
+"\n"
+"    def total_cost(self) -> float:\n"
+"        return self.unit_price * self.quantity_on_hand"
 
 #: ../../library/dataclasses.rst:34
 msgid "will add, among other things, a :meth:`!__init__` that looks like::"
@@ -81,6 +92,11 @@ msgid ""
 "    self.unit_price = unit_price\n"
 "    self.quantity_on_hand = quantity_on_hand"
 msgstr ""
+"def __init__(self, name: str, unit_price: float, quantity_on_hand: int = "
+"0):\n"
+"    self.name = name\n"
+"    self.unit_price = unit_price\n"
+"    self.quantity_on_hand = quantity_on_hand"
 
 #: ../../library/dataclasses.rst:41
 msgid ""
@@ -143,6 +159,9 @@ msgid ""
 "acts as if it has the default values documented in this signature.  That is, "
 "these three uses of ``@dataclass`` are equivalent::"
 msgstr ""
+"``@dataclass`` をパラメータなしの単純なデコレータとして使用した場合、"
+"このシグネチャに記載されているデフォルト値を持つかのように動作します。"
+"つまり、これら3つの ``@dataclass`` の使用法は等価です::"
 
 #: ../../library/dataclasses.rst:74
 msgid ""
@@ -160,21 +179,36 @@ msgid ""
 "class C:\n"
 "    ..."
 msgstr ""
+"@dataclass\n"
+"class C:\n"
+"    ...\n"
+"\n"
+"@dataclass()\n"
+"class C:\n"
+"    ...\n"
+"\n"
+"@dataclass(init=True, repr=True, eq=True, order=False, unsafe_hash=False, "
+"frozen=False,\n"
+"           match_args=True, kw_only=False, slots=False, weakref_slot=False)\n"
+"class C:\n"
+"    ..."
 
 #: ../../library/dataclasses.rst:87
 msgid "The parameters to ``@dataclass`` are:"
-msgstr ""
+msgstr "``@dataclass`` のパラメータは以下の通りです:"
 
 #: ../../library/dataclasses.rst:89
 msgid ""
 "*init*: If true (the default), a :meth:`~object.__init__` method will be "
 "generated."
 msgstr ""
+"*init*: True（デフォルト）の場合、:meth:`~object.__init__` メソッドが生成されます。"
 
 #: ../../library/dataclasses.rst:92
 msgid ""
 "If the class already defines :meth:`!__init__`, this parameter is ignored."
 msgstr ""
+"クラスが既に :meth:`!__init__` を定義している場合、このパラメータは無視されます。"
 
 #: ../../library/dataclasses.rst:95
 msgid ""
@@ -185,11 +219,17 @@ msgid ""
 "example: ``InventoryItem(name='widget', unit_price=3.0, "
 "quantity_on_hand=10)``."
 msgstr ""
+"*repr*: True（デフォルト）の場合、:meth:`~object.__repr__` メソッドが生成されます。"
+"生成される repr 文字列には、クラス名と各フィールドの名前および repr が、"
+"クラス内で定義された順序で含まれます。repr から除外するようにマークされた"
+"フィールドは含まれません。例: ``InventoryItem(name='widget', unit_price=3.0, "
+"quantity_on_hand=10)``。"
 
 #: ../../library/dataclasses.rst:102
 msgid ""
 "If the class already defines :meth:`!__repr__`, this parameter is ignored."
 msgstr ""
+"クラスが既に :meth:`!__repr__` を定義している場合、このパラメータは無視されます。"
 
 #: ../../library/dataclasses.rst:105
 msgid ""
@@ -198,11 +238,15 @@ msgid ""
 "fields, in order.  Both instances in the comparison must be of the identical "
 "type."
 msgstr ""
+"*eq*: True（デフォルト）の場合、:meth:`~object.__eq__` メソッドが生成されます。"
+"このメソッドは、クラスがそのフィールドの順序でタプルであるかのように比較します。"
+"比較する両方のインスタンスは同一の型である必要があります。"
 
 #: ../../library/dataclasses.rst:110
 msgid ""
 "If the class already defines :meth:`!__eq__`, this parameter is ignored."
 msgstr ""
+"クラスが既に :meth:`!__eq__` を定義している場合、このパラメータは無視されます。"
 
 #: ../../library/dataclasses.rst:113
 msgid ""
@@ -212,12 +256,19 @@ msgid ""
 "fields, in order.  Both instances in the comparison must be of the identical "
 "type.  If *order* is true and *eq* is false, a :exc:`ValueError` is raised."
 msgstr ""
+"*order*: True（デフォルトは ``False``）の場合、:meth:`~object.__lt__`、"
+":meth:`~object.__le__`、:meth:`~object.__gt__`、:meth:`~object.__ge__` "
+"メソッドが生成されます。これらは、クラスがそのフィールドのタプルであるかのように"
+"順序で比較します。比較する両方のインスタンスは同一の型である必要があります。"
+"*order* が True で *eq* が False の場合、:exc:`ValueError` が発生します。"
 
 #: ../../library/dataclasses.rst:120
 msgid ""
 "If the class already defines any of :meth:`!__lt__`, :meth:`!__le__`, :meth:"
 "`!__gt__`, or :meth:`!__ge__`, then :exc:`TypeError` is raised."
 msgstr ""
+"クラスが既に :meth:`!__lt__`、:meth:`!__le__`、:meth:`!__gt__`、:meth:`!__ge__` の"
+"いずれかを定義している場合、:exc:`TypeError` が発生します。"
 
 #: ../../library/dataclasses.rst:124
 msgid ""
@@ -226,6 +277,10 @@ msgid ""
 "generate a :meth:`~object.__hash__` method according to how *eq* and "
 "*frozen* are set. The default value is ``False``."
 msgstr ""
+"*unsafe_hash*: True の場合、安全でない可能性があっても ``dataclasses`` に "
+":meth:`~object.__hash__` メソッドの作成を強制します。そうでない場合は、*eq* "
+"と *frozen* の設定に応じて :meth:`~object.__hash__` メソッドを生成します。"
+"デフォルト値は ``False`` です。"
 
 #: ../../library/dataclasses.rst:130
 msgid ""
@@ -236,6 +291,11 @@ msgid ""
 "and behavior of :meth:`!__eq__`, and the values of the *eq* and *frozen* "
 "flags in the ``@dataclass`` decorator."
 msgstr ""
+":meth:`!__hash__` は組み込み関数 :meth:`hash` や、辞書や集合などのハッシュ"
+"コレクションにオブジェクトが追加される際に使われます。:meth:`!__hash__` を"
+"持つということは、そのクラスのインスタンスが不変であることを意味します。"
+"可変性は複雑な特性で、プログラマーの意図、:meth:`!__eq__` の存在と動作、"
+"``@dataclass`` デコレータの *eq* と *frozen* フラグの値に依存します。"
 
 #: ../../library/dataclasses.rst:137
 msgid ""
@@ -245,6 +305,11 @@ msgid ""
 "attribute ``__hash__ = None`` has a specific meaning to Python, as described "
 "in the :meth:`!__hash__` documentation."
 msgstr ""
+"デフォルトでは、``@dataclass`` は安全でない限り :meth:`~object.__hash__` "
+"メソッドを暗黙的に追加しません。また、既存の明示的に定義された :meth:`!__hash__` "
+"メソッドを追加または変更することもありません。クラス属性 ``__hash__ = None`` の"
+"設定は、:meth:`!__hash__` のドキュメントで説明されているように、Python にとって"
+"特別な意味を持ちます。"
 
 #: ../../library/dataclasses.rst:143
 msgid ""
@@ -255,6 +320,11 @@ msgid ""
 "logically immutable but can still be mutated. This is a specialized use case "
 "and should be considered carefully."
 msgstr ""
+":meth:`!__hash__` が明示的に定義されていない、または ``None`` に設定されている場合、"
+"``@dataclass`` は :meth:`!__hash__` メソッドを暗黙的に追加する *場合があります* 。"
+"推奨されませんが、``unsafe_hash=True`` を使って ``@dataclass`` に :meth:`!__hash__` "
+"メソッドの作成を強制できます。これは、クラスが論理的には不変であるにもかかわらず、"
+"変更可能である場合にあたります。これは特殊な使用例であり、慣重に検討する必要があります。"
 
 #: ../../library/dataclasses.rst:150
 msgid ""
@@ -263,6 +333,9 @@ msgid ""
 "in your dataclass and set ``unsafe_hash=True``; this will result in a :exc:"
 "`TypeError`."
 msgstr ""
+":meth:`!__hash__` メソッドの暗黙的な作成を支配するルールは以下の通りです。"
+"データクラスで明示的な :meth:`!__hash__` メソッドを持ち、かつ ``unsafe_hash=True`` を"
+"設定することはできません。これを行うと :exc:`TypeError` が発生します。"
 
 #: ../../library/dataclasses.rst:155
 msgid ""
@@ -274,6 +347,12 @@ msgid ""
 "used (if the superclass is :class:`object`, this means it will fall back to "
 "id-based hashing)."
 msgstr ""
+"*eq* と *frozen* がともに True の場合、デフォルトで ``@dataclass`` が :meth:`!__hash__` "
+"メソッドを生成します。*eq* が True で *frozen* が False の場合、:meth:`!__hash__` は "
+"``None`` に設定され、ハッシュ化不可能としてマークされます（実際に可変であるため）。"
+"*eq* が False の場合、:meth:`!__hash__` は変更されず、スーパークラスの :meth:`!__hash__` "
+"メソッドが使用されます（スーパークラスが :class:`object` の場合、ID ベースの"
+"ハッシュ化にフォールバックします）。"
 
 #: ../../library/dataclasses.rst:163
 msgid ""
@@ -282,6 +361,10 @@ msgid ""
 "`~object.__setattr__` or :meth:`~object.__delattr__` is defined in the "
 "class, then :exc:`TypeError` is raised.  See the discussion below."
 msgstr ""
+"*frozen*: True（デフォルトは ``False``）の場合、フィールドへの代入で例外が発生します。"
+"これは読み取り専用の凍結されたインスタンスをエミュレートします。クラスで :meth:`~object.__setattr__` "
+"または :meth:`~object.__delattr__` が定義されている場合、:exc:`TypeError` が発生します。"
+"以下の説明を参照してください。"
 
 #: ../../library/dataclasses.rst:168
 msgid ""
@@ -292,6 +375,11 @@ msgid ""
 "__match_args__` is already defined in the class, then :attr:`!"
 "__match_args__` will not be generated."
 msgstr ""
+"*match_args*: True（デフォルトは ``True``）の場合、生成された :meth:`~object.__init__` "
+"メソッドの非キーワード専用パラメータのリストから :attr:`~object.__match_args__` タプルが"
+"作成されます（:meth:`!__init__` が生成されない場合でも、上記を参照）。"
+"False の場合、または :attr:`!__match_args__` がクラスで既に定義されている場合、"
+":attr:`!__match_args__` は生成されません。"
 
 #: ../../library/dataclasses.rst:177
 msgid ""
@@ -302,10 +390,17 @@ msgid ""
 "is called. See the :term:`parameter` glossary entry for details.  Also see "
 "the :const:`KW_ONLY` section."
 msgstr ""
+"*kw_only*: True（デフォルト値は ``False``）の場合、すべてのフィールドが"
+"キーワード専用としてマークされます。フィールドがキーワード専用としてマークされた場合、"
+"唯一の効果は、:meth:`!__init__` が呼び出された際にキーワード専用フィールドから生成された "
+":meth:`~object.__init__` パラメータをキーワードで指定する必要があることです。"
+"詳細は :term:`parameter` 用語集のエントリを参照してください。"
+"また、:const:`KW_ONLY` の節も参照してください。"
 
 #: ../../library/dataclasses.rst:185
 msgid "Keyword-only fields are not included in :attr:`!__match_args__`."
 msgstr ""
+"キーワード専用フィールドは :attr:`!__match_args__` に含まれません。"
 
 #: ../../library/dataclasses.rst:189
 msgid ""
@@ -314,6 +409,9 @@ msgid ""
 "original one. If :attr:`!__slots__` is already defined in the class, then :"
 "exc:`TypeError` is raised."
 msgstr ""
+"*slots*: True（デフォルトは ``False``）の場合、:attr:`~object.__slots__` 属性が"
+"生成され、元のクラスの代わりに新しいクラスが返されます。クラスで :attr:`!__slots__` が"
+"既に定義されている場合、:exc:`TypeError` が発生します。"
 
 #: ../../library/dataclasses.rst:195
 msgid ""
@@ -322,6 +420,10 @@ msgid ""
 "``__init_subclass__`` with no parameters or use default values as a "
 "workaround. See :gh:`91126` for full details."
 msgstr ""
+"``slots=True`` を使用している際にベースクラスの :meth:`~object.__init_subclass__` に"
+"パラメータを渡すと :exc:`TypeError` が発生します。回避策として、パラメータなしで "
+"``__init_subclass__`` を使用するか、デフォルト値を使用してください。"
+"詳細は :gh:`91126` を参照してください。"
 
 #: ../../library/dataclasses.rst:203
 msgid ""
@@ -332,6 +434,13 @@ msgid ""
 "`fields` instead. To be able to determine inherited slots, base class :attr:"
 "`!__slots__` may be any iterable, but *not* an iterator."
 msgstr ""
+"フィールド名がベースクラスの :attr:`!__slots__` に既に含まれている場合、"
+":ref:`それらをオーバーライドする <datamodel-note-slots>` ことを防ぐため、"
+"生成される :attr:`!__slots__` には含まれません。したがって、データクラスの"
+"フィールド名を取得するために :attr:`!__slots__` を使用しないでください。"
+"代わりに :func:`fields` を使用してください。継承されたスロットを判定できる"
+"ようにするため、ベースクラスの :attr:`!__slots__` は任意のイテラブルですが、"
+"イテレータではないものにできます。"
 
 #: ../../library/dataclasses.rst:213
 msgid ""
@@ -340,13 +449,17 @@ msgid ""
 "<weakref.ref>`. It is an error to specify ``weakref_slot=True`` without also "
 "specifying ``slots=True``."
 msgstr ""
+"*weakref_slot*: True（デフォルトは ``False``）の場合、\"__weakref__\" という"
+"名前のスロットを追加します。これは、インスタンスを :func:`weakref 対応 "
+"<weakref.ref>` にするために必要です。``slots=True`` も指定せずに "
+"``weakref_slot=True`` を指定するとエラーになります。"
 
 #: ../../library/dataclasses.rst:221
 msgid ""
 "``field``\\s may optionally specify a default value, using normal Python "
 "syntax::"
 msgstr ""
-"``フィールド`` には、通常の Python の文法でデフォルト値を指定できます。"
+"``フィールド`` には、通常の Python の文法でデフォルト値を指定できます::"
 
 #: ../../library/dataclasses.rst:224
 msgid ""
@@ -355,16 +468,23 @@ msgid ""
 "    a: int       # 'a' has no default value\n"
 "    b: int = 0   # assign a default value for 'b'"
 msgstr ""
+"@dataclass\n"
+"class C:\n"
+"    a: int       # 'a' has no default value\n"
+"    b: int = 0   # assign a default value for 'b'"
 
 #: ../../library/dataclasses.rst:229
 msgid ""
 "In this example, both :attr:`!a` and :attr:`!b` will be included in the "
 "added :meth:`~object.__init__` method, which will be defined as::"
 msgstr ""
+"この例では、:attr:`!a` と :attr:`!b` の両方が追加される :meth:`~object.__init__` "
+"メソッドに含まれ、以下のように定義されます::"
 
 #: ../../library/dataclasses.rst:232
 msgid "def __init__(self, a: int, b: int = 0):"
 msgstr ""
+"def __init__(self, a: int, b: int = 0):"
 
 #: ../../library/dataclasses.rst:234
 msgid ""
@@ -384,6 +504,10 @@ msgid ""
 "replace the default field value with a call to the provided :func:`!field` "
 "function.  For example::"
 msgstr ""
+"一般的で簡単な使用例では、他の機能は必要ありません。しかし、フィールドごとの"
+"追加情報を必要とするデータクラスの機能がいくつかあります。この追加情報のニーズを"
+"満たすために、デフォルトのフィールド値を提供された :func:`!field` 関数の呼び出しで"
+"置き換えることができます。例えば::"
 
 #: ../../library/dataclasses.rst:246
 msgid ""
@@ -394,6 +518,12 @@ msgid ""
 "c = C()\n"
 "c.mylist += [1, 2, 3]"
 msgstr ""
+"@dataclass\n"
+"class C:\n"
+"    mylist: list[int] = field(default_factory=list)\n"
+"\n"
+"c = C()\n"
+"c.mylist += [1, 2, 3]"
 
 #: ../../library/dataclasses.rst:253
 msgid ""
@@ -402,10 +532,15 @@ msgid ""
 "because ``None`` is a valid value for some parameters with a distinct "
 "meaning.  No code should directly use the :const:`MISSING` value."
 msgstr ""
+"上記のように、:const:`MISSING` 値はユーザーが一部のパラメータを提供したかどうかを"
+"検出するために使用される番兵オブジェクトです。この番兵が使用されるのは、"
+"``None`` が一部のパラメータにとって異なる意味を持つ有効な値であるためです。"
+"コードは :const:`MISSING` 値を直接使用すべきではありません。"
 
 #: ../../library/dataclasses.rst:258
 msgid "The parameters to :func:`!field` are:"
 msgstr ""
+":func:`!field` のパラメータは以下の通りです:"
 
 #: ../../library/dataclasses.rst:260
 msgid ""
@@ -413,6 +548,8 @@ msgid ""
 "is needed because the :func:`!field` call itself replaces the normal "
 "position of the default value."
 msgstr ""
+"*default*: 指定した場合、これがこのフィールドのデフォルト値になります。これが必要なのは、"
+":func:`!field` の呼び出し自体がデフォルト値の通常の位置を置き換えるためです。"
 
 #: ../../library/dataclasses.rst:264
 msgid ""
@@ -422,18 +559,26 @@ msgid ""
 "discussed below.  It is an error to specify both *default* and "
 "*default_factory*."
 msgstr ""
+"*default_factory*: 指定した場合、このフィールドにデフォルト値が必要な際に呼び出される"
+"引数なしの呼び出し可能オブジェクトである必要があります。他の用途の中でも、これは"
+"後述するように可変なデフォルト値を持つフィールドを指定するために使用できます。"
+"*default* と *default_factory* の両方を指定するとエラーになります。"
 
 #: ../../library/dataclasses.rst:270
 msgid ""
 "*init*: If true (the default), this field is included as a parameter to the "
 "generated :meth:`~object.__init__` method."
 msgstr ""
+"*init*: True（デフォルト）の場合、このフィールドは生成された :meth:`~object.__init__` "
+"メソッドのパラメータとして含まれます。"
 
 #: ../../library/dataclasses.rst:273
 msgid ""
 "*repr*: If true (the default), this field is included in the string returned "
 "by the generated :meth:`~object.__repr__` method."
 msgstr ""
+"*repr*: True（デフォルト）の場合、このフィールドは生成された :meth:`~object.__repr__` "
+"メソッドが返す文字列に含まれます。"
 
 #: ../../library/dataclasses.rst:276
 msgid ""
@@ -445,6 +590,12 @@ msgid ""
 "comparisons.  Setting this value to anything other than ``None`` is "
 "discouraged."
 msgstr ""
+"*hash*: これは bool または ``None`` です。True の場合、このフィールドは生成された "
+":meth:`~object.__hash__` メソッドに含まれます。False の場合、このフィールドは"
+"生成された :meth:`~object.__hash__` から除外されます。``None``（デフォルト）の場合、"
+"*compare* の値を使用します。フィールドが比較に使用される場合はハッシュにも含まれる"
+"べきであるため、通常はこれが期待される動作です。この値を ``None`` 以外に"
+"設定することは推奨されません。"
 
 #: ../../library/dataclasses.rst:284
 msgid ""
@@ -465,6 +616,9 @@ msgid ""
 "equality and comparison methods (:meth:`~object.__eq__`, :meth:`~object."
 "__gt__`, et al.)."
 msgstr ""
+"*compare*: True（デフォルト）の場合、このフィールドは生成された等価性"
+"および比較メソッド（:meth:`~object.__eq__`、:meth:`~object.__gt__` など）"
+"に含まれます。"
 
 #: ../../library/dataclasses.rst:294
 msgid ""
@@ -475,20 +629,29 @@ msgid ""
 "mechanism. Multiple third-parties can each have their own key, to use as a "
 "namespace in the metadata."
 msgstr ""
+"*metadata*: これはマッピングまたは ``None`` です。``None`` は空の辞書として"
+"扱われます。この値は :func:`~types.MappingProxyType` でラップされて読み取り"
+"専用にされ、:class:`Field` オブジェクトで公開されます。データクラスでは"
+"まったく使用されず、サードパーティ拡張メカニズムとして提供されています。"
+"複数のサードパーティがそれぞれ独自のキーを持ち、メタデータ内の名前空間と"
+"して使用できます。"
 
 #: ../../library/dataclasses.rst:302
 msgid ""
 "*kw_only*: If true, this field will be marked as keyword-only. This is used "
 "when the generated :meth:`~object.__init__` method's parameters are computed."
 msgstr ""
+"*kw_only*: True の場合、このフィールドはキーワード専用としてマークされます。"
+"これは、生成された :meth:`~object.__init__` メソッドのパラメータが"
+"計算される際に使用されます。"
 
 #: ../../library/dataclasses.rst:306
 msgid "Keyword-only fields are also not included in :attr:`!__match_args__`."
-msgstr ""
+msgstr "キーワード専用フィールドも :attr:`!__match_args__` には含まれません。"
 
 #: ../../library/dataclasses.rst:310
 msgid "*doc*: optional docstring for this field."
-msgstr ""
+msgstr "*doc*: このフィールドのオプションのドキュメント文字列。"
 
 #: ../../library/dataclasses.rst:314
 msgid ""
@@ -500,6 +663,12 @@ msgid ""
 "default values for the fields, just as if the default value itself were "
 "specified.  For example, after::"
 msgstr ""
+"フィールドのデフォルト値が :func:`!field` の呼び出しによって指定された場合、"
+"このフィールドのクラス属性は指定された *default* 値で置き換えられます。"
+"*default* が提供されない場合、クラス属性は削除されます。意図としては、"
+":func:`@dataclass <dataclass>` デコレータが実行された後、すべてのクラス属性が"
+"フィールドのデフォルト値を含むようになり、まるでデフォルト値自体が指定された"
+"かのようになることです。例えば、以下の後で::"
 
 #: ../../library/dataclasses.rst:323
 msgid ""
@@ -517,6 +686,8 @@ msgid ""
 "C.t` will be ``20``, and the class attributes :attr:`!C.x` and :attr:`!C.y` "
 "will not be set."
 msgstr ""
+"クラス属性 :attr:`!C.z` は ``10`` 、クラス属性 :attr:`!C.t` は ``20`` に"
+"なり、クラス属性 :attr:`!C.x` と :attr:`!C.y` は設定されません。"
 
 #: ../../library/dataclasses.rst:336
 msgid ""
@@ -525,14 +696,18 @@ msgid ""
 "method (see below).  Users should never instantiate a :class:`!Field` object "
 "directly.  Its documented attributes are:"
 msgstr ""
+":class:`!Field` オブジェクトは定義された各フィールドを記述します。これらの"
+"オブジェクトは内部的に作成され、:func:`fields` モジュールレベルメソッド"
+"（以下を参照）によって返されます。ユーザーは :class:`!Field` オブジェクトを"
+"直接インスタンス化してはいけません。文書化された属性は以下の通りです:"
 
 #: ../../library/dataclasses.rst:341
 msgid ":attr:`!name`: The name of the field."
-msgstr ""
+msgstr ":attr:`!name`: フィールドの名前。"
 
 #: ../../library/dataclasses.rst:342
 msgid ":attr:`!type`: The type of the field."
-msgstr ""
+msgstr ":attr:`!type`: フィールドの型。"
 
 #: ../../library/dataclasses.rst:343
 msgid ""
@@ -540,6 +715,9 @@ msgid ""
 "attr:`!hash`, :attr:`!compare`, :attr:`!metadata`, and :attr:`!kw_only` have "
 "the identical meaning and values as they do in the :func:`field` function."
 msgstr ""
+":attr:`!default`、:attr:`!default_factory`、:attr:`!init`、:attr:`!repr`、"
+":attr:`!hash`、:attr:`!compare`、:attr:`!metadata`、:attr:`!kw_only` は、"
+":func:`field` 関数と同じ意味と値を持ちます。"
 
 #: ../../library/dataclasses.rst:347
 msgid ""
@@ -557,6 +735,11 @@ msgid ""
 "`fields` function nor used in any way except adding them as parameters to :"
 "meth:`~object.__init__` and an optional :meth:`__post_init__`."
 msgstr ""
+"``InitVar[T]`` 型アノテーションは :ref:`初期化専用 <dataclasses-init-only-variables>` "
+"変数を記述します。:class:`!InitVar` でアノテーションされたフィールドは"
+"疑似フィールドと見なされ、:func:`fields` 関数によって返されることも、"
+":meth:`~object.__init__` とオプションの :meth:`__post_init__` のパラメータとして"
+"追加される以外は一切使用されることもありません。"
 
 #: ../../library/dataclasses.rst:361
 msgid ""
@@ -579,10 +762,14 @@ msgid ""
 "``name: value`` pairs.  dataclasses, dicts, lists, and tuples are recursed "
 "into.  Other objects are copied with :func:`copy.deepcopy`."
 msgstr ""
+"データクラス *obj* を辞書に変換します（ファクトリ関数 *dict_factory* を使用）。"
+"各データクラスは、``name: value`` ペアとしてそのフィールドの辞書に変換されます。"
+"データクラス、辞書、リスト、タプルは再帰的に処理されます。その他のオブジェクトは"
+":func:`copy.deepcopy` でコピーされます。"
 
 #: ../../library/dataclasses.rst:374
 msgid "Example of using :func:`!asdict` on nested dataclasses::"
-msgstr ""
+msgstr "ネストしたデータクラスでの :func:`!asdict` の使用例::"
 
 #: ../../library/dataclasses.rst:376
 msgid ""
@@ -604,7 +791,7 @@ msgstr ""
 
 #: ../../library/dataclasses.rst:391 ../../library/dataclasses.rst:411
 msgid "To create a shallow copy, the following workaround may be used::"
-msgstr ""
+msgstr "浅いコピーを作成するには、以下の回避策を使用できます::"
 
 #: ../../library/dataclasses.rst:393
 msgid "{field.name: getattr(obj, field.name) for field in fields(obj)}"
@@ -614,6 +801,7 @@ msgstr ""
 msgid ""
 ":func:`!asdict` raises :exc:`TypeError` if *obj* is not a dataclass instance."
 msgstr ""
+":func:`!asdict` は *obj* がデータクラスのインスタンスでない場合、:exc:`TypeError` を発生させます。"
 
 #: ../../library/dataclasses.rst:400
 msgid ""
@@ -622,6 +810,10 @@ msgid ""
 "values.  dataclasses, dicts, lists, and tuples are recursed into. Other "
 "objects are copied with :func:`copy.deepcopy`."
 msgstr ""
+"データクラス *obj* をタプルに変換します（ファクトリ関数 *tuple_factory* を使用）。"
+"各データクラスはそのフィールド値のタプルに変換されます。データクラス、辞書、"
+"リスト、タプルは再帰的に処理されます。その他のオブジェクトは :func:`copy.deepcopy` "
+"でコピーされます。"
 
 #: ../../library/dataclasses.rst:406
 msgid "Continuing from the previous example::"
@@ -642,6 +834,7 @@ msgid ""
 ":func:`!astuple` raises :exc:`TypeError` if *obj* is not a dataclass "
 "instance."
 msgstr ""
+":func:`!astuple` は *obj* がデータクラスのインスタンスでない場合、:exc:`TypeError` を発生させます。"
 
 #: ../../library/dataclasses.rst:420
 msgid ""
@@ -654,12 +847,21 @@ msgid ""
 "*slots*, and *weakref_slot* have the same meaning as they do in :func:"
 "`@dataclass <dataclass>`."
 msgstr ""
+"*cls_name* という名前、*fields* で定義されたフィールド、*bases* で指定された"
+"ベースクラス、*namespace* で指定された名前空間で初期化された新しいデータ"
+"クラスを作成します。*fields* は、各要素が ``name``、``(name, type)``、または"
+"``(name, type, Field)`` のいずれかであるイテラブルです。``name`` だけが指定された"
+"場合、``type`` には :data:`typing.Any` が使用されます。*init*、*repr*、*eq*、"
+"*order*、*unsafe_hash*、*frozen*、*match_args*、*kw_only*、*slots*、*weakref_slot* の"
+"値は、:func:`@dataclass <dataclass>` と同じ意味を持ちます。"
 
 #: ../../library/dataclasses.rst:430
 msgid ""
 "If *module* is defined, the :attr:`!__module__` attribute of the dataclass "
 "is set to that value. By default, it is set to the module name of the caller."
 msgstr ""
+"*module* が定義されている場合、データクラスの :attr:`!__module__` 属性はその値に"
+"設定されます。デフォルトでは、呼び出し元のモジュール名に設定されます。"
 
 #: ../../library/dataclasses.rst:434
 msgid ""
@@ -668,6 +870,10 @@ msgid ""
 "keyword arguments as :func:`@dataclass <dataclass>`. By default, the :func:"
 "`@dataclass <dataclass>` function is used."
 msgstr ""
+"*decorator* パラメータは、データクラスの作成に使用される呼び出し可能オブジェクトです。"
+"第一引数としてクラスオブジェクトを、:func:`@dataclass <dataclass>` と同じ"
+"キーワード引数を取る必要があります。デフォルトでは、:func:`@dataclass <dataclass>` "
+"関数が使用されます。"
 
 #: ../../library/dataclasses.rst:439
 msgid ""
@@ -676,6 +882,10 @@ msgid ""
 "`@dataclass <dataclass>` function to convert that class to a dataclass.  "
 "This function is provided as a convenience.  For example::"
 msgstr ""
+"この関数は厳密には必要ありません。:attr:`!__annotations__` で新しいクラスを"
+"作成するどの Python メカニズムでも、そのクラスをデータクラスに変換するために"
+":func:`@dataclass <dataclass>` 関数を適用できるからです。この関数は便利さのために"
+"提供されています。例えば::"
 
 #: ../../library/dataclasses.rst:445
 msgid ""
@@ -704,7 +914,7 @@ msgstr ""
 
 #: ../../library/dataclasses.rst:462
 msgid "Added the *decorator* parameter."
-msgstr ""
+msgstr "*decorator* パラメータが追加されました。"
 
 #: ../../library/dataclasses.rst:467
 msgid ""
@@ -713,6 +923,9 @@ msgid ""
 "keys in *changes* are not field names of the given dataclass, raises :exc:"
 "`TypeError`."
 msgstr ""
+"*obj* と同じ型の新しいオブジェクトを作成し、*changes* の値でフィールドを置き換えます。"
+"*obj* がデータクラスでない場合、:exc:`TypeError` を発生させます。*changes* のキーが"
+"指定されたデータクラスのフィールド名でない場合、:exc:`TypeError` を発生させます。"
 
 #: ../../library/dataclasses.rst:472
 msgid ""
@@ -720,6 +933,9 @@ msgid ""
 "method of the dataclass.  This ensures that :meth:`__post_init__`, if "
 "present, is also called."
 msgstr ""
+"新しく返されるオブジェクトは、データクラスの :meth:`~object.__init__` メソッドを"
+"呼び出すことで作成されます。これにより、:meth:`__post_init__` が存在する場合は"
+"それも呼び出されることが保証されます。"
 
 #: ../../library/dataclasses.rst:476
 msgid ""
@@ -727,12 +943,17 @@ msgid ""
 "on the call to :func:`!replace` so that they can be passed to :meth:`!"
 "__init__` and :meth:`__post_init__`."
 msgstr ""
+"デフォルト値を持たない初期化専用変数が存在する場合、:func:`!replace` の呼び出しで"
+"指定する必要があります。これにより、:meth:`!__init__` と :meth:`__post_init__` に"
+"渡すことができます。"
 
 #: ../../library/dataclasses.rst:480
 msgid ""
 "It is an error for *changes* to contain any fields that are defined as "
 "having ``init=False``.  A :exc:`ValueError` will be raised in this case."
 msgstr ""
+"*changes* に ``init=False`` として定義されたフィールドが含まれるのは"
+"エラーです。この場合、:exc:`ValueError` が発生します。"
 
 #: ../../library/dataclasses.rst:484
 msgid ""
@@ -744,18 +965,27 @@ msgid ""
 "perhaps a custom :func:`!replace` (or similarly named) method which handles "
 "instance copying."
 msgstr ""
+":func:`!replace` の呼び出し中に ``init=False`` フィールドがどのように動作するか"
+"について注意してください。これらはソースオブジェクトからコピーされるのではなく、"
+"初期化される場合は :meth:`__post_init__` で初期化されます。``init=False`` フィールドは"
+"まれに慎重に使用されることが想定されています。使用する場合は、代替クラスコンストラクタ、"
+"またはインスタンスコピーを処理するカスタム :func:`!replace`（または同様の名前の）"
+"メソッドを用意することが賢明かもしれません。"
 
 #: ../../library/dataclasses.rst:493
 msgid ""
 "Dataclass instances are also supported by generic function :func:`copy."
 "replace`."
 msgstr ""
+"データクラスのインスタンスは汎用関数 :func:`copy.replace` もサポートしています。"
 
 #: ../../library/dataclasses.rst:497
 msgid ""
 "Return ``True`` if its parameter is a dataclass (including subclasses of a "
 "dataclass) or an instance of one, otherwise return ``False``."
 msgstr ""
+"パラメータがデータクラス（データクラスのサブクラスを含む）またはそのインスタンス"
+"である場合は ``True`` を返し、そうでない場合は ``False`` を返します。"
 
 #: ../../library/dataclasses.rst:500
 msgid ""
@@ -812,6 +1042,8 @@ msgid ""
 "In a single dataclass, it is an error to specify more than one field whose "
 "type is :const:`!KW_ONLY`."
 msgstr ""
+"単一のデータクラスで、型が :const:`!KW_ONLY` である複数のフィールドを"
+"指定することはエラーになります。"
 
 #: ../../library/dataclasses.rst:540
 msgid ""
@@ -1048,6 +1280,9 @@ msgid ""
 "keyword-only fields, and :attr:`!Base.x` and :attr:`!D.z` are regular "
 "fields::"
 msgstr ""
+"この例では、:attr:`!Base.y`、:attr:`!Base.w`、:attr:`!D.t` は"
+"キーワード専用フィールドで、:attr:`!Base.x` と :attr:`!D.z` は"
+"通常のフィールドです::"
 
 #: ../../library/dataclasses.rst:702
 msgid ""
@@ -1282,3 +1517,576 @@ msgid ""
 "assigned a descriptor object as its default value, the field will act like a "
 "normal field."
 msgstr ""
+msgid ""
+"@dataclass\n"
+"class Point:\n"
+"    x: float\n"
+"    _: KW_ONLY\n"
+"    y: float\n"
+"    z: float\n"
+"\n"
+"p = Point(0, y=1.5, z=2.0)"
+msgstr ""
+
+#: ../../library/dataclasses.rst:533
+msgid ""
+"In a single dataclass, it is an error to specify more than one field whose "
+"type is :const:`!KW_ONLY`."
+msgstr ""
+"単一のデータクラスで、型が :const:`!KW_ONLY` である複数のフィールドを"
+"指定することはエラーになります。"
+
+#: ../../library/dataclasses.rst:540
+msgid ""
+"Raised when an implicitly defined :meth:`~object.__setattr__` or :meth:"
+"`~object.__delattr__` is called on a dataclass which was defined with "
+"``frozen=True``. It is a subclass of :exc:`AttributeError`."
+msgstr ""
+"``frozen=True`` 付きで定義されたデータクラスで、暗黙的に定義された :meth:"
+"`~object.__setattr__` または :meth:`~object.__delattr__` が呼び出されたときに"
+"送出されます。これは :exc:`AttributeError` のサブクラスです。"
+
+#: ../../library/dataclasses.rst:547
+msgid "Post-init processing"
+msgstr "初期化後の処理"
+
+#: ../../library/dataclasses.rst:551
+msgid ""
+"When defined on the class, it will be called by the generated :meth:`~object."
+"__init__`, normally as :meth:`!self.__post_init__`. However, if any "
+"``InitVar`` fields are defined, they will also be passed to :meth:`!"
+"__post_init__` in the order they were defined in the class.  If no :meth:`!"
+"__init__` method is generated, then :meth:`!__post_init__` will not "
+"automatically be called."
+msgstr ""
+"クラスで定義された場合、通常は :meth:`!self.__post_init__` として、生成された"
+":meth:`~object.__init__` によって呼び出されます。しかし、``InitVar`` フィールドが"
+"定義されている場合、それらもクラスで定義された順序で :meth:`!__post_init__` に"
+"渡されます。:meth:`!__init__` メソッドが生成されない場合、:meth:`!__post_init__` は"
+"自動的に呼び出されません。"
+
+#: ../../library/dataclasses.rst:558
+msgid ""
+"Among other uses, this allows for initializing field values that depend on "
+"one or more other fields.  For example::"
+msgstr ""
+"他の機能と組み合わせることで、他の 1 つ以上のフィールドに依存しているフィール"
+"ドが初期化できます。\n"
+"例えば次のようにできます::"
+
+#: ../../library/dataclasses.rst:561
+msgid ""
+"@dataclass\n"
+"class C:\n"
+"    a: float\n"
+"    b: float\n"
+"    c: float = field(init=False)\n"
+"\n"
+"    def __post_init__(self):\n"
+"        self.c = self.a + self.b"
+msgstr ""
+
+#: ../../library/dataclasses.rst:570
+msgid ""
+"The :meth:`~object.__init__` method generated by :func:`@dataclass "
+"<dataclass>` does not call base class :meth:`!__init__` methods. If the base "
+"class has an :meth:`!__init__` method that has to be called, it is common to "
+"call this method in a :meth:`__post_init__` method::"
+msgstr ""
+":func:`@dataclass <dataclass>` によって生成された :meth:`~object.__init__` メソッドは、"
+"ベースクラスの :meth:`!__init__` メソッドを呼び出しません。ベースクラスに"
+"呼び出す必要がある :meth:`!__init__` メソッドがある場合、:meth:`__post_init__` "
+"メソッドでこのメソッドを呼び出すのが一般的です::"
+
+#: ../../library/dataclasses.rst:575
+msgid ""
+"class Rectangle:\n"
+"    def __init__(self, height, width):\n"
+"        self.height = height\n"
+"        self.width = width\n"
+"\n"
+"@dataclass\n"
+"class Square(Rectangle):\n"
+"    side: float\n"
+"\n"
+"    def __post_init__(self):\n"
+"        super().__init__(self.side, self.side)"
+msgstr ""
+
+#: ../../library/dataclasses.rst:587
+msgid ""
+"Note, however, that in general the dataclass-generated :meth:`!__init__` "
+"methods don't need to be called, since the derived dataclass will take care "
+"of initializing all fields of any base class that is a dataclass itself."
+msgstr ""
+"しかし、一般的にデータクラス生成の :meth:`!__init__` メソッドを呼び出す必要は"
+"ありません。派生データクラスが、データクラスであるベースクラスのすべての"
+"フィールドの初期化を行うためです。"
+
+#: ../../library/dataclasses.rst:591
+msgid ""
+"See the section below on init-only variables for ways to pass parameters to :"
+"meth:`!__post_init__`.  Also see the warning about how :func:`replace` "
+"handles ``init=False`` fields."
+msgstr ""
+"下にある初期化限定変数についての節で、 :meth:`!__post_init__` にパラメータを"
+"渡す方法を参照してください。\n"
+":func:`replace` が ``init=False`` であるフィールドをどう取り扱うかについての"
+"警告も参照してください。"
+
+#: ../../library/dataclasses.rst:598
+msgid "Class variables"
+msgstr "クラス変数"
+
+#: ../../library/dataclasses.rst:600
+msgid ""
+"One of the few places where :func:`@dataclass <dataclass>` actually inspects "
+"the type of a field is to determine if a field is a class variable as "
+"defined in :pep:`526`.  It does this by checking if the type of the field "
+"is :data:`typing.ClassVar`.  If a field is a ``ClassVar``, it is excluded "
+"from consideration as a field and is ignored by the dataclass mechanisms.  "
+"Such ``ClassVar`` pseudo-fields are not returned by the module-level :func:"
+"`fields` function."
+msgstr ""
+":func:`@dataclass <dataclass>` が実際にフィールドの型を検査する数少ない"
+"場所の一つは、:pep:`526` で定義されているように、フィールドがクラス変数かどうかを"
+"判定するためです。これは、フィールドの型が :data:`typing.ClassVar` かどうかを"
+"チェックすることで行われます。フィールドが ``ClassVar`` の場合、フィールドとしての"
+"考慮から除外され、データクラスメカニズムによって無視されます。このような"
+"``ClassVar`` 疑似フィールドは、モジュールレベルの :func:`fields` 関数によって"
+"返されません。"
+
+#: ../../library/dataclasses.rst:611
+msgid "Init-only variables"
+msgstr "初期化限定変数"
+
+#: ../../library/dataclasses.rst:613
+msgid ""
+"Another place where :func:`@dataclass <dataclass>` inspects a type "
+"annotation is to determine if a field is an init-only variable.  It does "
+"this by seeing if the type of a field is of type :class:`InitVar`.  If a "
+"field is an :class:`InitVar`, it is considered a pseudo-field called an init-"
+"only field.  As it is not a true field, it is not returned by the module-"
+"level :func:`fields` function.  Init-only fields are added as parameters to "
+"the generated :meth:`~object.__init__` method, and are passed to the "
+"optional :meth:`__post_init__` method.  They are not otherwise used by "
+"dataclasses."
+msgstr ""
+":func:`@dataclass <dataclass>` が型アノテーションを検査するもう一つの場所は、"
+"フィールドが初期化専用変数かどうかを判定するためです。これは、フィールドの型が"
+":class:`InitVar` 型かどうかを確認することで行われます。フィールドが :class:`InitVar` の"
+"場合、初期化専用フィールドと呼ばれる疑似フィールドとみなされます。真のフィールドでは"
+"ないため、モジュールレベルの :func:`fields` 関数によって返されません。初期化専用"
+"フィールドは、生成された :meth:`~object.__init__` メソッドのパラメータとして追加され、"
+"オプションの :meth:`__post_init__` メソッドに渡されます。データクラスでは"
+"それ以外に使用されることはありません。"
+
+#: ../../library/dataclasses.rst:623
+msgid ""
+"For example, suppose a field will be initialized from a database, if a value "
+"is not provided when creating the class::"
+msgstr ""
+"例えば、あるフィールドがデータベースから初期化されると仮定して、クラスを作成"
+"するときには値が与えられない次の場合を考えます::"
+
+#: ../../library/dataclasses.rst:626
+msgid ""
+"@dataclass\n"
+"class C:\n"
+"    i: int\n"
+"    j: int | None = None\n"
+"    database: InitVar[DatabaseType | None] = None\n"
+"\n"
+"    def __post_init__(self, database):\n"
+"        if self.j is None and database is not None:\n"
+"            self.j = database.lookup('j')\n"
+"\n"
+"c = C(10, database=my_database)"
+msgstr ""
+
+#: ../../library/dataclasses.rst:638
+msgid ""
+"In this case, :func:`fields` will return :class:`Field` objects for :attr:`!"
+"i` and :attr:`!j`, but not for :attr:`!database`."
+msgstr ""
+"この場合、:func:`fields` は :attr:`!i` と :attr:`!j` に対して :class:`Field` オブジェクトを"
+"返しますが、:attr:`!database` に対しては返しません。"
+
+#: ../../library/dataclasses.rst:644
+msgid "Frozen instances"
+msgstr "凍結されたインスタンス"
+
+#: ../../library/dataclasses.rst:646
+msgid ""
+"It is not possible to create truly immutable Python objects.  However, by "
+"passing ``frozen=True`` to the :func:`@dataclass <dataclass>` decorator you "
+"can emulate immutability.  In that case, dataclasses will add :meth:`~object."
+"__setattr__` and :meth:`~object.__delattr__` methods to the class.  These "
+"methods will raise a :exc:`FrozenInstanceError` when invoked."
+msgstr ""
+"真に不変なPythonオブジェクトを作成することは不可能です。しかし、:func:`@dataclass <dataclass>` "
+"デコレータに ``frozen=True`` を渡すことで、不変性をエミュレートできます。その場合、"
+"データクラスはクラスに :meth:`~object.__setattr__` と :meth:`~object.__delattr__` メソッドを"
+"追加します。これらのメソッドは呼び出されると :exc:`FrozenInstanceError` を発生させます。"
+
+#: ../../library/dataclasses.rst:652
+msgid ""
+"There is a tiny performance penalty when using ``frozen=True``: :meth:"
+"`~object.__init__` cannot use simple assignment to initialize fields, and "
+"must use :meth:`!object.__setattr__`."
+msgstr ""
+"``frozen=True`` を使用する際には、わずかなパフォーマンスペナルティがあります。"
+":meth:`~object.__init__` はフィールドを初期化するために単純な代入を使用できず、"
+":meth:`!object.__setattr__` を使用する必要があります。"
+
+#: ../../library/dataclasses.rst:661
+msgid "Inheritance"
+msgstr "継承"
+
+#: ../../library/dataclasses.rst:663
+msgid ""
+"When the dataclass is being created by the :func:`@dataclass <dataclass>` "
+"decorator, it looks through all of the class's base classes in reverse MRO "
+"(that is, starting at :class:`object`) and, for each dataclass that it "
+"finds, adds the fields from that base class to an ordered mapping of fields. "
+"After all of the base class fields are added, it adds its own fields to the "
+"ordered mapping.  All of the generated methods will use this combined, "
+"calculated ordered mapping of fields.  Because the fields are in insertion "
+"order, derived classes override base classes.  An example::"
+msgstr ""
+":func:`@dataclass <dataclass>` デコレータによってデータクラスが作成される際、"
+"クラスのすべてのベースクラスを逆MRO順（つまり :class:`object` から始まって）で調べ、"
+"見つけた各データクラスについて、そのベースクラスのフィールドを順序付きフィールドマッピングに"
+"追加します。すべてのベースクラスフィールドが追加された後、自身のフィールドを順序付き"
+"マッピングに追加します。生成されるすべてのメソッドは、この組み合わされた計算済み順序付き"
+"フィールドマッピングを使用します。フィールドは挿入順であるため、派生クラスは"
+"ベースクラスをオーバーライドします。例::"
+
+#: ../../library/dataclasses.rst:673
+msgid ""
+"@dataclass\n"
+"class Base:\n"
+"    x: Any = 15.0\n"
+"    y: int = 0\n"
+"\n"
+"@dataclass\n"
+"class C(Base):\n"
+"    z: int = 10\n"
+"    x: int = 15"
+msgstr ""
+
+#: ../../library/dataclasses.rst:683
+msgid ""
+"The final list of fields is, in order, :attr:`!x`, :attr:`!y`, :attr:`!z`.  "
+"The final type of :attr:`!x` is :class:`int`, as specified in class :class:`!"
+"C`."
+msgstr ""
+"最終的なフィールドリストは、順序として :attr:`!x`、:attr:`!y`、:attr:`!z` です。"
+":attr:`!x` の最終的な型は、クラス :class:`!C` で指定されたとおり :class:`int` です。"
+
+#: ../../library/dataclasses.rst:686
+msgid ""
+"The generated :meth:`~object.__init__` method for :class:`!C` will look "
+"like::"
+msgstr ":class:`!C` の生成された :meth:`~object.__init__` メソッドは次のようになります::"
+
+#: ../../library/dataclasses.rst:688
+msgid "def __init__(self, x: int = 15, y: int = 0, z: int = 10):"
+msgstr ""
+
+#: ../../library/dataclasses.rst:691
+msgid "Re-ordering of keyword-only parameters in :meth:`!__init__`"
+msgstr ":meth:`!__init__` におけるキーワード専用パラメータの並び替え"
+
+#: ../../library/dataclasses.rst:693
+msgid ""
+"After the parameters needed for :meth:`~object.__init__` are computed, any "
+"keyword-only parameters are moved to come after all regular (non-keyword-"
+"only) parameters.  This is a requirement of how keyword-only parameters are "
+"implemented in Python: they must come after non-keyword-only parameters."
+msgstr ""
+":meth:`~object.__init__` で必要なパラメータが算出されると、キーワード専用引数"
+"は他の一般的な（非キーワード専用）パラメータの後に移動します。これは、すべて"
+"のキーワード専用引数は、非キーワード専用パラメータの末尾にこなければならない"
+"という、キーワード専用パラメータのPythonの実装の都合で必要なことです。"
+
+#: ../../library/dataclasses.rst:699
+msgid ""
+"In this example, :attr:`!Base.y`, :attr:`!Base.w`, and :attr:`!D.t` are "
+"keyword-only fields, and :attr:`!Base.x` and :attr:`!D.z` are regular "
+"fields::"
+msgstr ""
+"この例では、:attr:`!Base.y`、:attr:`!Base.w`、:attr:`!D.t` は"
+"キーワード専用フィールドで、:attr:`!Base.x` と :attr:`!D.z` は"
+"通常のフィールドです::"
+
+#: ../../library/dataclasses.rst:702
+msgid ""
+"@dataclass\n"
+"class Base:\n"
+"    x: Any = 15.0\n"
+"    _: KW_ONLY\n"
+"    y: int = 0\n"
+"    w: int = 1\n"
+"\n"
+"@dataclass\n"
+"class D(Base):\n"
+"    z: int = 10\n"
+"    t: int = field(kw_only=True, default=0)"
+msgstr ""
+
+#: ../../library/dataclasses.rst:714
+msgid "The generated :meth:`!__init__` method for :class:`!D` will look like::"
+msgstr ":class:`!D` の生成された :meth:`!__init__` メソッドは次のようになります::"
+
+#: ../../library/dataclasses.rst:716
+msgid ""
+"def __init__(self, x: Any = 15.0, z: int = 10, *, y: int = 0, w: int = 1, t: "
+"int = 0):"
+msgstr ""
+
+#: ../../library/dataclasses.rst:718
+msgid ""
+"Note that the parameters have been re-ordered from how they appear in the "
+"list of fields: parameters derived from regular fields are followed by "
+"parameters derived from keyword-only fields."
+msgstr ""
+"パラメータは、フィールドのリストの表示方法によって並べ替えられます。通常の"
+"フィールドから派生したパラメータの後に、キーワードのみのフィールドから派生し"
+"たパラメータが続きます。"
+
+#: ../../library/dataclasses.rst:722
+msgid ""
+"The relative ordering of keyword-only parameters is maintained in the re-"
+"ordered :meth:`!__init__` parameter list."
+msgstr ""
+"キーワード専用パラメータの相対的な順序は、並び替えられた :meth:`!__init__` "
+"パラメータリストで維持されます。"
+
+#: ../../library/dataclasses.rst:727
+msgid "Default factory functions"
+msgstr "デフォルトファクトリ関数"
+
+#: ../../library/dataclasses.rst:729
+msgid ""
+"If a :func:`field` specifies a *default_factory*, it is called with zero "
+"arguments when a default value for the field is needed.  For example, to "
+"create a new instance of a list, use::"
+msgstr ""
+":func:`field` が *default_factory* を指定している場合、フィールドのデフォルト値が必要な"
+"ときに引数なしで呼び出されます。例えば、リストの新しいインスタンスを作成するには::"
+
+#: ../../library/dataclasses.rst:733
+msgid "mylist: list = field(default_factory=list)"
+msgstr ""
+
+#: ../../library/dataclasses.rst:735
+msgid ""
+"If a field is excluded from :meth:`~object.__init__` (using ``init=False``) "
+"and the field also specifies *default_factory*, then the default factory "
+"function will always be called from the generated :meth:`!__init__` "
+"function.  This happens because there is no other way to give the field an "
+"initial value."
+msgstr ""
+"フィールドが :meth:`~object.__init__` から除外されており（``init=False`` を使用）、"
+"かつフィールドが *default_factory* を指定している場合、デフォルトファクトリ関数は"
+"常に生成された :meth:`!__init__` 関数から呼び出されます。これは、フィールドに"
+"初期値を与える他の方法がないためです。"
+
+#: ../../library/dataclasses.rst:742
+msgid "Mutable default values"
+msgstr "可変なデフォルト値"
+
+#: ../../library/dataclasses.rst:744
+msgid ""
+"Python stores default member variable values in class attributes. Consider "
+"this example, not using dataclasses::"
+msgstr ""
+"Python はメンバ変数のデフォルト値をクラス属性に保持します。\n"
+"データクラスを使っていない、この例を考えてみましょう::"
+
+#: ../../library/dataclasses.rst:747
+msgid ""
+"class C:\n"
+"    x = []\n"
+"    def add(self, element):\n"
+"        self.x.append(element)\n"
+"\n"
+"o1 = C()\n"
+"o2 = C()\n"
+"o1.add(1)\n"
+"o2.add(2)\n"
+"assert o1.x == [1, 2]\n"
+"assert o1.x is o2.x"
+msgstr ""
+
+#: ../../library/dataclasses.rst:759
+msgid ""
+"Note that the two instances of class :class:`!C` share the same class "
+"variable :attr:`!x`, as expected."
+msgstr ""
+"予想どおり、クラス :class:`!C` の2つのインスタンスは同じクラス変数 :attr:`!x` を"
+"共有していることに注意してください。"
+
+#: ../../library/dataclasses.rst:762
+msgid "Using dataclasses, *if* this code was valid::"
+msgstr "データクラスを使っているこのコードが *もし仮に* 有効なものだとしたら::"
+
+#: ../../library/dataclasses.rst:764
+msgid ""
+"@dataclass\n"
+"class D:\n"
+"    x: list = []      # This code raises ValueError\n"
+"    def add(self, element):\n"
+"        self.x.append(element)"
+msgstr ""
+
+#: ../../library/dataclasses.rst:770
+msgid "it would generate code similar to::"
+msgstr "データクラスは次のようなコードを生成するでしょう::"
+
+#: ../../library/dataclasses.rst:772
+msgid ""
+"class D:\n"
+"    x = []\n"
+"    def __init__(self, x=x):\n"
+"        self.x = x\n"
+"    def add(self, element):\n"
+"        self.x.append(element)\n"
+"\n"
+"assert D().x is D().x"
+msgstr ""
+
+#: ../../library/dataclasses.rst:781
+msgid ""
+"This has the same issue as the original example using class :class:`!C`. "
+"That is, two instances of class :class:`!D` that do not specify a value for :"
+"attr:`!x` when creating a class instance will share the same copy of :attr:`!"
+"x`.  Because dataclasses just use normal Python class creation they also "
+"share this behavior.  There is no general way for Data Classes to detect "
+"this condition.  Instead, the :func:`@dataclass <dataclass>` decorator will "
+"raise a :exc:`ValueError` if it detects an unhashable default parameter.  "
+"The assumption is that if a value is unhashable, it is mutable.  This is a "
+"partial solution, but it does protect against many common errors."
+msgstr ""
+"これは、クラス :class:`!C` を使用した元の例と同じ問題を持っています。つまり、"
+"クラスインスタンスを作成する際に :attr:`!x` の値を指定しないクラス :class:`!D` の"
+"2つのインスタンスは、同じ :attr:`!x` のコピーを共有することになります。"
+"データクラスは通常の Python クラス作成を使用するだけなので、この動作も共有します。"
+"データクラスがこの状態を検出する一般的な方法はありません。代わりに、"
+":func:`@dataclass <dataclass>` デコレータは、ハッシュ化不可能なデフォルトパラメータを"
+"検出した場合に :exc:`ValueError` を発生させます。値がハッシュ化不可能であれば可変である"
+"という仮定です。これは部分的な解決策ですが、多くの一般的なエラーから保護します。"
+
+#: ../../library/dataclasses.rst:792
+msgid ""
+"Using default factory functions is a way to create new instances of mutable "
+"types as default values for fields::"
+msgstr ""
+"デフォルトファクトリ関数を使うのが、フィールドのデフォルト値として可変な型の"
+"新しいインスタンスを作成する手段です::"
+
+#: ../../library/dataclasses.rst:795
+msgid ""
+"@dataclass\n"
+"class D:\n"
+"    x: list = field(default_factory=list)\n"
+"\n"
+"assert D().x is not D().x"
+msgstr ""
+
+#: ../../library/dataclasses.rst:801
+msgid ""
+"Instead of looking for and disallowing objects of type :class:`list`, :class:"
+"`dict`, or :class:`set`, unhashable objects are now not allowed as default "
+"values.  Unhashability is used to approximate mutability."
+msgstr ""
+":class:`list`、:class:`dict`、:class:`set` 型のオブジェクトを探して禁止する代わりに、"
+"ハッシュ化不可能なオブジェクトはデフォルト値として使用できなくなりました。"
+"ハッシュ化不可能性は可変性を近似するために使用されます。"
+
+#: ../../library/dataclasses.rst:808
+msgid "Descriptor-typed fields"
+msgstr "ディスクリプタ型フィールド"
+
+#: ../../library/dataclasses.rst:810
+msgid ""
+"Fields that are assigned :ref:`descriptor objects <descriptors>` as their "
+"default value have the following special behaviors:"
+msgstr ""
+"デフォルト値として :ref:`ディスクリプタオブジェクト <descriptors>` が割り当てられた"
+"フィールドは、以下の特別な動作を持ちます:"
+
+#: ../../library/dataclasses.rst:813
+msgid ""
+"The value for the field passed to the dataclass's :meth:`~object.__init__` "
+"method is passed to the descriptor's :meth:`~object.__set__` method rather "
+"than overwriting the descriptor object."
+msgstr ""
+"データクラスの :meth:`~object.__init__` メソッドに渡されたフィールドの値は、"
+"ディスクリプタオブジェクトを上書きするのではなく、ディスクリプタの"
+":meth:`~object.__set__` メソッドに渡されます。"
+
+#: ../../library/dataclasses.rst:817
+msgid ""
+"Similarly, when getting or setting the field, the descriptor's :meth:"
+"`~object.__get__` or :meth:`!__set__` method is called rather than returning "
+"or overwriting the descriptor object."
+msgstr ""
+"同様に、フィールドを取得または設定する際は、ディスクリプタオブジェクトを"
+"返したり上書きしたりするのではなく、ディスクリプタの :meth:`~object.__get__` "
+"または :meth:`!__set__` メソッドが呼び出されます。"
+
+#: ../../library/dataclasses.rst:821
+msgid ""
+"To determine whether a field contains a default value, :func:`@dataclass "
+"<dataclass>` will call the descriptor's :meth:`!__get__` method using its "
+"class access form: ``descriptor.__get__(obj=None, type=cls)``.  If the "
+"descriptor returns a value in this case, it will be used as the field's "
+"default. On the other hand, if the descriptor raises :exc:`AttributeError` "
+"in this situation, no default value will be provided for the field."
+msgstr ""
+"フィールドがデフォルト値を含むかどうかを判定するため、:func:`@dataclass <dataclass>` は"
+"クラスアクセス形式を使用してディスクリプタの :meth:`!__get__` メソッドを呼び出します:"
+"``descriptor.__get__(obj=None, type=cls)`` 。この場合にディスクリプタが値を返す場合、"
+"それがフィールドのデフォルトとして使用されます。一方、ディスクリプタがこの状況で"
+":exc:`AttributeError` を発生させる場合、フィールドにデフォルト値は提供されません。"
+
+#: ../../library/dataclasses.rst:831
+msgid ""
+"class IntConversionDescriptor:\n"
+"    def __init__(self, *, default):\n"
+"        self._default = default\n"
+"\n"
+"    def __set_name__(self, owner, name):\n"
+"        self._name = \"_\" + name\n"
+"\n"
+"    def __get__(self, obj, type):\n"
+"        if obj is None:\n"
+"            return self._default\n"
+"\n"
+"        return getattr(obj, self._name, self._default)\n"
+"\n"
+"    def __set__(self, obj, value):\n"
+"        setattr(obj, self._name, int(value))\n"
+"\n"
+"@dataclass\n"
+"class InventoryItem:\n"
+"    quantity_on_hand: IntConversionDescriptor = "
+"IntConversionDescriptor(default=100)\n"
+"\n"
+"i = InventoryItem()\n"
+"print(i.quantity_on_hand)   # 100\n"
+"i.quantity_on_hand = 2.5    # calls __set__ with 2.5\n"
+"print(i.quantity_on_hand)   # 2"
+msgstr ""
+
+#: ../../library/dataclasses.rst:856
+msgid ""
+"Note that if a field is annotated with a descriptor type, but is not "
+"assigned a descriptor object as its default value, the field will act like a "
+"normal field."
+msgstr ""
+"フィールドがディスクリプタ型でアノテーションされているものの、デフォルト値として"
+"ディスクリプタオブジェクトが割り当てられていない場合、フィールドは通常の"
+"フィールドのように動作します。"
