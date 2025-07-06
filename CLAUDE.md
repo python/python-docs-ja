@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 翻訳作業は、ユーザーから指定された単一の `.po` ファイルに対して行います。一度に複数のファイルを扱ったり、まとめて翻訳したりはしません。
 
+
+
 ### 3. 翻訳作業のルール
 
 作業を行う際には、以下のルールを厳守してください。
@@ -56,6 +58,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3.  reStructuredTextの構文に注意しながら、対応する `msgid` を翻訳し、`msgstr` に記述します。
 4.  既存の翻訳もレビューし、必要に応じて修正案を考えます。
 5.  `replace` または `write_file` ツールを使い、変更を適用します。
+
+#### 4.1 ファイルの分割
+
+.poファイルのサイズが5kbを超える場合は、すべてをまとめて処理せず、splitpoコマンドでpoファイルを複数に分割してそれぞれを翻訳します。
+
+
+```
+ splitpo -h
+usage: splitpo [-h] [-o OUTPUT_DIR] [-e ENTRIES] input_file
+
+Split a .po file into chunks by entry count
+
+positional arguments:
+  input_file            Input .po file to split
+
+options:
+  -h, --help            show this help message and exit
+  -o, --output-dir OUTPUT_DIR
+                        Output directory for split files
+  -e, --entries ENTRIES
+                        Number of entries per split file (default: 100)
+
+```
+
+実行例:
+
+  `splitpo -o /tmp/split_pathlib -e 200 library/pathlib.po`
+
+このコマンドは、poファイルを200エントリごとに分割します。
+
+Split files are named with the pattern `{original_name}_part_{number}.po`:
+- `input.po` → `input_part_000.po`, `input_part_001.po`, etc.
+- Number of digits adjusts to file count (minimum 3 digits)
+- Numbering starts from 0
+
+ファイル名をそのままソートすれば、元ファイルと同じ順番で並ぶようになっていますので、この順序で翻訳を進めてください。
+
+それぞれのファイルの翻訳が終了したら、joinpoコマンドで分割したファイルを結合します。
+
+
+```
+ joinpo -h
+usage: joinpo [-h] -o OUTPUT input_files [input_files ...]
+
+Join split .po files back together
+
+positional arguments:
+  input_files          Input .po files to join (supports wildcards)
+
+options:
+  -h, --help           show this help message and exit
+  -o, --output OUTPUT  Output .po file
+```
+
+実行例:
+
+  `joinpo -o translated_pathlib.po /tmp/split_pathlib/*.po -o`
+
+
+
+
 
 ## Repository Structure
 
