@@ -7,15 +7,16 @@
 # tomo, 2021
 # Arihiro TAKASE, 2023
 # 石井明久, 2024
+# Rafael Fontenelle <rffontenelle@gmail.com>, 2025
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-27 14:20+0000\n"
+"POT-Creation-Date: 2025-07-11 14:21+0000\n"
 "PO-Revision-Date: 2021-06-28 00:52+0000\n"
-"Last-Translator: 石井明久, 2024\n"
+"Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2025\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -852,6 +853,12 @@ msgid ""
 "often ignore the arguments, leaving the argument handling to initializer (a."
 "k.a. ``tp_init`` in C or ``__init__`` in Python) methods."
 msgstr ""
+"``tp_new`` передається тип, який створюється (не обов’язково ``CustomType``, "
+"якщо створено підклас) і будь-які аргументи, передані під час виклику типу, "
+"і очікується, що він поверне створений екземпляр. Обробники ``tp_new`` "
+"завжди приймають позиційні аргументи та аргументи ключових слів, але вони "
+"часто ігнорують аргументи, залишаючи обробку аргументів методам "
+"ініціалізації (він же ``tp_init`` в C або ``__init__`` в Python)."
 
 #: ../../extending/newtypes_tutorial.rst:346
 msgid ""
@@ -889,6 +896,10 @@ msgid ""
 "class, which is :class:`object` by default.  Most types use the default "
 "allocation strategy."
 msgstr ""
+"Ми самі не заповнювали слот :c:member:`~PyTypeObject.tp_alloc`. Швидше :c:"
+"func:`PyType_Ready` заповнює його за нас, успадковуючи його від нашого "
+"базового класу, яким за замовчуванням є :class:`object`. Більшість типів "
+"використовує стратегію розподілу за замовчуванням."
 
 #: ../../extending/newtypes_tutorial.rst:364
 msgid ""
@@ -917,6 +928,8 @@ msgid ""
 "We also define an initialization function which accepts arguments to provide "
 "initial values for our instance::"
 msgstr ""
+"Ми також визначаємо функцію ініціалізації, яка приймає аргументи для надання "
+"початкових значень для нашого екземпляра:"
 
 #: ../../extending/newtypes_tutorial.rst:377
 msgid ""
@@ -1000,6 +1013,9 @@ msgid ""
 "always reassign members before decrementing their reference counts.  When "
 "don't we have to do this?"
 msgstr ""
+"Щоб бути параноїком і захистити себе від такої можливості, ми майже завжди "
+"перепризначаємо учасників перед тим, як зменшити їх кількість посилань. Коли "
+"ми не повинні це робити?"
 
 #: ../../extending/newtypes_tutorial.rst:438
 msgid "when we absolutely know that the reference count is greater than 1;"
@@ -1018,6 +1034,8 @@ msgid ""
 "tp_dealloc` handler on a type which doesn't support cyclic garbage "
 "collection [#]_."
 msgstr ""
+"під час зменшення кількості посилань у обробнику :c:member:`~PyTypeObject."
+"tp_dealloc` для типу, який не підтримує циклічне збирання сміття [#]_."
 
 #: ../../extending/newtypes_tutorial.rst:446
 msgid ""
@@ -1057,6 +1075,9 @@ msgid ""
 "documentation string.  See the :ref:`Generic-Attribute-Management` section "
 "below for details."
 msgstr ""
+"Кожне визначення члена має ім’я члена, тип, зсув, позначки доступу та рядок "
+"документації. Подробиці див. у розділі :ref:`Generic-Attribute-Management` "
+"нижче."
 
 #: ../../extending/newtypes_tutorial.rst:467
 msgid ""
@@ -1068,6 +1089,13 @@ msgid ""
 "``NULL`` values, the members can be set to ``NULL`` if the attributes are "
 "deleted."
 msgstr ""
+"Недолік цього підходу полягає в тому, що він не дає можливості обмежити типи "
+"об’єктів, які можна призначити атрибутам Python. Ми очікуємо, що ім’я та "
+"прізвище будуть рядками, але можна призначити будь-які об’єкти Python. Крім "
+"того, атрибути можна видалити, встановивши покажчики C на ``NULL``. "
+"Незважаючи на те, що ми можемо переконатися, що члени ініціалізовані "
+"значеннями, відмінними від ``NULL``, членам можна встановити значення "
+"``NULL``, якщо атрибути видалено."
 
 #: ../../extending/newtypes_tutorial.rst:474
 msgid ""
@@ -1144,7 +1172,7 @@ msgstr ""
 
 #: ../../extending/newtypes_tutorial.rst:523
 msgid "and assign it to the :c:member:`~PyTypeObject.tp_methods` slot::"
-msgstr ""
+msgstr "і призначте його :c:member:`~PyTypeObject.tp_methods` слот::"
 
 #: ../../extending/newtypes_tutorial.rst:525
 msgid ".tp_methods = Custom_methods,"
@@ -1481,6 +1509,9 @@ msgid ""
 "mentioned above.  In this case, we aren't using a closure, so we just pass "
 "``NULL``."
 msgstr ""
+"Останнім елементом у структурі :c:type:`PyGetSetDef` є \"закриття\", згадане "
+"вище. У цьому випадку ми не використовуємо закриття, тому ми просто "
+"передаємо ``NULL``."
 
 #: ../../extending/newtypes_tutorial.rst:627
 msgid "We also remove the member definitions for these attributes::"
@@ -1542,6 +1573,12 @@ msgid ""
 "these calls is in the ``tp_dealloc`` implementation, where there is the "
 "possibility that the initialization of these members failed in ``tp_new``."
 msgstr ""
+"Завдяки цим змінам ми можемо гарантувати, що ``перший`` і ``останній`` члени "
+"ніколи не є ``NULL``, тому ми можемо видалити перевірки значень ``NULL`` "
+"майже у всіх випадках. Це означає, що більшість викликів :c:func:"
+"`Py_XDECREF` можна перетворити на виклики :c:func:`Py_DECREF`. Єдине місце, "
+"де ми не можемо змінити ці виклики, це реалізація ``tp_dealloc``, де існує "
+"ймовірність того, що ініціалізація цих учасників не вдалася в ``tp_new``."
 
 #: ../../extending/newtypes_tutorial.rst:672
 msgid ""
@@ -1832,6 +1869,8 @@ msgid ""
 "First, the traversal method lets the cyclic GC know about subobjects that "
 "could participate in cycles::"
 msgstr ""
+"По-перше, метод обходу дозволяє циклічному GC знати про підоб’єкти, які "
+"можуть брати участь у циклах::"
 
 #: ../../extending/newtypes_tutorial.rst:719
 msgid ""
@@ -1869,6 +1908,9 @@ msgid ""
 "functions.  With :c:func:`Py_VISIT`, we can minimize the amount of "
 "boilerplate in ``Custom_traverse``::"
 msgstr ""
+"Python надає макрос :c:func:`Py_VISIT`, який автоматизує виклик функцій "
+"відвідування. За допомогою :c:func:`Py_VISIT` ми можемо мінімізувати "
+"кількість шаблонів у ``Custom_traverse``::"
 
 #: ../../extending/newtypes_tutorial.rst:747
 msgid ""
@@ -1887,12 +1929,16 @@ msgid ""
 "The :c:member:`~PyTypeObject.tp_traverse` implementation must name its "
 "arguments exactly *visit* and *arg* in order to use :c:func:`Py_VISIT`."
 msgstr ""
+"Реалізація :c:member:`~PyTypeObject.tp_traverse` повинна називати свої "
+"аргументи точно *visit* і *arg*, щоб використовувати :c:func:`Py_VISIT`."
 
 #: ../../extending/newtypes_tutorial.rst:760
 msgid ""
 "Second, we need to provide a method for clearing any subobjects that can "
 "participate in cycles::"
 msgstr ""
+"По-друге, нам потрібно надати метод для очищення будь-яких підоб’єктів, які "
+"можуть брати участь у циклах::"
 
 #: ../../extending/newtypes_tutorial.rst:763
 msgid ""
@@ -1915,10 +1961,16 @@ msgid ""
 "attribute's destructor would call back into code that reads the attribute "
 "again (*especially* if there is a reference cycle)."
 msgstr ""
+"Зверніть увагу на використання макросу :c:func:`Py_CLEAR`. Це рекомендований "
+"і безпечний спосіб очищення атрибутів даних довільних типів із одночасним "
+"зменшенням кількості посилань. Якщо ви замість цього викликаєте :c:func:"
+"`Py_XDECREF` для атрибута перед встановленням значення ``NULL``, існує "
+"ймовірність того, що деструктор атрибута знову звернеться до коду, який "
+"знову зчитує атрибут (*особливо*, якщо є еталонний цикл)."
 
 #: ../../extending/newtypes_tutorial.rst:780
 msgid "You could emulate :c:func:`Py_CLEAR` by writing::"
-msgstr ""
+msgstr "Anda dapat mengemulasikan :c:func:`Py_CLEAR` dengan menulis::"
 
 #: ../../extending/newtypes_tutorial.rst:782
 msgid ""
@@ -1934,6 +1986,9 @@ msgid ""
 "`Py_CLEAR` when deleting an attribute.  Don't try to micro-optimize at the "
 "expense of robustness!"
 msgstr ""
+"Тим не менше, набагато простіше та менш схильне до помилок завжди "
+"використовувати :c:func:`Py_CLEAR` під час видалення атрибута. Не "
+"намагайтеся зробити мікрооптимізацію за рахунок надійності!"
 
 #: ../../extending/newtypes_tutorial.rst:791
 msgid ""
@@ -1944,6 +1999,13 @@ msgid ""
 "members. Here is our reimplemented deallocator using :c:func:"
 "`PyObject_GC_UnTrack` and ``Custom_clear``::"
 msgstr ""
+"Розділювач ``Custom_dealloc`` може викликати довільний код під час очищення "
+"атрибутів. Це означає, що циклічний GC може бути запущений всередині "
+"функції. Оскільки GC передбачає, що кількість посилань не дорівнює нулю, нам "
+"потрібно скасувати відстеження об’єкта з GC, викликавши :c:func:"
+"`PyObject_GC_UnTrack` перед очищенням елементів. Ось наш повторно "
+"реалізований делокатор з використанням :c:func:`PyObject_GC_UnTrack` і "
+"``Custom_clear``::"
 
 #: ../../extending/newtypes_tutorial.rst:798
 msgid ""
@@ -2119,6 +2181,9 @@ msgid ""
 "object structure must be the first value.  The base type will already "
 "include the :c:func:`PyObject_HEAD` at the beginning of its structure."
 msgstr ""
+"Основна відмінність для об’єктів похідного типу полягає в тому, що структура "
+"об’єкта базового типу має бути першим значенням. Базовий тип уже включатиме :"
+"c:func:`PyObject_HEAD` на початку своєї структури."
 
 #: ../../extending/newtypes_tutorial.rst:855
 msgid ""
@@ -2154,6 +2219,12 @@ msgid ""
 "memory for the object with its :c:member:`~PyTypeObject.tp_alloc`, but let "
 "the base class handle it by calling its own :c:member:`~PyTypeObject.tp_new`."
 msgstr ""
+"Цей шаблон важливий під час написання типу з власними елементами :c:member:"
+"`~PyTypeObject.tp_new` і :c:member:`~PyTypeObject.tp_dealloc`. Обробник :c:"
+"member:`~PyTypeObject.tp_new` насправді не повинен створювати пам’ять для "
+"об’єкта за допомогою його :c:member:`~PyTypeObject.tp_alloc`, а дозволити "
+"базовому класу обробляти це, викликаючи власний :c:member:`~PyTypeObject."
+"tp_new`."
 
 #: ../../extending/newtypes_tutorial.rst:877
 msgid ""
@@ -2219,6 +2290,8 @@ msgid ""
 "We relied on this in the :c:member:`~PyTypeObject.tp_dealloc` handler in "
 "this example, because our type doesn't support garbage collection."
 msgstr ""
+"Ми покладалися на це в обробнику :c:member:`~PyTypeObject.tp_dealloc` у "
+"цьому прикладі, оскільки наш тип не підтримує збирання сміття."
 
 #: ../../extending/newtypes_tutorial.rst:916
 msgid ""
@@ -2229,6 +2302,12 @@ msgid ""
 "deallocating an instance of a string subclass won't call back into our "
 "objects."
 msgstr ""
+"Тепер ми знаємо, що перший і останній члени є рядками, тому, можливо, ми "
+"могли б бути менш обережними щодо зменшення їх кількості посилань, однак ми "
+"приймаємо екземпляри підкласів рядків. Незважаючи на те, що звільнення від "
+"розміщення звичайних рядків не призведе до зворотного виклику наших "
+"об’єктів, ми не можемо гарантувати, що звільнення від розміщення екземпляра "
+"підкласу рядка не призведе до зворотного виклику до наших об’єктів."
 
 #: ../../extending/newtypes_tutorial.rst:922
 msgid ""
@@ -2236,3 +2315,6 @@ msgid ""
 "could pass arbitrary :class:`str` subclasses and therefore still create "
 "reference cycles."
 msgstr ""
+"Крім того, навіть якщо наші атрибути обмежені екземплярами рядків, "
+"користувач може передавати довільні підкласи :class:`str` і, отже, "
+"створювати цикли посилань."
