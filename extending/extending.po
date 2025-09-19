@@ -4,16 +4,16 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 # Translators:
-# Rafael Fontenelle <rffontenelle@gmail.com>, 2025
+# python-doc bot, 2025
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-30 14:22+0000\n"
-"PO-Revision-Date: 2025-07-18 18:48+0000\n"
-"Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2025\n"
+"POT-Creation-Date: 2025-09-16 17:23+0000\n"
+"PO-Revision-Date: 2025-09-16 00:00+0000\n"
+"Last-Translator: python-doc bot, 2025\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -441,9 +441,9 @@ msgstr ""
 
 #: ../../extending/extending.rst:217
 msgid ""
-"Since :c:data:`!SpamError` is a global variable, it will be overwitten every "
-"time the module is reinitialized, when the :c:data:`Py_mod_exec` function is "
-"called."
+"Since :c:data:`!SpamError` is a global variable, it will be overwritten "
+"every time the module is reinitialized, when the :c:data:`Py_mod_exec` "
+"function is called."
 msgstr ""
 
 #: ../../extending/extending.rst:220
@@ -741,7 +741,7 @@ msgstr ""
 #: ../../extending/extending.rst:403
 msgid ""
 "When embedding Python, the :c:func:`!PyInit_spam` function is not called "
-"automatically unless there's an entry in the :c:data:`PyImport_Inittab` "
+"automatically unless there's an entry in the :c:data:`!PyImport_Inittab` "
 "table. To add the module to the initialization table, use :c:func:"
 "`PyImport_AppendInittab`, optionally followed by an import of the module::"
 msgstr ""
@@ -1834,10 +1834,17 @@ msgid ""
 "of the original item 1.  Now let's suppose the original item 1 was an "
 "instance of a user-defined class, and let's further suppose that the class "
 "defined a :meth:`!__del__` method.  If this class instance has a reference "
-"count of 1, disposing of it will call its :meth:`!__del__` method."
+"count of 1, disposing of it will call its :meth:`!__del__` method. "
+"Internally, :c:func:`PyList_SetItem` calls :c:func:`Py_DECREF` on the "
+"replaced item, which invokes replaced item's corresponding :c:member:"
+"`~PyTypeObject.tp_dealloc` function. During deallocation, :c:member:"
+"`~PyTypeObject.tp_dealloc` calls :c:member:`~PyTypeObject.tp_finalize`, "
+"which is mapped to the :meth:`!__del__` method for class instances (see :pep:"
+"`442`). This entire sequence happens synchronously within the :c:func:"
+"`PyList_SetItem` call."
 msgstr ""
 
-#: ../../extending/extending.rst:1064
+#: ../../extending/extending.rst:1071
 msgid ""
 "Since it is written in Python, the :meth:`!__del__` method can execute "
 "arbitrary Python code.  Could it perhaps do something to invalidate the "
@@ -1848,7 +1855,7 @@ msgid ""
 "associated with it, thereby invalidating ``item``."
 msgstr ""
 
-#: ../../extending/extending.rst:1072
+#: ../../extending/extending.rst:1079
 msgid ""
 "The solution, once you know the source of the problem, is easy: temporarily "
 "increment the reference count.  The correct version of the function reads::"
@@ -1856,7 +1863,7 @@ msgstr ""
 "問題の原因が分かれば、解決は簡単です。一時的に参照回数を増やせばよいのです。"
 "正しく動作するバージョンは以下のようになります::"
 
-#: ../../extending/extending.rst:1075
+#: ../../extending/extending.rst:1082
 msgid ""
 "void\n"
 "no_bug(PyObject *list)\n"
@@ -1870,14 +1877,14 @@ msgid ""
 "}"
 msgstr ""
 
-#: ../../extending/extending.rst:1086
+#: ../../extending/extending.rst:1093
 msgid ""
 "This is a true story.  An older version of Python contained variants of this "
 "bug and someone spent a considerable amount of time in a C debugger to "
 "figure out why his :meth:`!__del__` methods would fail..."
 msgstr ""
 
-#: ../../extending/extending.rst:1090
+#: ../../extending/extending.rst:1097
 msgid ""
 "The second case of problems with a borrowed reference is a variant involving "
 "threads.  Normally, multiple threads in the Python interpreter can't get in "
@@ -1890,7 +1897,7 @@ msgid ""
 "Obviously, the following function has the same problem as the previous one::"
 msgstr ""
 
-#: ../../extending/extending.rst:1100
+#: ../../extending/extending.rst:1107
 msgid ""
 "void\n"
 "bug(PyObject *list)\n"
@@ -1903,11 +1910,11 @@ msgid ""
 "}"
 msgstr ""
 
-#: ../../extending/extending.rst:1114
+#: ../../extending/extending.rst:1121
 msgid "NULL Pointers"
 msgstr "NULL ポインタ"
 
-#: ../../extending/extending.rst:1116
+#: ../../extending/extending.rst:1123
 msgid ""
 "In general, functions that take object references as arguments do not expect "
 "you to pass them ``NULL`` pointers, and will dump core (or cause later core "
@@ -1926,7 +1933,7 @@ msgstr ""
 "数へと引き渡すからです --- 各々の関数が ``NULL`` テストを行えば、冗長なテスト"
 "が大量に行われ、コードはより低速に動くことになります。"
 
-#: ../../extending/extending.rst:1124
+#: ../../extending/extending.rst:1131
 msgid ""
 "It is better to test for ``NULL`` only at the \"source:\" when a pointer "
 "that may be ``NULL`` is received, for example, from :c:func:`malloc` or from "
@@ -1936,7 +1943,7 @@ msgstr ""
 "になるかもしれないポインタを受け取ったときだけにしましょう。 :c:func:"
 "`malloc` や、例外を送出する可能性のある関数がその例です。"
 
-#: ../../extending/extending.rst:1128
+#: ../../extending/extending.rst:1135
 msgid ""
 "The macros :c:func:`Py_INCREF` and :c:func:`Py_DECREF` do not check for "
 "``NULL`` pointers --- however, their variants :c:func:`Py_XINCREF` and :c:"
@@ -1946,7 +1953,7 @@ msgstr ""
 "チェックを行いません --- しかし、これらのマクロの変化形である :c:func:"
 "`Py_XINCREF` および :c:func:`Py_XDECREF` はチェックを行います。"
 
-#: ../../extending/extending.rst:1132
+#: ../../extending/extending.rst:1139
 msgid ""
 "The macros for checking for a particular object type (``Pytype_Check()``) "
 "don't check for ``NULL`` pointers --- again, there is much code that calls "
@@ -1960,7 +1967,7 @@ msgstr ""
 "別に ``NULL`` ポインタのチェックをすると冗長なテストになってしまうのです。型"
 "を調べるマクロには、 ``NULL`` チェックを行う変化形はありません。"
 
-#: ../../extending/extending.rst:1138
+#: ../../extending/extending.rst:1145
 msgid ""
 "The C function calling mechanism guarantees that the argument list passed to "
 "C functions (``args`` in the examples) is never ``NULL`` --- in fact it "
@@ -1970,7 +1977,7 @@ msgstr ""
 "ろの ``args``) が決して ``NULL`` にならないよう保証しています --- 実際には、"
 "常にタプル型になるよう保証しています。[#]_"
 
-#: ../../extending/extending.rst:1142
+#: ../../extending/extending.rst:1149
 msgid ""
 "It is a severe error to ever let a ``NULL`` pointer \"escape\" to the Python "
 "user."
@@ -1978,11 +1985,11 @@ msgstr ""
 "``NULL`` ポインタを Python ユーザレベルに \"逃がし\" てしまうと、深刻なエラー"
 "を引き起こします。"
 
-#: ../../extending/extending.rst:1153
+#: ../../extending/extending.rst:1160
 msgid "Writing Extensions in C++"
 msgstr "C++での拡張モジュール作成"
 
-#: ../../extending/extending.rst:1155
+#: ../../extending/extending.rst:1162
 msgid ""
 "It is possible to write extension modules in C++.  Some restrictions apply.  "
 "If the main program (the Python interpreter) is compiled and linked by the C "
@@ -2005,11 +2012,11 @@ msgstr ""
 "定義されているときに ``extern \"C\" {...}`` が行われるように、ヘッダファイル"
 "内にすでに書かれているからです。"
 
-#: ../../extending/extending.rst:1169
+#: ../../extending/extending.rst:1176
 msgid "Providing a C API for an Extension Module"
 msgstr "拡張モジュールに C API を提供する"
 
-#: ../../extending/extending.rst:1174
+#: ../../extending/extending.rst:1181
 msgid ""
 "Many extension modules just provide new functions and types to be used from "
 "Python, but sometimes the code in an extension module can be useful for "
@@ -2027,7 +2034,7 @@ msgstr ""
 "たなコレクション型も他の拡張モジュールから直接操作できるようにするには一連の "
 "C 関数を持っていなければなりません。"
 
-#: ../../extending/extending.rst:1182
+#: ../../extending/extending.rst:1189
 msgid ""
 "At first sight this seems easy: just write the functions (without declaring "
 "them ``static``, of course), provide an appropriate header file, and "
@@ -2055,7 +2062,7 @@ msgstr ""
 "す。そして、たとえシンボルがグローバル変数として可視であっても、呼び出したい"
 "関数の入ったモジュールがまだロードされていないことだってあります!"
 
-#: ../../extending/extending.rst:1194
+#: ../../extending/extending.rst:1201
 msgid ""
 "Portability therefore requires not to make any assumptions about symbol "
 "visibility. This means that all symbols in extension modules should be "
@@ -2071,7 +2078,7 @@ msgstr ""
 "張モジュールからアクセスを *受けるべきではない* シンボルは別のやり方で公開せ"
 "ねばなりません。"
 
-#: ../../extending/extending.rst:1201
+#: ../../extending/extending.rst:1208
 msgid ""
 "Python provides a special mechanism to pass C-level information (pointers) "
 "from one extension module to another one: Capsules. A Capsule is a Python "
@@ -2090,7 +2097,7 @@ msgstr ""
 "前に代入できます。他の拡張モジュールはこのモジュールを import でき、次に名前"
 "を取得し、最後にCapsule へのポインタを取得します。"
 
-#: ../../extending/extending.rst:1209
+#: ../../extending/extending.rst:1216
 msgid ""
 "There are many ways in which Capsules can be used to export the C API of an "
 "extension module. Each function could get its own Capsule, or all C API "
@@ -2105,7 +2112,7 @@ msgstr ""
 "は、コードを提供しているモジュールとクライアントモジュールとの間では異なる方"
 "法で分散できます。"
 
-#: ../../extending/extending.rst:1215
+#: ../../extending/extending.rst:1222
 msgid ""
 "Whichever method you choose, it's important to name your Capsules properly. "
 "The function :c:func:`PyCapsule_New` takes a name parameter (:c:expr:`const "
@@ -2121,7 +2128,7 @@ msgstr ""
 "す。名前を付けられていない Capsule を他の Capsule と区別する現実的な方法はあ"
 "りません。"
 
-#: ../../extending/extending.rst:1222
+#: ../../extending/extending.rst:1229
 msgid ""
 "In particular, Capsules used to expose C APIs should be given a name "
 "following this convention::"
@@ -2129,11 +2136,11 @@ msgstr ""
 "特に、 C API を公開するための Capsule には次のルールに従った名前を付けるべき"
 "です::"
 
-#: ../../extending/extending.rst:1225
+#: ../../extending/extending.rst:1232
 msgid "modulename.attributename"
 msgstr ""
 
-#: ../../extending/extending.rst:1227
+#: ../../extending/extending.rst:1234
 msgid ""
 "The convenience function :c:func:`PyCapsule_Import` makes it easy to load a "
 "C API provided via a Capsule, but only if the Capsule's name matches this "
@@ -2145,7 +2152,7 @@ msgstr ""
 "ことができます。この挙動により、 C API のユーザーが、確実に正しい C API を格"
 "納している Capsule をロードできたことを確かめることができます。"
 
-#: ../../extending/extending.rst:1232
+#: ../../extending/extending.rst:1239
 msgid ""
 "The following example demonstrates an approach that puts most of the burden "
 "on the writer of the exporting module, which is appropriate for commonly "
@@ -2163,7 +2170,7 @@ msgstr ""
 "を提供します; クライアントモジュールは、C API にアクセスする前にこのマクロを"
 "呼ぶだけです。"
 
-#: ../../extending/extending.rst:1240
+#: ../../extending/extending.rst:1247
 msgid ""
 "The exporting module is a modification of the :mod:`!spam` module from "
 "section :ref:`extending-simpleexample`. The function :func:`!spam.system` "
@@ -2174,13 +2181,13 @@ msgid ""
 "modules."
 msgstr ""
 
-#: ../../extending/extending.rst:1247
+#: ../../extending/extending.rst:1254
 msgid ""
 "The function :c:func:`!PySpam_System` is a plain C function, declared "
 "``static`` like everything else::"
 msgstr ""
 
-#: ../../extending/extending.rst:1250
+#: ../../extending/extending.rst:1257
 msgid ""
 "static int\n"
 "PySpam_System(const char *command)\n"
@@ -2189,11 +2196,11 @@ msgid ""
 "}"
 msgstr ""
 
-#: ../../extending/extending.rst:1256
+#: ../../extending/extending.rst:1263
 msgid "The function :c:func:`!spam_system` is modified in a trivial way::"
 msgstr ""
 
-#: ../../extending/extending.rst:1258
+#: ../../extending/extending.rst:1265
 msgid ""
 "static PyObject *\n"
 "spam_system(PyObject *self, PyObject *args)\n"
@@ -2208,25 +2215,25 @@ msgid ""
 "}"
 msgstr ""
 
-#: ../../extending/extending.rst:1270
+#: ../../extending/extending.rst:1277
 msgid "In the beginning of the module, right after the line ::"
 msgstr "モジュールの先頭にある以下の行 ::"
 
-#: ../../extending/extending.rst:1272
+#: ../../extending/extending.rst:1279
 msgid "#include <Python.h>"
 msgstr ""
 
-#: ../../extending/extending.rst:1274
+#: ../../extending/extending.rst:1281
 msgid "two more lines must be added::"
 msgstr "の直後に、以下の二行を必ず追加してください::"
 
-#: ../../extending/extending.rst:1276
+#: ../../extending/extending.rst:1283
 msgid ""
 "#define SPAM_MODULE\n"
 "#include \"spammodule.h\""
 msgstr ""
 
-#: ../../extending/extending.rst:1279
+#: ../../extending/extending.rst:1286
 msgid ""
 "The ``#define`` is used to tell the header file that it is being included in "
 "the exporting module, not a client module. Finally, the module's :c:data:"
@@ -2234,7 +2241,7 @@ msgid ""
 "pointer array::"
 msgstr ""
 
-#: ../../extending/extending.rst:1283
+#: ../../extending/extending.rst:1290
 msgid ""
 "static int\n"
 "spam_module_exec(PyObject *m)\n"
@@ -2257,13 +2264,13 @@ msgid ""
 "}"
 msgstr ""
 
-#: ../../extending/extending.rst:1302
+#: ../../extending/extending.rst:1309
 msgid ""
 "Note that ``PySpam_API`` is declared ``static``; otherwise the pointer array "
 "would disappear when :c:func:`!PyInit_spam` terminates!"
 msgstr ""
 
-#: ../../extending/extending.rst:1305
+#: ../../extending/extending.rst:1312
 msgid ""
 "The bulk of the work is in the header file :file:`spammodule.h`, which looks "
 "like this::"
@@ -2271,7 +2278,7 @@ msgstr ""
 "からくりの大部分はヘッダファイル :file:`spammodule.h` 内にあり、以下のように"
 "なっています::"
 
-#: ../../extending/extending.rst:1308
+#: ../../extending/extending.rst:1315
 msgid ""
 "#ifndef Py_SPAMMODULE_H\n"
 "#define Py_SPAMMODULE_H\n"
@@ -2323,14 +2330,14 @@ msgid ""
 "#endif /* !defined(Py_SPAMMODULE_H) */"
 msgstr ""
 
-#: ../../extending/extending.rst:1356
+#: ../../extending/extending.rst:1363
 msgid ""
 "All that a client module must do in order to have access to the function :c:"
 "func:`!PySpam_System` is to call the function (or rather macro) :c:func:`!"
 "import_spam` in its :c:data:`mod_exec <Py_mod_exec>` function::"
 msgstr ""
 
-#: ../../extending/extending.rst:1360
+#: ../../extending/extending.rst:1367
 msgid ""
 "static int\n"
 "client_module_exec(PyObject *m)\n"
@@ -2343,7 +2350,7 @@ msgid ""
 "}"
 msgstr ""
 
-#: ../../extending/extending.rst:1370
+#: ../../extending/extending.rst:1377
 msgid ""
 "The main disadvantage of this approach is that the file :file:`spammodule.h` "
 "is rather complicated. However, the basic structure is the same for each "
@@ -2353,7 +2360,7 @@ msgstr ""
 "とです。とはいえ、各関数の基本的な構成は公開されるものと同じなので、書き方を"
 "一度だけ学べばすみます。"
 
-#: ../../extending/extending.rst:1374
+#: ../../extending/extending.rst:1381
 msgid ""
 "Finally it should be mentioned that Capsules offer additional functionality, "
 "which is especially useful for memory allocation and deallocation of the "
@@ -2368,11 +2375,11 @@ msgstr ""
 "び Capsule の実装部分 (Python ソースコード配布物中のファイル :file:`Include/"
 "pycapsule.h` および :file:`Objects/pycapsule.c` に述べられています。"
 
-#: ../../extending/extending.rst:1382
+#: ../../extending/extending.rst:1389
 msgid "Footnotes"
 msgstr "脚注"
 
-#: ../../extending/extending.rst:1383
+#: ../../extending/extending.rst:1390
 msgid ""
 "An interface for this function already exists in the standard module :mod:"
 "`os` --- it was chosen as a simple and straightforward example."
@@ -2380,7 +2387,7 @@ msgstr ""
 "この関数へのインターフェースはすでに標準モジュール :mod:`os` にあります --- "
 "この関数を選んだのは、単純で直接的な例を示したいからです。"
 
-#: ../../extending/extending.rst:1386
+#: ../../extending/extending.rst:1393
 msgid ""
 "The metaphor of \"borrowing\" a reference is not completely correct: the "
 "owner still has a copy of the reference."
@@ -2388,7 +2395,7 @@ msgstr ""
 "参照を \"借用する\" というメタファは厳密には正しくありません: なぜなら、参照"
 "の所有者は依然として参照のコピーを持っているからです。"
 
-#: ../../extending/extending.rst:1389
+#: ../../extending/extending.rst:1396
 msgid ""
 "Checking that the reference count is at least 1 **does not work** --- the "
 "reference count itself could be in freed memory and may thus be reused for "
@@ -2398,7 +2405,7 @@ msgstr ""
 "ト自体も解放されたメモリ上にあるため、その領域が他のオブジェクトに使われてい"
 "る可能性があります!"
 
-#: ../../extending/extending.rst:1393
+#: ../../extending/extending.rst:1400
 msgid ""
 "These guarantees don't hold when you use the \"old\" style calling "
 "convention --- this is still found in much existing code."
