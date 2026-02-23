@@ -9,15 +9,16 @@
 # python-doc bot, 2025
 # Takanori Suzuki <takanori@takanory.net>, 2026
 # souma987, 2026
+# digdugdog, 2026
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 14:41+0000\n"
+"POT-Creation-Date: 2026-02-23 14:42+0000\n"
 "PO-Revision-Date: 2025-09-16 00:02+0000\n"
-"Last-Translator: souma987, 2026\n"
+"Last-Translator: digdugdog, 2026\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
 "ja/)\n"
 "MIME-Version: 1.0\n"
@@ -275,6 +276,10 @@ msgid ""
 "purpose :term:`annotate functions <annotate function>` and evaluated only "
 "when necessary (except if ``from __future__ import annotations`` is used)."
 msgstr ""
+"関数、クラス、モジュールの :term:`アノテーション <annotation>` が先行評価され"
+"なくなりました。代わりに、アノテーションは専用の :term:`annotate 関数 "
+"<annotate function>` に格納され、必要になったときのみ評価されるようになりま"
+"す (``from __future__ import annotations`` を使用している場合を除く)。"
 
 #: ../../whatsnew/3.14.rst:156
 msgid ""
@@ -284,6 +289,11 @@ msgid ""
 "It is no longer necessary to enclose annotations in strings if they contain "
 "forward references."
 msgstr ""
+"この変更により、Pythonのアノテーションのパフォーマンスと使いやすさがほとんど"
+"の状況で向上します。アノテーションを定義することで発生する実行コストはほとん"
+"どなくなりましたが、実行中にアノテーションを値として取得することは依然として"
+"可能です。また、アノテーションに前方参照が含まれている場合に、クォーテーショ"
+"ンで囲って文字列にする必要はなくなりました。"
 
 #: ../../whatsnew/3.14.rst:162
 msgid ""
@@ -295,10 +305,17 @@ msgid ""
 "markers), and the :attr:`~annotationlib.Format.STRING` format (which returns "
 "annotations as strings)."
 msgstr ""
+"新しく追加された :mod:`annotationlib` モジュールを使うことで、遅延評価となっ"
+"たアノテーションを取得することができます。アノテーションの評価フォーマットと"
+"して、 :attr:`~annotationlib.Format.VALUE` (以前のPythonバージョンと同様に、"
+"アノテーションの実行時の値を評価する)  :attr:`~annotationlib.Format."
+"FORWARDREF` (未定義の名前を特別なマーカーに置き換える)  :attr:"
+"`~annotationlib.Format.STRING` (アノテーションを文字列として返す) がありま"
+"す。"
 
 #: ../../whatsnew/3.14.rst:169
 msgid "This example shows how these formats behave:"
-msgstr ""
+msgstr "各フォーマットの挙動は以下の例の通りです："
 
 #: ../../whatsnew/3.14.rst:171
 msgid ""
@@ -314,6 +331,17 @@ msgid ""
 ">>> get_annotations(func, format=Format.STRING)\n"
 "{'arg': 'Undefined'}"
 msgstr ""
+">>> from annotationlib import get_annotations, Format\n"
+">>> def func(arg: Undefined):\n"
+"...     pass\n"
+">>> get_annotations(func, format=Format.VALUE)\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"NameError: name 'Undefined' is not defined\n"
+">>> get_annotations(func, format=Format.FORWARDREF)\n"
+"{'arg': ForwardRef('Undefined', owner=<function func at 0x...>)}\n"
+">>> get_annotations(func, format=Format.STRING)\n"
+"{'arg': 'Undefined'}"
 
 #: ../../whatsnew/3.14.rst:185
 msgid ""
@@ -321,12 +349,17 @@ msgid ""
 "guidance on changes that may be needed due to these changes, though in the "
 "majority of cases, code will continue working as-is."
 msgstr ""
+"この変更により既存コードでどのような修正が必要になる可能性があるかを :ref:`移"
+"植 <whatsnew314-porting-annotations>` セクションで説明しています。ただし、ほ"
+"とんどのコードでは修正は不要です。"
 
 #: ../../whatsnew/3.14.rst:189
 msgid ""
 "(Contributed by Jelle Zijlstra in :pep:`749` and :gh:`119180`; :pep:`649` "
 "was written by Larry Hastings.)"
 msgstr ""
+"(Jelle Zijlstra の貢献による :pep:`749` と :gh:`119180` 、 Larry Hastings の"
+"貢献による :pep:`649` )"
 
 #: ../../whatsnew/3.14.rst:194
 msgid ":pep:`649`"
@@ -334,7 +367,7 @@ msgstr ":pep:`649`"
 
 #: ../../whatsnew/3.14.rst:195
 msgid "Deferred Evaluation Of Annotations Using Descriptors"
-msgstr ""
+msgstr "デスクリプタを使ったアノテーション遅延評価"
 
 #: ../../whatsnew/3.14.rst:196
 msgid ":pep:`749`"
@@ -346,7 +379,7 @@ msgstr ""
 
 #: ../../whatsnew/3.14.rst:203
 msgid ":pep:`734`: Multiple interpreters in the standard library"
-msgstr ""
+msgstr ":pep:`734`: 複数インタープリタ機能が標準ライブラリに追加"
 
 #: ../../whatsnew/3.14.rst:205
 msgid ""
@@ -355,26 +388,31 @@ msgid ""
 "separate copies is called an 'interpreter'. However, the feature had been "
 "available only through the :ref:`C-API <sub-interpreter-support>`."
 msgstr ""
+"CPython ランタイムでは、同じプロセスの中で複数の Python 環境を実行する機能が"
+"20年以上存在します。この各環境は「インタープリタ」といいます。しかしこの機能"
+"は :ref:`C-API <sub-interpreter-support>` 経由でしか利用できませんでした。"
 
 #: ../../whatsnew/3.14.rst:211
 msgid ""
 "That limitation is removed in Python 3.14, with the new :mod:`concurrent."
 "interpreters` module."
 msgstr ""
+"Python 3.14 で :mod:`concurrent.interpreters` モジュールが追加されたことによ"
+"り、この制限がなくなりました。"
 
 #: ../../whatsnew/3.14.rst:214
 msgid ""
 "There are at least two notable reasons why using multiple interpreters has "
 "significant benefits:"
-msgstr ""
+msgstr "複数インタープリタを利用することで得られる大きな利点が２つあります："
 
 #: ../../whatsnew/3.14.rst:217
 msgid "they support a new (to Python), human-friendly concurrency model"
-msgstr ""
+msgstr "(Python としては新しい) 使いやすい並行実行モデル"
 
 #: ../../whatsnew/3.14.rst:218
 msgid "true multi-core parallelism"
-msgstr ""
+msgstr "マルチコアを活用した真の並列実行"
 
 #: ../../whatsnew/3.14.rst:220
 msgid ""
@@ -384,6 +422,10 @@ msgid ""
 "human brain. That especially applies to plain threads (for example, :mod:"
 "`threading`), where all memory is shared between all threads."
 msgstr ""
+"並行実行は、原理的には実行効率が上がったり設計を単純化できる用途がある一方"
+"で、非常に単純な並行実行でない限り、人間にとって実装や保守が難しいことが多い"
+"です。特に、OSレベルのスレッドを直接使用する場合は (例えば :mod:"
+"`threading`)、メモリがすべてのスレッド間で共有されるため、複雑になります。"
 
 #: ../../whatsnew/3.14.rst:227
 msgid ""
@@ -393,6 +435,11 @@ msgid ""
 "Smalltalk, Erlang, Haskell, and Go. Think of multiple interpreters as "
 "threads but with opt-in sharing."
 msgstr ""
+"互いに独立した複数インタープリタを使用することで、 Communicating Sequential "
+"Processes (CSP) やアクターモデルといった、他言語 (Smalltalk、Erlang、"
+"Haskell、Go など) で成功している並行実行モデルを取り入れることができます。複"
+"数インタープリタは、ユーザーが明示的にメモリ共有をするスレッドとみなすことが"
+"できます。"
 
 #: ../../whatsnew/3.14.rst:234
 msgid ""
@@ -401,6 +448,10 @@ msgid ""
 "`684`). This unlocks a variety of CPU-intensive use cases for Python that "
 "were limited by the :term:`GIL`."
 msgstr ""
+"マルチコアの並列実行については、Python 3.12 で、インタープリタは並列実行でき"
+"るレベルにお互いに隔離されるようになりました (参照： :pep:`684`) 。これによ"
+"り、 :term:`GIL` の制限がなくなり、様々な CPU バウンドな用途に Python を用い"
+"ることができるようになります。"
 
 #: ../../whatsnew/3.14.rst:239
 msgid ""
@@ -412,6 +463,11 @@ msgid ""
 "Think of multiple interpreters as having the isolation of processes with the "
 "efficiency of threads."
 msgstr ""
+"複数インタープリタ、デフォルトでメモリ共有がされない点や、隔離された論理的な"
+"「プロセス」が並列に動作するという点で、 :mod:`multiprocessing` と類似してい"
+"ます。しかし、複数インタープリタを使うことで、システムのリソースを節約でき、"
+"処理効率もあがります (同じプロセスに存在するため) 。スレッドの処理効率とプロ"
+"セス的な隔離を両立している、と考えられます。"
 
 #: ../../whatsnew/3.14.rst:250
 msgid ""
@@ -421,26 +477,34 @@ msgid ""
 "limitations, which are expected to improve significantly now that the "
 "feature is going mainstream."
 msgstr ""
+"複数インタープリタの機能は何十年も存在していましたが、認知度が低く、標準ライ"
+"ブラリモジュールがないことから、あまり使用されていませんでした。そのため、い"
+"くつか大きな制限事項がありますが、メイン機能になったことで今後大きく改善して"
+"いくと思われます。"
 
 #: ../../whatsnew/3.14.rst:256
 msgid "Current limitations:"
-msgstr ""
+msgstr "現状の制限事項："
 
 #: ../../whatsnew/3.14.rst:258
 msgid "starting each interpreter has not been optimized yet"
-msgstr ""
+msgstr "インタープリタの起動処理がまだ最適化されていない"
 
 #: ../../whatsnew/3.14.rst:259
 msgid ""
 "each interpreter uses more memory than necessary (work continues on "
 "extensive internal sharing between interpreters)"
 msgstr ""
+"インタープリタのメモリ使用量が必要以上に大きい (インタープリタ間で内部リソー"
+"スをできるだけ共有するよう改善中)"
 
 #: ../../whatsnew/3.14.rst:261
 msgid ""
 "there aren't many options *yet* for truly sharing objects or other data "
 "between interpreters (other than :type:`memoryview`)"
 msgstr ""
+"インタープリタ間でオブジェクトなどのデータを真の意味で共有する方法がまだ少な"
+"い (:type:`memoryview` 以外)"
 
 #: ../../whatsnew/3.14.rst:263
 msgid ""
@@ -448,12 +512,16 @@ msgid ""
 "multiple interpreters (all standard library extension modules *are* "
 "compatible)"
 msgstr ""
+"PyPI 上のサードパーティ拡張モジュールの多くが複数インタープリタに対応していな"
+"い (標準ライブラリの拡張モジュールはすべて対応)"
 
 #: ../../whatsnew/3.14.rst:266
 msgid ""
 "the approach to writing applications that use multiple isolated interpreters "
 "is mostly unfamiliar to Python users, for now"
 msgstr ""
+"Python 利用者はまだ複数インタープリタを使ったアプリケーション開発に慣れていな"
+"い人が多い"
 
 #: ../../whatsnew/3.14.rst:269
 msgid ""
@@ -462,6 +530,10 @@ msgid ""
 "packages. Depending on the use case, the limitations may not have much "
 "impact, so try it out!"
 msgstr ""
+"今後 CPython がどう改善していくか、インタープリタがどう使われるか、PyPI パッ"
+"ケージでどこまで解決できるようになるかによって、以上の制限事項の影響度合いは"
+"変わります。用途によっては、影響は少ないかもしれません。ぜひ使ってみてくださ"
+"い！"
 
 #: ../../whatsnew/3.14.rst:274
 msgid ""
@@ -473,6 +545,13 @@ msgid ""
 "`GIL`. Likewise, libraries on PyPI are expected to emerge for high-level "
 "abstractions on top of interpreters."
 msgstr ""
+"さらに、今後の CPython のバージョンで、オーバーヘッドは少なくなり、 PyPI パッ"
+"ケージとして実装するには向かない補助機能が追加される予定です。それまでの間、"
+"上記の制限事項のほとんどは拡張モジュールを作ることで解消できるので、今の時点"
+"で PyPI パッケージによって穴埋めすることもできます。これは 3.14 から 3.12 (イ"
+"ンタープリタが隔離が完全になり、 :term:`GIL` の共有がなくなったバージョン) ま"
+"で可能です。同様に、インタープリタをさらに抽象化するライブラリも PyPI に現れ"
+"ると予想されます。"
 
 #: ../../whatsnew/3.14.rst:282
 msgid ""
