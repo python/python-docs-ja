@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-05 14:41+0000\n"
+"POT-Creation-Date: 2026-03-07 14:18+0000\n"
 "PO-Revision-Date: 2025-09-16 00:00+0000\n"
 "Last-Translator: digdugdog, 2026\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -129,6 +129,11 @@ msgid ""
 "practice in Python versions 3.10 and newer is to call :func:`getattr` with "
 "three arguments, for example ``getattr(o, '__annotations__', None)``."
 msgstr ""
+"しかし、それ以外の callable (例えば、 :func:`functools.partial` で作られたも"
+"の) は ``__annotations__`` 属性が定義されていない可能性があります。この属性が"
+"あるかどうか不明なオブジェクトの場合は、Python 3.10 以降では、 :func:"
+"`getattr` に３つの引数を渡して呼び出す (例えば ``getattr(o, "
+"'__annotations__', None)`` ) のを推奨します。"
 
 #: ../../howto/annotations.rst:65
 msgid ""
@@ -137,10 +142,14 @@ msgid ""
 "parent's ``__annotations__``. In Python 3.10 and newer, the child class's "
 "annotations will be an empty dict instead."
 msgstr ""
+"Python 3.10 より前のバージョンでは、親クラスにアノテーションがあるが自身はア"
+"ノテーションを定義していないようなクラスの場合、 ``__annotations__`` を取得す"
+"ると親クラスの ``__annotations__`` が返されます。3.10 以降では、代わりに空の"
+"辞書が返されます。"
 
 #: ../../howto/annotations.rst:73
 msgid "Accessing The Annotations Dict Of An Object In Python 3.9 And Older"
-msgstr ""
+msgstr "オブジェクトのアノテーション辞書へのアクセス (Python 3.9 以前)"
 
 #: ../../howto/annotations.rst:75
 msgid ""
@@ -148,6 +157,9 @@ msgid ""
 "more complicated than in newer versions. The problem is a design flaw in "
 "these older versions of Python, specifically to do with class annotations."
 msgstr ""
+"Python 3.9 以前では、オブジェクトのアノテーション辞書を取得するのはより複雑で"
+"す。原因は、3.9 以前のバージョンの設計上の欠陥 (具体的にはクラスのアノテー"
+"ション) です。"
 
 #: ../../howto/annotations.rst:80
 msgid ""
@@ -157,6 +169,10 @@ msgid ""
 "should use three-argument :func:`getattr` to access the object's "
 "``__annotations__`` attribute."
 msgstr ""
+"クラス以外のオブジェクト (関数や他の callable、モジュール) のアノテーションを"
+"取得する推奨の方法は、3.10と同じです。 :func:`inspect.get_annotations` ではな"
+"く、 :func:`getattr` に３つの引数を渡すことで ``__annotations__`` 属性を取得"
+"するのがいいです。"
 
 #: ../../howto/annotations.rst:87
 msgid ""
@@ -166,6 +182,10 @@ msgid ""
 "``__annotations__`` attribute of a class may inadvertently return the "
 "annotations dict of a *base class.* As an example::"
 msgstr ""
+"ただし、クラスについては推奨方法が異なります。なぜなら、クラスには "
+"``__annotations__`` は必須ではなく、属性はベースクラスから継承されるので、 "
+"``__annotations__`` 属性にアクセスするとベースクラスのアノテーション辞書を取"
+"得してしまうという問題があるからです。例えば::"
 
 #: ../../howto/annotations.rst:94
 msgid ""
@@ -178,10 +198,19 @@ msgid ""
 "\n"
 "print(Derived.__annotations__)"
 msgstr ""
+"class Base:\n"
+"    a: int = 3\n"
+"    b: str = 'abc'\n"
+"\n"
+"class Derived(Base):\n"
+"    pass\n"
+"\n"
+"print(Derived.__annotations__)"
 
 #: ../../howto/annotations.rst:103
 msgid "This will print the annotations dict from ``Base``, not ``Derived``."
 msgstr ""
+"このコードでは ``Derived`` ではなく ``Base`` のアノテーションが表示されます。"
 
 #: ../../howto/annotations.rst:106
 msgid ""
@@ -192,6 +221,12 @@ msgid ""
 "dictionary.  Since the class may or may not have annotations defined, best "
 "practice is to call the :meth:`~dict.get` method on the class dict."
 msgstr ""
+"クラス (``isinstance(o, type)``) のアノテーションを取得するためには、新たに分"
+"岐を追加する必要があります。推奨する方法では、 Python 3.9 以前の実装に依存し"
+"た方法をとります。クラスにアノテーションがあれば、 :attr:`~type.__dict__` の"
+"辞書に格納されるという実装になっています。クラスにはアノテーションがない場合"
+"もあるため、この辞書の :meth:`~dict.get` メソッドを使ってアノテーションを取得"
+"する、というのが推奨の方法です。"
 
 #: ../../howto/annotations.rst:114
 msgid ""
@@ -199,6 +234,8 @@ msgid ""
 "``__annotations__`` attribute on an arbitrary object in Python 3.9 and "
 "before::"
 msgstr ""
+"以上を踏まえると、Python 3.9 以前では、以下のサンプルコードで任意のオブジェク"
+"トの ``__annotations__`` 属性を安全に取得することができます::"
 
 #: ../../howto/annotations.rst:118
 msgid ""
@@ -207,6 +244,10 @@ msgid ""
 "else:\n"
 "    ann = getattr(o, '__annotations__', None)"
 msgstr ""
+"if isinstance(o, type):\n"
+"    ann = o.__dict__.get('__annotations__', None)\n"
+"else:\n"
+"    ann = getattr(o, '__annotations__', None)"
 
 #: ../../howto/annotations.rst:123
 msgid ""
@@ -214,6 +255,9 @@ msgid ""
 "You're encouraged to double-check the type of ``ann`` using :func:"
 "`isinstance` before further examination."
 msgstr ""
+"このコードを実行すると、 ``ann`` の値は辞書か ``None`` となります。さらに "
+"``ann`` の値を調べるには、 :func:`isinstance` で型を再度確認することを推奨し"
+"ます。"
 
 #: ../../howto/annotations.rst:128
 msgid ""
@@ -221,10 +265,13 @@ msgid ""
 "__dict__` attribute, so for extra safety you may also wish to use :func:"
 "`getattr` to access :attr:`!__dict__`."
 msgstr ""
+"ただし、一部の特殊な型オブジェクトや不正な形式の型オブジェクトは :attr:"
+"`~type.__dict__` 属性がないこともあるため、さらに安全をとるには :func:"
+"`getattr` を使って :attr:`!__dict__` を取得したほうがいいです。"
 
 #: ../../howto/annotations.rst:134
 msgid "Manually Un-Stringizing Stringized Annotations"
-msgstr ""
+msgstr "文字列指定のアノテーションを手動で解決する方法"
 
 #: ../../howto/annotations.rst:136
 msgid ""
@@ -233,6 +280,8 @@ msgid ""
 "really is best to call :func:`inspect.get_annotations` to do this work for "
 "you."
 msgstr ""
+"アノテーションは文字列として指定されている場合があり、それを評価して Python "
+"の値に変換するには、 :func:`inspect.get_annotations` を使うのが一番です。"
 
 #: ../../howto/annotations.rst:142
 msgid ""
@@ -241,18 +290,25 @@ msgid ""
 "encouraged to examine the implementation of :func:`inspect.get_annotations` "
 "in the current Python version and follow a similar approach."
 msgstr ""
+"Python 3.9 以前を使っているか、もしくは何らかの理由で :func:`inspect."
+"get_annotations` を使えない場合は、自分で実装する必要があります。現状の "
+"Python バージョンの :func:`inspect.get_annotations` の実装を確認して、同様の"
+"処理を実装することを推奨します。"
 
 #: ../../howto/annotations.rst:148
 msgid ""
 "In a nutshell, if you wish to evaluate a stringized annotation on an "
 "arbitrary object ``o``:"
 msgstr ""
+"すなわち、任意のオブジェクト ``o`` の文字列アノテーションを評価するには:"
 
 #: ../../howto/annotations.rst:151
 msgid ""
 "If ``o`` is a module, use ``o.__dict__`` as the ``globals`` when calling :"
 "func:`eval`."
 msgstr ""
+"``o`` がモジュールならば、 ``o.__dict__`` を ``globals`` として :func:`eval` "
+"を呼ぶ。"
 
 #: ../../howto/annotations.rst:153
 msgid ""
@@ -260,6 +316,8 @@ msgid ""
 "``globals``, and ``dict(vars(o))`` as the ``locals``, when calling :func:"
 "`eval`."
 msgstr ""
+"``o`` がクラスならば、 ``sys.modules[o.__module__].__dict__`` を ``globals`` "
+"とし、 ``dict(vars(o))`` を ``locals`` として :func:`eval` を呼ぶ。"
 
 #: ../../howto/annotations.rst:156
 msgid ""
@@ -268,12 +326,17 @@ msgid ""
 "accessing either ``o.__wrapped__`` or ``o.func`` as appropriate, until you "
 "have found the root unwrapped function."
 msgstr ""
+"``o`` が :func:`functools.update_wrapper` か :func:`functools.wraps` か :"
+"func:`functools.partial` でラップされた callable ならば、一番内部の関数に到達"
+"するまで、 ``o.__wrapped__`` か ``o.func`` のどちらかを繰り返し取得する。"
 
 #: ../../howto/annotations.rst:160
 msgid ""
 "If ``o`` is a callable (but not a class), use :attr:`o.__globals__ <function."
 "__globals__>` as the globals when calling :func:`eval`."
 msgstr ""
+"``o`` がクラス以外の callable であれば、 :attr:`o.__globals__ <function."
+"__globals__>` を globals として :func:`eval` を呼ぶ。"
 
 #: ../../howto/annotations.rst:164
 msgid ""
@@ -283,18 +346,25 @@ msgid ""
 "hints that require annotating with string values that specifically *can't* "
 "be evaluated.  For example:"
 msgstr ""
+"しかし、必ずしもアノテーションの文字列が :func:`eval` で Python の値に変換で"
+"きるとは限りません。理論上どんな文字列も指定可能であり、変換できない文字列を"
+"型ヒントとして指定する必要がある場合が実際にあります。例えば:"
 
 #: ../../howto/annotations.rst:171
 msgid ""
 ":pep:`604` union types using ``|``, before support for this was added to "
 "Python 3.10."
 msgstr ""
+"``|`` を使った :pep:`604` のユニオン型 (これが追加された Python 3.10 より前の"
+"バージョン)"
 
 #: ../../howto/annotations.rst:173
 msgid ""
 "Definitions that aren't needed at runtime, only imported when :const:`typing."
 "TYPE_CHECKING` is true."
 msgstr ""
+":const:`typing.TYPE_CHECKING` が True の時だけインポートされ、実行時には必要"
+"ない型定義。"
 
 #: ../../howto/annotations.rst:176
 msgid ""
@@ -303,22 +373,29 @@ msgid ""
 "it's recommended to only attempt to evaluate string values when explicitly "
 "requested to by the caller."
 msgstr ""
+":func:`eval` で上記のような値を評価しようとすると、失敗し例外が発生します。そ"
+"のため、アノテーションを扱うライブラリ API を作る際は、呼び出し側が明示的に要"
+"求したときのみ、文字列を評価することが推奨されます。"
 
 #: ../../howto/annotations.rst:184
 msgid "Best Practices For ``__annotations__`` In Any Python Version"
-msgstr ""
+msgstr "``__annotations__`` のベストプラクティス (全 Python バージョン共通)"
 
 #: ../../howto/annotations.rst:186
 msgid ""
 "You should avoid assigning to the ``__annotations__`` member of objects "
 "directly.  Let Python manage setting ``__annotations__``."
 msgstr ""
+"オブジェクトの ``__annotations__`` 属性に直接代入することは避けるべきです。"
+"Python に任せましょう。 "
 
 #: ../../howto/annotations.rst:189
 msgid ""
 "If you do assign directly to the ``__annotations__`` member of an object, "
 "you should always set it to a ``dict`` object."
 msgstr ""
+"直接 ``__annotations__`` 属性に代入するなら、必ず ``dict`` オブジェクトを代入"
+"するべきです。"
 
 #: ../../howto/annotations.rst:192
 msgid ""
@@ -326,6 +403,9 @@ msgid ""
 "Instead, use :func:`annotationlib.get_annotations` (Python 3.14+) or :func:"
 "`inspect.get_annotations` (Python 3.10+)."
 msgstr ""
+"どういうオブジェクトかに関わらず、直接 ``__annotations__`` にアクセスするのは"
+"避けるべきです。Python 3.14 以降は :func:`annotationlib.get_annotations` 、 "
+"Python 3.10 以降は :func:`inspect.get_annotations` を使いましょう。"
 
 #: ../../howto/annotations.rst:196
 msgid ""
@@ -333,19 +413,21 @@ msgid ""
 "should ensure that it's a dictionary before attempting to examine its "
 "contents."
 msgstr ""
+"直接 ``__annotations__`` メンバーにアクセスするなら、まず値が辞書であることを"
+"チェックしてから中身を調べるべきです。"
 
 #: ../../howto/annotations.rst:200
 msgid "You should avoid modifying ``__annotations__`` dicts."
-msgstr ""
+msgstr "``__annotations__`` 辞書を書き換えるのは避けるべきです。"
 
 #: ../../howto/annotations.rst:202
 msgid ""
 "You should avoid deleting the ``__annotations__`` attribute of an object."
-msgstr ""
+msgstr "``__annotations__`` 属性を削除するのは避けるべきです。"
 
 #: ../../howto/annotations.rst:207
 msgid "``__annotations__`` Quirks"
-msgstr ""
+msgstr "``__annotations__`` の注意点"
 
 #: ../../howto/annotations.rst:209
 msgid ""
