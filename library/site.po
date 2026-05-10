@@ -9,9 +9,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Python 3.14\n"
+"Project-Id-Version: Python 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-17 14:50+0000\n"
+"POT-Creation-Date: 2026-05-08 18:34+0000\n"
 "PO-Revision-Date: 2025-09-16 00:01+0000\n"
 "Last-Translator: python-doc bot, 2025\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -44,7 +44,7 @@ msgid ""
 "Importing this module normally appends site-specific paths to the module "
 "search path and adds :ref:`callables <site-consts>`, including :func:`help` "
 "to the built-in namespace. However, Python startup option :option:`-S` "
-"blocks this and this module can be safely imported with no automatic "
+"blocks this, and this module can be safely imported with no automatic "
 "modifications to the module search path or additions to the builtins.  To "
 "explicitly trigger the usual site-specific additions, call the :func:`main` "
 "function."
@@ -99,48 +99,40 @@ msgid ""
 "environments>`, the ``pyvenv.cfg`` file in :data:`sys.prefix` is checked for "
 "site-specific configurations. If the ``include-system-site-packages`` key "
 "exists and is set to ``true`` (case-insensitive), the system-level prefixes "
-"will be searched for site-packages, otherwise they won't."
+"will be searched for site-packages, otherwise they won't.  If the system-"
+"level prefixes are not searched then the user site prefixes are also "
+"implicitly not searched for site-packages."
 msgstr ""
 
-#: ../../library/site.rst:73
+#: ../../library/site.rst:74
 msgid ""
-"A path configuration file is a file whose name has the form :file:`{name}."
-"pth` and exists in one of the four directories mentioned above; its contents "
-"are additional items (one per line) to be added to ``sys.path``.  Non-"
-"existing items are never added to ``sys.path``, and no check is made that "
-"the item refers to a directory rather than a file.  No item is added to "
-"``sys.path`` more than once.  Blank lines and lines beginning with ``#`` are "
-"skipped.  Lines starting with ``import`` (followed by space or tab) are "
-"executed."
+"The :mod:`!site` module recognizes two startup configuration files of the "
+"form :file:`{name}.pth` for path configurations, and :file:`{name}.start` "
+"for pre-first-line code execution.  Both files can exist in one of the four "
+"directories mentioned above.  Within each directory, these files are sorted "
+"alphabetically by filename, then parsed in sorted order."
 msgstr ""
-"パス設定ファイルは :file:`{name}.pth` という形式の名前をもつファイルで、上の4"
-"つのディレクトリのひとつにあります。その内容は ``sys.path`` に追加される追加"
-"項目(一行に一つ)です。存在しない項目は ``sys.path`` へは決して追加されません"
-"が、項目がファイルではなくディレクトリを参照しているかどうかはチェックされま"
-"せん。項目が ``sys.path`` へ二回以上追加されることはありません。空行と ``#`` "
-"で始まる行は読み飛ばされます。 ``import`` で始まる(そしてその後ろにスペースか"
-"タブが続く)行は実行されます。"
 
 #: ../../library/site.rst:83
-msgid ""
-"An executable line in a :file:`.pth` file is run at every Python startup, "
-"regardless of whether a particular module is actually going to be used. Its "
-"impact should thus be kept to a minimum. The primary intended purpose of "
-"executable lines is to make the corresponding module(s) importable (load 3rd-"
-"party import hooks, adjust :envvar:`PATH` etc). Any other initialization is "
-"supposed to be done upon a module's actual import, if and when it happens. "
-"Limiting a code chunk to a single line is a deliberate measure to discourage "
-"putting anything more complex here."
+msgid "Path extensions (:file:`.pth` files)"
 msgstr ""
-":file:`.pth` ファイル内の実行可能な行は、特定のモジュールが実際に使用されるか"
-"どうかに関係なく、Pythonの起動時に毎回実行されます。したがって、その影響は最"
-"小限に抑えられるべきです。実行可能な行の主な目的は、対応するモジュールをイン"
-"ポート可能にすることです(サードパーティ製インポートフックのロード、 :envvar:"
-"`PATH` の調整など)。その他の初期化は、モジュールが実際にインポートされたとき"
-"に行われます。コードのチャンクを1行に制限することは、より複雑なものをここに入"
-"れないようにするための意図的な手段です。"
 
-#: ../../library/site.rst:94
+#: ../../library/site.rst:85
+msgid ""
+":file:`{name}.pth` contains additional items (one per line) to be appended "
+"to ``sys.path``.  Items that name non-existing directories are never added "
+"to ``sys.path``, and no check is made that the item refers to a directory "
+"rather than a file.  No item is added to ``sys.path`` more than once.  Blank "
+"lines and lines beginning with ``#`` are skipped."
+msgstr ""
+
+#: ../../library/site.rst:91
+msgid ""
+"For backward compatibility, lines starting with ``import`` (followed by "
+"space or tab) are executed with :func:`exec`."
+msgstr ""
+
+#: ../../library/site.rst:96
 msgid ""
 "The :file:`.pth` files are now decoded by UTF-8 at first and then by the :"
 "term:`locale encoding` if it fails."
@@ -148,24 +140,127 @@ msgstr ""
 ":file:`.pth` ファイルは、最初に UTF-8 で、失敗した場合は :term:`locale "
 "encoding` でデコードされるようになります。"
 
-#: ../../library/site.rst:102
+#: ../../library/site.rst:101
+msgid ""
+":file:`.pth` file lines starting with ``import`` are deprecated.  During the "
+"deprecation period, such lines are still executed (except in the case "
+"below), but a diagnostic message is emitted only when the :option:`-v` flag "
+"is given."
+msgstr ""
+
+#: ../../library/site.rst:106
+msgid ""
+"``import`` lines in :file:`{name}.pth` are silently ignored when a :ref:"
+"`matching <site-start-files>` :file:`{name}.start` file exists."
+msgstr ""
+
+#: ../../library/site.rst:109
+msgid ""
+"Errors on individual lines no longer abort processing of the rest of the "
+"file.  Each error is reported and the remaining lines continue to be "
+"processed."
+msgstr ""
+
+#: ../../library/site.rst:115
+msgid ""
+"Decoding :file:`{name}.pth` files in any encoding other than ``utf-8-sig`` "
+"is deprecated in Python 3.15, and support for decoding from the locale "
+"encoding will be removed in Python 3.20."
+msgstr ""
+
+#: ../../library/site.rst:119
+msgid ""
+"``import`` lines in :file:`{name}.pth` files are deprecated and will be "
+"silently ignored in Python 3.18 and 3.19.  In Python 3.20 a warning will be "
+"produced for ``import`` lines in :file:`{name}.pth` files."
+msgstr ""
+
+#: ../../library/site.rst:127
+msgid "Startup entry points (:file:`.start` files)"
+msgstr ""
+
+#: ../../library/site.rst:131
+msgid ""
+"A startup entry point file is a file whose name has the form :file:`{name}."
+"start` and exists in one of the site-packages directories described above.  "
+"Each file specifies entry points to be called during interpreter startup, "
+"using the ``pkg.mod:callable`` syntax understood by :func:`pkgutil."
+"resolve_name`."
+msgstr ""
+
+#: ../../library/site.rst:137
+msgid ""
+"Each non-blank line that does not begin with ``#`` must contain an entry "
+"point reference in the form ``pkg.mod:callable``.  The colon and callable "
+"portion are mandatory.  Each callable is invoked with no arguments, and any "
+"return value is discarded."
+msgstr ""
+
+#: ../../library/site.rst:142
+msgid ""
+":file:`.start` files are processed after all :file:`.pth` path extensions "
+"have been applied to :data:`sys.path`, ensuring that paths are available "
+"before any startup code runs."
+msgstr ""
+
+#: ../../library/site.rst:146
+msgid ""
+"Unlike :data:`sys.path` extensions from :file:`.pth` files, duplicate entry "
+"points are **not** de-duplicated --- if an entry point appears more than "
+"once, it will be called more than once."
+msgstr ""
+
+#: ../../library/site.rst:150
+msgid ""
+"If an exception occurs during resolution or invocation of an entry point, a "
+"traceback is printed to :data:`sys.stderr` and processing continues with the "
+"remaining entry points."
+msgstr ""
+
+#: ../../library/site.rst:154
+msgid ":file:`.start` files must be encoded in UTF-8."
+msgstr ""
+
+#: ../../library/site.rst:156
+msgid ":pep:`829` defined the original specification for these features."
+msgstr ""
+
+#: ../../library/site.rst:160
+msgid ""
+"If a :file:`{name}.start` file exists alongside a :file:`{name}.pth` file "
+"with the same base name, any ``import`` lines in the :file:`.pth` file are "
+"ignored in favor of the entry points in the :file:`.start` file."
+msgstr ""
+
+#: ../../library/site.rst:166
+msgid ""
+"Executable lines (``import`` lines in :file:`{name}.pth` files and :file:"
+"`{name}.start` file entry points) are always run at Python startup (unless :"
+"option:`-S` is given to disable the ``site.py`` module entirely), regardless "
+"of whether a particular module is actually going to be used."
+msgstr ""
+
+#: ../../library/site.rst:173
+msgid ""
+":file:`{name}.start` files invoke :func:`pkgutil.resolve_name` with "
+"``strict=True``, which requires the full ``pkg.mod:callable`` form."
+msgstr ""
+
+#: ../../library/site.rst:182
+msgid "Startup file examples"
+msgstr ""
+
+#: ../../library/site.rst:184
 msgid ""
 "For example, suppose ``sys.prefix`` and ``sys.exec_prefix`` are set to :file:"
 "`/usr/local`.  The Python X.Y library is then installed in :file:`/usr/local/"
 "lib/python{X.Y}`.  Suppose this has a subdirectory :file:`/usr/local/lib/"
-"python{X.Y}/site-packages` with three subsubdirectories, :file:`foo`, :file:"
+"python{X.Y}/site-packages` with three sub-subdirectories, :file:`foo`, :file:"
 "`bar` and :file:`spam`, and two path configuration files, :file:`foo.pth` "
 "and :file:`bar.pth`.  Assume :file:`foo.pth` contains the following::"
 msgstr ""
-"例えば、 ``sys.prefix`` と ``sys.exec_prefix`` が :file:`/usr/local` に設定さ"
-"れていると仮定します。そのときPython X.Y ライブラリは :file:`/usr/local/lib/"
-"python{X.Y}` にインストールされています。ここにはサブディレクトリ :file:`/"
-"usr/local/lib/python{X.Y}/site-packages` があり、その中に三つのサブディレクト"
-"リ :file:`foo`, :file:`bar` および :file:`spam` と二つのパス設定ファイル :"
-"file:`foo.pth` と :file:`bar.pth` をもつと仮定します。 :file:`foo.pth` には以"
-"下のものが記載されていると想定してください::"
 
-#: ../../library/site.rst:110
+#: ../../library/site.rst:192
 msgid ""
 "# foo package configuration\n"
 "\n"
@@ -174,18 +269,18 @@ msgid ""
 "bletch"
 msgstr ""
 
-#: ../../library/site.rst:116
+#: ../../library/site.rst:198
 msgid "and :file:`bar.pth` contains::"
 msgstr "また、 :file:`bar.pth` には::"
 
-#: ../../library/site.rst:118
+#: ../../library/site.rst:200
 msgid ""
 "# bar package configuration\n"
 "\n"
 "bar"
 msgstr ""
 
-#: ../../library/site.rst:122
+#: ../../library/site.rst:204
 msgid ""
 "Then the following version-specific directories are added to ``sys.path``, "
 "in this order::"
@@ -193,13 +288,13 @@ msgstr ""
 "が記載されているとします。そのとき、次のバージョンごとのディレクトリが ``sys."
 "path`` へこの順番で追加されます::"
 
-#: ../../library/site.rst:125
+#: ../../library/site.rst:207
 msgid ""
 "/usr/local/lib/pythonX.Y/site-packages/bar\n"
 "/usr/local/lib/pythonX.Y/site-packages/foo"
 msgstr ""
 
-#: ../../library/site.rst:128
+#: ../../library/site.rst:210
 msgid ""
 "Note that :file:`bletch` is omitted because it doesn't exist; the :file:"
 "`bar` directory precedes the :file:`foo` directory because :file:`bar.pth` "
@@ -212,11 +307,68 @@ msgstr ""
 "た、 :file:`spam` はどちらのパス設定ファイルにも記載されていないため、省略さ"
 "れます。"
 
-#: ../../library/site.rst:134
+#: ../../library/site.rst:215
+msgid ""
+"Let's say that there is also a :file:`foo.start` file containing the "
+"following::"
+msgstr ""
+
+#: ../../library/site.rst:218
+msgid ""
+"# foo package startup code\n"
+"\n"
+"foo.submod:initialize"
+msgstr ""
+
+#: ../../library/site.rst:222
+msgid ""
+"Now, after ``sys.path`` has been extended as above, and before Python turns "
+"control over to user code, the ``foo.submod`` module is imported and the "
+"``initialize()`` function from that module is called."
+msgstr ""
+
+#: ../../library/site.rst:230
+msgid "Migrating from ``import`` lines in ``.pth`` files to ``.start`` files"
+msgstr ""
+
+#: ../../library/site.rst:232
+msgid ""
+"If your package currently ships a :file:`{name}.pth` file, you can keep all "
+"``sys.path`` extension lines unchanged.  Only ``import`` lines need to be "
+"migrated."
+msgstr ""
+
+#: ../../library/site.rst:236
+msgid ""
+"To migrate, create a callable (taking zero arguments) within an importable "
+"module in your package.  Reference it as a ``pkg.mod:callable`` entry point "
+"in a matching :file:`{name}.start` file.  Move everything on your ``import`` "
+"line after the first semi-colon into the ``callable()`` function."
+msgstr ""
+
+#: ../../library/site.rst:241
+msgid ""
+"If your package must straddle older Pythons that do not support :pep:`829` "
+"and newer Pythons that do, change the ``import`` lines in your :file:`{name}."
+"pth` to use the following form:"
+msgstr ""
+
+#: ../../library/site.rst:245
+msgid "import pkg.mod; pkg.mod.callable()"
+msgstr ""
+
+#: ../../library/site.rst:249
+msgid ""
+"Older Pythons will execute these ``import`` lines, while newer Pythons will "
+"ignore them in favor of the :file:`{name}.start` file.  After the straddling "
+"period, remove all ``import`` lines from your :file:`.pth` files."
+msgstr ""
+
+#: ../../library/site.rst:255
 msgid ":mod:`!sitecustomize`"
 msgstr ""
 
-#: ../../library/site.rst:138
+#: ../../library/site.rst:259
 msgid ""
 "After these path manipulations, an attempt is made to import a module named :"
 "mod:`!sitecustomize`, which can perform arbitrary site-specific "
@@ -230,11 +382,11 @@ msgid ""
 "perhaps mysterious failure of the process."
 msgstr ""
 
-#: ../../library/site.rst:150
+#: ../../library/site.rst:271
 msgid ":mod:`!usercustomize`"
 msgstr ""
 
-#: ../../library/site.rst:154
+#: ../../library/site.rst:275
 msgid ""
 "After this, an attempt is made to import a module named :mod:`!"
 "usercustomize`, which can perform arbitrary user-specific customizations, "
@@ -246,18 +398,18 @@ msgid ""
 "ignored."
 msgstr ""
 
-#: ../../library/site.rst:162
+#: ../../library/site.rst:283
 msgid ""
 "Note that for some non-Unix systems, ``sys.prefix`` and ``sys.exec_prefix`` "
 "are empty, and the path manipulations are skipped; however the import of :"
 "mod:`sitecustomize` and :mod:`!usercustomize` is still attempted."
 msgstr ""
 
-#: ../../library/site.rst:171
+#: ../../library/site.rst:292
 msgid "Readline configuration"
 msgstr "readline の設定"
 
-#: ../../library/site.rst:173
+#: ../../library/site.rst:294
 msgid ""
 "On systems that support :mod:`readline`, this module will also import and "
 "configure the :mod:`rlcompleter` module, if Python is started in :ref:"
@@ -269,20 +421,20 @@ msgid ""
 "`PYTHONSTARTUP` file."
 msgstr ""
 
-#: ../../library/site.rst:182
+#: ../../library/site.rst:303
 msgid "Activation of rlcompleter and history was made automatic."
 msgstr ""
 "rlcompleter とhistory のアクティベーションが自動で行われるようになりました。"
 
-#: ../../library/site.rst:187
+#: ../../library/site.rst:308
 msgid "Module contents"
 msgstr "モジュールの内容"
 
-#: ../../library/site.rst:191
+#: ../../library/site.rst:312
 msgid "A list of prefixes for site-packages directories."
 msgstr "siteパッケージディレクトリのprefixのリスト。"
 
-#: ../../library/site.rst:196
+#: ../../library/site.rst:317
 msgid ""
 "Flag showing the status of the user site-packages directory.  ``True`` means "
 "that it is enabled and was added to ``sys.path``.  ``False`` means that it "
@@ -297,7 +449,7 @@ msgstr ""
 "はグループIDと実効IDの間のミスマッチ)あるいは管理者によって、ユーザサイトディ"
 "レクトリが無効になっていることを示しています。"
 
-#: ../../library/site.rst:206
+#: ../../library/site.rst:327
 msgid ""
 "Path to the user site-packages for the running Python.  Can be ``None`` if :"
 "func:`getusersitepackages` hasn't been called yet.  Default value is :file:"
@@ -309,7 +461,7 @@ msgid ""
 "files in it will be processed."
 msgstr ""
 
-#: ../../library/site.rst:218
+#: ../../library/site.rst:339
 msgid ""
 "Path to the base directory for the user site-packages.  Can be ``None`` if :"
 "func:`getuserbase` hasn't been called yet.  Default value is :file:`~/."
@@ -328,7 +480,7 @@ msgstr ""
 "ム <sysconfig-user-scheme>` で計算するのに使われます。 :envvar:"
 "`PYTHONUSERBASE` も参照してください。"
 
-#: ../../library/site.rst:230
+#: ../../library/site.rst:351
 msgid ""
 "Adds all the standard site-specific directories to the module search path.  "
 "This function is called automatically when this module is imported, unless "
@@ -338,23 +490,44 @@ msgstr ""
 "Python インタプリタが :option:`-S` で開始されていない限り、このモジュールイン"
 "ポート時に自動的に呼び出されます。"
 
-#: ../../library/site.rst:234
+#: ../../library/site.rst:355
 msgid "This function used to be called unconditionally."
 msgstr "この関数は以前は無条件に呼び出されていました。"
 
-#: ../../library/site.rst:240
+#: ../../library/site.rst:361
 msgid ""
-"Add a directory to sys.path and process its :file:`.pth` files.  Typically "
-"used in :mod:`sitecustomize` or :mod:`usercustomize` (see above)."
+"Add a directory to sys.path and parse the :file:`.pth` and :file:`.start` "
+"files found in that directory.  Typically used in :mod:`sitecustomize` or :"
+"mod:`usercustomize` (see above)."
 msgstr ""
-"sys.path にディレクトリを追加し、その :file:`.pth` ファイル群を処理します。典"
-"型的には :mod:`sitecustomize` か :mod:`usercustomize` 内で使われます(上述)。"
 
-#: ../../library/site.rst:246
+#: ../../library/site.rst:365
+msgid ""
+"The *known_paths* argument is an optional set of case-normalized paths used "
+"to prevent duplicate :data:`sys.path` entries.  When ``None`` (the default), "
+"the set is built from the current :data:`sys.path`."
+msgstr ""
+
+#: ../../library/site.rst:369
+msgid ""
+"While :file:`.pth` and :file:`.start` files are always parsed, set "
+"*defer_processing_start_files* to ``True`` to prevent processing the startup "
+"data found in those files, so that you can process them explicitly (this is "
+"typically used by the :func:`main` function)."
+msgstr ""
+
+#: ../../library/site.rst:376
+msgid ""
+"Also processes :file:`.start` files.  See :ref:`site-start-files`. All :file:"
+"`.pth` and :file:`.start` files are now read and accumulated before any path "
+"extensions, ``import`` line execution, or entry point invocations take place."
+msgstr ""
+
+#: ../../library/site.rst:384
 msgid "Return a list containing all global site-packages directories."
 msgstr "全てのグローバルな site-packages ディレクトリのリストを返します。"
 
-#: ../../library/site.rst:253
+#: ../../library/site.rst:391
 msgid ""
 "Return the path of the user base directory, :data:`USER_BASE`.  If it is not "
 "initialized yet, this function will also set it, respecting :envvar:"
@@ -363,7 +536,7 @@ msgstr ""
 "ユーザのベースディレクトリへのパス :data:`USER_BASE` を返します。未初期化であ"
 "ればこの関数は :envvar:`PYTHONUSERBASE` を参考にして、設定もします。"
 
-#: ../../library/site.rst:262
+#: ../../library/site.rst:400
 msgid ""
 "Return the path of the user-specific site-packages directory, :data:"
 "`USER_SITE`.  If it is not initialized yet, this function will also set it, "
@@ -376,23 +549,23 @@ msgstr ""
 "ユーザ固有の site パッケージが ``sys.path`` に追加されたかどうかを確認するに"
 "は :data:`ENABLE_USER_SITE` を使ってください。"
 
-#: ../../library/site.rst:274
+#: ../../library/site.rst:412
 msgid "Command-line interface"
 msgstr "コマンドライン・インターフェース"
 
-#: ../../library/site.rst:278
+#: ../../library/site.rst:416
 msgid ""
 "The :mod:`!site` module also provides a way to get the user directories from "
 "the command line:"
 msgstr ""
 
-#: ../../library/site.rst:281
+#: ../../library/site.rst:419
 msgid ""
 "$ python -m site --user-site\n"
 "/home/user/.local/lib/python3.11/site-packages"
 msgstr ""
 
-#: ../../library/site.rst:286
+#: ../../library/site.rst:424
 msgid ""
 "If it is called without arguments, it will print the contents of :data:`sys."
 "path` on the standard output, followed by the value of :data:`USER_BASE` and "
@@ -404,15 +577,15 @@ msgstr ""
 "ディレクトリが存在するかどうか、最後に :data:`ENABLE_USER_SITE` の値を、標準"
 "出力に出力します。"
 
-#: ../../library/site.rst:293
+#: ../../library/site.rst:431
 msgid "Print the path to the user base directory."
 msgstr "ユーザのベースディレクトリを表示します。"
 
-#: ../../library/site.rst:297
+#: ../../library/site.rst:435
 msgid "Print the path to the user site-packages directory."
 msgstr "ユーザの site-packages ディレクトリを表示します。"
 
-#: ../../library/site.rst:299
+#: ../../library/site.rst:437
 msgid ""
 "If both options are given, user base and user site will be printed (always "
 "in this order), separated by :data:`os.pathsep`."
@@ -420,7 +593,7 @@ msgstr ""
 "両方のオプションが指定された場合、ユーザのベースとユーザの site が(常にこの順"
 "序で) :data:`os.pathsep` 区切りで表示されます。"
 
-#: ../../library/site.rst:302
+#: ../../library/site.rst:440
 msgid ""
 "If any option is given, the script will exit with one of these values: ``0`` "
 "if the user site-packages directory is enabled, ``1`` if it was disabled by "
@@ -432,11 +605,17 @@ msgstr ""
 "無効にされていれば ``1`` 、セキュリティ的な理由あるいは管理者によって無効にさ"
 "れている場合 ``2`` 、そして何かエラーがあった場合は 2 より大きな値。"
 
-#: ../../library/site.rst:309
+#: ../../library/site.rst:447
 msgid ":pep:`370` -- Per user site-packages directory"
 msgstr ":pep:`370` -- ユーザごとの ``site-packages`` ディレクトリ"
 
-#: ../../library/site.rst:310
+#: ../../library/site.rst:448
+msgid ""
+":pep:`829` -- Startup entry points and the deprecation of import lines in ``."
+"pth`` files"
+msgstr ""
+
+#: ../../library/site.rst:449
 msgid ":ref:`sys-path-init` -- The initialization of :data:`sys.path`."
 msgstr ":ref:`sys-path-init` -- :data:`sys.path`. の初期化。"
 
@@ -448,7 +627,7 @@ msgstr "module"
 msgid "search"
 msgstr "検索"
 
-#: ../../library/site.rst:16 ../../library/site.rst:98
+#: ../../library/site.rst:16 ../../library/site.rst:176
 msgid "path"
 msgstr "パス"
 
@@ -460,30 +639,30 @@ msgstr "site-packages"
 msgid "directory"
 msgstr "ディレクトリ"
 
-#: ../../library/site.rst:69
+#: ../../library/site.rst:70
 msgid "# (hash)"
 msgstr "# (hash)"
 
-#: ../../library/site.rst:69
+#: ../../library/site.rst:70
 msgid "comment"
 msgstr "コメント"
 
-#: ../../library/site.rst:69
+#: ../../library/site.rst:70
 msgid "statement"
 msgstr "statement"
 
-#: ../../library/site.rst:69
+#: ../../library/site.rst:70
 msgid "import"
 msgstr "import"
 
-#: ../../library/site.rst:98
+#: ../../library/site.rst:176
 msgid "package"
 msgstr "package"
 
-#: ../../library/site.rst:98
+#: ../../library/site.rst:176
 msgid "configuration"
 msgstr "設定"
 
-#: ../../library/site.rst:98
+#: ../../library/site.rst:176
 msgid "file"
 msgstr "ファイル"
