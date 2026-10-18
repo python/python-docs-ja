@@ -1,43 +1,48 @@
-# Modification along rffontenelle/python-docs-pt-br
+# Adapted from python/python-docs-pt-br
+# Original (replaced update.yml): https://github.com/python/python-docs-pt-br/blob/main/.github/workflows/sync.yml
 name: Update translations
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '40 23 * * *'
-  #push:
-  #  paths:
-  #    - '.github/workflows/update.yml'
-  #    - 'scripts/update.sh'
-  #  branches:
-  #    - '3.11'
+
+permissions:
+  contents: read
 
 env:
-  CPYTHON_BRANCH: '3.14'
+  CPYTHON_BRANCH: '3.15'
   LANGUAGE: 'ja'
+  TX_CLI_VERSION: '1.6.17'
 
 jobs:
   update:
     # Job to pull translation from Transifex platform, and commit & push changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check out ${{ github.repository }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CPYTHON_BRANCH }}
       - name: Check out CPython
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: python/cpython
           persist-credentials: false
           ref: ${{ env.CPYTHON_BRANCH }}
           path: cpython
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
+          python-version: ${{ env.CPYTHON_BRANCH }}
+          allow-prereleases: true
           cache: 'pip'
           cache-dependency-path: '**/requirements*.txt'
       - name: Install Transifex CLI
         run: |
-          curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+          curl -fsSL https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash -s -- "v${TX_CLI_VERSION}"
         working-directory: /usr/local/bin
       - name: Install dependencies
         run: |
@@ -69,24 +74,30 @@ jobs:
     needs: [update]
     strategy:
       matrix:
-        branch: [ "3.13", "3.12", "3.11" ]
+        branch: [ "3.14", "3.13", "3.12", "3.11" ]
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check out source branch (${{ env.CPYTHON_BRANCH }})
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ env.CPYTHON_BRANCH }}
           path: ${{ env.CPYTHON_BRANCH }}
+          persist-credentials: false
 
       - name: Check out target branch (${{ matrix.branch }})
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ matrix.branch }}
           path: ${{ matrix.branch }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
+          python-version: ${{ env.CPYTHON_BRANCH }}
+          allow-prereleases: true
           cache: 'pip'
           cache-dependency-path: '**/requirements*.txt'
 
@@ -96,7 +107,9 @@ jobs:
           pip install pomerge powrap
 
       - name: Merge overwriting on stable release branch
+        shell: bash
         run: |
+          shopt -s globstar nullglob
           pomerge --from "${{ env.CPYTHON_BRANCH }}"/**/*.po --to "${{ matrix.branch }}"/**/*.po
 
       - name: Wrap catalog message files
@@ -112,4 +125,3 @@ jobs:
           git status
           git add -A
           git diff-index --quiet HEAD || ( git commit -m "Merge ${{ env.CPYTHON_BRANCH }} into ${{ matrix.branch }}" && git push )
-
