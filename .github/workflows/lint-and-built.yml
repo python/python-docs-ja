@@ -9,31 +9,29 @@ on:
     - cron: '34 12 * * SAT'
   push:
     branches:
-      - '*'
+      - '3.15'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+env:
+  CPYTHON_BRANCH: '3.15'
+
 jobs:
   build-translation:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        version: [ '3.15', '3.14', '3.13' ]
-        format: [ html ]
     steps:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.version }}
+          python-version: ${{ env.CPYTHON_BRANCH }}
           allow-prereleases: true
       - name: Check out CPython
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: python/cpython
-          ref: ${{ matrix.version }}
+          ref: ${{ env.CPYTHON_BRANCH }}
           persist-credentials: false
       - name: Install uv for CPython's locked documentation dependencies
         run: python -m pip install uv
@@ -44,39 +42,35 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Check the triggering commit when it belongs to this version.
-          ref: ${{ matrix.version == github.ref_name && github.sha || matrix.version }}
+          ref: ${{ env.CPYTHON_BRANCH == github.ref_name && github.sha || env.CPYTHON_BRANCH }}
           path: Doc/locales/ja/LC_MESSAGES
           persist-credentials: false
       - uses: sphinx-doc/github-problem-matcher@1f74d6599f4a5e89a20d3c99aab4e6a70f7bda0f # v1.1
       - name: Build Japanese documentation
-        run: make -e SPHINXOPTS="--color -D language=ja -W --keep-going" ${{ matrix.format }}
+        run: make -e SPHINXOPTS="--color -D language=ja -W --keep-going" html
         working-directory: ./Doc
       - name: Upload documentation
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: success() || failure()
         with:
-          name: build-${{ matrix.version }}-${{ matrix.format }}
-          path: Doc/build/${{ matrix.format }}
+          name: build-${{ env.CPYTHON_BRANCH }}-html
+          path: Doc/build/html
 
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        version: [ '3.15', '3.14', '3.13' ]
     continue-on-error: true
     steps:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.version }}
+          python-version: ${{ env.CPYTHON_BRANCH }}
           allow-prereleases: true
       - name: Install sphinx-lint
         run: python -m pip install sphinx-lint
       - name: Check out translations
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ matrix.version == github.ref_name && github.sha || matrix.version }}
+          ref: ${{ env.CPYTHON_BRANCH == github.ref_name && github.sha || env.CPYTHON_BRANCH }}
           persist-credentials: false
       - uses: rffontenelle/sphinx-lint-problem-matcher@4270bf50b2c93640a7cbb231c09f8e694699af9f # v1.0.0
       - run: sphinx-lint
