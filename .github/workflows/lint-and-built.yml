@@ -1,5 +1,7 @@
-# From python-docs-translations/transifex-automations
-# Orignals: https://github.com/python-docs-translations/transifex-automations/tree/main/sample-workflows
+# Adapted from python-docs-translations/transifex-automations
+# Originals (reviewed at f7ac74cc364ac066273d13755e9943db13f49206):
+# https://github.com/python-docs-translations/transifex-automations/blob/main/sample-workflows/po-lint.yml
+# https://github.com/python-docs-translations/transifex-automations/blob/main/sample-workflows/test-build.yml
 name: Linting and Building Workflow
 
 on:
@@ -19,28 +21,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [ '3.14', '3.13' ]
+        version: [ '3.15', '3.14', '3.13' ]
         format: [ html ]
     steps:
-      - uses: actions/setup-python@master
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: 3.12  # pinned for Sphinx 3.4.3 to build 3.10
-      - uses: actions/checkout@master
+          python-version: ${{ matrix.version }}
+          allow-prereleases: true
+      - name: Check out CPython
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: python/cpython
           ref: ${{ matrix.version }}
-      - run: make venv
+          persist-credentials: false
+      - name: Install uv for CPython's locked documentation dependencies
+        run: python -m pip install uv
+      - name: Create documentation environment
+        run: make venv PYTHON=python
         working-directory: ./Doc
-      - uses: actions/checkout@master
+      - name: Check out translations
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ matrix.version }}
+          # Check the triggering commit when it belongs to this version.
+          ref: ${{ matrix.version == github.ref_name && github.sha || matrix.version }}
           path: Doc/locales/ja/LC_MESSAGES
-      - run: git pull
-        working-directory: ./Doc/locales/ja/LC_MESSAGES
-      - uses: sphinx-doc/github-problem-matcher@v1.1
-      - run: make -e SPHINXOPTS="--color -D language='ja' -W --keep-going" ${{ matrix.format }}
+          persist-credentials: false
+      - uses: sphinx-doc/github-problem-matcher@1f74d6599f4a5e89a20d3c99aab4e6a70f7bda0f # v1.1
+      - name: Build Japanese documentation
+        run: make -e SPHINXOPTS="--color -D language=ja -W --keep-going" ${{ matrix.format }}
         working-directory: ./Doc
-      - uses: actions/upload-artifact@master
+      - name: Upload documentation
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: success() || failure()
         with:
           name: build-${{ matrix.version }}-${{ matrix.format }}
@@ -51,15 +63,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [ '3.14', '3.13' ]
+        version: [ '3.15', '3.14', '3.13' ]
     continue-on-error: true
     steps:
-      - uses: actions/setup-python@master
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: 3
-      - run: pip install sphinx-lint
-      - uses: actions/checkout@master
+          python-version: ${{ matrix.version }}
+          allow-prereleases: true
+      - name: Install sphinx-lint
+        run: python -m pip install sphinx-lint
+      - name: Check out translations
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ matrix.version }}
-      - uses: rffontenelle/sphinx-lint-problem-matcher@v1.0.0
+          ref: ${{ matrix.version == github.ref_name && github.sha || matrix.version }}
+          persist-credentials: false
+      - uses: rffontenelle/sphinx-lint-problem-matcher@4270bf50b2c93640a7cbb231c09f8e694699af9f # v1.0.0
       - run: sphinx-lint
