@@ -4,8 +4,53 @@ import argparse
 import configparser
 import os
 from pathlib import Path, PurePosixPath
+import re
 import shutil
 import subprocess
+
+
+def without_po_timestamps(content):
+    """Ignore date fields in the PO header, preserving every other byte."""
+    header = re.search(
+        rb'^msgid ""\r?\nmsgstr "[^\r\n]*"\r?\n(?:"[^\r\n]*"\r?\n)*',
+        content, re.MULTILINE,
+    )
+    if header is None:
+        return content
+    normalized = re.sub(
+        rb'^"(?:POT-Creation-Date|PO-Revision-Date):[^"\r\n]*\\n"\r?\n',
+        b'', header.group(), flags=re.MULTILINE,
+    )
+    return content[:header.start()] + normalized + content[header.end():]
+
+
+def restore_timestamp_only_changes(root):
+    """Restore PO files whose unstaged changes only affect header dates.
+
+    Run after wrapping, so formatting differences in downloaded or merged files
+    do not prevent timestamp-only changes from being recognized.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(root), "diff", "--name-only", "-z", "--", "*.po"],
+        check=True, stdout=subprocess.PIPE,
+    )
+    for name in result.stdout.split(b"\0"):
+        if not name:
+            continue
+        path = os.fsdecode(name)
+        target = root / path
+        if not target.is_file():
+            continue
+        original = subprocess.run(
+            ["git", "-C", str(root), "show", f":{path}"],
+            check=True, stdout=subprocess.PIPE,
+        ).stdout
+        if (
+            without_po_timestamps(target.read_bytes())
+            == without_po_timestamps(original)
+        ):
+            target.write_bytes(original)
+            print(f"Ignored timestamp-only change: {path}")
 
 
 def active_catalogs(config_path):
@@ -89,11 +134,15 @@ def main():
     merge_parser = commands.add_parser("merge")
     merge_parser.add_argument("source", type=Path)
     merge_parser.add_argument("destination", type=Path)
+    restore_parser = commands.add_parser("restore-timestamp-only")
+    restore_parser.add_argument("root", type=Path)
     args = parser.parse_args()
     if args.command == "sync":
         sync(args.source, args.destination, args.language)
-    else:
+    elif args.command == "merge":
         merge(args.source, args.destination)
+    else:
+        restore_timestamp_only_changes(args.root)
 
 
 if __name__ == "__main__":

@@ -49,6 +49,8 @@ jobs:
           sudo apt-get update -y && sudo apt-get install gettext -y
           pip install --upgrade pip
           pip install -r requirements.txt -r cpython/Doc/requirements.txt
+      - name: Test translation tooling
+        run: python -B -m unittest discover -s tests
       - name: Update translations
         run: |
           sh scripts/update.sh
@@ -58,6 +60,8 @@ jobs:
       - name: Wrap catalog message files
         run: |
           powrap --modified
+      - name: Ignore timestamp-only changes
+        run: python scripts/translations.py restore-timestamp-only .
       - name: Commit and push changes
         if: github.repository == 'python/python-docs-ja'
         run: |
@@ -113,6 +117,8 @@ jobs:
       - name: Wrap catalog message files
         run: |
           powrap --modified -C "${{ matrix.branch }}"
+      - name: Ignore timestamp-only changes
+        run: python "${{ env.CPYTHON_BRANCH }}/scripts/translations.py" restore-timestamp-only "${{ matrix.branch }}"
 
       - name: Commit and push changes
         if: github.repository == 'python/python-docs-ja'
