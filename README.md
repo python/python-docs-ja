@@ -70,6 +70,8 @@ AI Agent に PO ファイルの翻訳と差分の作成を依頼し、人が Mar
 
 `scripts/po_review.py` は PO の差分を原文・変更前・変更後を並べた
 Markdown に変換します。PO ファイルや Git のインデックスは変更しません。
+各ファイルの見出しの下には、`docs.python.org` の公開日本語ドキュメントへのリンクも表示します。
+リンク先の Python バージョンは比較対象の PO ヘッダーから取得し、判別できない場合は `3` を使います。
 実行には Python と `polib` が必要です（`python -m pip install polib`、
 または既存の `requirements.txt` でインストールできます）。
 

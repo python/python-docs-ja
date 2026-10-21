@@ -141,6 +141,24 @@ class GitReportTests(unittest.TestCase):
         self.assertIn("追加した訳", selected)
         self.assertNotIn("a file", selected)
 
+    def test_documentation_link_uses_version_from_selected_snapshot(self):
+        self.write("ステージの訳")
+        po = polib.pofile(str(self.path))
+        po.metadata["Project-Id-Version"] = "Python 3.14"
+        po.save()
+        self.git("add", ".")
+        po.metadata["Project-Id-Version"] = "Python 3.15"
+        po[0].msgstr = "作業中の訳"
+        po.save()
+        staged = po_review.report(self.root, cached=True)
+        worktree = po_review.report(self.root, base="HEAD")
+        self.assertIn(
+            "[日本語ドキュメント（公開版）](https://docs.python.org/ja/3.14/a%20file.html)",
+            staged,
+        )
+        self.assertIn("https://docs.python.org/ja/3.15/a%20file.html", worktree)
+        self.assertNotIn("https://docs.python.org/ja/3.15/", staged)
+
     def test_no_changes_and_fuzzy_only_change(self):
         self.assertIn("変更はありません", po_review.report(self.root))
         self.path.write_bytes(catalog(dict(msgid="Example", msgstr="元の訳", flags=["fuzzy"])))

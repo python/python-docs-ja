@@ -117,6 +117,16 @@ def status(entry):
     return "翻訳済み" if entry.translated() else "未翻訳"
 
 
+def documentation_url(path, data):
+    encoding = polib.detect_encoding(data)
+    catalog = polib.pofile(data.decode(encoding), encoding=encoding)
+    project = catalog.metadata.get("Project-Id-Version", "")
+    match = re.search(r"\bPython\s+(\d+\.\d+)\b", project)
+    version = match[1] if match else "3"
+    page = quote(Path(path).with_suffix(".html").as_posix(), safe="/")
+    return f"https://docs.python.org/ja/{version}/{page}"
+
+
 def render_entry(path, old, new, number, link):
     entry = new if new is not None else old
     identity = json.dumps([path, entry.msgctxt, entry.msgid], ensure_ascii=False)
@@ -175,12 +185,16 @@ def report(root, *, cached=False, base=None, paths=(), output_dir=None):
             raise ValueError(f"Unsupported file change {change}: {path}")
         old_ref = "HEAD" if cached else revision or ""
         before = entries(None if change == "A" else git(root, "show", f"{old_ref}:{path}"))
-        after = entries(git(root, "show", f":{path}") if cached else (root / path).read_bytes())
+        after_data = git(root, "show", f":{path}") if cached else (root / path).read_bytes()
+        after = entries(after_data)
         modified = list(changes(before, after))
         if not modified:
             continue
         link = quote(Path(os.path.relpath(root / path, output_dir or root)).as_posix(), safe="/")
-        section = ["## " + escape(path), ""]
+        section = [
+            "## " + escape(path), "",
+            f"[日本語ドキュメント（公開版）]({documentation_url(path, after_data)})", "",
+        ]
         for old, new in modified:
             count += 1
             section.append(render_entry(path, old, new, count, link))
