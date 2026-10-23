@@ -35,4 +35,6 @@ sphinx-intl update-txconfig-resources -p pot -d . --transifex-organization-name 
 tx pull -l "${LANGUAGE}" -t --use-git-timestamps
 
 # Validate the download before copying catalogs or removing obsolete files.
-python "${ROOTDIR}/scripts/translations.py" sync "${WORKDIR}" "${ROOTDIR}" --language "${LANGUAGE}"
+# Newly generated POTs may not have a Transifex resource yet.
+python "${ROOTDIR}/scripts/translations.py" sync "${WORKDIR}" "${ROOTDIR}" \
+  --language "${LANGUAGE}" --skip-missing-resources

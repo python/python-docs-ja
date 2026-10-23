@@ -7,6 +7,9 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
+from urllib.error import HTTPError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
 
 
 def without_po_timestamps(content):
@@ -86,14 +89,56 @@ def require_catalogs(root, catalogs):
         raise FileNotFoundError(f"Missing PO catalogs in {root}: {', '.join(missing)}")
 
 
-def sync(source, destination, language):
+def resource_exists(resource):
+    """Only a resource-level 404 permits skipping an absent download."""
+    request = Request(
+        "https://rest.api.transifex.com/resources/" + quote(resource, safe=":"),
+        headers={"Authorization": f"Bearer {os.environ['TX_TOKEN']}"},
+    )
+    try:
+        with urlopen(request, timeout=30):
+            return True
+    except HTTPError as error:
+        error.close()
+        if error.code == 404:
+            return False
+        raise
+
+
+def sync(source, destination, language, *, skip_missing_resources=False):
     config = source / ".tx/config"
     catalogs = active_catalogs(config)
     downloaded = source / language / "LC_MESSAGES"
-    require_catalogs(downloaded, catalogs)
+    skipped = set()
+    filtered_config = configparser.ConfigParser(interpolation=None)
+    if skip_missing_resources:
+        filtered_config.read(config, encoding="utf-8")
+        # Check every missing download before modifying the repository. Missing
+        # translations of existing resources (or API errors) must still fail.
+        for section in filtered_config.sections():
+            if section == "main":
+                continue
+            path = Path(PurePosixPath(
+                filtered_config[section]["source_file"]
+            ).relative_to("pot").with_suffix(".po"))
+            if not (downloaded / path).is_file() and not resource_exists(section):
+                skipped.add(path)
+                if not (destination / path).is_file():
+                    filtered_config.remove_section(section)
+                print(f"Skipped unavailable Transifex resource: {section} ({path})")
+    incoming = [path for path in catalogs if path not in skipped]
+    require_catalogs(downloaded, incoming)
+    if not incoming:
+        raise ValueError("No PO catalogs downloaded; refusing to sync")
+    # Keep existing translations of temporarily unavailable resources. New
+    # resources without a PO must not enter the config used by the merge job.
+    catalogs = [
+        path for path in catalogs
+        if path not in skipped or (destination / path).is_file()
+    ]
     obsolete = set(tracked_catalogs(destination)) - set(catalogs)
 
-    for path in catalogs:
+    for path in incoming:
         target = destination / path
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(downloaded / path, target)
@@ -101,7 +146,11 @@ def sync(source, destination, language):
         (destination / path).unlink(missing_ok=True)
         print(f"Removed obsolete catalog: {path}")
     (destination / ".tx").mkdir(exist_ok=True)
-    shutil.copyfile(config, destination / ".tx/config")
+    if skipped:
+        with (destination / ".tx/config").open("w", encoding="utf-8") as stream:
+            filtered_config.write(stream)
+    else:
+        shutil.copyfile(config, destination / ".tx/config")
 
 
 def merge(source, destination):
@@ -131,6 +180,10 @@ def main():
     sync_parser.add_argument("source", type=Path)
     sync_parser.add_argument("destination", type=Path)
     sync_parser.add_argument("--language", default="ja")
+    sync_parser.add_argument(
+        "--skip-missing-resources", action="store_true",
+        help="skip missing downloads only for resources returning 404",
+    )
     merge_parser = commands.add_parser("merge")
     merge_parser.add_argument("source", type=Path)
     merge_parser.add_argument("destination", type=Path)
@@ -138,7 +191,8 @@ def main():
     restore_parser.add_argument("root", type=Path)
     args = parser.parse_args()
     if args.command == "sync":
-        sync(args.source, args.destination, args.language)
+        sync(args.source, args.destination, args.language,
+             skip_missing_resources=args.skip_missing_resources)
     elif args.command == "merge":
         merge(args.source, args.destination)
     else:

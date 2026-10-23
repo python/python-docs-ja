@@ -5,6 +5,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
+from urllib.error import HTTPError, URLError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import translations
@@ -190,6 +192,105 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(before, old.read_bytes())
         self.assertEqual(config_before, (self.destination / ".tx/config").read_bytes())
         self.assertFalse((self.destination / "builtins/functions.po").exists())
+
+    def test_sync_skips_unregistered_resource_and_picks_it_up_later(self):
+        catalogs = ["bugs.po", "c-api/pyexpat.po"]
+        write_config(self.source, catalogs)
+        download = self.source / "ja/LC_MESSAGES"
+        write_po(download, "bugs.po", "新しい訳")
+        obsolete = write_po(self.destination, "removed.po", "古い訳")
+        self.track()
+
+        with mock.patch.object(translations, "resource_exists", return_value=False) as exists:
+            translations.sync(self.source, self.destination, "ja",
+                              skip_missing_resources=True)
+        exists.assert_called_once_with("resource1")
+        self.assertFalse(obsolete.exists())
+        self.assertFalse((self.destination / "c-api/pyexpat.po").exists())
+        self.assertEqual(translations.active_catalogs(self.destination / ".tx/config"),
+                         [Path("bugs.po")])
+        translations.require_catalogs(
+            self.destination, translations.active_catalogs(self.destination / ".tx/config")
+        )
+        # The generated source config remains complete for subsequent runs.
+        self.assertEqual(translations.active_catalogs(self.source / ".tx/config"),
+                         [Path(path) for path in catalogs])
+        write_po(download, "c-api/pyexpat.po", "追加された訳")
+        with mock.patch.object(translations, "resource_exists") as exists:
+            translations.sync(self.source, self.destination, "ja",
+                              skip_missing_resources=True)
+        exists.assert_not_called()
+        self.assertEqual((download / "c-api/pyexpat.po").read_bytes(),
+                         (self.destination / "c-api/pyexpat.po").read_bytes())
+
+    def test_sync_preserves_existing_po_for_unavailable_resource(self):
+        catalogs = ["bugs.po", "c-api/pyexpat.po"]
+        write_config(self.source, catalogs)
+        write_po(self.source / "ja/LC_MESSAGES", "bugs.po", "新しい訳")
+        old = write_po(self.destination, "c-api/pyexpat.po", "既存の訳")
+        self.track()
+        before = old.read_bytes()
+        with mock.patch.object(translations, "resource_exists", return_value=False):
+            translations.sync(self.source, self.destination, "ja",
+                              skip_missing_resources=True)
+        self.assertEqual(old.read_bytes(), before)
+        self.assertEqual(translations.active_catalogs(self.destination / ".tx/config"),
+                         [Path(path) for path in catalogs])
+
+    def test_skip_does_not_hide_incomplete_download_or_api_failure(self):
+        write_config(self.source, ["bugs.po", "new.po", "missing.po"])
+        write_po(self.source / "ja/LC_MESSAGES", "bugs.po", "新しい訳")
+        write_config(self.destination, ["old.po"])
+        old = write_po(self.destination, "old.po", "既存の訳")
+        self.track()
+        before = old.read_bytes()
+        config_before = (self.destination / ".tx/config").read_bytes()
+        for outcome, error in [(True, FileNotFoundError),
+                               (URLError("offline"), URLError)]:
+            with self.subTest(outcome=outcome):
+                with mock.patch.object(translations, "resource_exists",
+                                       side_effect=[False, outcome]):
+                    with self.assertRaises(error):
+                        translations.sync(self.source, self.destination, "ja",
+                                          skip_missing_resources=True)
+                self.assertEqual(old.read_bytes(), before)
+                self.assertEqual((self.destination / ".tx/config").read_bytes(),
+                                 config_before)
+                self.assertFalse((self.destination / "bugs.po").exists())
+
+    def test_skip_refuses_empty_download(self):
+        write_config(self.source, ["new.po"])
+        old = write_po(self.destination, "old.po", "既存の訳")
+        self.track()
+        with mock.patch.object(translations, "resource_exists", return_value=False):
+            with self.assertRaisesRegex(ValueError, "No PO catalogs downloaded"):
+                translations.sync(self.source, self.destination, "ja",
+                                  skip_missing_resources=True)
+        self.assertTrue(old.exists())
+        self.assertFalse((self.destination / ".tx/config").exists())
+
+    def test_resource_exists_only_skips_404(self):
+        resource = "o:python-doc:p:python-newest:r:c-api--pyexpat"
+        with mock.patch.dict(translations.os.environ, {"TX_TOKEN": "test-token"}):
+            with mock.patch.object(translations, "urlopen") as open_url:
+                self.assertTrue(translations.resource_exists(resource))
+                request = open_url.call_args.args[0]
+                self.assertEqual(request.full_url,
+                                 "https://rest.api.transifex.com/resources/" + resource)
+                self.assertEqual(request.get_header("Authorization"), "Bearer test-token")
+                self.assertEqual(open_url.call_args.kwargs, {"timeout": 30})
+            for code in [404, 401, 403, 429, 500]:
+                with self.subTest(code=code):
+                    error = HTTPError("https://rest.api.transifex.com/", code, "error", {}, None)
+                    with mock.patch.object(translations, "urlopen", side_effect=error):
+                        if code == 404:
+                            self.assertFalse(translations.resource_exists(resource))
+                        else:
+                            with self.assertRaises(HTTPError):
+                                translations.resource_exists(resource)
+            with mock.patch.object(translations, "urlopen", side_effect=TimeoutError):
+                with self.assertRaises(TimeoutError):
+                    translations.resource_exists(resource)
 
     def test_empty_config_does_not_delete_catalogs(self):
         write_config(self.source, [])
