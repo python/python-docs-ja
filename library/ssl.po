@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-01 19:07+0000\n"
+"POT-Creation-Date: 2026-10-23 18:01+0000\n"
 "PO-Revision-Date: 2025-09-16 00:01+0000\n"
 "Last-Translator: python-doc bot, 2025\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -1774,10 +1774,22 @@ msgid ""
 "disabled method acts the same as :meth:`~SSLSocket.get_unverified_chain`."
 msgstr ""
 
+msgid ""
+"The verified chain is not stored with a session, so the list is empty when "
+"the session is resumed (see :attr:`~SSLSocket.session_reused`)."
+msgstr ""
+
 #: ../../library/ssl.rst:1291
 msgid ""
 "Returns raw certificate chain provided by the other end of the SSL channel "
 "as a list of DER-encoded bytes."
+msgstr ""
+
+msgid ""
+"No certificates are exchanged when a session is resumed (see :attr:"
+"`~SSLSocket.session_reused`); the list then holds what was stored with the "
+"session, which for a session resumed from a ticket on the server side is the "
+"peer's own certificate only."
 msgstr ""
 
 #: ../../library/ssl.rst:1298
@@ -3083,7 +3095,6 @@ msgid ""
 "method."
 msgstr ""
 
-#: ../../library/ssl.rst:2217
 msgid ""
 "The parameter ``callback`` is a callable object with the signature: ``def "
 "callback(hint: str | None) -> tuple[str | None, bytes]``. The ``hint`` "
@@ -3092,14 +3103,15 @@ msgid ""
 "optional string which may be used by the server to select a corresponding "
 "PSK for the client. The string must be less than or equal to ``256`` octets "
 "when UTF-8 encoded. PSK is a :term:`bytes-like object` representing the pre-"
-"shared key. Return a zero length PSK to reject the connection."
+"shared key. With TLS 1.2 and earlier, return a zero length PSK to reject the "
+"connection."
 msgstr ""
 
 #: ../../library/ssl.rst:2227 ../../library/ssl.rst:2273
 msgid "Setting ``callback`` to :const:`None` removes any existing callback."
 msgstr ""
 
-#: ../../library/ssl.rst:2230
+#: ../../library/ssl.rst:2238 ../../library/ssl.rst:2299
 msgid "When using TLS 1.3:"
 msgstr ""
 
@@ -3111,15 +3123,33 @@ msgstr ""
 msgid "client-identity must be a non-empty string."
 msgstr ""
 
+msgid ""
+"the PSK is only offered to the server, which may decline it and authenticate "
+"with a certificate instead.  That certificate is checked according to :attr:"
+"`~SSLContext.verify_mode`, so a client relying on the PSK to authenticate "
+"the server should not set it to :const:`CERT_NONE`, or should check :attr:"
+"`SSLSocket.session_reused`, which is true if the PSK was used.  A PSK "
+"handshake does not need any CA certificates to be loaded when using :const:"
+"`CERT_REQUIRED`."
+msgstr ""
+
+msgid ""
+"a zero length PSK does not reject the connection, it only means that no PSK "
+"is offered.  An exception raised by the callback has the same effect."
+msgstr ""
+
+msgid ""
+"the PSK is used with the SHA-256 handshake digest, so a server can only "
+"accept it with a cipher suite that uses SHA-256."
+msgstr ""
+
 #: ../../library/ssl.rst:2235 ../../library/ssl.rst:2282
 msgid "Example usage::"
 msgstr "使用例::"
 
-#: ../../library/ssl.rst:2237
 msgid ""
 "context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)\n"
 "context.check_hostname = False\n"
-"context.verify_mode = ssl.CERT_NONE\n"
 "context.maximum_version = ssl.TLSVersion.TLSv1_2\n"
 "context.set_ciphers('PSK')\n"
 "\n"
@@ -3147,14 +3177,13 @@ msgid ""
 "Enables TLS-PSK (pre-shared key) authentication on a server-side connection."
 msgstr ""
 
-#: ../../library/ssl.rst:2266
 msgid ""
 "The parameter ``callback`` is a callable object with the signature: ``def "
 "callback(identity: str | None) -> bytes``. The ``identity`` parameter is an "
 "optional identity sent by the client which can be used to select a "
 "corresponding PSK. The return value is a :term:`bytes-like object` "
-"representing the pre-shared key. Return a zero length PSK to reject the "
-"connection."
+"representing the pre-shared key. With TLS 1.2 and earlier, return a zero "
+"length PSK to reject the connection."
 msgstr ""
 
 #: ../../library/ssl.rst:2275
@@ -3164,9 +3193,22 @@ msgid ""
 "UTF-8 encoded."
 msgstr ""
 
-#: ../../library/ssl.rst:2280
+msgid "the ``identity_hint`` parameter is not sent to the client."
+msgstr ""
+
 msgid ""
-"When using TLS 1.3 the ``identity_hint`` parameter is not sent to the client."
+"a zero length PSK, or an exception raised by the callback, only declines the "
+"client's PSK.  If a certificate was loaded with :meth:`~SSLContext."
+"load_cert_chain`, the handshake continues with certificate authentication "
+"instead of failing, so a server relying on the PSK to authenticate clients "
+"should not load one, or should check :attr:`SSLSocket.session_reused`, which "
+"is true if the PSK was used."
+msgstr ""
+
+msgid ""
+"the PSK can only be accepted with a cipher suite that uses SHA-256. When a "
+"certificate is loaded, OpenSSL's default TLS 1.3 cipher suite order selects "
+"a SHA-384 suite instead, so the PSK is declined even if it matches."
 msgstr ""
 
 #: ../../library/ssl.rst:2284
