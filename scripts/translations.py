@@ -27,33 +27,95 @@ def without_po_timestamps(content):
     return content[:header.start()] + normalized + content[header.end():]
 
 
-def restore_timestamp_only_changes(root):
+def po_references(content):
+    """Locate reference comments without reserializing the PO file."""
+    import polib
+
+    lines = content.splitlines(keepends=True)
+    encoding = polib.detect_encoding(content)
+    entries = polib.pofile(content.decode(encoding), encoding=encoding)
+    references = {}
+    for index, entry in enumerate(entries):
+        if entry.obsolete:
+            continue
+        end = entries[index + 1].linenum - 1 if index + 1 < len(entries) else len(lines)
+        positions = [
+            pos for pos in range(entry.linenum - 1, end)
+            if lines[pos].startswith(b"#:")
+        ]
+        key = (entry.msgctxt, entry.msgid, entry.msgid_plural)
+        references[key] = (entry, positions)
+    return lines, references
+
+
+def normalize_po_references(original, incoming):
+    """Drop references for new/changed messages; ignore line-number updates."""
+    old_lines, old_references = po_references(original)
+    lines, references = po_references(incoming)
+    for key, (entry, positions) in references.items():
+        if not positions:
+            continue
+        old_entry, old_positions = old_references.get(key, (None, []))
+        if old_entry is None:
+            changed = True
+        else:
+            changed = (entry.msgstr, entry.msgstr_plural) != (old_entry.msgstr, old_entry.msgstr_plural)
+        if changed or (old_entry is not None and not old_positions):
+            for pos in positions:
+                lines[pos] = b''
+            continue
+        # Keep added/removed references and file renames for unchanged translations.
+        if not old_positions or (
+            [path for path, _ in entry.occurrences]
+            != [path for path, _ in old_entry.occurrences]
+        ):
+            continue
+        lines[positions[0]] = b"".join(old_lines[pos] for pos in old_positions)
+        for pos in positions[1:]:
+            lines[pos] = b""
+    return b"".join(lines)
+
+
+def restore_timestamp_only_changes(root, *, normalize_references=False):
     """Restore PO files whose unstaged changes only affect header dates.
 
-    Run after wrapping, so formatting differences in downloaded or merged files
-    do not prevent timestamp-only changes from being recognized.
+    Optionally drop references for new/changed messages and restore other line numbers.
+    Run after wrapping so formatting differences do not mask date-only changes.
     """
     result = subprocess.run(
         ["git", "-C", str(root), "diff", "--name-only", "-z", "--", "*.po"],
         check=True, stdout=subprocess.PIPE,
     )
-    for name in result.stdout.split(b"\0"):
+    names = result.stdout.split(b"\0")
+    untracked = set()
+    if normalize_references:
+        untracked = set(subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--others", "--exclude-standard",
+             "-z", "--", "*.po"], check=True, stdout=subprocess.PIPE,
+        ).stdout.split(b"\0"))
+        names.extend(sorted(untracked))
+    for name in names:
         if not name:
             continue
         path = os.fsdecode(name)
         target = root / path
         if not target.is_file():
             continue
-        original = subprocess.run(
+        original = b"" if name in untracked else subprocess.run(
             ["git", "-C", str(root), "show", f":{path}"],
             check=True, stdout=subprocess.PIPE,
         ).stdout
-        if (
-            without_po_timestamps(target.read_bytes())
-            == without_po_timestamps(original)
-        ):
-            target.write_bytes(original)
+        incoming = target.read_bytes()
+        restored = incoming
+        if normalize_references:
+            restored = normalize_po_references(original, restored)
+            if restored != incoming:
+                print(f"Normalized PO references: {path}")
+        if without_po_timestamps(restored) == without_po_timestamps(original):
+            restored = original
             print(f"Ignored timestamp-only change: {path}")
+        if restored != incoming:
+            target.write_bytes(restored)
 
 
 def active_catalogs(config_path):
@@ -183,6 +245,10 @@ def main():
     merge_parser.add_argument("destination", type=Path)
     restore_parser = commands.add_parser("restore-timestamp-only")
     restore_parser.add_argument("root", type=Path)
+    restore_parser.add_argument(
+        "--references", action="store_true",
+        help="drop references for new/changed messages and ignore other line-number updates",
+    )
     args = parser.parse_args()
     if args.command == "sync":
         sync(args.source, args.destination, args.language,
@@ -190,7 +256,7 @@ def main():
     elif args.command == "merge":
         merge(args.source, args.destination)
     else:
-        restore_timestamp_only_changes(args.root)
+        restore_timestamp_only_changes(args.root, normalize_references=args.references)
 
 
 if __name__ == "__main__":

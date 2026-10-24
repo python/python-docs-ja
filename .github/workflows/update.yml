@@ -60,8 +60,8 @@ jobs:
       - name: Wrap catalog message files
         run: |
           powrap --modified
-      - name: Ignore timestamp-only changes
-        run: python scripts/translations.py restore-timestamp-only .
+      - name: Normalize PO references and ignore timestamp-only changes
+        run: python scripts/translations.py restore-timestamp-only --references .
       - name: Commit and push changes
         if: github.repository == 'python/python-docs-ja'
         run: |
@@ -108,7 +108,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y && sudo apt-get install gettext -y
-          pip install pomerge powrap
+          pip install pomerge powrap 'polib>=1.2.0'
 
       - name: Merge overwriting on stable release branch
         run: |
@@ -117,8 +117,8 @@ jobs:
       - name: Wrap catalog message files
         run: |
           powrap --modified -C "${{ matrix.branch }}"
-      - name: Ignore timestamp-only changes
-        run: python "${{ env.CPYTHON_BRANCH }}/scripts/translations.py" restore-timestamp-only "${{ matrix.branch }}"
+      - name: Normalize PO references and ignore timestamp-only changes
+        run: python "${{ env.CPYTHON_BRANCH }}/scripts/translations.py" restore-timestamp-only --references "${{ matrix.branch }}"
 
       - name: Commit and push changes
         if: github.repository == 'python/python-docs-ja'

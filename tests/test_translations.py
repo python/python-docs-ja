@@ -150,6 +150,114 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual((self.destination / "translated.po").read_bytes(), translated)
         self.assertEqual((self.destination / "library/with space.po").read_bytes(), DATED_PO)
 
+    def test_normalize_references_and_dates_before_staging(self):
+        for newline in (b"\n", b"\r\n"):
+            with self.subTest(newline=newline):
+                before = DATED_PO.replace(b"\n", newline)
+                changed = before.replace(b"example.rst:10", b"example.rst:200")
+                changed = changed.replace(b"2026-09-29", b"2026-10-24")
+                for name in ("unchanged.po", "translated.po", "deleted.po"):
+                    (self.destination / name).write_bytes(before)
+                self.track()
+                (self.destination / "unchanged.po").write_bytes(changed)
+                (self.destination / "translated.po").write_bytes(
+                    changed.replace('翻訳'.encode(), '新しい訳'.encode())
+                )
+                (self.destination / "deleted.po").unlink()
+                new = self.destination / ("new-crlf.po" if newline == b"\r\n" else "new-lf.po")
+                new.write_bytes(changed)
+                subprocess.run(
+                    [sys.executable, translations.__file__, "restore-timestamp-only",
+                     "--references", str(self.destination)],
+                    check=True, stdout=subprocess.PIPE, cwd=self.source,
+                )
+                self.assertEqual((self.destination / "unchanged.po").read_bytes(), before)
+                expected = before.replace('翻訳'.encode(), '新しい訳'.encode())
+                expected = expected.replace(b"2026-09-29", b"2026-10-24")
+                expected = expected.replace(b"#: example.rst:10" + newline, b"")
+                self.assertEqual((self.destination / "translated.po").read_bytes(), expected)
+                self.assertEqual(new.read_bytes(), changed.replace(b"#: example.rst:200" + newline, b""))
+                self.assertFalse((self.destination / "deleted.po").exists())
+                self.track()
+                staged = subprocess.check_output(
+                    ["git", "-C", str(self.destination), "show", ":translated.po"]
+                )
+                self.assertEqual(staged, expected)
+
+    def test_normalize_references_preserves_other_entry_changes(self):
+        changed = DATED_PO.replace(b"example.rst:10", b"example.rst:200")
+        for old, new, action in [
+            (b'msgid "example"', b'msgid "new source"', "drop"),
+            (b'msgid "example"', b'msgctxt "new context"\nmsgid "example"', "drop"),
+            (b"example.rst:200", b"renamed.rst:200", "keep"),
+            (b"example.rst:200", b"example.rst:200 other.rst:30", "keep"),
+            (b'#: example.rst:200\n', b'', "keep"),
+            (b'msgid "example"', b'#, fuzzy\nmsgid "example"', "restore"),
+            (b'msgid "example"', b'#. new comment\nmsgid "example"', "restore"),
+            ('msgstr "翻訳"'.encode(), 'msgstr "新しい訳"'.encode(), "drop"),
+        ]:
+            with self.subTest(change=new):
+                incoming = changed.replace(old, new)
+                expected = incoming
+                if action == "drop":
+                    expected = incoming.replace(b"#: example.rst:200\n", b"")
+                elif action == "restore":
+                    expected = incoming.replace(b"example.rst:200", b"example.rst:10")
+                self.assertEqual(translations.normalize_po_references(DATED_PO, incoming),
+                                 expected)
+
+    def test_restore_line_numbers_matches_context_plural_and_reordered_entries(self):
+        header = DATED_PO.split(b"#: example.rst:10")[0]
+        first = (b'#: one.rst:10 two.rst:20\nmsgctxt "first"\n'
+                 b'msgid "same"\nmsgstr "first translation"\n\n')
+        second = (b'#: one.rst:30\nmsgctxt "second"\n'
+                  b'msgid "same"\nmsgid_plural "others"\nmsgstr[0] "plural"\n\n')
+        added = b'#: new.rst:100\nmsgid "new"\nmsgstr ""\n\n'
+        obsolete = b'#~ msgid "old"\n#~ msgstr "old translation"\n'
+        updated_first = first.replace(b"one.rst:10 two.rst:20", b"one.rst:100\n#: two.rst:200")
+        updated_first = updated_first.replace(b'msgid "same"', b'msgid ""\n"sa"\n"me"')
+        updated_second = second.replace(b"one.rst:30", b"one.rst:300")
+        incoming = header + added + updated_second + updated_first + obsolete
+        expected_first = updated_first.replace(b"one.rst:100\n#: two.rst:200", b"one.rst:10 two.rst:20")
+        self.assertEqual(
+            translations.normalize_po_references(header + first + second + obsolete, incoming),
+            header + added.replace(b"#: new.rst:100\n", b"") + second + expected_first + obsolete,
+        )
+        # A new plural message with a translation has its references removed.
+        updated_second = updated_second.replace(b'"others"', b'"new plural"')
+        self.assertEqual(
+            translations.normalize_po_references(header + second, header + updated_second),
+            header + updated_second.replace(b"#: one.rst:300\n", b""),
+        )
+
+    def test_untranslated_source_changes_drop_references(self):
+        before = DATED_PO.replace('msgstr "翻訳"'.encode(), b'msgstr ""')
+        for original, incoming in [
+            (b"", before),
+            (before, before.replace(b'msgid "example"', b'msgid "new source"')),
+            (before, before.replace(b'msgid "example"',
+                                    b'msgctxt "new context"\nmsgid "example"')),
+            (before, before.replace(b'msgid "example"\nmsgstr ""\n',
+                                    b'msgid "example"\nmsgid_plural "examples"\nmsgstr[0] ""\n')),
+        ]:
+            with self.subTest(incoming=incoming):
+                expected = incoming.replace(b"#: example.rst:10\n", b"")
+                normalized = translations.normalize_po_references(original, incoming)
+                self.assertEqual(normalized, expected)
+                self.assertEqual(translations.normalize_po_references(normalized, incoming), expected)
+
+    def test_removed_references_do_not_return_on_next_download(self):
+        updated = DATED_PO.replace('翻訳'.encode(), '新しい訳'.encode())
+        updated = updated.replace(b"#: example.rst:10\n", b"#: example.rst:200\n#: other.rst:300\n")
+        expected = updated.replace(b"#: example.rst:200\n#: other.rst:300\n", b"")
+        normalized = translations.normalize_po_references(DATED_PO, updated)
+        self.assertEqual(normalized, expected)
+        self.assertEqual(translations.normalize_po_references(normalized, updated), expected)
+        # Translation text resembling a reference is not a comment.
+        literal = updated.replace('新しい訳'.encode(), b"#: example.rst:200")
+        self.assertIn(b'msgstr "#: example.rst:200"',
+                      translations.normalize_po_references(normalized, literal))
+
     def test_sync_removes_old_path_and_preserves_untracked_files(self):
         catalogs = ["builtins/functions.po", "library/builtins.po", "bugs.po"]
         write_config(self.source, catalogs)
