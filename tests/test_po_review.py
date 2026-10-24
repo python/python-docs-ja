@@ -46,8 +46,8 @@ class EntryTests(unittest.TestCase):
                            msgstr_plural={0: "ファイル", 1: ""})
         text = po_review.render_entry("test.po", old, new, 1, "test.po")
         self.assertIn("Many files", text)
-        self.assertIn(r"msgstr\[1\]: 複数のファイル", text)
-        self.assertIn(r"msgstr\[1\]: （未翻訳）", text)
+        self.assertIn("msgstr[1]: 複数のファイル", text)
+        self.assertIn("msgstr[1]: （未翻訳）", text)
         self.assertIn("fuzzy（要確認） → 未翻訳", text)
         new.msgstr_plural[1] = old.msgstr_plural[1]
         self.assertNotEqual(po_review.signature(old), po_review.signature(new))
@@ -63,17 +63,18 @@ class EntryTests(unittest.TestCase):
 
     def test_markdown_and_html_are_literal(self):
         text = ':func:`open` <tag> [link](url) **bold**\n\n```\nnext'
-        result = po_review.paragraph(text)
-        self.assertIn(r"`` :func:`open` `` \<tag\> \[link\](url) \*\*bold\*\*", result)
-        self.assertIn("> \n> \\`\\`\\`", result)
-        self.assertEqual("> &amp;copy;  ", po_review.paragraph("&copy;"))
+        self.assertEqual(
+            "**変更後**\n\n````rst\n" + text + "\n````\n",
+            po_review.field("変更後", text),
+        )
+        self.assertEqual("**訳文**\n\n```rst\n&copy;\n```\n",
+                         po_review.field("訳文", "&copy;"))
 
     def test_rst_roles_and_literals_do_not_need_backslash_escapes(self):
         text = ':ref:`tut-object` と :py:class:`表示名 <module.Class>`、``a_b``。'
-        result = po_review.paragraph(text)
+        result = po_review.field("訳文", text)
         self.assertEqual(
-            '> `` :ref:`tut-object` `` と `` :py:class:`表示名 <module.Class>` ``、'
-            '``` ``a_b`` ```。  ', result,
+            '**訳文**\n\n```rst\n' + text + '\n```\n', result,
         )
         self.assertNotIn("\\", result)
         self.assertEqual("../../tutorial/classes.rst:422 (source)",
@@ -82,7 +83,19 @@ class EntryTests(unittest.TestCase):
     def test_code_examples_keep_indentation_and_cannot_close_fence(self):
         code = '>>> if True:\n...     print("````")\n````'
         result = po_review.field("原文", code)
-        self.assertIn("`````text\n" + code + "\n`````", result)
+        self.assertIn("`````rst\n" + code + "\n`````", result)
+
+    def test_prose_line_breaks_and_spaces_are_preserved(self):
+        for text in (
+            '一文目です。 続く長い文、さらに続きます。',
+            '一文目です。\n続く長い文、\nさらに続きます。 ::\n',
+            '  先頭の空白。\n末尾の空白。 ',
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(
+                    '**訳文**\n\n```rst\n' + text + '\n```\n',
+                    po_review.field("訳文", text),
+                )
 
 
 class GitReportTests(unittest.TestCase):

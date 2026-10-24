@@ -58,44 +58,11 @@ def escape(text):
     return re.sub(r"([\\`*_\[\]<>#|~])", r"\\\1", text.replace("&", "&amp;"))
 
 
-INLINE_RST = re.compile(
-    r"(?<![\\`])(?::[\w.-]+(?::[\w.-]+)*:)?"
-    r"(?P<ticks>`{1,2})(?!`)(?:\\.|[^`\\\n])+(?P=ticks)(?!`)"
-)
-
-
-def inline_text(text):
-    # Preserve the whole reST token in a Markdown code span, including its
-    # role and backticks. This avoids backslash noise in the Markdown source.
-    parts = []
-    start = 0
-    for match in INLINE_RST.finditer(text):
-        parts.append(escape(text[start:match.start()]))
-        token = match.group()
-        fence = "`" * (1 + max(len(run) for run in re.findall(r"`+", token)))
-        parts.append(f"{fence} {token} {fence}")
-        start = match.end()
-    parts.append(escape(text[start:]))
-    result = "".join(parts)
-    # Prevent prose lines from becoming Markdown lists or thematic breaks.
-    return re.sub(r"^(\s*)([-+]|\d+[.)])(?=\s|$)",
-                  lambda match: match[1] + match[2][:-1] + "\\" + match[2][-1], result)
-
-
-def paragraph(text):
-    return "\n".join(
-        "> " + inline_text(line) + ("  " if line else "")
-        for line in text.split("\n")
-    )
-
-
 def field(label, text):
-    # Keep indentation and alignment in code examples, while allowing prose
-    # to wrap naturally in the Markdown viewer.
-    if text.startswith((">>> ", ".. code-block::", ".. code::")):
-        fence = "`" * max(3, 1 + max((len(run) for run in re.findall(r"`+", text)), default=0))
-        return f"**{label}**\n\n{fence}text\n{text}\n{fence}\n"
-    return f"**{label}**\n\n{paragraph(text)}\n"
+    # Preserve PO text verbatim, including line breaks and reST markup.
+    # Embedded backticks must not be able to close the Markdown fence.
+    fence = "`" * max(3, 1 + max((len(run) for run in re.findall(r"`+", text)), default=0))
+    return f"**{label}**\n\n{fence}rst\n{text}\n{fence}\n"
 
 
 def translation(entry):
