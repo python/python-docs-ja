@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -196,6 +197,10 @@ class TranslationTests(unittest.TestCase):
     def test_sync_skips_unregistered_resource_and_picks_it_up_later(self):
         catalogs = ["bugs.po", "c-api/pyexpat.po"]
         write_config(self.source, catalogs)
+        config = self.source / ".tx/config"
+        original = config.read_bytes().replace(b"host =", b"host        =")
+        original = b"# Preserve tx formatting\n" + original
+        config.write_bytes(original)
         download = self.source / "ja/LC_MESSAGES"
         write_po(download, "bugs.po", "新しい訳")
         obsolete = write_po(self.destination, "removed.po", "古い訳")
@@ -208,11 +213,9 @@ class TranslationTests(unittest.TestCase):
         self.assertFalse(obsolete.exists())
         self.assertFalse((self.destination / "c-api/pyexpat.po").exists())
         self.assertEqual(translations.active_catalogs(self.destination / ".tx/config"),
-                         [Path("bugs.po")])
-        translations.require_catalogs(
-            self.destination, translations.active_catalogs(self.destination / ".tx/config")
-        )
-        # The generated source config remains complete for subsequent runs.
+                         [Path(path) for path in catalogs])
+        self.assertEqual((self.destination / ".tx/config").read_bytes(), original)
+        # Both configs remain complete for subsequent runs.
         self.assertEqual(translations.active_catalogs(self.source / ".tx/config"),
                          [Path(path) for path in catalogs])
         write_po(download, "c-api/pyexpat.po", "追加された訳")
@@ -222,6 +225,7 @@ class TranslationTests(unittest.TestCase):
         exists.assert_not_called()
         self.assertEqual((download / "c-api/pyexpat.po").read_bytes(),
                          (self.destination / "c-api/pyexpat.po").read_bytes())
+        self.assertEqual((self.destination / ".tx/config").read_bytes(), original)
 
     def test_sync_preserves_existing_po_for_unavailable_resource(self):
         catalogs = ["bugs.po", "c-api/pyexpat.po"]
@@ -236,6 +240,8 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(old.read_bytes(), before)
         self.assertEqual(translations.active_catalogs(self.destination / ".tx/config"),
                          [Path(path) for path in catalogs])
+        self.assertEqual((self.destination / ".tx/config").read_bytes(),
+                         (self.source / ".tx/config").read_bytes())
 
     def test_skip_does_not_hide_incomplete_download_or_api_failure(self):
         write_config(self.source, ["bugs.po", "new.po", "missing.po"])
@@ -305,11 +311,66 @@ class TranslationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             translations.active_catalogs(self.source / ".tx/config")
 
+    def test_update_validates_after_pull_failure(self):
+        scripts = self.source / "scripts"
+        scripts.mkdir()
+        update = scripts / "update.sh"
+        shutil.copyfile(Path(translations.__file__).with_name("update.sh"), update)
+        doc = self.source / "cpython/Doc"
+        doc.mkdir(parents=True)
+        (doc / "conf.py").touch()
+        executables = self.root / "bin"
+        executables.mkdir()
+        validation_log = self.root / "validation.log"
+        commands = {
+            "sphinx-build": "exit 0",
+            "sphinx-intl": "exit 0",
+            "tx": "exit 1",
+            "python": 'printf "%s\\n" "$@" > "$VALIDATION_LOG"\n'
+                      'exit "$VALIDATION_STATUS"',
+        }
+        for name, body in commands.items():
+            executable = executables / name
+            executable.write_text("#!/bin/sh\n" + body + "\n", encoding="utf-8")
+            executable.chmod(0o755)
+        for status in (0, 42):
+            with self.subTest(validation_status=status):
+                validation_log.unlink(missing_ok=True)
+                result = subprocess.run(
+                    ["sh", str(update)], capture_output=True, text=True,
+                    env={**os.environ, "PATH": f"{executables}:{os.environ['PATH']}",
+                         "VALIDATION_LOG": str(validation_log),
+                         "VALIDATION_STATUS": str(status)},
+                )
+                self.assertEqual(result.returncode, status, result.stderr)
+                self.assertIn("tx pull failed", result.stderr)
+                arguments = validation_log.read_text().splitlines()
+                self.assertEqual(arguments[1], "sync")
+                self.assertIn("--skip-missing-resources", arguments)
+
+    def test_merge_refuses_empty_source_and_missing_tracked_po(self):
+        subprocess.run(["git", "init", "--quiet", str(self.source)], check=True)
+        write_config(self.source, ["new.po", "bugs.po"])
+        write_po(self.destination, "bugs.po", "既存の訳")
+        self.track()
+        with mock.patch.object(translations.subprocess, "run",
+                               wraps=subprocess.run) as run:
+            with self.assertRaisesRegex(ValueError, "No source catalogs"):
+                translations.merge(self.source, self.destination)
+            missing = write_po(self.source, "bugs.po", "新しい訳")
+            subprocess.run(["git", "-C", str(self.source), "add", "."], check=True)
+            missing.unlink()
+            with self.assertRaises(FileNotFoundError):
+                translations.merge(self.source, self.destination)
+        self.assertFalse(any(call.args[0][0] == "pomerge" for call in run.call_args_list))
+
     @unittest.skipUnless(shutil.which("pomerge"), "pomerge is required")
     def test_merge_uses_current_translation_across_renamed_paths(self):
-        write_config(self.source, ["builtins/functions.po"])
+        subprocess.run(["git", "init", "--quiet", str(self.source)], check=True)
+        write_config(self.source, ["builtins/functions.po", "c-api/pyexpat.po"])
         write_po(self.source, "builtins/functions.po", "新しい訳")
         write_po(self.source, "library/functions.po", "古い訳")
+        subprocess.run(["git", "-C", str(self.source), "add", "."], check=True)
         old = write_po(self.destination, "library/functions.po", "以前の訳")
         self.track()
 

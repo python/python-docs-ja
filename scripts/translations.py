@@ -110,32 +110,25 @@ def sync(source, destination, language, *, skip_missing_resources=False):
     catalogs = active_catalogs(config)
     downloaded = source / language / "LC_MESSAGES"
     skipped = set()
-    filtered_config = configparser.ConfigParser(interpolation=None)
     if skip_missing_resources:
-        filtered_config.read(config, encoding="utf-8")
+        resources = configparser.ConfigParser(interpolation=None)
+        resources.read(config, encoding="utf-8")
         # Check every missing download before modifying the repository. Missing
         # translations of existing resources (or API errors) must still fail.
-        for section in filtered_config.sections():
+        for section in resources.sections():
             if section == "main":
                 continue
             path = Path(PurePosixPath(
-                filtered_config[section]["source_file"]
+                resources[section]["source_file"]
             ).relative_to("pot").with_suffix(".po"))
             if not (downloaded / path).is_file() and not resource_exists(section):
                 skipped.add(path)
-                if not (destination / path).is_file():
-                    filtered_config.remove_section(section)
                 print(f"Skipped unavailable Transifex resource: {section} ({path})")
     incoming = [path for path in catalogs if path not in skipped]
     require_catalogs(downloaded, incoming)
     if not incoming:
         raise ValueError("No PO catalogs downloaded; refusing to sync")
-    # Keep existing translations of temporarily unavailable resources. New
-    # resources without a PO must not enter the config used by the merge job.
-    catalogs = [
-        path for path in catalogs
-        if path not in skipped or (destination / path).is_file()
-    ]
+    # Keep existing translations of temporarily unavailable resources.
     obsolete = set(tracked_catalogs(destination)) - set(catalogs)
 
     for path in incoming:
@@ -146,16 +139,17 @@ def sync(source, destination, language, *, skip_missing_resources=False):
         (destination / path).unlink(missing_ok=True)
         print(f"Removed obsolete catalog: {path}")
     (destination / ".tx").mkdir(exist_ok=True)
-    if skipped:
-        with (destination / ".tx/config").open("w", encoding="utf-8") as stream:
-            filtered_config.write(stream)
-    else:
-        shutil.copyfile(config, destination / ".tx/config")
+    shutil.copyfile(config, destination / ".tx/config")
 
 
 def merge(source, destination):
-    # Ignore stale PO files even if a source checkout still contains them.
-    catalogs = active_catalogs(source / ".tx/config")
+    # The config includes new resources whose translations are not available
+    # yet. Merge only tracked catalogs, ignoring stale files outside the config.
+    catalogs = sorted(
+        set(active_catalogs(source / ".tx/config")) & set(tracked_catalogs(source))
+    )
+    if not catalogs:
+        raise ValueError(f"No source catalogs in {source}")
     targets = tracked_catalogs(destination)
     if not targets:
         raise ValueError(f"No target catalogs in {destination}")

@@ -32,7 +32,9 @@ sphinx-intl create-txconfig
 sphinx-intl update-txconfig-resources -p pot -d . --transifex-organization-name python-doc --transifex-project-name python-newest
 
 # Pull translations into the temporary LANGUAGE/LC_MESSAGES directory.
-tx pull -l "${LANGUAGE}" -t --use-git-timestamps
+if ! tx pull -l "${LANGUAGE}" -t --use-git-timestamps; then
+  echo "tx pull failed; validating downloaded catalogs before continuing." >&2
+fi
 
 # Validate the download before copying catalogs or removing obsolete files.
 # Newly generated POTs may not have a Transifex resource yet.
