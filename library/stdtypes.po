@@ -460,11 +460,12 @@ msgstr ""
 "x + complex(u, v) = complex(x + u, v)\n"
 "x * complex(u, v) = complex(x * u, x * v)"
 
-#: ../../library/stdtypes.rst:275
 msgid ""
 "A comparison between numbers of different types behaves as though the exact "
 "values of those numbers were being compared. [2]_"
 msgstr ""
+"異なる型の数値を比較すると、それぞれの数値の正確な値を比較した場合と同じ結果"
+"になります。[2]_"
 
 #: ../../library/stdtypes.rst:278
 msgid ""
@@ -879,17 +880,16 @@ msgid ""
 "A right shift by *n* bits is equivalent to floor division by ``pow(2, n)``."
 msgstr "*n* ビットの右シフトは、 ``pow(2, n)`` による切り捨て除算と等価です。"
 
-#: ../../library/stdtypes.rst:452
 msgid ""
 "Performing these calculations with at least one extra sign extension bit in "
 "a finite two's complement representation (a working bit-width of ``1 + max(x."
 "bit_length(), y.bit_length())`` or more) is sufficient to get the same "
 "result as if there were an infinite number of sign bits."
 msgstr ""
-"桁の長い方の値に少なくとも 1 つ余計に符号ビットを付け加えた幅 (計算するビット"
-"幅は ``1 + max(x.bit_length(), y.bit_length())`` かそれ以上) でこれらの計算を"
-"行えば、無限個の符号ビットがあるかのように計算したのと同じ結果を得るのに十分"
-"です。"
+"有限ビット幅の2の補数表現に、少なくとも1ビットの符号拡張ビットを追加してこれ"
+"らの計算を行えば、符号ビットを無限個使う場合と同じ結果が得られます。\n"
+"計算に使うビット幅は ``1 + max(x.bit_length(), y.bit_length())`` 以上で十分で"
+"す。"
 
 #: ../../library/stdtypes.rst:459
 msgid "Additional Methods on Integer Types"
@@ -941,13 +941,16 @@ msgstr ""
 msgid "Equivalent to::"
 msgstr "次と等価です::"
 
-#: ../../library/stdtypes.rst:483
 msgid ""
 "def bit_length(self):\n"
 "    s = bin(self)       # binary representation:  bin(-37) --> '-0b100101'\n"
 "    s = s.lstrip('-0b') # remove leading zeros and minus sign\n"
 "    return len(s)       # len('100101') --> 6"
 msgstr ""
+"def bit_length(self):\n"
+"    s = bin(self)       # 2進表現:  bin(-37) --> '-0b100101'\n"
+"    s = s.lstrip('-0b') # 先頭のゼロと負符号を除去する\n"
+"    return len(s)       # len('100101') --> 6"
 
 #: ../../library/stdtypes.rst:492
 msgid ""
@@ -974,11 +977,12 @@ msgstr ""
 ">>> (-n).bit_count()\n"
 "3"
 
-#: ../../library/stdtypes.rst:506
 msgid ""
 "def bit_count(self):\n"
 "    return bin(self).count(\"1\")"
 msgstr ""
+"def bit_count(self):\n"
+"    return bin(self).count(\"1\")"
 
 #: ../../library/stdtypes.rst:513
 msgid "Return an array of bytes representing an integer."
@@ -1024,11 +1028,12 @@ msgstr ""
 "上記のデフォルト値は整数を 1 バイトのオブジェクトに適切に変換するのに使うこと"
 "ができます::"
 
-#: ../../library/stdtypes.rst:543
 msgid ""
 ">>> (65).to_bytes()\n"
 "b'A'"
 msgstr ""
+">>> (65).to_bytes()\n"
+"b'A'"
 
 #: ../../library/stdtypes.rst:546
 msgid ""
@@ -1059,13 +1064,12 @@ msgstr "``length`` と ``byteorder`` 引数にデフォルト値を追加しま�
 msgid "Return the integer represented by the given array of bytes."
 msgstr "与えられたバイト列の整数表現を返します。"
 
-#: ../../library/stdtypes.rst:580
 msgid ""
 "The argument *bytes* must either be a :term:`bytes-like object` or an "
 "iterable producing bytes."
 msgstr ""
-"引数 *bytes* は :term:`bytes-like object` か、または bytes を生成する "
-"iterable でなければなりません。"
+"引数 ``bytes`` は :term:`bytes-like object` か、バイト値を生成するイテラブル"
+"でなければなりません。"
 
 #: ../../library/stdtypes.rst:583
 msgid ""
@@ -1431,7 +1435,6 @@ msgstr ""
 "を計算する Python コードの例を示します。\n"
 "このコードは組み込みのハッシュ計算と等価です::"
 
-#: ../../library/stdtypes.rst:803
 msgid ""
 "import sys, math\n"
 "\n"
@@ -1482,6 +1485,53 @@ msgid ""
 "        hash_value = -2\n"
 "    return hash_value"
 msgstr ""
+"import sys, math\n"
+"\n"
+"def hash_fraction(m, n):\n"
+"    \"\"\"有理数 m / n のハッシュを計算する。\n"
+"\n"
+"    m と n は整数で、n は正と仮定する。\n"
+"    hash(fractions.Fraction(m, n)) と等価。\n"
+"\n"
+"    \"\"\"\n"
+"    P = sys.hash_info.modulus\n"
+"    # P の共通因子を除く (m と n がすでに互いに素なら不要)。\n"
+"    while m % P == n % P == 0:\n"
+"        m, n = m // P, n // P\n"
+"\n"
+"    if n % P == 0:\n"
+"        hash_value = sys.hash_info.inf\n"
+"    else:\n"
+"        # フェルマーの小定理により pow(n, P-1, P) は1なので、\n"
+"        # pow(n, P-2, P) は P を法とする n の逆数を与える。\n"
+"        hash_value = (abs(m) % P) * pow(n, P - 2, P) % P\n"
+"    if m < 0:\n"
+"        hash_value = -hash_value\n"
+"    if hash_value == -1:\n"
+"        hash_value = -2\n"
+"    return hash_value\n"
+"\n"
+"def hash_float(x):\n"
+"    \"\"\"浮動小数点数 x のハッシュを計算する。\"\"\"\n"
+"\n"
+"    if math.isnan(x):\n"
+"        return object.__hash__(x)\n"
+"    elif math.isinf(x):\n"
+"        return sys.hash_info.inf if x > 0 else -sys.hash_info.inf\n"
+"    else:\n"
+"        return hash_fraction(*x.as_integer_ratio())\n"
+"\n"
+"def hash_complex(z):\n"
+"    \"\"\"複素数 z のハッシュを計算する。\"\"\"\n"
+"\n"
+"    hash_value = hash_float(z.real) + sys.hash_info.imag * hash_float(z."
+"imag)\n"
+"    # 2**sys.hash_info.width を法として、符号付きの剰余に還元する\n"
+"    M = 2**(sys.hash_info.width - 1)\n"
+"    hash_value = (hash_value & (M - 1)) - (hash_value & M)\n"
+"    if hash_value == -1:\n"
+"        hash_value = -2\n"
+"    return hash_value"
 
 #: ../../library/stdtypes.rst:854
 msgid "Boolean Type - :class:`bool`"
@@ -1517,11 +1567,12 @@ msgstr ""
 "ブール値を返します。しかしながら、論理演算子 ``and``, ``or`` および ``!=`` を"
 "使うほうが ``&``, ``|`` や ``^`` を使うよりも好ましいです。"
 
-#: ../../library/stdtypes.rst:876
 msgid ""
 "The use of the bitwise inversion operator ``~`` is deprecated and will raise "
 "an error in Python 3.16."
 msgstr ""
+"ビット反転演算子 ``~`` の使用は非推奨となり、Python 3.16 ではエラーが送出され"
+"るようになります。"
 
 #: ../../library/stdtypes.rst:879
 msgid ""
@@ -1674,17 +1725,16 @@ msgstr ""
 msgid "Common Sequence Operations"
 msgstr "共通のシーケンス演算"
 
-#: ../../library/stdtypes.rst:978
 msgid ""
 "The operations in the following table are supported by most sequence types, "
 "both mutable and immutable. The :class:`collections.abc.Sequence` ABC is "
 "provided to make it easier to correctly implement these operations on custom "
 "sequence types."
 msgstr ""
-"以下の表にある演算は、ほとんどのミュータブル、イミュータブル両方のシーケンス"
-"でサポートされています。カスタムのシーケンス型にこれらの演算を完全に実装する"
-"のが簡単になるように、 :class:`collections.abc.Sequence` ABC が提供されていま"
-"す。"
+"以下の表にある演算は、ミュータブルとイミュータブルの両方を含む、ほとんどの"
+"シーケンス型でサポートされています。\n"
+"独自のシーケンス型でこれらの演算を正しく実装しやすくするために、:class:"
+"`collections.abc.Sequence` ABC が提供されています。"
 
 #: ../../library/stdtypes.rst:983
 msgid ""
@@ -1885,7 +1935,6 @@ msgstr ""
 "これは Python に慣れていないプログラマをよく悩ませます。\n"
 "次のコードを考えてみてください::"
 
-#: ../../library/stdtypes.rst:1075
 msgid ""
 ">>> lists = [[]] * 3\n"
 ">>> lists\n"
@@ -1894,6 +1943,12 @@ msgid ""
 ">>> lists\n"
 "[[3], [3], [3]]"
 msgstr ""
+">>> lists = [[]] * 3\n"
+">>> lists\n"
+"[[], [], []]\n"
+">>> lists[0].append(3)\n"
+">>> lists\n"
+"[[3], [3], [3]]"
 
 #: ../../library/stdtypes.rst:1082
 msgid ""
@@ -1907,7 +1962,6 @@ msgstr ""
 "と、その一つのリストが変更されます。別々のリストのリストを作るにはこうしま"
 "す::"
 
-#: ../../library/stdtypes.rst:1087
 msgid ""
 ">>> lists = [[] for i in range(3)]\n"
 ">>> lists[0].append(3)\n"
@@ -1916,6 +1970,12 @@ msgid ""
 ">>> lists\n"
 "[[3], [5], [7]]"
 msgstr ""
+">>> lists = [[] for i in range(3)]\n"
+">>> lists[0].append(3)\n"
+">>> lists[1].append(5)\n"
+">>> lists[2].append(7)\n"
+">>> lists\n"
+"[[3], [5], [7]]"
 
 #: ../../library/stdtypes.rst:1094
 msgid ""
@@ -2077,15 +2137,14 @@ msgstr ""
 msgid "Mutable Sequence Types"
 msgstr "ミュータブルなシーケンス型"
 
-#: ../../library/stdtypes.rst:1186
 msgid ""
 "The operations in the following table are defined on mutable sequence types. "
 "The :class:`collections.abc.MutableSequence` ABC is provided to make it "
 "easier to correctly implement these operations on custom sequence types."
 msgstr ""
-"以下のテーブルにある演算は、ほとんどのミュータブルなシーケンスでサポートされ"
-"ています。カスタムのシーケンス型にこれらの演算を完全に実装するのが簡単になる"
-"ように、 :class:`collections.abc.MutableSequence` ABC が提供されています。"
+"以下の表にある演算は、ミュータブルなシーケンス型で定義されています。\n"
+"独自のシーケンス型でこれらの演算を正しく実装しやすくするために、:class:"
+"`collections.abc.MutableSequence` ABC が提供されています。"
 
 #: ../../library/stdtypes.rst:1190
 msgid ""
@@ -2592,7 +2651,6 @@ msgstr ""
 msgid "Range examples::"
 msgstr "range の例::"
 
-#: ../../library/stdtypes.rst:1459
 msgid ""
 ">>> list(range(10))\n"
 "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]\n"
@@ -2609,6 +2667,20 @@ msgid ""
 ">>> list(range(1, 0))\n"
 "[]"
 msgstr ""
+">>> list(range(10))\n"
+"[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]\n"
+">>> list(range(1, 11))\n"
+"[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n"
+">>> list(range(0, 30, 5))\n"
+"[0, 5, 10, 15, 20, 25]\n"
+">>> list(range(0, 10, 3))\n"
+"[0, 3, 6, 9]\n"
+">>> list(range(0, -10, -1))\n"
+"[0, -1, -2, -3, -4, -5, -6, -7, -8, -9]\n"
+">>> list(range(0))\n"
+"[]\n"
+">>> list(range(1, 0))\n"
+"[]"
 
 #: ../../library/stdtypes.rst:1474
 msgid ""
@@ -2712,15 +2784,15 @@ msgstr ""
 "numbers-linspace/>`_ は浮動小数点数向けの遅延評価版 range を実装する方法を紹"
 "介しています。"
 
-#: ../../library/stdtypes.rst:1554
 msgid "Text and Binary Sequence Type Methods Summary"
-msgstr ""
+msgstr "テキストおよびバイナリシーケンス型のメソッド一覧"
 
-#: ../../library/stdtypes.rst:1555
 msgid ""
 "The following table summarizes the text and binary sequence types methods by "
 "category."
 msgstr ""
+"次の表は、テキストおよびバイナリシーケンス型のメソッドを分類ごとにまとめたも"
+"のです。"
 
 #: ../../library/stdtypes.rst:1560
 msgid "Category"
@@ -2734,9 +2806,8 @@ msgstr ":class:`str` メソッド"
 msgid ":class:`bytes` and :class:`bytearray` methods"
 msgstr ":class:`bytes` または :class:`bytearray` メソッド"
 
-#: ../../library/stdtypes.rst:1562
 msgid "Formatting"
-msgstr ""
+msgstr "書式化"
 
 #: ../../library/stdtypes.rst:1562
 msgid ":meth:`str.format`"
@@ -2758,9 +2829,8 @@ msgstr ":ref:`old-string-formatting`"
 msgid ":ref:`bytes-formatting`"
 msgstr ":ref:`bytes-formatting`"
 
-#: ../../library/stdtypes.rst:1570
 msgid "Searching and Replacing"
-msgstr ""
+msgstr "検索と置換"
 
 #: ../../library/stdtypes.rst:1570
 msgid ":meth:`str.find`"
@@ -2826,9 +2896,8 @@ msgstr ":meth:`str.replace`"
 msgid ":meth:`bytes.replace`"
 msgstr ":meth:`bytes.replace`"
 
-#: ../../library/stdtypes.rst:1582
 msgid "Splitting and Joining"
-msgstr ""
+msgstr "分割と結合"
 
 #: ../../library/stdtypes.rst:1582
 msgid ":meth:`str.split`"
@@ -2878,9 +2947,8 @@ msgstr ":meth:`str.join`"
 msgid ":meth:`bytes.join`"
 msgstr ":meth:`bytes.join`"
 
-#: ../../library/stdtypes.rst:1592
 msgid "String Classification"
-msgstr ""
+msgstr "文字列の分類"
 
 #: ../../library/stdtypes.rst:1592
 msgid ":meth:`str.isalpha`"
@@ -2954,9 +3022,8 @@ msgstr ":meth:`bytes.isspace`"
 msgid ":meth:`str.isprintable`"
 msgstr ":meth:`str.isprintable`"
 
-#: ../../library/stdtypes.rst:1614
 msgid "Case Manipulation"
-msgstr ""
+msgstr "大文字と小文字の操作"
 
 #: ../../library/stdtypes.rst:1614
 msgid ":meth:`str.lower`"
@@ -3002,9 +3069,8 @@ msgstr ":meth:`str.swapcase`"
 msgid ":meth:`bytes.swapcase`"
 msgstr ":meth:`bytes.swapcase`"
 
-#: ../../library/stdtypes.rst:1626
 msgid "Padding and Stripping"
-msgstr ""
+msgstr "パディングと除去"
 
 #: ../../library/stdtypes.rst:1626
 msgid ":meth:`str.ljust`"
@@ -3062,9 +3128,8 @@ msgstr ":meth:`bytes.lstrip`"
 msgid ":meth:`bytes.rstrip`"
 msgstr ":meth:`bytes.rstrip`"
 
-#: ../../library/stdtypes.rst:1636
 msgid "Translation and Encoding"
-msgstr ""
+msgstr "変換とエンコーディング"
 
 #: ../../library/stdtypes.rst:1636
 msgid ":meth:`str.translate`"
@@ -3239,23 +3304,24 @@ msgstr ""
 "`str` に渡すと、略式の文字列表現を返す 1 つ目の場合に該当します。(Python のコ"
 "マンドラインオプション :option:`-b` も参照してください) 例えば::"
 
-#: ../../library/stdtypes.rst:1725
 msgid ""
 ">>> str(b'Zoot!')\n"
 "\"b'Zoot!'\""
 msgstr ""
+">>> str(b'Zoot!')\n"
+"\"b'Zoot!'\""
 
-#: ../../library/stdtypes.rst:1728
 msgid ""
 "For more information on the ``str`` class and its methods, see :ref:"
 "`textseq` and the :ref:`string-methods` section below.  To output formatted "
 "strings, see the :ref:`f-strings` and :ref:`formatstrings` sections.  In "
 "addition, see the :ref:`stringservices` section."
 msgstr ""
-"``str`` クラスとそのメソッドについて詳しくは、 :ref:`テキストシーケンス型 — "
-"str <textseq>` や :ref:`string-methods` の節を参照してください。フォーマット"
-"された文字列を出力するには、 :ref:`f-strings` と :ref:`string-formatting` の"
-"節を参照してください。加えて、 :ref:`stringservices` の節も参照してください。"
+"``str`` クラスとそのメソッドについて詳しくは、:ref:`textseq` と後述の :ref:"
+"`string-methods` 節を参照してください。\n"
+"書式化した文字列の出力については、:ref:`f-strings` と :ref:`formatstrings` の"
+"節を参照してください。\n"
+"また、:ref:`stringservices` 節も参照してください。"
 
 #: ../../library/stdtypes.rst:1740
 msgid "String Methods"
@@ -3338,14 +3404,17 @@ msgid ""
 "Unicode16.0.0/core-spec/chapter-3/#G33992>`__."
 msgstr ""
 
-#: ../../library/stdtypes.rst:1789
 msgid ""
 "Return centered in a string of length *width*. Padding is done using the "
 "specified *fillchar* (default is an ASCII space). The original string is "
 "returned if *width* is less than or equal to ``len(s)``.  For example::"
 msgstr ""
+"長さ ``width`` の文字列の中央に配置して返します。\n"
+"パディングには指定された ``fillchar`` (デフォルトは ASCII スペース) を使いま"
+"す。\n"
+"``width`` が ``len(s)`` 以下の場合は元の文字列を返します。\n"
+"例えば、次のようになります。 ::"
 
-#: ../../library/stdtypes.rst:1793
 msgid ""
 ">>> 'Python'.center(10)\n"
 "'  Python  '\n"
@@ -3354,6 +3423,12 @@ msgid ""
 ">>> 'Python'.center(4)\n"
 "'Python'"
 msgstr ""
+">>> 'Python'.center(10)\n"
+"'  Python  '\n"
+">>> 'Python'.center(10, '-')\n"
+"'--Python--'\n"
+">>> 'Python'.center(4)\n"
+"'Python'"
 
 #: ../../library/stdtypes.rst:1803
 msgid ""
@@ -3371,7 +3446,6 @@ msgid ""
 "which is the length of the string plus one. For example::"
 msgstr ""
 
-#: ../../library/stdtypes.rst:1810
 msgid ""
 ">>> 'spam, spam, spam'.count('spam')\n"
 "3\n"
@@ -3384,6 +3458,16 @@ msgid ""
 ">>> 'spam, spam, spam'.count('')\n"
 "17"
 msgstr ""
+">>> 'spam, spam, spam'.count('spam')\n"
+"3\n"
+">>> 'spam, spam, spam'.count('spam', 5)\n"
+"2\n"
+">>> 'spam, spam, spam'.count('spam', 5, 10)\n"
+"1\n"
+">>> 'spam, spam, spam'.count('eggs')\n"
+"0\n"
+">>> 'spam, spam, spam'.count('')\n"
+"17"
 
 #: ../../library/stdtypes.rst:1823
 msgid "Return the string encoded to :class:`bytes`."
@@ -3491,11 +3575,12 @@ msgstr ""
 "す。 *sub* が部分文字列であるかどうかのみを調べるには、 :keyword:`in` 演算子"
 "を使ってください::"
 
-#: ../../library/stdtypes.rst:1889
 msgid ""
 ">>> 'Py' in 'Python'\n"
 "True"
 msgstr ""
+">>> 'Py' in 'Python'\n"
+"True"
 
 #: ../../library/stdtypes.rst:1895
 msgid ""
@@ -3646,7 +3731,6 @@ msgstr ""
 msgid "Example: ::"
 msgstr "例: ::"
 
-#: ../../library/stdtypes.rst:2005
 msgid ""
 ">>> from keyword import iskeyword\n"
 "\n"
@@ -3655,6 +3739,12 @@ msgid ""
 ">>> 'def'.isidentifier(), iskeyword('def')\n"
 "(True, True)"
 msgstr ""
+">>> from keyword import iskeyword\n"
+"\n"
+">>> 'hello'.isidentifier(), iskeyword('hello')\n"
+"(True, False)\n"
+">>> 'def'.isidentifier(), iskeyword('def')\n"
+"(True, True)"
 
 #: ../../library/stdtypes.rst:2015
 msgid ""
@@ -3680,21 +3770,26 @@ msgstr ""
 "FIFTH)。正式には、数を表す文字は、プロパティ値 Numeric_Type=Digit、 "
 "Numeric_Type=Decimal または Numeric_Type=Numeric を持つものです。"
 
-#: ../../library/stdtypes.rst:2031
 msgid ""
 "Return ``True`` if all characters in the string are printable, ``False`` if "
 "it contains at least one non-printable character."
 msgstr ""
+"文字列内のすべての文字が表示可能な場合は ``True`` を、表示できない文字が一つ"
+"でも含まれる場合は ``False`` を返します。"
 
-#: ../../library/stdtypes.rst:2034
 msgid ""
 "Here \"printable\" means the character is suitable for :func:`repr` to use "
 "in its output; \"non-printable\" means that :func:`repr` on built-in types "
 "will hex-escape the character.  It has no bearing on the handling of strings "
 "written to :data:`sys.stdout` or :data:`sys.stderr`."
 msgstr ""
+"ここで「表示可能」とは、その文字を :func:`repr` の出力にそのまま使えることを"
+"意味します。\n"
+"「表示できない」とは、組み込み型に対する :func:`repr` がその文字を16進エス"
+"ケープで表すことを意味します。\n"
+":data:`sys.stdout` や :data:`sys.stderr` に書き出す文字列の扱いには関係ありま"
+"せん。"
 
-#: ../../library/stdtypes.rst:2039
 msgid ""
 "The printable characters are those which in the Unicode character database "
 "(see :mod:`unicodedata`) have a general category in group Letter, Mark, "
@@ -3702,6 +3797,11 @@ msgid ""
 "0x20. Nonprintable characters are those in group Separator or Other (Z or "
 "C), except the ASCII space."
 msgstr ""
+"表示可能な文字は、Unicode 文字データベース (:mod:`unicodedata` を参照) で一般"
+"カテゴリが Letter、Mark、Number、Punctuation、Symbol のグループ (L、M、N、P、"
+"S) に属する文字と、ASCII スペース 0x20 です。\n"
+"表示できない文字は、ASCII スペースを除く、Separator または Other のグループ "
+"(Z、C) に属する文字です。"
 
 #: ../../library/stdtypes.rst:2048
 msgid ""
@@ -3790,13 +3890,16 @@ msgstr ""
 "除去されます。 *chars* 文字列は接頭辞ではなく、その値に含まれる文字の組み合わ"
 "せ全てがはぎ取られます::"
 
-#: ../../library/stdtypes.rst:2114
 msgid ""
 ">>> '   spacious   '.lstrip()\n"
 "'spacious   '\n"
 ">>> 'www.example.com'.lstrip('cmowz.')\n"
 "'example.com'"
 msgstr ""
+">>> '   spacious   '.lstrip()\n"
+"'spacious   '\n"
+">>> 'www.example.com'.lstrip('cmowz.')\n"
+"'example.com'"
 
 #: ../../library/stdtypes.rst:2119
 msgid ""
@@ -3806,13 +3909,16 @@ msgstr ""
 "文字の集合全てではなく、指定した文字列そのものを接頭辞として削除するメソッド"
 "については、 :meth:`str.removeprefix` を参照してください。使用例::"
 
-#: ../../library/stdtypes.rst:2122
 msgid ""
 ">>> 'Arthur: three!'.lstrip('Arthur: ')\n"
 "'ee!'\n"
 ">>> 'Arthur: three!'.removeprefix('Arthur: ')\n"
 "'three!'"
 msgstr ""
+">>> 'Arthur: three!'.lstrip('Arthur: ')\n"
+"'ee!'\n"
+">>> 'Arthur: three!'.removeprefix('Arthur: ')\n"
+"'three!'"
 
 #: ../../library/stdtypes.rst:2130
 msgid ""
@@ -3864,13 +3970,16 @@ msgstr ""
 "文字列が *prefix* で始まる場合、  ``string[len(prefix):]`` を返します。それ以"
 "外の場合、元の文字列のコピーを返します::"
 
-#: ../../library/stdtypes.rst:2157
 msgid ""
 ">>> 'TestHook'.removeprefix('Test')\n"
 "'Hook'\n"
 ">>> 'BaseTestCase'.removeprefix('Test')\n"
 "'BaseTestCase'"
 msgstr ""
+">>> 'TestHook'.removeprefix('Test')\n"
+"'Hook'\n"
+">>> 'BaseTestCase'.removeprefix('Test')\n"
+"'BaseTestCase'"
 
 #: ../../library/stdtypes.rst:2167
 msgid ""
@@ -3881,13 +3990,16 @@ msgstr ""
 "文字列が *suffix* で終わる場合、 ``string[:-len(suffix)]`` を返します。それ以"
 "外の場合、元の文字列のコピーを返します::"
 
-#: ../../library/stdtypes.rst:2171
 msgid ""
 ">>> 'MiscTests'.removesuffix('Tests')\n"
 "'Misc'\n"
 ">>> 'TmpDirMixin'.removesuffix('Tests')\n"
 "'TmpDirMixin'"
 msgstr ""
+">>> 'MiscTests'.removesuffix('Tests')\n"
+"'Misc'\n"
+">>> 'TmpDirMixin'.removesuffix('Tests')\n"
+"'TmpDirMixin'"
 
 #: ../../library/stdtypes.rst:2181
 msgid ""
@@ -3972,13 +4084,16 @@ msgstr ""
 "されます。 *chars* 文字列は接尾語ではなく、そこに含まれる文字の組み合わせ全て"
 "がはぎ取られます::"
 
-#: ../../library/stdtypes.rst:2233
 msgid ""
 ">>> '   spacious   '.rstrip()\n"
 "'   spacious'\n"
 ">>> 'mississippi'.rstrip('ipz')\n"
 "'mississ'"
 msgstr ""
+">>> '   spacious   '.rstrip()\n"
+"'   spacious'\n"
+">>> 'mississippi'.rstrip('ipz')\n"
+"'mississ'"
 
 #: ../../library/stdtypes.rst:2238
 msgid ""
@@ -3988,13 +4103,16 @@ msgstr ""
 "文字の集合全てではなく、指定した文字列そのものを接尾辞として削除するメソッド"
 "については :meth:`str.removesuffix` を参照してください。使用例::"
 
-#: ../../library/stdtypes.rst:2241
 msgid ""
 ">>> 'Monty Python'.rstrip(' Python')\n"
 "'M'\n"
 ">>> 'Monty Python'.removesuffix(' Python')\n"
 "'Monty'"
 msgstr ""
+">>> 'Monty Python'.rstrip(' Python')\n"
+"'M'\n"
+">>> 'Monty Python'.removesuffix(' Python')\n"
+"'Monty'"
 
 #: ../../library/stdtypes.rst:2248
 msgid ""
@@ -4037,7 +4155,6 @@ msgstr ""
 msgid "For example::"
 msgstr "例えば::"
 
-#: ../../library/stdtypes.rst:2263
 msgid ""
 ">>> '1,2,3'.split(',')\n"
 "['1', '2', '3']\n"
@@ -4048,6 +4165,14 @@ msgid ""
 ">>> '1<>2<>3<4'.split('<>')\n"
 "['1', '2', '3<4']"
 msgstr ""
+">>> '1,2,3'.split(',')\n"
+"['1', '2', '3']\n"
+">>> '1,2,3'.split(',', maxsplit=1)\n"
+"['1', '2,3']\n"
+">>> '1,2,,3,'.split(',')\n"
+"['1', '2', '', '3', '']\n"
+">>> '1<>2<>3<4'.split('<>')\n"
+"['1', '2', '3<4']"
 
 #: ../../library/stdtypes.rst:2272
 msgid ""
@@ -4063,7 +4188,6 @@ msgstr ""
 "末尾に空白があっても、結果の最初や最後に空文字列は含まれません。よって、空文"
 "字列や空白だけの文字列を ``None`` デリミタで分割すると ``[]`` が返されます。"
 
-#: ../../library/stdtypes.rst:2281
 msgid ""
 ">>> '1 2 3'.split()\n"
 "['1', '2', '3']\n"
@@ -4072,14 +4196,20 @@ msgid ""
 ">>> '   1   2   3   '.split()\n"
 "['1', '2', '3']"
 msgstr ""
+">>> '1 2 3'.split()\n"
+"['1', '2', '3']\n"
+">>> '1 2 3'.split(maxsplit=1)\n"
+"['1', '2 3']\n"
+">>> '   1   2   3   '.split()\n"
+"['1', '2', '3']"
 
-#: ../../library/stdtypes.rst:2288
 msgid ""
 "If *sep* is not specified or is ``None`` and  *maxsplit* is ``0``, only "
 "leading runs of consecutive whitespace are considered."
 msgstr ""
+"``sep`` を指定しないか ``None`` を指定し、かつ ``maxsplit`` が ``0`` の場合"
+"は、先頭の連続する空白文字だけを扱います。"
 
-#: ../../library/stdtypes.rst:2293
 msgid ""
 ">>> \"\".split(None, 0)\n"
 "[]\n"
@@ -4088,6 +4218,12 @@ msgid ""
 ">>> \"   foo   \".split(maxsplit=0)\n"
 "['foo   ']"
 msgstr ""
+">>> \"\".split(None, 0)\n"
+"[]\n"
+">>> \"   \".split(None, 0)\n"
+"[]\n"
+">>> \"   foo   \".split(maxsplit=0)\n"
+"['foo   ']"
 
 #: ../../library/stdtypes.rst:2306
 msgid ""
@@ -4205,13 +4341,16 @@ msgstr "段落区切り"
 msgid "``\\v`` and ``\\f`` added to list of line boundaries."
 msgstr "``\\v`` と ``\\f`` が行境界のリストに追加されました。"
 
-#: ../../library/stdtypes.rst:2345
 msgid ""
 ">>> 'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines()\n"
 "['ab c', '', 'de fg', 'kl']\n"
 ">>> 'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines(keepends=True)\n"
 "['ab c\\n', '\\n', 'de fg\\r', 'kl\\r\\n']"
 msgstr ""
+">>> 'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines()\n"
+"['ab c', '', 'de fg', 'kl']\n"
+">>> 'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines(keepends=True)\n"
+"['ab c\\n', '\\n', 'de fg\\r', 'kl\\r\\n']"
 
 msgid ""
 "Unlike :meth:`~str.split` when a delimiter string *sep* is given, this "
@@ -4222,25 +4361,31 @@ msgstr ""
 "このメソッドは空文字列に対して空のリストを返し、末尾に改行があっても余分な行"
 "を追加しません::"
 
-#: ../../library/stdtypes.rst:2354
 msgid ""
 ">>> \"\".splitlines()\n"
 "[]\n"
 ">>> \"One line\\n\".splitlines()\n"
 "['One line']"
 msgstr ""
+">>> \"\".splitlines()\n"
+"[]\n"
+">>> \"One line\\n\".splitlines()\n"
+"['One line']"
 
 #: ../../library/stdtypes.rst:2359
 msgid "For comparison, ``split('\\n')`` gives::"
 msgstr "比較のために ``split('\\n')`` は以下のようになります::"
 
-#: ../../library/stdtypes.rst:2361
 msgid ""
 ">>> ''.split('\\n')\n"
 "['']\n"
 ">>> 'Two lines\\n'.split('\\n')\n"
 "['Two lines', '']"
 msgstr ""
+">>> ''.split('\\n')\n"
+"['']\n"
+">>> 'Two lines\\n'.split('\\n')\n"
+"['Two lines', '']"
 
 #: ../../library/stdtypes.rst:2369
 msgid ""
@@ -4267,13 +4412,16 @@ msgstr ""
 "文字が除去されます。 *chars* 文字列は接頭語でも接尾語でもなく、そこに含まれる"
 "文字の組み合わせ全てがはぎ取られます::"
 
-#: ../../library/stdtypes.rst:2383
 msgid ""
 ">>> '   spacious   '.strip()\n"
 "'spacious'\n"
 ">>> 'www.example.com'.strip('cmowz.')\n"
 "'example'"
 msgstr ""
+">>> '   spacious   '.strip()\n"
+"'spacious'\n"
+">>> 'www.example.com'.strip('cmowz.')\n"
+"'example'"
 
 #: ../../library/stdtypes.rst:2388
 msgid ""
@@ -4287,12 +4435,14 @@ msgstr ""
 "す。文字列の末尾に対しても同様の操作が行われます。例えば、次のようになりま"
 "す::"
 
-#: ../../library/stdtypes.rst:2394
 msgid ""
 ">>> comment_string = '#....... Section 3.2.1 Issue #32 .......'\n"
 ">>> comment_string.strip('.#! ')\n"
 "'Section 3.2.1 Issue #32'"
 msgstr ""
+">>> comment_string = '#....... Section 3.2.1 Issue #32 .......'\n"
+">>> comment_string.strip('.#! ')\n"
+"'Section 3.2.1 Issue #32'"
 
 #: ../../library/stdtypes.rst:2401
 msgid ""
@@ -4311,11 +4461,12 @@ msgstr ""
 "文字列を、単語ごとに大文字から始まり、残りの文字のうち大小文字の区別があるも"
 "のは全て小文字にする、タイトルケースにして返します。"
 
-#: ../../library/stdtypes.rst:2413
 msgid ""
 ">>> 'Hello world'.title()\n"
 "'Hello World'"
 msgstr ""
+">>> 'Hello world'.title()\n"
+"'Hello World'"
 
 #: ../../library/stdtypes.rst:2416 ../../library/stdtypes.rst:3822
 msgid ""
@@ -4329,11 +4480,12 @@ msgstr ""
 "アポストロフィが単語の境界になってしまい、望みの結果を得られない場合がありま"
 "す::"
 
-#: ../../library/stdtypes.rst:2421
 msgid ""
 ">>> \"they're bill's friends from the UK\".title()\n"
 "\"They'Re Bill'S Friends From The Uk\""
 msgstr ""
+">>> \"they're bill's friends from the UK\".title()\n"
+"\"They'Re Bill'S Friends From The Uk\""
 
 #: ../../library/stdtypes.rst:2424
 msgid ""
@@ -4349,7 +4501,6 @@ msgid ""
 "expressions::"
 msgstr "または、正規表現を使うことでアポストロフィに対応できます::"
 
-#: ../../library/stdtypes.rst:2430
 msgid ""
 ">>> import re\n"
 ">>> def titlecase(s):\n"
@@ -4360,6 +4511,14 @@ msgid ""
 ">>> titlecase(\"they're bill's friends.\")\n"
 "\"They're Bill's Friends.\""
 msgstr ""
+">>> import re\n"
+">>> def titlecase(s):\n"
+"...     return re.sub(r\"[A-Za-z]+('[A-Za-z]+)?\",\n"
+"...                   lambda mo: mo.group(0).capitalize(),\n"
+"...                   s)\n"
+"...\n"
+">>> titlecase(\"they're bill's friends.\")\n"
+"\"They're Bill's Friends.\""
 
 #: ../../library/stdtypes.rst:2442
 msgid ""
@@ -4418,45 +4577,49 @@ msgid ""
 "Unicode16.0.0/core-spec/chapter-3/#G33992>`__."
 msgstr ""
 
-#: ../../library/stdtypes.rst:2473
 msgid ""
 "Return a copy of the string left filled with ASCII ``'0'`` digits to make a "
 "string of length *width*. A leading sign prefix (``'+'``/``'-'``) is handled "
 "by inserting the padding *after* the sign character rather than before. The "
 "original string is returned if *width* is less than or equal to ``len(s)``."
 msgstr ""
-"長さが *width* になるよう ASCII ``'0'`` で左詰めした文字列のコピーを返しま"
-"す。先頭が符号接頭辞 (``'+'``/``'-'``) だった場合、 ``'0'`` は符号の前ではな"
-"く *後* に挿入されます。*width* が ``len(s)`` 以下の場合元の文字列を返しま"
-"す。"
+"長さが ``width`` になるよう、左側を ASCII ``'0'`` で埋めた文字列のコピーを返"
+"します。\n"
+"先頭に符号接頭辞 (``'+'``/``'-'``) がある場合は、符号文字の前ではなく *後* に"
+"パディングを挿入します。\n"
+"``width`` が ``len(s)`` 以下の場合は元の文字列を返します。"
 
-#: ../../library/stdtypes.rst:2481
 msgid ""
 ">>> \"42\".zfill(5)\n"
 "'00042'\n"
 ">>> \"-42\".zfill(5)\n"
 "'-0042'"
 msgstr ""
+">>> \"42\".zfill(5)\n"
+"'00042'\n"
+">>> \"-42\".zfill(5)\n"
+"'-0042'"
 
-#: ../../library/stdtypes.rst:2502
 msgid "Formatted String Literals (f-strings)"
-msgstr ""
+msgstr "フォーマット済み文字列リテラル (f-string)"
 
-#: ../../library/stdtypes.rst:2505
 msgid ""
 "The :keyword:`await` and :keyword:`async for` can be used in expressions "
 "within f-strings."
 msgstr ""
+"f-string 内の式で :keyword:`await` と :keyword:`async for` を使えるようになり"
+"ました。"
 
 #: ../../library/stdtypes.rst:2508
 msgid "Added the debugging operator (``=``)"
 msgstr ""
 
-#: ../../library/stdtypes.rst:2510
 msgid ""
 "Many restrictions on expressions within f-strings have been removed. "
 "Notably, nested strings, comments, and backslashes are now permitted."
 msgstr ""
+"f-string 内の式に対する多くの制限が取り除かれました。\n"
+"特に、文字列の入れ子、コメント、バックスラッシュが使えるようになりました。"
 
 #: ../../library/stdtypes.rst:2514
 msgid ""
@@ -4661,11 +4824,12 @@ msgstr ""
 "の ``%`` による変換の指定は0こ以上の *values* の要素で置き換えられます。この"
 "動作は C 言語における :c:func:`sprintf` 関数の利用方法に似ています。使用例:"
 
-#: ../../library/stdtypes.rst:2659
 msgid ""
 ">>> print('%s has %d quote types.' % ('Python', 2))\n"
 "Python has 2 quote types."
 msgstr ""
+">>> print('%s has %d quote types.' % ('Python', 2))\n"
+"Python has 2 quote types."
 
 #: ../../library/stdtypes.rst:2664
 msgid ""
@@ -4815,13 +4979,13 @@ msgstr ""
 "変換の先頭に符号文字 (``'+'`` または ``'-'``) を付けます(\"スペース\" フラグ"
 "を上書きします) 。"
 
-#: ../../library/stdtypes.rst:2736 ../../library/stdtypes.rst:3995
 msgid ""
 "A length modifier (``h``, ``l``, or ``L``) may be present, but is ignored as "
 "it is not necessary for Python -- so e.g. ``%ld`` is identical to ``%d``."
 msgstr ""
-"精度長変換子(``h``, ``l``,または ``L``) を使うことができますが、 Python では"
-"必要ないため無視されます。 -- つまり、例えば ``%ld`` は ``%d`` と等価です。"
+"長さ修飾子 (``h``、``l``、``L``) を指定しても構いませんが、Python では必要な"
+"いため無視されます。\n"
+"例えば、``%ld`` は ``%d`` と同じです。"
 
 #: ../../library/stdtypes.rst:2739 ../../library/stdtypes.rst:3998
 msgid "The conversion types are:"
@@ -5165,16 +5329,15 @@ msgstr "既存のバイナリデータからバッファプロトコルでコピ
 msgid "Also see the :ref:`bytes <func-bytes>` built-in."
 msgstr ":ref:`bytes <func-bytes>` ビルトイン関数も参照してください。"
 
-#: ../../library/stdtypes.rst:2898
 msgid ""
 "Since 2 hexadecimal digits correspond precisely to a single byte, "
 "hexadecimal numbers are a commonly used format for describing binary data. "
 "Accordingly, the bytes type has an additional class method to read data in "
 "that format:"
 msgstr ""
-"16 進数で 2 桁の数は正確に 1 バイトに相当するため、16 進整はバイナリデータを"
-"表現する形式として広く使われています。 従って、 bytes 型にはその形式でデータ"
-"を読み取るための追加のクラスメソッドがあります。"
+"16進数字2桁がちょうど1バイトに対応するため、16進数はバイナリデータを表す形式"
+"としてよく使われます。\n"
+"そのため、bytes 型にはその形式のデータを読み取るクラスメソッドもあります:"
 
 #: ../../library/stdtypes.rst:2904
 msgid ""
@@ -5194,11 +5357,12 @@ msgstr ""
 ":meth:`bytes.fromhex` は文字列にある空白だけでなく、 ASCII の空白文字全てをス"
 "キップするようになりました。"
 
-#: ../../library/stdtypes.rst:2915
 msgid ""
 ":meth:`bytes.fromhex` now accepts ASCII :class:`bytes` and :term:`bytes-like "
 "objects <bytes-like object>` as input."
 msgstr ""
+":meth:`bytes.fromhex` が入力として ASCII の :class:`bytes` および :term:"
+"`bytes-like オブジェクト <bytes-like object>` を受け付けるようになりました。"
 
 #: ../../library/stdtypes.rst:2919
 msgid ""
@@ -5311,16 +5475,15 @@ msgstr ""
 msgid "Also see the :ref:`bytearray <func-bytearray>` built-in."
 msgstr ":ref:`bytearray <func-bytearray>` ビルトイン関数も参照してください。"
 
-#: ../../library/stdtypes.rst:2987
 msgid ""
 "Since 2 hexadecimal digits correspond precisely to a single byte, "
 "hexadecimal numbers are a commonly used format for describing binary data. "
 "Accordingly, the bytearray type has an additional class method to read data "
 "in that format:"
 msgstr ""
-"16 進数で 2 桁の数は正確に 1 バイトに相当するため、16 進整はバイナリデータを"
-"表現する形式として広く使われています。 従って、 bytearray 型にはその形式で"
-"データを読み取るための追加のクラスメソッドがあります。"
+"16進数字2桁がちょうど1バイトに対応するため、16進数はバイナリデータを表す形式"
+"としてよく使われます。\n"
+"そのため、bytearray 型にはその形式のデータを読み取るクラスメソッドもあります:"
 
 #: ../../library/stdtypes.rst:2993
 msgid ""
@@ -5340,11 +5503,12 @@ msgstr ""
 ":meth:`bytearray.fromhex` は文字列にある空白だけでなく、 ASCII の空白文字全て"
 "をスキップするようになりました。"
 
-#: ../../library/stdtypes.rst:3004
 msgid ""
 ":meth:`bytearray.fromhex` now accepts ASCII :class:`bytes` and :term:`bytes-"
 "like objects <bytes-like object>` as input."
 msgstr ""
+":meth:`bytearray.fromhex` が入力として ASCII の :class:`bytes` および :term:"
+"`bytes-like オブジェクト <bytes-like object>` を受け付けるようになりました。"
 
 #: ../../library/stdtypes.rst:3008
 msgid ""
@@ -5364,16 +5528,18 @@ msgstr ""
 "分割するセパレータを挿入するためのオプションパラメータ *sep* と "
 "*bytes_per_sep* をサポートするようになりました。"
 
-#: ../../library/stdtypes.rst:3028
 msgid ""
 "Resize the :class:`bytearray` to contain *size* bytes. *size* must be "
 "greater than or equal to 0."
 msgstr ""
+":class:`bytearray` のサイズを ``size`` バイトに変更します。\n"
+"``size`` は0以上でなければなりません。"
 
-#: ../../library/stdtypes.rst:3031
 msgid ""
 "If the :class:`bytearray` needs to shrink, bytes beyond *size* are truncated."
 msgstr ""
+":class:`bytearray` を縮小する場合は、``size`` を超える部分のバイトを切り捨て"
+"ます。"
 
 #: ../../library/stdtypes.rst:3033
 msgid ""
@@ -5381,9 +5547,8 @@ msgid ""
 "will be set to null bytes."
 msgstr ""
 
-#: ../../library/stdtypes.rst:3037
 msgid "This is equivalent to:"
-msgstr ""
+msgstr "これは次と等価です:"
 
 #: ../../library/stdtypes.rst:3045
 msgid "Examples:"
@@ -5442,31 +5607,32 @@ msgstr ""
 "と bytearray オブジェクトのメソッドは引数として文字列を受け付けません。例え"
 "ば、以下のように書かなければなりません::"
 
-#: ../../library/stdtypes.rst:3089
 msgid ""
 "a = \"abc\"\n"
 "b = a.replace(\"a\", \"f\")"
 msgstr ""
+"a = \"abc\"\n"
+"b = a.replace(\"a\", \"f\")"
 
 #: ../../library/stdtypes.rst:3092
 msgid "and::"
 msgstr "および::"
 
-#: ../../library/stdtypes.rst:3094
 msgid ""
 "a = b\"abc\"\n"
 "b = a.replace(b\"a\", b\"f\")"
 msgstr ""
+"a = b\"abc\"\n"
+"b = a.replace(b\"a\", b\"f\")"
 
-#: ../../library/stdtypes.rst:3097
 msgid ""
 "Some bytes and bytearray operations assume the use of ASCII compatible "
 "binary formats, and hence should be avoided when working with arbitrary "
 "binary data. These restrictions are covered below."
 msgstr ""
-"いくつかの bytes と bytearray の操作は ASCII と互換性のあるバイナリフォーマッ"
-"トが使われていると仮定していますので、フォーマットの不明なバイナリデータに対"
-"して使うことは避けるべきです。こうした制約については以下で説明します。"
+"bytes と bytearray の一部の操作は、ASCII 互換のバイナリ形式を前提としているた"
+"め、任意のバイナリデータを扱う際には避けるべきです。\n"
+"これらの制約については後述します。"
 
 #: ../../library/stdtypes.rst:3102
 msgid ""
@@ -5528,13 +5694,16 @@ msgstr ""
 "バリナリーデータが文字列 *prefix* で始まる場合、  ``bytes[len(prefix):]`` を"
 "返します。それ以外の場合、元のバイナリーデータのコピーを返します::"
 
-#: ../../library/stdtypes.rst:3132
 msgid ""
 ">>> b'TestHook'.removeprefix(b'Test')\n"
 "b'Hook'\n"
 ">>> b'BaseTestCase'.removeprefix(b'Test')\n"
 "b'BaseTestCase'"
 msgstr ""
+">>> b'TestHook'.removeprefix(b'Test')\n"
+"b'Hook'\n"
+">>> b'BaseTestCase'.removeprefix(b'Test')\n"
+"b'BaseTestCase'"
 
 #: ../../library/stdtypes.rst:3137
 msgid "The *prefix* may be any :term:`bytes-like object`."
@@ -5566,13 +5735,16 @@ msgstr ""
 "``bytes[:-len(suffix)]`` を返します。それ以外の場合、元のバイナリーデータのコ"
 "ピーを返します::"
 
-#: ../../library/stdtypes.rst:3154
 msgid ""
 ">>> b'MiscTests'.removesuffix(b'Tests')\n"
 "b'Misc'\n"
 ">>> b'TmpDirMixin'.removesuffix(b'Tests')\n"
 "b'TmpDirMixin'"
 msgstr ""
+">>> b'MiscTests'.removesuffix(b'Tests')\n"
+"b'Misc'\n"
+">>> b'TmpDirMixin'.removesuffix(b'Tests')\n"
+"b'TmpDirMixin'"
 
 #: ../../library/stdtypes.rst:3159
 msgid "The *suffix* may be any :term:`bytes-like object`."
@@ -5654,11 +5826,12 @@ msgstr ""
 "す。 *sub* が部分文字列 (訳注: おそらく原文の誤り、正しくは部分シーケンス) で"
 "あるかどうかのみを調べるには、 :keyword:`in` 演算子を使ってください::"
 
-#: ../../library/stdtypes.rst:3229
 msgid ""
 ">>> b'Py' in b'Python'\n"
 "True"
 msgstr ""
+">>> b'Py' in b'Python'\n"
+"True"
 
 #: ../../library/stdtypes.rst:3239
 msgid ""
@@ -5683,17 +5856,17 @@ msgstr ""
 "が送出されます。なお要素間のセパレータは、このメソッドを提供する bytes また"
 "は bytearray オブジェクトとなります。"
 
-#: ../../library/stdtypes.rst:3263
 msgid ""
 "This static method returns a translation table usable for :meth:`bytes."
 "translate` that will map each character in *from* into the character at the "
 "same position in *to*; *from* and *to* must both be :term:`bytes-like "
 "objects <bytes-like object>` and have the same length."
 msgstr ""
-"この静的メソッドは、 :func:`bytes.translate` に渡すのに適した変換テーブルを返"
-"します。このテーブルは、 *from* 中の各バイトを *to* の同じ位置にあるバイトに"
-"マッピングします。 *from* と *to* は両方とも同じ長さの :term:`bytes-like "
-"objects <bytes-like object>` でなければなりません。"
+"この静的メソッドは、:meth:`bytes.translate` に使える変換テーブルを返しま"
+"す。\n"
+"このテーブルは ``from`` の各文字を ``to`` の同じ位置の文字にマップします。\n"
+"``from`` と ``to`` は両方とも :term:`bytes-like オブジェクト <bytes-like "
+"object>` で、同じ長さでなければなりません。"
 
 #: ../../library/stdtypes.rst:3274
 msgid ""
@@ -5807,11 +5980,12 @@ msgid ""
 msgstr ""
 "文字を削除するだけの変換には、 *table* 引数を ``None`` に設定してください::"
 
-#: ../../library/stdtypes.rst:3366
 msgid ""
 ">>> b'read this short text'.translate(None, b'aeiou')\n"
 "b'rd ths shrt txt'"
 msgstr ""
+">>> b'read this short text'.translate(None, b'aeiou')\n"
+"b'rd ths shrt txt'"
 
 #: ../../library/stdtypes.rst:3369
 msgid "*delete* is now supported as a keyword argument."
@@ -5871,13 +6045,16 @@ msgstr ""
 "`bytearray.isspace` を参照) が除去されます。なお *chars* 引数と一致する接頭辞"
 "が除去されるのではなく、それに含まれるバイトの組み合わせ全てが除去されます::"
 
-#: ../../library/stdtypes.rst:3417
 msgid ""
 ">>> b'   spacious   '.lstrip()\n"
 "b'spacious   '\n"
 ">>> b'www.example.com'.lstrip(b'cmowz.')\n"
 "b'example.com'"
 msgstr ""
+">>> b'   spacious   '.lstrip()\n"
+"b'spacious   '\n"
+">>> b'www.example.com'.lstrip(b'cmowz.')\n"
+"b'example.com'"
 
 #: ../../library/stdtypes.rst:3422
 msgid ""
@@ -5890,13 +6067,16 @@ msgstr ""
 "した文字列そのものを接頭辞として削除するメソッドについては、 :meth:`~bytes."
 "removeprefix` を参照してください。使用例::"
 
-#: ../../library/stdtypes.rst:3427
 msgid ""
 ">>> b'Arthur: three!'.lstrip(b'Arthur: ')\n"
 "b'ee!'\n"
 ">>> b'Arthur: three!'.removeprefix(b'Arthur: ')\n"
 "b'three!'"
 msgstr ""
+">>> b'Arthur: three!'.lstrip(b'Arthur: ')\n"
+"b'ee!'\n"
+">>> b'Arthur: three!'.removeprefix(b'Arthur: ')\n"
+"b'three!'"
 
 #: ../../library/stdtypes.rst:3441
 msgid ""
@@ -5941,13 +6121,16 @@ msgstr ""
 "`bytearray.isspace` を参照) が除去されます。なお *chars* 引数と一致する接尾辞"
 "が除去されるのではなく、それに含まれるバイトの組み合わせ全てが除去されます::"
 
-#: ../../library/stdtypes.rst:3473
 msgid ""
 ">>> b'   spacious   '.rstrip()\n"
 "b'   spacious'\n"
 ">>> b'mississippi'.rstrip(b'ipz')\n"
 "b'mississ'"
 msgstr ""
+">>> b'   spacious   '.rstrip()\n"
+"b'   spacious'\n"
+">>> b'mississippi'.rstrip(b'ipz')\n"
+"b'mississ'"
 
 #: ../../library/stdtypes.rst:3478
 msgid ""
@@ -5960,13 +6143,16 @@ msgstr ""
 "した文字列そのものを接尾辞として削除するメソッドについては、 :meth:`~bytes."
 "removesuffix` を参照してください。使用例::"
 
-#: ../../library/stdtypes.rst:3483
 msgid ""
 ">>> b'Monty Python'.rstrip(b' Python')\n"
 "b'M'\n"
 ">>> b'Monty Python'.removesuffix(b' Python')\n"
 "b'Monty'"
 msgstr ""
+">>> b'Monty Python'.rstrip(b' Python')\n"
+"b'M'\n"
+">>> b'Monty Python'.removesuffix(b' Python')\n"
+"b'Monty'"
 
 #: ../../library/stdtypes.rst:3497
 msgid ""
@@ -5999,7 +6185,6 @@ msgstr ""
 "``[b'']`` または ``[bytearray(b'')]`` が返されます。\n"
 "*sep* には、任意の :term:`bytes-like object` を指定できます。"
 
-#: ../../library/stdtypes.rst:3513
 msgid ""
 ">>> b'1,2,3'.split(b',')\n"
 "[b'1', b'2', b'3']\n"
@@ -6010,6 +6195,14 @@ msgid ""
 ">>> b'1<>2<>3<4'.split(b'<>')\n"
 "[b'1', b'2', b'3<4']"
 msgstr ""
+">>> b'1,2,3'.split(b',')\n"
+"[b'1', b'2', b'3']\n"
+">>> b'1,2,3'.split(b',', maxsplit=1)\n"
+"[b'1', b'2,3']\n"
+">>> b'1,2,,3,'.split(b',')\n"
+"[b'1', b'2', b'', b'3', b'']\n"
+">>> b'1<>2<>3<4'.split(b'<>')\n"
+"[b'1', b'2', b'3<4']"
 
 #: ../../library/stdtypes.rst:3522
 msgid ""
@@ -6026,7 +6219,6 @@ msgstr ""
 "がって区切りを指定せずに空のシーケンスや ASCII 空白文字だけのシーケンスを分割"
 "すると、 ``[]`` が返されます。"
 
-#: ../../library/stdtypes.rst:3532
 msgid ""
 ">>> b'1 2 3'.split()\n"
 "[b'1', b'2', b'3']\n"
@@ -6035,6 +6227,12 @@ msgid ""
 ">>> b'   1   2   3   '.split()\n"
 "[b'1', b'2', b'3']"
 msgstr ""
+">>> b'1 2 3'.split()\n"
+"[b'1', b'2', b'3']\n"
+">>> b'1 2 3'.split(maxsplit=1)\n"
+"[b'1', b'2 3']\n"
+">>> b'   1   2   3   '.split()\n"
+"[b'1', b'2', b'3']"
 
 #: ../../library/stdtypes.rst:3543
 msgid ""
@@ -6053,13 +6251,16 @@ msgstr ""
 "する接頭辞および接尾辞が除去されるのではなく、それに含まれるバイトの組み合わ"
 "せ全てが除去されます::"
 
-#: ../../library/stdtypes.rst:3551
 msgid ""
 ">>> b'   spacious   '.strip()\n"
 "b'spacious'\n"
 ">>> b'www.example.com'.strip(b'cmowz.')\n"
 "b'example'"
 msgstr ""
+">>> b'   spacious   '.strip()\n"
+"b'spacious'\n"
+">>> b'www.example.com'.strip(b'cmowz.')\n"
+"b'example'"
 
 #: ../../library/stdtypes.rst:3556
 msgid ""
@@ -6119,13 +6320,16 @@ msgstr ""
 "ト値の表示のされ方（訳注: 全角、半角など）に関わらず現桁位置を 1 つ増加させま"
 "す::"
 
-#: ../../library/stdtypes.rst:3600
 msgid ""
 ">>> b'01\\t012\\t0123\\t01234'.expandtabs()\n"
 "b'01      012     0123    01234'\n"
 ">>> b'01\\t012\\t0123\\t01234'.expandtabs(4)\n"
 "b'01  012 0123    01234'"
 msgstr ""
+">>> b'01\\t012\\t0123\\t01234'.expandtabs()\n"
+"b'01      012     0123    01234'\n"
+">>> b'01\\t012\\t0123\\t01234'.expandtabs(4)\n"
+"b'01  012 0123    01234'"
 
 #: ../../library/stdtypes.rst:3614
 msgid ""
@@ -6141,13 +6345,16 @@ msgstr ""
 "``b'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'`` に含まれるバイト"
 "値です。 ASCII 文字の数字とは ``b'0123456789'`` に含まれるバイト値です。"
 
-#: ../../library/stdtypes.rst:3622
 msgid ""
 ">>> b'ABCabc1'.isalnum()\n"
 "True\n"
 ">>> b'ABC abc1'.isalnum()\n"
 "False"
 msgstr ""
+">>> b'ABCabc1'.isalnum()\n"
+"True\n"
+">>> b'ABC abc1'.isalnum()\n"
+"False"
 
 #: ../../library/stdtypes.rst:3631
 msgid ""
@@ -6162,13 +6369,16 @@ msgstr ""
 "``b'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'`` に含まれるバイト"
 "値です。"
 
-#: ../../library/stdtypes.rst:3638
 msgid ""
 ">>> b'ABCabc'.isalpha()\n"
 "True\n"
 ">>> b'ABCabc1'.isalpha()\n"
 "False"
 msgstr ""
+">>> b'ABCabc'.isalpha()\n"
+"True\n"
+">>> b'ABCabc1'.isalpha()\n"
+"False"
 
 #: ../../library/stdtypes.rst:3647
 msgid ""
@@ -6189,13 +6399,16 @@ msgstr ""
 "``True`` を、そうでなければ ``False`` を返します。ここでの ASCII 文字の数字と"
 "は ``b'0123456789'`` に含まれるバイト値です。"
 
-#: ../../library/stdtypes.rst:3663
 msgid ""
 ">>> b'1234'.isdigit()\n"
 "True\n"
 ">>> b'1.23'.isdigit()\n"
 "False"
 msgstr ""
+">>> b'1234'.isdigit()\n"
+"True\n"
+">>> b'1.23'.isdigit()\n"
+"False"
 
 #: ../../library/stdtypes.rst:3672
 msgid ""
@@ -6206,13 +6419,16 @@ msgstr ""
 "ファベットの ASCII 文字が一つも無い場合に ``True`` を返します。そうでなけれ"
 "ば ``False`` を返します。"
 
-#: ../../library/stdtypes.rst:3677
 msgid ""
 ">>> b'hello world'.islower()\n"
 "True\n"
 ">>> b'Hello world'.islower()\n"
 "False"
 msgstr ""
+">>> b'hello world'.islower()\n"
+"True\n"
+">>> b'Hello world'.islower()\n"
+"False"
 
 #: ../../library/stdtypes.rst:3682 ../../library/stdtypes.rst:3724
 #: ../../library/stdtypes.rst:3740 ../../library/stdtypes.rst:3790
@@ -6248,13 +6464,16 @@ msgstr ""
 "``True`` を、そうでなければ ``False`` を返します。「タイトルケース文字列」の"
 "定義については :meth:`bytes.title` を参照してください。"
 
-#: ../../library/stdtypes.rst:3705
 msgid ""
 ">>> b'Hello World'.istitle()\n"
 "True\n"
 ">>> b'Hello world'.istitle()\n"
 "False"
 msgstr ""
+">>> b'Hello World'.istitle()\n"
+"True\n"
+">>> b'Hello world'.istitle()\n"
+"False"
 
 #: ../../library/stdtypes.rst:3714
 msgid ""
@@ -6266,13 +6485,16 @@ msgstr ""
 "ファベットの ASCII 文字が一つも無い場合に ``True`` を返します。そうでなけれ"
 "ば ``False`` を返します。"
 
-#: ../../library/stdtypes.rst:3719
 msgid ""
 ">>> b'HELLO WORLD'.isupper()\n"
 "True\n"
 ">>> b'Hello world'.isupper()\n"
 "False"
 msgstr ""
+">>> b'HELLO WORLD'.isupper()\n"
+"True\n"
+">>> b'Hello world'.isupper()\n"
+"False"
 
 #: ../../library/stdtypes.rst:3732
 msgid ""
@@ -6282,11 +6504,12 @@ msgstr ""
 "シーケンスに含まれる大文字アルファベットの ASCII 文字を全て小文字アルファベッ"
 "トに変換したシーケンスのコピーを返します。"
 
-#: ../../library/stdtypes.rst:3737
 msgid ""
 ">>> b'Hello World'.lower()\n"
 "b'hello world'"
 msgstr ""
+">>> b'Hello World'.lower()\n"
+"b'hello world'"
 
 #: ../../library/stdtypes.rst:3757
 msgid ""
@@ -6300,13 +6523,16 @@ msgstr ""
 "*keepends* 引数に真を与えた場合を除き、改行コードは結果のリストに含まれませ"
 "ん。"
 
-#: ../../library/stdtypes.rst:3764
 msgid ""
 ">>> b'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines()\n"
 "[b'ab c', b'', b'de fg', b'kl']\n"
 ">>> b'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines(keepends=True)\n"
 "[b'ab c\\n', b'\\n', b'de fg\\r', b'kl\\r\\n']"
 msgstr ""
+">>> b'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines()\n"
+"[b'ab c', b'', b'de fg', b'kl']\n"
+">>> b'ab c\\n\\nde fg\\rkl\\r\\n'.splitlines(keepends=True)\n"
+"[b'ab c\\n', b'\\n', b'de fg\\r', b'kl\\r\\n']"
 
 msgid ""
 "Unlike :meth:`~bytes.split` when a delimiter string *sep* is given, this "
@@ -6317,36 +6543,41 @@ msgstr ""
 "このメソッドは空のシーケンスに対して空のリストを返し、末尾に改行があっても余"
 "分な行を追加しません::"
 
-#: ../../library/stdtypes.rst:3773
 msgid ""
 ">>> b\"\".split(b'\\n'), b\"Two lines\\n\".split(b'\\n')\n"
 "([b''], [b'Two lines', b''])\n"
 ">>> b\"\".splitlines(), b\"One line\\n\".splitlines()\n"
 "([], [b'One line'])"
 msgstr ""
+">>> b\"\".split(b'\\n'), b\"Two lines\\n\".split(b'\\n')\n"
+"([b''], [b'Two lines', b''])\n"
+">>> b\"\".splitlines(), b\"One line\\n\".splitlines()\n"
+"([], [b'One line'])"
 
-#: ../../library/stdtypes.rst:3782
 msgid ""
 "Return a copy of the sequence with all the lowercase ASCII characters "
 "converted to their corresponding uppercase counterpart and vice-versa."
 msgstr ""
-"シーケンスに含まれる小文字アルファベットの ASCII 文字を全て大文字アルファベッ"
-"トに変換し、さらに大文字アルファベットを同様に小文字アルファベットに変換した"
-"シーケンスのコピーを返します。"
+"シーケンス内の小文字の ASCII 文字を対応する大文字に、大文字の ASCII 文字を対"
+"応する小文字に変換したコピーを返します。"
 
-#: ../../library/stdtypes.rst:3787
 msgid ""
 ">>> b'Hello World'.swapcase()\n"
 "b'hELLO wORLD'"
 msgstr ""
+">>> b'Hello World'.swapcase()\n"
+"b'hELLO wORLD'"
 
-#: ../../library/stdtypes.rst:3794
 msgid ""
 "Unlike :func:`str.swapcase`, it is always the case that ``bin.swapcase()."
 "swapcase() == bin`` for the binary versions. Case conversions are "
 "symmetrical in ASCII, even though that is not generally true for arbitrary "
 "Unicode code points."
 msgstr ""
+":func:`str.swapcase` とは異なり、バイナリ版では ``bin.swapcase().swapcase() "
+"== bin`` が常に成り立ちます。\n"
+"任意の Unicode コードポイントについては一般に成り立ちませんが、ASCII では大文"
+"字と小文字の変換が対称だからです。"
 
 #: ../../library/stdtypes.rst:3808
 msgid ""
@@ -6359,11 +6590,12 @@ msgstr ""
 "なっているシーケンスが返ります。大文字小文字の区別が無いバイト値については変"
 "更されずそのままになります。"
 
-#: ../../library/stdtypes.rst:3814
 msgid ""
 ">>> b'Hello world'.title()\n"
 "b'Hello World'"
 msgstr ""
+">>> b'Hello world'.title()\n"
+"b'Hello World'"
 
 #: ../../library/stdtypes.rst:3817
 msgid ""
@@ -6377,18 +6609,18 @@ msgstr ""
 "に含まれるバイト値です。その他のバイト値については、大文字小文字の区別はあり"
 "ません。"
 
-#: ../../library/stdtypes.rst:3827
 msgid ""
 ">>> b\"they're bill's friends from the UK\".title()\n"
 "b\"They'Re Bill'S Friends From The Uk\""
 msgstr ""
+">>> b\"they're bill's friends from the UK\".title()\n"
+"b\"They'Re Bill'S Friends From The Uk\""
 
 #: ../../library/stdtypes.rst:3830
 msgid ""
 "A workaround for apostrophes can be constructed using regular expressions::"
 msgstr "正規表現を使うことでアポストロフィに対応できます::"
 
-#: ../../library/stdtypes.rst:3832
 msgid ""
 ">>> import re\n"
 ">>> def titlecase(s):\n"
@@ -6400,6 +6632,15 @@ msgid ""
 ">>> titlecase(b\"they're bill's friends.\")\n"
 "b\"They're Bill's Friends.\""
 msgstr ""
+">>> import re\n"
+">>> def titlecase(s):\n"
+"...     return re.sub(rb\"[A-Za-z]+('[A-Za-z]+)?\",\n"
+"...                   lambda mo: mo.group(0)[0:1].upper() +\n"
+"...                              mo.group(0)[1:].lower(),\n"
+"...                   s)\n"
+"...\n"
+">>> titlecase(b\"they're bill's friends.\")\n"
+"b\"They're Bill's Friends.\""
 
 #: ../../library/stdtypes.rst:3851
 msgid ""
@@ -6409,13 +6650,13 @@ msgstr ""
 "シーケンスに含まれる小文字アルファベットの ASCII 文字を全て大文字アルファベッ"
 "トに変換したシーケンスのコピーを返します。"
 
-#: ../../library/stdtypes.rst:3856
 msgid ""
 ">>> b'Hello World'.upper()\n"
 "b'HELLO WORLD'"
 msgstr ""
+">>> b'Hello World'.upper()\n"
+"b'HELLO WORLD'"
 
-#: ../../library/stdtypes.rst:3872
 msgid ""
 "Return a copy of the sequence left filled with ASCII ``b'0'`` digits to make "
 "a sequence of length *width*. A leading sign prefix (``b'+'``/ ``b'-'``) is "
@@ -6423,18 +6664,23 @@ msgid ""
 "before. For :class:`bytes` objects, the original sequence is returned if "
 "*width* is less than or equal to ``len(seq)``."
 msgstr ""
-"長さが *width* になるよう ASCII ``b'0'`` で左詰めしたシーケンスのコピーを返し"
-"ます。先頭が符号接頭辞 (``b'+'``/``b'-'``) だった場合、 ``b'0'`` は符号の前で"
-"はなく *後* に挿入されます。 :class:`bytes` オブジェクトの場合、 *width* が "
-"``len(seq)`` 以下であれば元のシーケンスが返ります。"
+"長さが ``width`` になるよう、左側を ASCII ``b'0'`` で埋めたシーケンスのコピー"
+"を返します。\n"
+"先頭に符号接頭辞 (``b'+'``/ ``b'-'``) がある場合は、符号文字の前ではなく *後"
+"* にパディングを挿入します。\n"
+":class:`bytes` オブジェクトの場合、``width`` が ``len(seq)`` 以下なら元のシー"
+"ケンスを返します。"
 
-#: ../../library/stdtypes.rst:3880
 msgid ""
 ">>> b\"42\".zfill(5)\n"
 "b'00042'\n"
 ">>> b\"-42\".zfill(5)\n"
 "b'-0042'"
 msgstr ""
+">>> b\"42\".zfill(5)\n"
+"b'00042'\n"
+">>> b\"-42\".zfill(5)\n"
+"b'-0042'"
 
 #: ../../library/stdtypes.rst:3894
 msgid "``printf``-style Bytes Formatting"
@@ -6617,7 +6863,6 @@ msgstr ""
 ":class:`memoryview` はスライスおよびインデックス指定で内容を取得できます。一"
 "次元のスライスは部分ビューになります::"
 
-#: ../../library/stdtypes.rst:4131
 msgid ""
 ">>> v = memoryview(b'abcefg')\n"
 ">>> v[1]\n"
@@ -6629,6 +6874,15 @@ msgid ""
 ">>> bytes(v[1:4])\n"
 "b'bce'"
 msgstr ""
+">>> v = memoryview(b'abcefg')\n"
+">>> v[1]\n"
+"98\n"
+">>> v[-1]\n"
+"103\n"
+">>> v[1:4]\n"
+"<memory at 0x7f3ddc9f4350>\n"
+">>> bytes(v[1:4])\n"
+"b'bce'"
 
 #: ../../library/stdtypes.rst:4141
 msgid ""
@@ -6652,7 +6906,6 @@ msgstr ""
 msgid "Here is an example with a non-byte format::"
 msgstr "``format`` が単バイト単位ではない例を示します::"
 
-#: ../../library/stdtypes.rst:4152
 msgid ""
 ">>> import array\n"
 ">>> a = array.array('l', [-11111111, 22222222, -33333333, 44444444])\n"
@@ -6664,6 +6917,15 @@ msgid ""
 ">>> m[::2].tolist()\n"
 "[-11111111, -33333333]"
 msgstr ""
+">>> import array\n"
+">>> a = array.array('l', [-11111111, 22222222, -33333333, 44444444])\n"
+">>> m = memoryview(a)\n"
+">>> m[0]\n"
+"-11111111\n"
+">>> m[-1]\n"
+"44444444\n"
+">>> m[::2].tolist()\n"
+"[-11111111, -33333333]"
 
 #: ../../library/stdtypes.rst:4162
 msgid ""
@@ -6673,7 +6935,6 @@ msgstr ""
 "メモリビューの参照しているオブジェクトが書き込み可能であれば、一次元スライス"
 "での代入が可能です。ただしサイズの変更はできません::"
 
-#: ../../library/stdtypes.rst:4165
 msgid ""
 ">>> data = bytearray(b'abcefg')\n"
 ">>> v = memoryview(data)\n"
@@ -6694,6 +6955,24 @@ msgid ""
 ">>> data\n"
 "bytearray(b'z1spam')"
 msgstr ""
+">>> data = bytearray(b'abcefg')\n"
+">>> v = memoryview(data)\n"
+">>> v.readonly\n"
+"False\n"
+">>> v[0] = ord(b'z')\n"
+">>> data\n"
+"bytearray(b'zbcefg')\n"
+">>> v[1:4] = b'123'\n"
+">>> data\n"
+"bytearray(b'z123fg')\n"
+">>> v[2:3] = b'spam'\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"ValueError: memoryview assignment: lvalue and rvalue have different "
+"structures\n"
+">>> v[2:6] = b'spam'\n"
+">>> data\n"
+"bytearray(b'z1spam')"
 
 #: ../../library/stdtypes.rst:4183
 msgid ""
@@ -6705,7 +6984,6 @@ msgstr ""
 "み出し専用の) 型の1次元メモリビューもまた、ハッシュ可能です。ハッシュは "
 "``hash(m) == hash(m.tobytes())`` として定義されています::"
 
-#: ../../library/stdtypes.rst:4187
 msgid ""
 ">>> v = memoryview(b'abcefg')\n"
 ">>> hash(v) == hash(b'abcefg')\n"
@@ -6715,6 +6993,13 @@ msgid ""
 ">>> hash(v[::-2]) == hash(b'abcefg'[::-2])\n"
 "True"
 msgstr ""
+">>> v = memoryview(b'abcefg')\n"
+">>> hash(v) == hash(b'abcefg')\n"
+"True\n"
+">>> hash(v[2:4]) == hash(b'ce')\n"
+"True\n"
+">>> hash(v[::-2]) == hash(b'abcefg'[::-2])\n"
+"True"
 
 #: ../../library/stdtypes.rst:4195
 msgid ""
@@ -6737,9 +7022,8 @@ msgstr ""
 msgid "memoryviews can now be indexed with tuple of integers."
 msgstr "メモリビューは整数のタプルでインデックス指定できるようになりました。"
 
-#: ../../library/stdtypes.rst:4206
 msgid "memoryview is now a :term:`generic type`."
-msgstr ""
+msgstr "memoryview が :term:`ジェネリック型 <generic type>` になりました。"
 
 #: ../../library/stdtypes.rst:4209
 msgid ":class:`memoryview` has several methods:"
@@ -6762,7 +7046,6 @@ msgstr ""
 ":meth:`tolist` がサポートしている :mod:`struct` フォーマットの一部では、 ``v."
 "tolist() == w.tolist()`` が成り立つときに ``v`` == ``w`` になります::"
 
-#: ../../library/stdtypes.rst:4220
 msgid ""
 ">>> import array\n"
 ">>> a = array.array('I', [1, 2, 3, 4, 5])\n"
@@ -6780,6 +7063,21 @@ msgid ""
 ">>> z.tolist() == c.tolist()\n"
 "True"
 msgstr ""
+">>> import array\n"
+">>> a = array.array('I', [1, 2, 3, 4, 5])\n"
+">>> b = array.array('d', [1.0, 2.0, 3.0, 4.0, 5.0])\n"
+">>> c = array.array('b', [5, 3, 1])\n"
+">>> x = memoryview(a)\n"
+">>> y = memoryview(b)\n"
+">>> x == a == y == b\n"
+"True\n"
+">>> x.tolist() == a.tolist() == y.tolist() == b.tolist()\n"
+"True\n"
+">>> z = y[::-2]\n"
+">>> z == c\n"
+"True\n"
+">>> z.tolist() == c.tolist()\n"
+"True"
 
 #: ../../library/stdtypes.rst:4236
 msgid ""
@@ -6791,7 +7089,6 @@ msgstr ""
 "(書式文字列とバッファの内容が同一でも) オブジェクトは常に等しくないものとして"
 "比較されます::"
 
-#: ../../library/stdtypes.rst:4240
 msgid ""
 ">>> from ctypes import BigEndianStructure, c_long\n"
 ">>> class BEPoint(BigEndianStructure):\n"
@@ -6805,6 +7102,17 @@ msgid ""
 ">>> a == b\n"
 "False"
 msgstr ""
+">>> from ctypes import BigEndianStructure, c_long\n"
+">>> class BEPoint(BigEndianStructure):\n"
+"...     _fields_ = [(\"x\", c_long), (\"y\", c_long)]\n"
+"...\n"
+">>> point = BEPoint(100, 200)\n"
+">>> a = memoryview(point)\n"
+">>> b = memoryview(point)\n"
+">>> a == point\n"
+"False\n"
+">>> a == b\n"
+"False"
 
 #: ../../library/stdtypes.rst:4252
 msgid ""
@@ -6830,7 +7138,6 @@ msgstr ""
 "バッファ中のデータをバイト文字列として返します。これはメモリビューに対して :"
 "class:`bytes` コンストラクタを呼び出すのと同等です。 ::"
 
-#: ../../library/stdtypes.rst:4264
 msgid ""
 ">>> m = memoryview(b\"abc\")\n"
 ">>> m.tobytes()\n"
@@ -6838,6 +7145,11 @@ msgid ""
 ">>> bytes(m)\n"
 "b'abc'"
 msgstr ""
+">>> m = memoryview(b\"abc\")\n"
+">>> m.tobytes()\n"
+"b'abc'\n"
+">>> bytes(m)\n"
+"b'abc'"
 
 #: ../../library/stdtypes.rst:4270
 msgid ""
@@ -6871,12 +7183,14 @@ msgid ""
 msgstr ""
 "バッファ内の各バイトを2桁の16進数字で表した文字列オブジェクトを返します。 ::"
 
-#: ../../library/stdtypes.rst:4287
 msgid ""
 ">>> m = memoryview(b\"abc\")\n"
 ">>> m.hex()\n"
 "'616263'"
 msgstr ""
+">>> m = memoryview(b\"abc\")\n"
+">>> m.hex()\n"
+"'616263'"
 
 #: ../../library/stdtypes.rst:4293
 msgid ""
@@ -6892,7 +7206,6 @@ msgstr ""
 msgid "Return the data in the buffer as a list of elements. ::"
 msgstr "バッファ中のデータを要素のリストとして返します。 ::"
 
-#: ../../library/stdtypes.rst:4302
 msgid ""
 ">>> memoryview(b'abc').tolist()\n"
 "[97, 98, 99]\n"
@@ -6902,6 +7215,13 @@ msgid ""
 ">>> m.tolist()\n"
 "[1.1, 2.2, 3.3]"
 msgstr ""
+">>> memoryview(b'abc').tolist()\n"
+"[97, 98, 99]\n"
+">>> import array\n"
+">>> a = array.array('d', [1.1, 2.2, 3.3])\n"
+">>> m = memoryview(a)\n"
+">>> m.tolist()\n"
+"[1.1, 2.2, 3.3]"
 
 #: ../../library/stdtypes.rst:4310
 msgid ""
@@ -6919,7 +7239,6 @@ msgstr ""
 "読み込み専用のメモリビューオブジェクトを返します。元のメモリビューオブジェク"
 "トは変更されません。 ::"
 
-#: ../../library/stdtypes.rst:4320
 msgid ""
 ">>> m = memoryview(bytearray(b'abc'))\n"
 ">>> mm = m.toreadonly()\n"
@@ -6933,6 +7252,17 @@ msgid ""
 ">>> mm.tolist()\n"
 "[43, 98, 99]"
 msgstr ""
+">>> m = memoryview(bytearray(b'abc'))\n"
+">>> mm = m.toreadonly()\n"
+">>> mm.tolist()\n"
+"[97, 98, 99]\n"
+">>> mm[0] = 42\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"TypeError: cannot modify read-only memory\n"
+">>> m[0] = 43\n"
+">>> mm.tolist()\n"
+"[43, 98, 99]"
 
 #: ../../library/stdtypes.rst:4336
 msgid ""
@@ -6955,7 +7285,6 @@ msgid ""
 "multiple times)::"
 msgstr ""
 
-#: ../../library/stdtypes.rst:4346
 msgid ""
 ">>> m = memoryview(b'abc')\n"
 ">>> m.release()\n"
@@ -6964,6 +7293,12 @@ msgid ""
 "  File \"<stdin>\", line 1, in <module>\n"
 "ValueError: operation forbidden on released memoryview object"
 msgstr ""
+">>> m = memoryview(b'abc')\n"
+">>> m.release()\n"
+">>> m[0]\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"ValueError: operation forbidden on released memoryview object"
 
 #: ../../library/stdtypes.rst:4353
 msgid ""
@@ -6973,7 +7308,6 @@ msgstr ""
 "コンテキストマネージャプロトコルは、 ``with`` 文を使って同様の効果を得るのに"
 "使えます::"
 
-#: ../../library/stdtypes.rst:4356
 msgid ""
 ">>> with memoryview(b'abc') as m:\n"
 "...     m[0]\n"
@@ -6984,6 +7318,14 @@ msgid ""
 "  File \"<stdin>\", line 1, in <module>\n"
 "ValueError: operation forbidden on released memoryview object"
 msgstr ""
+">>> with memoryview(b'abc') as m:\n"
+"...     m[0]\n"
+"...\n"
+"97\n"
+">>> m[0]\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"ValueError: operation forbidden on released memoryview object"
 
 msgid ""
 "Cast a memoryview to a new format or shape. *shape* defaults to "
@@ -7017,7 +7359,6 @@ msgstr ""
 msgid "Cast 1D/long to 1D/unsigned bytes::"
 msgstr "1次元 long から 1次元 unsigned byte へのキャスト::"
 
-#: ../../library/stdtypes.rst:4383
 msgid ""
 ">>> import array\n"
 ">>> a = array.array('l', [1,2,3])\n"
@@ -7040,12 +7381,31 @@ msgid ""
 ">>> y.nbytes\n"
 "24"
 msgstr ""
+">>> import array\n"
+">>> a = array.array('l', [1,2,3])\n"
+">>> x = memoryview(a)\n"
+">>> x.format\n"
+"'l'\n"
+">>> x.itemsize\n"
+"8\n"
+">>> len(x)\n"
+"3\n"
+">>> x.nbytes\n"
+"24\n"
+">>> y = x.cast('B')\n"
+">>> y.format\n"
+"'B'\n"
+">>> y.itemsize\n"
+"1\n"
+">>> len(y)\n"
+"24\n"
+">>> y.nbytes\n"
+"24"
 
 #: ../../library/stdtypes.rst:4404
 msgid "Cast 1D/unsigned bytes to 1D/char::"
 msgstr "1次元 unsigned byte から 1次元 char へのキャスト::"
 
-#: ../../library/stdtypes.rst:4406
 msgid ""
 ">>> b = bytearray(b'zyz')\n"
 ">>> x = memoryview(b)\n"
@@ -7058,12 +7418,21 @@ msgid ""
 ">>> b\n"
 "bytearray(b'ayz')"
 msgstr ""
+">>> b = bytearray(b'zyz')\n"
+">>> x = memoryview(b)\n"
+">>> x[0] = b'a'\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"TypeError: memoryview: invalid type for format 'B'\n"
+">>> y = x.cast('c')\n"
+">>> y[0] = b'a'\n"
+">>> b\n"
+"bytearray(b'ayz')"
 
 #: ../../library/stdtypes.rst:4417
 msgid "Cast 1D/bytes to 3D/ints to 1D/signed char::"
 msgstr "1次元 byte から 3次元 int へ、そして 1次元 signed char へのキャスト::"
 
-#: ../../library/stdtypes.rst:4419
 msgid ""
 ">>> import struct\n"
 ">>> buf = struct.pack(\"i\"*12, *list(range(12)))\n"
@@ -7089,12 +7458,34 @@ msgid ""
 ">>> z.nbytes\n"
 "48"
 msgstr ""
+">>> import struct\n"
+">>> buf = struct.pack(\"i\"*12, *list(range(12)))\n"
+">>> x = memoryview(buf)\n"
+">>> y = x.cast('i', shape=[2,2,3])\n"
+">>> y.tolist()\n"
+"[[[0, 1, 2], [3, 4, 5]], [[6, 7, 8], [9, 10, 11]]]\n"
+">>> y.format\n"
+"'i'\n"
+">>> y.itemsize\n"
+"4\n"
+">>> len(y)\n"
+"2\n"
+">>> y.nbytes\n"
+"48\n"
+">>> z = y.cast('b')\n"
+">>> z.format\n"
+"'b'\n"
+">>> z.itemsize\n"
+"1\n"
+">>> len(z)\n"
+"48\n"
+">>> z.nbytes\n"
+"48"
 
 #: ../../library/stdtypes.rst:4443
 msgid "Cast 1D/unsigned long to 2D/unsigned long::"
 msgstr "1次元 unsigned long から 2次元 unsigned long へのキャスト::"
 
-#: ../../library/stdtypes.rst:4445
 msgid ""
 ">>> buf = struct.pack(\"L\"*6, *list(range(6)))\n"
 ">>> x = memoryview(buf)\n"
@@ -7106,6 +7497,15 @@ msgid ""
 ">>> y.tolist()\n"
 "[[0, 1, 2], [3, 4, 5]]"
 msgstr ""
+">>> buf = struct.pack(\"L\"*6, *list(range(6)))\n"
+">>> x = memoryview(buf)\n"
+">>> y = x.cast('L', shape=[2,3])\n"
+">>> len(y)\n"
+"2\n"
+">>> y.nbytes\n"
+"48\n"
+">>> y.tolist()\n"
+"[[0, 1, 2], [3, 4, 5]]"
 
 #: ../../library/stdtypes.rst:4457
 msgid "The source format is no longer restricted when casting to a byte view."
@@ -7113,19 +7513,18 @@ msgstr ""
 "単バイトのビューへキャストする場合、キャスト元のフォーマットについて制約は無"
 "くなりました。"
 
-#: ../../library/stdtypes.rst:4462
 msgid "Count the number of occurrences of *value*."
-msgstr ""
+msgstr "``value`` の出現回数を数えます。"
 
-#: ../../library/stdtypes.rst:4468
 msgid ""
 "Return the index of the first occurrence of *value* (at or after index "
 "*start* and before index *stop*)."
 msgstr ""
+"``value`` が最初に出現する位置のインデックスを返します (インデックス "
+"``start`` 以上、``stop`` 未満の範囲で検索します)。"
 
-#: ../../library/stdtypes.rst:4471
 msgid "Raises a :exc:`ValueError` if *value* cannot be found."
-msgstr ""
+msgstr "``value`` が見つからない場合は :exc:`ValueError` を送出します。"
 
 #: ../../library/stdtypes.rst:4475
 msgid "There are also several readonly attributes available:"
@@ -7135,24 +7534,26 @@ msgstr "読み出し専用の属性もいくつか使えます:"
 msgid "The underlying object of the memoryview::"
 msgstr "memoryview が参照しているオブジェクト::"
 
-#: ../../library/stdtypes.rst:4481
 msgid ""
 ">>> b  = bytearray(b'xyz')\n"
 ">>> m = memoryview(b)\n"
 ">>> m.obj is b\n"
 "True"
 msgstr ""
+">>> b  = bytearray(b'xyz')\n"
+">>> m = memoryview(b)\n"
+">>> m.obj is b\n"
+"True"
 
-#: ../../library/stdtypes.rst:4490
 msgid ""
 "``nbytes == product(shape) * itemsize == len(m.tobytes())``. This is the "
 "amount of space in bytes that the array would use in a contiguous "
 "representation. It is not necessarily equal to ``len(m)``::"
 msgstr ""
-"``nbytes == product(shape) * itemsize == len(m.tobytes())``. その配列が連続表"
-"現において利用するスペースです。これは ``len(m)`` と一致するとは限りません::"
+"``nbytes == product(shape) * itemsize == len(m.tobytes())`` です。\n"
+"これは、配列を連続した表現にした場合に使う領域のバイト数です。\n"
+"``len(m)`` と等しいとは限りません。 ::"
 
-#: ../../library/stdtypes.rst:4494
 msgid ""
 ">>> import array\n"
 ">>> a = array.array('i', [1,2,3,4,5])\n"
@@ -7169,12 +7570,25 @@ msgid ""
 ">>> len(y.tobytes())\n"
 "12"
 msgstr ""
+">>> import array\n"
+">>> a = array.array('i', [1,2,3,4,5])\n"
+">>> m = memoryview(a)\n"
+">>> len(m)\n"
+"5\n"
+">>> m.nbytes\n"
+"20\n"
+">>> y = m[::2]\n"
+">>> len(y)\n"
+"3\n"
+">>> y.nbytes\n"
+"12\n"
+">>> len(y.tobytes())\n"
+"12"
 
 #: ../../library/stdtypes.rst:4509
 msgid "Multi-dimensional arrays::"
 msgstr "多次元配列::"
 
-#: ../../library/stdtypes.rst:4511
 msgid ""
 ">>> import struct\n"
 ">>> buf = struct.pack(\"d\"*12, *[1.5*x for x in range(12)])\n"
@@ -7187,6 +7601,16 @@ msgid ""
 ">>> y.nbytes\n"
 "96"
 msgstr ""
+">>> import struct\n"
+">>> buf = struct.pack(\"d\"*12, *[1.5*x for x in range(12)])\n"
+">>> x = memoryview(buf)\n"
+">>> y = x.cast('d', shape=[3,4])\n"
+">>> y.tolist()\n"
+"[[0.0, 1.5, 3.0, 4.5], [6.0, 7.5, 9.0, 10.5], [12.0, 13.5, 15.0, 16.5]]\n"
+">>> len(y)\n"
+"3\n"
+">>> y.nbytes\n"
+"96"
 
 #: ../../library/stdtypes.rst:4526
 msgid "A bool indicating whether the memory is read only."
@@ -7216,7 +7640,6 @@ msgstr ""
 msgid "The size in bytes of each element of the memoryview::"
 msgstr "memoryview の各要素のバイト単位の大きさ::"
 
-#: ../../library/stdtypes.rst:4543
 msgid ""
 ">>> import array, struct\n"
 ">>> m = memoryview(array.array('H', [32000, 32001, 32002]))\n"
@@ -7227,6 +7650,14 @@ msgid ""
 ">>> struct.calcsize('H') == m.itemsize\n"
 "True"
 msgstr ""
+">>> import array, struct\n"
+">>> m = memoryview(array.array('H', [32000, 32001, 32002]))\n"
+">>> m.itemsize\n"
+"2\n"
+">>> m[0]\n"
+"32000\n"
+">>> struct.calcsize('H') == m.itemsize\n"
+"True"
 
 #: ../../library/stdtypes.rst:4554
 msgid ""
@@ -7523,15 +7954,15 @@ msgstr ""
 "集合の要素は、辞書のキーのように、 :term:`ハッシュ可能 <hashable>` でなければ"
 "なりません。"
 
-#: ../../library/stdtypes.rst:4737
 msgid ""
 "Binary operations that mix :class:`set` instances with :class:`frozenset` "
 "return the type of the first operand.  For example: ``frozenset('ab') | "
 "set('bc')`` returns an instance of :class:`frozenset`."
 msgstr ""
-":class:`set` インスタンスと :class:`frozenset` インスタンスを取り混ぜての二項"
-"演算は、第一被演算子の型を返します。例えば: ``frozenset('ab') | set('bc')`` "
-"は :class:`frozenset` インスタンスを返します。"
+":class:`set` と :class:`frozenset` のインスタンスを混在させた二項演算は、最初"
+"のオペランドと同じ型のオブジェクトを返します。\n"
+"例えば、``frozenset('ab') | set('bc')`` は :class:`frozenset` のインスタンス"
+"を返します。"
 
 #: ../../library/stdtypes.rst:4741
 msgid ""
@@ -7672,7 +8103,6 @@ msgstr ""
 "型コンストラクタを使う: ``dict()``, ``dict([('foo', 100), ('bar', 200)])``, "
 "``dict(foo=100, bar=200)``"
 
-#: ../../library/stdtypes.rst:4839
 msgid ""
 "If no positional argument is given, an empty dictionary is created. If a "
 "positional argument is given and it defines a ``keys()`` method, a "
@@ -7684,6 +8114,18 @@ msgid ""
 "corresponding value.  If a key occurs more than once, the last value for "
 "that key becomes the corresponding value in the new dictionary."
 msgstr ""
+"位置引数を指定しない場合は、空の辞書を作成します。\n"
+"位置引数を指定し、そのオブジェクトに ``keys()`` メソッドが定義されている場合"
+"は、そのメソッドが返す各キーを使って位置引数の :meth:`~object.__getitem__` を"
+"呼び出し、辞書を作成します。\n"
+"それ以外の場合、位置引数は :term:`イテラブル <iterable>` オブジェクトでなけれ"
+"ばなりません。\n"
+"そのイテラブル内の各要素も、それぞれちょうど二つの要素を持つイテラブルでなけ"
+"ればなりません。\n"
+"各要素の1番目の値が新しい辞書のキーとなり、2番目の値が対応する値となりま"
+"す。\n"
+"同じキーが複数回出現した場合は、そのキーの最後の値が新しい辞書での対応する値"
+"となります。"
 
 #: ../../library/stdtypes.rst:4849
 msgid ""
@@ -7705,7 +8147,6 @@ msgstr ""
 "でなければなりません。それ以外の方法では、辞書のキーとして有効などんなキーで"
 "も使えます。"
 
-#: ../../library/stdtypes.rst:4857
 msgid ""
 "Dictionaries compare equal if and only if they have the same ``(key, "
 "value)`` pairs (regardless of ordering). Order comparisons ('<', '<=', '>=', "
@@ -7713,8 +8154,12 @@ msgid ""
 "equality, the following examples all return a dictionary equal to "
 "``{\"one\": 1, \"two\": 2, \"three\": 3}``::"
 msgstr ""
+"辞書同士は、順序に関係なく同じ ``(key, value)`` 対を持つ場合に限り等しいとみ"
+"なされます。\n"
+"順序比較 ('<'、'<='、'>='、'>') は :exc:`TypeError` を送出します。\n"
+"辞書の作成と等価性を示す次の例は、すべて ``{\"one\": 1, \"two\": 2, "
+"\"three\": 3}`` と等しい辞書を返します。 ::"
 
-#: ../../library/stdtypes.rst:4863
 msgid ""
 ">>> a = dict(one=1, two=2, three=3)\n"
 ">>> b = {'one': 1, 'two': 2, 'three': 3}\n"
@@ -7725,6 +8170,14 @@ msgid ""
 ">>> a == b == c == d == e == f\n"
 "True"
 msgstr ""
+">>> a = dict(one=1, two=2, three=3)\n"
+">>> b = {'one': 1, 'two': 2, 'three': 3}\n"
+">>> c = dict(zip(['one', 'two', 'three'], [1, 2, 3]))\n"
+">>> d = dict([('two', 2), ('one', 1), ('three', 3)])\n"
+">>> e = dict({'three': 3, 'one': 1, 'two': 2})\n"
+">>> f = dict({'one': 1, 'three': 3}, two=2)\n"
+">>> a == b == c == d == e == f\n"
+"True"
 
 #: ../../library/stdtypes.rst:4875
 msgid ""
@@ -7735,7 +8188,6 @@ msgstr ""
 "キーの更新は順序には影響が無いことに注意してください。\n"
 "いったん削除されてから再度追加されたキーは末尾に挿入されます。::"
 
-#: ../../library/stdtypes.rst:4878
 msgid ""
 ">>> d = {\"one\": 1, \"two\": 2, \"three\": 3, \"four\": 4}\n"
 ">>> d\n"
@@ -7752,6 +8204,20 @@ msgid ""
 ">>> d\n"
 "{'one': 42, 'three': 3, 'four': 4, 'two': None}"
 msgstr ""
+">>> d = {\"one\": 1, \"two\": 2, \"three\": 3, \"four\": 4}\n"
+">>> d\n"
+"{'one': 1, 'two': 2, 'three': 3, 'four': 4}\n"
+">>> list(d)\n"
+"['one', 'two', 'three', 'four']\n"
+">>> list(d.values())\n"
+"[1, 2, 3, 4]\n"
+">>> d[\"one\"] = 42\n"
+">>> d\n"
+"{'one': 42, 'two': 2, 'three': 3, 'four': 4}\n"
+">>> del d[\"two\"]\n"
+">>> d[\"two\"] = None\n"
+">>> d\n"
+"{'one': 42, 'three': 3, 'four': 4, 'two': None}"
 
 #: ../../library/stdtypes.rst:4893
 msgid ""
@@ -7803,7 +8269,6 @@ msgstr ""
 "場合、 :exc:`KeyError` が送出されます。 :meth:`__missing__` はメソッドでなけ"
 "ればならず、インスタンス変数であってはなりません::"
 
-#: ../../library/stdtypes.rst:4923
 msgid ""
 ">>> class Counter(dict):\n"
 "...     def __missing__(self, key):\n"
@@ -7816,6 +8281,16 @@ msgid ""
 ">>> c['red']\n"
 "1"
 msgstr ""
+">>> class Counter(dict):\n"
+"...     def __missing__(self, key):\n"
+"...         return 0\n"
+"...\n"
+">>> c = Counter()\n"
+">>> c['red']\n"
+"0\n"
+">>> c['red'] += 1\n"
+">>> c['red']\n"
+"1"
 
 #: ../../library/stdtypes.rst:4934
 msgid ""
@@ -7973,7 +8448,6 @@ msgstr ""
 "辞書の内容を *other* のキーと値で更新します。既存のキーは上書きされます。返り"
 "値は ``None`` です。"
 
-#: ../../library/stdtypes.rst:5031
 msgid ""
 ":meth:`update` accepts either another object with a ``keys()`` method (in "
 "which case :meth:`~object.__getitem__` is called with every key returned "
@@ -7981,6 +8455,13 @@ msgid ""
 "iterables of length two). If keyword arguments are specified, the dictionary "
 "is then updated with those key/value pairs: ``d.update(red=1, blue=2)``."
 msgstr ""
+":meth:`update` は、``keys()`` メソッドを持つ別のオブジェクトか、キーと値の対"
+"のイテラブル (各対はタプル、または長さ2のその他のイテラブル) を受け付けま"
+"す。\n"
+"前者の場合、そのメソッドが返す各キーを使って :meth:`~object.__getitem__` を呼"
+"び出します。\n"
+"キーワード引数を指定した場合は、続いてそれらのキーと値の対で辞書を更新しま"
+"す: ``d.update(red=1, blue=2)``。"
 
 #: ../../library/stdtypes.rst:5039
 msgid ""
@@ -8000,12 +8481,14 @@ msgstr ""
 "が返ります。\n"
 "``dict.values()`` どうしを比較したときも同様です::"
 
-#: ../../library/stdtypes.rst:5046
 msgid ""
 ">>> d = {'a': 1}\n"
 ">>> d.values() == d.values()\n"
 "False"
 msgstr ""
+">>> d = {'a': 1}\n"
+">>> d.values() == d.values()\n"
+"False"
 
 msgid ""
 "Create a new dictionary with the merged keys and values of *d* and *other*, "
@@ -8031,7 +8514,6 @@ msgstr ""
 msgid "Dictionaries and dictionary views are reversible. ::"
 msgstr "辞書と辞書のビューは ``reversed()`` で順序を逆にすることができます::"
 
-#: ../../library/stdtypes.rst:5068
 msgid ""
 ">>> d = {\"one\": 1, \"two\": 2, \"three\": 3, \"four\": 4}\n"
 ">>> d\n"
@@ -8043,6 +8525,15 @@ msgid ""
 ">>> list(reversed(d.items()))\n"
 "[('four', 4), ('three', 3), ('two', 2), ('one', 1)]"
 msgstr ""
+">>> d = {\"one\": 1, \"two\": 2, \"three\": 3, \"four\": 4}\n"
+">>> d\n"
+"{'one': 1, 'two': 2, 'three': 3, 'four': 4}\n"
+">>> list(reversed(d))\n"
+"['four', 'three', 'two', 'one']\n"
+">>> list(reversed(d.values()))\n"
+"[4, 3, 2, 1]\n"
+">>> list(reversed(d.items()))\n"
+"[('four', 4), ('three', 3), ('two', 2), ('one', 1)]"
 
 #: ../../library/stdtypes.rst:5078
 msgid "Dictionaries are now reversible."
@@ -8170,7 +8661,6 @@ msgstr ""
 msgid "An example of dictionary view usage::"
 msgstr "辞書ビューの使用法の例::"
 
-#: ../../library/stdtypes.rst:5154
 msgid ""
 ">>> dishes = {'eggs': 2, 'sausage': 1, 'bacon': 1, 'spam': 500}\n"
 ">>> keys = dishes.keys()\n"
@@ -8210,6 +8700,43 @@ msgid ""
 ">>> values.mapping['spam']\n"
 "500"
 msgstr ""
+">>> dishes = {'eggs': 2, 'sausage': 1, 'bacon': 1, 'spam': 500}\n"
+">>> keys = dishes.keys()\n"
+">>> values = dishes.values()\n"
+"\n"
+">>> # 反復\n"
+">>> n = 0\n"
+">>> for val in values:\n"
+"...     n += val\n"
+"...\n"
+">>> print(n)\n"
+"504\n"
+"\n"
+">>> # キーと値は同じ順序 (挿入順序) で反復される\n"
+">>> list(keys)\n"
+"['eggs', 'sausage', 'bacon', 'spam']\n"
+">>> list(values)\n"
+"[2, 1, 1, 500]\n"
+"\n"
+">>> # ビューオブジェクトは動的で、辞書の変更を反映する\n"
+">>> del dishes['eggs']\n"
+">>> del dishes['sausage']\n"
+">>> list(keys)\n"
+"['bacon', 'spam']\n"
+"\n"
+">>> # 集合演算\n"
+">>> keys & {'eggs', 'bacon', 'salad'}\n"
+"{'bacon'}\n"
+">>> keys ^ {'sausage', 'juice'} == {'juice', 'sausage', 'bacon', 'spam'}\n"
+"True\n"
+">>> keys | ['juice', 'juice', 'juice'] == {'bacon', 'spam', 'juice'}\n"
+"True\n"
+"\n"
+">>> # 元の辞書の読み出し専用プロキシを取得する\n"
+">>> values.mapping\n"
+"mappingproxy({'bacon': 1, 'spam': 500})\n"
+">>> values.mapping['spam']\n"
+"500"
 
 #: ../../library/stdtypes.rst:5196
 msgid "Context Manager Types"
@@ -8227,16 +8754,16 @@ msgstr ""
 "文の終わりで脱出する実行時コンテキストを、ユーザ定義クラスが定義できるように"
 "する一対のメソッドで実装されます:"
 
-#: ../../library/stdtypes.rst:5211
 msgid ""
 "Enter the runtime context and return either this object or another object "
 "related to the runtime context. The value returned by this method is bound "
 "to the identifier in the :keyword:`!as` clause of :keyword:`with` statements "
 "using this context manager."
 msgstr ""
-"実行時コンテキストに入り、このオブジェクトまたは他の実行時コンテキストに関連"
-"したオブジェクトを返します。このメソッドが返す値はこのコンテキストマネージャ"
-"を使う :keyword:`with` 文の :keyword:`!as` 節の識別子に束縛されます。"
+"実行時コンテキストに入り、このオブジェクト自体か、実行時コンテキストに関連す"
+"る別のオブジェクトを返します。\n"
+"このメソッドの返り値は、このコンテキストマネージャを使う :keyword:`with` 文"
+"の :keyword:`!as` 節の識別子に束縛されます。"
 
 #: ../../library/stdtypes.rst:5216
 msgid ""
@@ -8478,11 +9005,12 @@ msgstr ""
 "す。たとえば、 :class:`float` 型の要素を含む :class:`list` を引数にとる関数の"
 "型アノテーションは次のようになります::"
 
-#: ../../library/stdtypes.rst:5338
 msgid ""
 "def average(values: list[float]) -> float:\n"
 "    return sum(values) / len(values)"
 msgstr ""
+"def average(values: list[float]) -> float:\n"
+"    return sum(values) / len(values)"
 
 #: ../../library/stdtypes.rst:5341
 msgid ""
@@ -8496,11 +9024,12 @@ msgstr ""
 "ています。この例では、関数はキーが :class:`str` 型、値が :class:`int` 型であ"
 "るような ``dict`` を引数にとります::"
 
-#: ../../library/stdtypes.rst:5346
 msgid ""
 "def send_post_request(url: str, body: dict[str, int]) -> None:\n"
 "    ..."
 msgstr ""
+"def send_post_request(url: str, body: dict[str, int]) -> None:\n"
+"    ..."
 
 #: ../../library/stdtypes.rst:5349
 msgid ""
@@ -8510,13 +9039,16 @@ msgstr ""
 "組み込み関数 :func:`isinstance` と :func:`issubclass` は第二引数として "
 "``GenericAlias`` 型を指定することはできません::"
 
-#: ../../library/stdtypes.rst:5352
 msgid ""
 ">>> isinstance([1, 2], list[str])\n"
 "Traceback (most recent call last):\n"
 "  File \"<stdin>\", line 1, in <module>\n"
 "TypeError: isinstance() argument 2 cannot be a parameterized generic"
 msgstr ""
+">>> isinstance([1, 2], list[str])\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"TypeError: isinstance() argument 2 cannot be a parameterized generic"
 
 #: ../../library/stdtypes.rst:5357
 msgid ""
@@ -8532,12 +9064,14 @@ msgstr ""
 "せん。たとえば、以下のコードは推奨されませんが、エラーになることなく実行でき"
 "ます::"
 
-#: ../../library/stdtypes.rst:5363
 msgid ""
 ">>> t = list[str]\n"
 ">>> t([1, 2, 3])\n"
 "[1, 2, 3]"
 msgstr ""
+">>> t = list[str]\n"
+">>> t([1, 2, 3])\n"
+"[1, 2, 3]"
 
 #: ../../library/stdtypes.rst:5367
 msgid ""
@@ -8547,7 +9081,6 @@ msgstr ""
 "しかも、パラメータ付きジェネリック型は、オブジェクト生成時にパラメータの型情"
 "報を削除します::"
 
-#: ../../library/stdtypes.rst:5370
 msgid ""
 ">>> t = list[str]\n"
 ">>> type(t)\n"
@@ -8557,6 +9090,13 @@ msgid ""
 ">>> type(l)\n"
 "<class 'list'>"
 msgstr ""
+">>> t = list[str]\n"
+">>> type(t)\n"
+"<class 'types.GenericAlias'>\n"
+"\n"
+">>> l = t()\n"
+">>> type(l)\n"
+"<class 'list'>"
 
 msgid ""
 "Calling :func:`repr` or :func:`str` on a generic shows the parameterized "
@@ -8565,7 +9105,6 @@ msgstr ""
 "パラメータ付きジェネリック型に :func:`repr` や :func:`str` を呼び出すと、パラ"
 "メータを含む型が表示されます::"
 
-#: ../../library/stdtypes.rst:5380
 msgid ""
 ">>> repr(list[int])\n"
 "'list[int]'\n"
@@ -8573,6 +9112,11 @@ msgid ""
 ">>> str(list[int])\n"
 "'list[int]'"
 msgstr ""
+">>> repr(list[int])\n"
+"'list[int]'\n"
+"\n"
+">>> str(list[int])\n"
+"'list[int]'"
 
 #: ../../library/stdtypes.rst:5386
 msgid ""
@@ -8582,13 +9126,16 @@ msgstr ""
 "ジェネリックコンテナ型の :meth:`~object.__getitem__` メソッドは、 ``dict[str]"
 "[str]`` のようなミスを許さないように、例外を送出します::"
 
-#: ../../library/stdtypes.rst:5389
 msgid ""
 ">>> dict[str][str]\n"
 "Traceback (most recent call last):\n"
 "  ...\n"
 "TypeError: dict[str] is not a generic class"
 msgstr ""
+">>> dict[str][str]\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"TypeError: dict[str] is not a generic class"
 
 msgid ""
 "However, such expressions are valid when :ref:`type variables <generics>` "
@@ -8599,25 +9146,28 @@ msgstr ""
 "数は ``GenericAlias`` オブジェクトの :attr:`~genericalias.__args__` 属性にお"
 "ける型変数の数と同じでなければなりません::"
 
-#: ../../library/stdtypes.rst:5398
 msgid ""
 ">>> from typing import TypeVar\n"
 ">>> Y = TypeVar('Y')\n"
 ">>> dict[str, Y][int]\n"
 "dict[str, int]"
 msgstr ""
+">>> from typing import TypeVar\n"
+">>> Y = TypeVar('Y')\n"
+">>> dict[str, Y][int]\n"
+"dict[str, int]"
 
 #: ../../library/stdtypes.rst:5405
 msgid "Standard Generic Classes"
 msgstr "標準ジェネリッククラス"
 
-#: ../../library/stdtypes.rst:5407
 msgid ""
 "The following standard library classes support parameterized generics. This "
 "list is non-exhaustive."
 msgstr ""
-"以下の標準ライブラリクラスは、パラメータ付きジェネリック型をサポートします。"
-"このリストは完全に網羅されていない可能性があります。"
+"以下の標準ライブラリのクラスは、パラメータ付きジェネリック型をサポートしてい"
+"ます。\n"
+"このリストはすべてを網羅しているわけではありません。"
 
 #: ../../library/stdtypes.rst:5410
 msgid ":class:`tuple`"
@@ -8643,13 +9193,11 @@ msgstr ":class:`frozenset`"
 msgid ":class:`type`"
 msgstr ":class:`type`"
 
-#: ../../library/stdtypes.rst:5416
 msgid ":class:`asyncio.Future`"
-msgstr ""
+msgstr ":class:`asyncio.Future`"
 
-#: ../../library/stdtypes.rst:5417
 msgid ":class:`asyncio.Task`"
-msgstr ""
+msgstr ":class:`asyncio.Task`"
 
 #: ../../library/stdtypes.rst:5418
 msgid ":class:`collections.deque`"
@@ -8671,9 +9219,8 @@ msgstr ":class:`collections.Counter`"
 msgid ":class:`collections.ChainMap`"
 msgstr ":class:`collections.ChainMap`"
 
-#: ../../library/stdtypes.rst:5423
 msgid ":class:`collections.abc.Awaitable`"
-msgstr "’’:class:`collections.abc.Awaitable`"
+msgstr ":class:`collections.abc.Awaitable`"
 
 #: ../../library/stdtypes.rst:5424
 msgid ":class:`collections.abc.Coroutine`"
@@ -8853,11 +9400,12 @@ msgstr ""
 msgid "This attribute points at the non-parameterized generic class::"
 msgstr "この属性は、対応するパラメータ付きでないジェネリッククラスを指します::"
 
-#: ../../library/stdtypes.rst:5477
 msgid ""
 ">>> list[int].__origin__\n"
 "<class 'list'>"
 msgstr ""
+">>> list[int].__origin__\n"
+"<class 'list'>"
 
 msgid ""
 "This attribute is a :class:`tuple` (possibly of length 1) of generic types "
@@ -8868,21 +9416,20 @@ msgstr ""
 "れたジェネリック型を要素とする :class:`tuple` です (長さが1の場合もありま"
 "す)::"
 
-#: ../../library/stdtypes.rst:5487
 msgid ""
 ">>> dict[str, list[int]].__args__\n"
 "(<class 'str'>, list[int])"
 msgstr ""
+">>> dict[str, list[int]].__args__\n"
+"(<class 'str'>, list[int])"
 
-#: ../../library/stdtypes.rst:5493
 msgid ""
 "This attribute is a lazily computed tuple (possibly empty) of unique type "
 "variables found in ``__args__``::"
 msgstr ""
-"この属性は、 ``__args__`` にある固有の型変数のタプルで、必要に応じて遅延計算"
-"されます (空の可能性もあります)::"
+"この属性は、``__args__`` に含まれる型変数を重複なく集めた、遅延計算されるタプ"
+"ルです (空の場合もあります)。 ::"
 
-#: ../../library/stdtypes.rst:5496
 msgid ""
 ">>> from typing import TypeVar\n"
 "\n"
@@ -8890,16 +9437,21 @@ msgid ""
 ">>> list[T].__parameters__\n"
 "(~T,)"
 msgstr ""
+">>> from typing import TypeVar\n"
+"\n"
+">>> T = TypeVar('T')\n"
+">>> list[T].__parameters__\n"
+"(~T,)"
 
-#: ../../library/stdtypes.rst:5504
 msgid ""
 "A ``GenericAlias`` object with :class:`typing.ParamSpec` parameters may not "
 "have correct ``__parameters__`` after substitution because :class:`typing."
 "ParamSpec` is intended primarily for static type checking."
 msgstr ""
-":class:`typing.ParamSpec` パラメータを含む ``GenericAlias`` オブジェクトは、"
-"代入後に正しい ``__parameters__`` を持たない可能性があります。これは :class:"
-"`typing.ParamSpec` が主に静的な型チェックを目的としているためです。"
+":class:`typing.ParamSpec` パラメータを持つ ``GenericAlias`` オブジェクトは、"
+"置換後の ``__parameters__`` が正しくない場合があります。\n"
+"これは :class:`typing.ParamSpec` が主に静的な型チェックを目的としているためで"
+"す。"
 
 #: ../../library/stdtypes.rst:5511
 msgid ""
@@ -8952,7 +9504,6 @@ msgstr ""
 msgid "Union Type"
 msgstr "Union 型"
 
-#: ../../library/stdtypes.rst:5543
 msgid ""
 "A union object holds the value of the ``|`` (bitwise or) operation on "
 "multiple :ref:`type objects <bltin-type-objects>`.  These types are intended "
@@ -8960,24 +9511,30 @@ msgid ""
 "expression enables cleaner type hinting syntax compared to subscripting :"
 "class:`typing.Union`."
 msgstr ""
+"ユニオンオブジェクトは、複数の :ref:`型オブジェクト <bltin-type-objects>` に"
+"対する ``|`` (ビット単位の論理和) 演算の値を保持します。\n"
+"これらの型は主に :term:`型アノテーション <annotation>` で使うことを想定してい"
+"ます。\n"
+"ユニオン型の式を使うと、:class:`typing.Union` の添字表記よりも簡潔な型ヒント"
+"の構文で書けます。"
 
-#: ../../library/stdtypes.rst:5550
 msgid ""
 "Defines a union object which holds types *X*, *Y*, and so forth. ``X | Y`` "
 "means either X or Y.  It is equivalent to ``typing.Union[X, Y]``. For "
 "example, the following function expects an argument of type :class:`int` or :"
 "class:`float`::"
 msgstr ""
-"*X* と *Y* などの型を保持するUnionオブジェクトを定義すします。``X | Y`` はXと"
-"Yのいずれかを意味します。これは ``typing.Union[X, Y]`` と等価です。たとえば、"
-"以下の関数は引数として :class:`int` 型または :class:`float` 型を想定していま"
-"す。::"
+"*X*、*Y* などの型を保持するユニオンオブジェクトを定義します。\n"
+"``X | Y`` は X または Y を意味し、``typing.Union[X, Y]`` と等価です。\n"
+"例えば、次の関数は :class:`int` 型または :class:`float` 型の引数を想定してい"
+"ます。 ::"
 
-#: ../../library/stdtypes.rst:5555
 msgid ""
 "def square(number: int | float) -> int | float:\n"
 "    return number ** 2"
 msgstr ""
+"def square(number: int | float) -> int | float:\n"
+"    return number ** 2"
 
 #: ../../library/stdtypes.rst:5560
 msgid ""
@@ -9000,60 +9557,56 @@ msgstr ""
 "Unionオブジェクトは他のUnionオブジェクトとの等価性をテストできます。以下は詳"
 "細です:"
 
-#: ../../library/stdtypes.rst:5570
 msgid "Unions of unions are flattened::"
-msgstr "ユニオン型のユニオン型は平滑化されます::"
+msgstr "ユニオンのユニオンは平坦化されます。 ::"
 
-#: ../../library/stdtypes.rst:5572
 msgid "(int | str) | float == int | str | float"
-msgstr ""
+msgstr "(int | str) | float == int | str | float"
 
 #: ../../library/stdtypes.rst:5574
 msgid "Redundant types are removed::"
 msgstr "余分な型は削除されます::"
 
-#: ../../library/stdtypes.rst:5576
 msgid "int | str | int == int | str"
-msgstr ""
+msgstr "int | str | int == int | str"
 
 #: ../../library/stdtypes.rst:5578
 msgid "When comparing unions, the order is ignored::"
 msgstr "ユニオン型を比較すると順序は無視されます::"
 
-#: ../../library/stdtypes.rst:5580
 msgid "int | str == str | int"
-msgstr ""
+msgstr "int | str == str | int"
 
-#: ../../library/stdtypes.rst:5582
 msgid "It creates instances of :class:`typing.Union`::"
-msgstr ""
+msgstr ":class:`typing.Union` のインスタンスを作成します。 ::"
 
-#: ../../library/stdtypes.rst:5584
 msgid ""
 "int | str == typing.Union[int, str]\n"
 "type(int | str) is typing.Union"
 msgstr ""
+"int | str == typing.Union[int, str]\n"
+"type(int | str) is typing.Union"
 
 #: ../../library/stdtypes.rst:5587
 msgid "Optional types can be spelled as a union with ``None``::"
 msgstr "Optional型は ``None`` とのUnion型で記述できます::"
 
-#: ../../library/stdtypes.rst:5589
 msgid "str | None == typing.Optional[str]"
-msgstr ""
+msgstr "str | None == typing.Optional[str]"
 
 msgid ""
 "Calls to :func:`isinstance` and :func:`issubclass` are also supported with a "
 "union object::"
 msgstr ""
-":func:`isinstance` と :func:`issubclass` の呼び出しはどちらもUnionオブジェク"
-"トをサポートしています。"
+"ユニオンオブジェクトを使った :func:`isinstance` と :func:`issubclass` の呼び"
+"出しもサポートされています。 ::"
 
-#: ../../library/stdtypes.rst:5597
 msgid ""
 ">>> isinstance(\"\", int | str)\n"
 "True"
 msgstr ""
+">>> isinstance(\"\", int | str)\n"
+"True"
 
 #: ../../library/stdtypes.rst:5600
 msgid ""
@@ -9063,7 +9616,6 @@ msgstr ""
 "しかし、Unionオブジェクトの中の :ref:`parameterized generics <types-"
 "genericalias>` はチェックできません::"
 
-#: ../../library/stdtypes.rst:5603
 msgid ""
 ">>> isinstance(1, int | list[int])  # short-circuit evaluation\n"
 "True\n"
@@ -9072,14 +9624,21 @@ msgid ""
 "  ...\n"
 "TypeError: isinstance() argument 2 cannot be a parameterized generic"
 msgstr ""
+">>> isinstance(1, int | list[int])  # 短絡評価\n"
+"True\n"
+">>> isinstance([1], int | list[int])\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"TypeError: isinstance() argument 2 cannot be a parameterized generic"
 
-#: ../../library/stdtypes.rst:5610
 msgid ""
 "The user-exposed type for the union object can be accessed from :class:"
 "`typing.Union` and used for :func:`isinstance` checks::"
 msgstr ""
+"利用者がユニオンオブジェクトの型にアクセスするには :class:`typing.Union` を使"
+"います。\n"
+":func:`isinstance` による検査にも使えます。 ::"
 
-#: ../../library/stdtypes.rst:5613
 msgid ""
 ">>> import typing\n"
 ">>> isinstance(int | str, typing.Union)\n"
@@ -9089,6 +9648,13 @@ msgid ""
 "  File \"<stdin>\", line 1, in <module>\n"
 "TypeError: cannot create 'typing.Union' instances"
 msgstr ""
+">>> import typing\n"
+">>> isinstance(int | str, typing.Union)\n"
+"True\n"
+">>> typing.Union()\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"TypeError: cannot create 'typing.Union' instances"
 
 #: ../../library/stdtypes.rst:5622
 msgid ""
@@ -9100,7 +9666,6 @@ msgstr ""
 "が追加されました。メタクラスで :meth:`!__or__` を実装するとUnionをオーバーラ"
 "イドする場合があります::"
 
-#: ../../library/stdtypes.rst:5626
 msgid ""
 ">>> class M(type):\n"
 "...     def __or__(self, other):\n"
@@ -9114,17 +9679,30 @@ msgid ""
 ">>> int | C\n"
 "int | C"
 msgstr ""
+">>> class M(type):\n"
+"...     def __or__(self, other):\n"
+"...         return \"Hello\"\n"
+"...\n"
+">>> class C(metaclass=M):\n"
+"...     pass\n"
+"...\n"
+">>> C | int\n"
+"'Hello'\n"
+">>> int | C\n"
+"int | C"
 
 #: ../../library/stdtypes.rst:5642
 msgid ":pep:`604` -- PEP proposing the ``X | Y`` syntax and the Union type."
 msgstr ":pep:`604` -- ``X | Y`` 構文とUnion型を提案しているPEP"
 
-#: ../../library/stdtypes.rst:5648
 msgid ""
 "Union objects are now instances of :class:`typing.Union`. Previously, they "
 "were instances of :class:`types.UnionType`, which remains an alias for :"
 "class:`typing.Union`."
 msgstr ""
+"ユニオンオブジェクトは :class:`typing.Union` のインスタンスになりました。\n"
+"以前は :class:`types.UnionType` のインスタンスでしたが、この型名は :class:"
+"`typing.Union` のエイリアスとして残っています。"
 
 #: ../../library/stdtypes.rst:5655
 msgid "Other Built-in Types"
@@ -9279,7 +9857,6 @@ msgstr ""
 "ためには、次のようにその下層の関数オブジェクトに明示的に設定する必要がありま"
 "す::"
 
-#: ../../library/stdtypes.rst:5740
 msgid ""
 ">>> class C:\n"
 "...     def method(self):\n"
@@ -9294,6 +9871,19 @@ msgid ""
 ">>> c.method.whoami\n"
 "'my name is method'"
 msgstr ""
+">>> class C:\n"
+"...     def method(self):\n"
+"...         pass\n"
+"...\n"
+">>> c = C()\n"
+">>> c.method.whoami = 'my name is method'  # メソッドに設定することはできな"
+"い\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"AttributeError: 'method' object has no attribute 'whoami'\n"
+">>> c.method.__func__.whoami = 'my name is method'\n"
+">>> c.method.whoami\n"
+"'my name is method'"
 
 #: ../../library/stdtypes.rst:5755
 msgid "See :ref:`instance-methods` for more information."
@@ -9459,21 +10049,23 @@ msgstr ""
 "クラス、関数、メソッド、デスクリプタ、ジェネレータインスタンスの :term:`修飾"
 "名 <qualified name>` です。"
 
-#: ../../library/stdtypes.rst:5881
 msgid "The name of the module in which a class or function was defined."
-msgstr ""
+msgstr "クラスまたは関数が定義されたモジュールの名前。"
 
-#: ../../library/stdtypes.rst:5886
 msgid ""
 "The documentation string of a class or function, or ``None`` if undefined."
 msgstr ""
+"クラスまたは関数のドキュメンテーション文字列。\n"
+"未定義の場合は ``None``。"
 
-#: ../../library/stdtypes.rst:5891
 msgid ""
 "The :ref:`type parameters <type-params>` of generic classes, functions, and :"
 "ref:`type aliases <type-aliases>`. For classes and functions that are not "
 "generic, this will be an empty tuple."
 msgstr ""
+"ジェネリッククラスや関数、および :ref:`型エイリアス <type-aliases>` の :ref:`"
+"型パラメータ <type-params>`。\n"
+"ジェネリックでないクラスや関数では空のタプルになります。"
 
 #: ../../library/stdtypes.rst:5901
 msgid "Integer string conversion length limitation"
@@ -9528,7 +10120,6 @@ msgid ""
 "When an operation would exceed the limit, a :exc:`ValueError` is raised:"
 msgstr "演算の結果が制限を超えると、:exc:`ValueError` が送出されます:"
 
-#: ../../library/stdtypes.rst:5923
 msgid ""
 ">>> import sys\n"
 ">>> sys.set_int_max_str_digits(4300)  # Illustrative, this is the default.\n"
@@ -9551,6 +10142,26 @@ msgid ""
 "7144\n"
 ">>> assert int(hex(i_squared), base=16) == i*i  # Hexadecimal is unlimited."
 msgstr ""
+">>> import sys\n"
+">>> sys.set_int_max_str_digits(4300)  # 例示用。これはデフォルト値。\n"
+">>> _ = int('2' * 5432)\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"ValueError: Exceeds the limit (4300 digits) for integer string conversion: "
+"value has 5432 digits; use sys.set_int_max_str_digits() to increase the "
+"limit\n"
+">>> i = int('2' * 4300)\n"
+">>> len(str(i))\n"
+"4300\n"
+">>> i_squared = i*i\n"
+">>> len(str(i_squared))\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"ValueError: Exceeds the limit (4300 digits) for integer string conversion; "
+"use sys.set_int_max_str_digits() to increase the limit\n"
+">>> len(hex(i_squared))\n"
+"7144\n"
+">>> assert int(hex(i_squared), base=16) == i*i  # 16進数は制限されない。"
 
 #: ../../library/stdtypes.rst:5943
 msgid ""
@@ -9568,7 +10179,6 @@ msgstr ""
 msgid "Verification:"
 msgstr "確認:"
 
-#: ../../library/stdtypes.rst:5950
 msgid ""
 ">>> import sys\n"
 ">>> assert sys.int_info.default_max_str_digits == 4300, sys.int_info\n"
@@ -9578,6 +10188,13 @@ msgid ""
 "...           '571186405732').to_bytes(53, 'big')\n"
 "..."
 msgstr ""
+">>> import sys\n"
+">>> assert sys.int_info.default_max_str_digits == 4300, sys.int_info\n"
+">>> assert sys.int_info.str_digits_check_threshold == 640, sys.int_info\n"
+">>> msg = int('578966293710682886880994035146873798396722250538762761564'\n"
+"...           '9252925514383915483333812743580549779436104706260696366600'\n"
+"...           '571186405732').to_bytes(53, 'big')\n"
+"..."
 
 #: ../../library/stdtypes.rst:5963
 msgid "Affected APIs"
@@ -9781,7 +10398,6 @@ msgstr ""
 msgid "Example::"
 msgstr "以下はプログラム例です::"
 
-#: ../../library/stdtypes.rst:6043
 msgid ""
 ">>> import sys\n"
 ">>> if hasattr(sys, \"set_int_max_str_digits\"):\n"
@@ -9793,6 +10409,15 @@ msgid ""
 "...     elif current_limit < lower_bound:\n"
 "...         sys.set_int_max_str_digits(lower_bound)"
 msgstr ""
+">>> import sys\n"
+">>> if hasattr(sys, \"set_int_max_str_digits\"):\n"
+"...     upper_bound = 68000\n"
+"...     lower_bound = 4004\n"
+"...     current_limit = sys.get_int_max_str_digits()\n"
+"...     if current_limit == 0 or current_limit > upper_bound:\n"
+"...         sys.set_int_max_str_digits(upper_bound)\n"
+"...     elif current_limit < lower_bound:\n"
+"...         sys.set_int_max_str_digits(lower_bound)"
 
 #: ../../library/stdtypes.rst:6053
 msgid "If you need to disable it entirely, set it to ``0``."
@@ -10416,17 +11041,14 @@ msgstr "universal newlines"
 msgid "str.splitlines method"
 msgstr "str.splitlines メソッド"
 
-#: ../../library/stdtypes.rst:2487
 msgid "! formatted string literal"
-msgstr ""
+msgstr "! フォーマット済み文字列リテラル"
 
-#: ../../library/stdtypes.rst:2487
 msgid "formatted string literals"
-msgstr ""
+msgstr "フォーマット済み文字列リテラル"
 
-#: ../../library/stdtypes.rst:2487
 msgid "! f-string"
-msgstr ""
+msgstr "! f-string"
 
 msgid "f-strings"
 msgstr "f-strings"
@@ -10447,13 +11069,11 @@ msgstr "補間リテラル"
 msgid "{} (curly brackets)"
 msgstr "{} (波括弧)"
 
-#: ../../library/stdtypes.rst:2487
 msgid "in formatted string literal"
-msgstr ""
+msgstr "フォーマット済み文字列リテラル内"
 
-#: ../../library/stdtypes.rst:2487
 msgid "! (exclamation mark)"
-msgstr ""
+msgstr "! (感嘆符)"
 
 #: ../../library/stdtypes.rst:2487
 msgid ": (colon)"
@@ -10463,9 +11083,8 @@ msgstr ": (コロン)"
 msgid "= (equals)"
 msgstr "= (等号)"
 
-#: ../../library/stdtypes.rst:2487
 msgid "for help in debugging using string literals"
-msgstr ""
+msgstr "文字列リテラルを使ったデバッグの補助"
 
 #: ../../library/stdtypes.rst:2633
 msgid "formatting, string (%)"
