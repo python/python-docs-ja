@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Python 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-23 18:01+0000\n"
+"POT-Creation-Date: 2026-10-25 17:19+0000\n"
 "PO-Revision-Date: 2025-09-16 00:00+0000\n"
 "Last-Translator: Inada Naoki <songofacandy@gmail.com>, 2026\n"
 "Language-Team: Japanese (https://app.transifex.com/python-doc/teams/5390/"
@@ -27,57 +27,64 @@ msgstr ""
 msgid "Call Protocol"
 msgstr "Call プロトコル"
 
-#: ../../c-api/call.rst:8
 msgid ""
 "CPython supports two different calling protocols: *tp_call* and vectorcall."
 msgstr ""
+"CPython は *tp_call* と vectorcall の二つの呼び出しプロトコルをサポートしてい"
+"ます。"
 
-#: ../../c-api/call.rst:12
 msgid "The *tp_call* Protocol"
-msgstr ""
+msgstr "*tp_call* プロトコル"
 
-#: ../../c-api/call.rst:14
 msgid ""
 "Instances of classes that set :c:member:`~PyTypeObject.tp_call` are "
 "callable. The signature of the slot is::"
 msgstr ""
+":c:member:`~PyTypeObject.tp_call` を設定したクラスのインスタンスは呼び出し可"
+"能です。\n"
+"このスロットのシグネチャは次のとおりです。 ::"
 
-#: ../../c-api/call.rst:17
 msgid ""
 "PyObject *tp_call(PyObject *callable, PyObject *args, PyObject *kwargs);"
 msgstr ""
+"PyObject *tp_call(PyObject *callable, PyObject *args, PyObject *kwargs);"
 
-#: ../../c-api/call.rst:19
 msgid ""
 "A call is made using a tuple for the positional arguments and a dict for the "
 "keyword arguments, similarly to ``callable(*args, **kwargs)`` in Python "
 "code. *args* must be non-NULL (use an empty tuple if there are no arguments) "
 "but *kwargs* may be *NULL* if there are no keyword arguments."
 msgstr ""
+"Python コードの ``callable(*args, **kwargs)`` と同様に、位置引数のタプルと"
+"キーワード引数の辞書を使って呼び出します。\n"
+"``args`` は NULL であってはいけません (引数がなければ空のタプルを使いま"
+"す)。\n"
+"ただし、キーワード引数がなければ ``kwargs`` は ``NULL`` で構いません。"
 
-#: ../../c-api/call.rst:25
 msgid ""
 "This convention is not only used by *tp_call*: :c:member:`~PyTypeObject."
 "tp_new` and :c:member:`~PyTypeObject.tp_init` also pass arguments this way."
 msgstr ""
+"この規約は *tp_call* だけでなく、:c:member:`~PyTypeObject.tp_new` と :c:"
+"member:`~PyTypeObject.tp_init` で引数を渡すときにも使います。"
 
-#: ../../c-api/call.rst:29
 msgid ""
 "To call an object, use :c:func:`PyObject_Call` or another :ref:`call API "
 "<capi-call>`."
 msgstr ""
+"オブジェクトを呼び出すには :c:func:`PyObject_Call` または別の :ref:`呼び出し "
+"API <capi-call>` を使ってください。"
 
-#: ../../c-api/call.rst:36
 msgid "The Vectorcall Protocol"
-msgstr ""
+msgstr "vectorcall プロトコル"
 
-#: ../../c-api/call.rst:40
 msgid ""
 "The vectorcall protocol was introduced in :pep:`590` as an additional "
 "protocol for making calls more efficient."
 msgstr ""
+"vectorcall プロトコルは、呼び出しを効率化するための追加のプロトコルとして :"
+"pep:`590` で導入されました。"
 
-#: ../../c-api/call.rst:43
 msgid ""
 "As rule of thumb, CPython will prefer the vectorcall for internal calls if "
 "the callable supports it. However, this is not a hard rule. Additionally, "
@@ -88,14 +95,25 @@ msgid ""
 "achieve this is by setting :c:member:`~PyTypeObject.tp_call` to :c:func:"
 "`PyVectorcall_Call`. This bears repeating:"
 msgstr ""
+"目安として、呼び出し可能オブジェクトが vectorcall をサポートしていれば、"
+"CPython は内部の呼び出しでそれを優先します。\n"
+"ただし、厳密な規則ではありません。\n"
+"また、サードパーティの拡張の中には :c:func:`PyObject_Call` を使わずに "
+"*tp_call* を直接使うものもあります。\n"
+"そのため、vectorcall をサポートするクラスは :c:member:`~PyTypeObject."
+"tp_call` も実装する必要があります。\n"
+"さらに、どちらのプロトコルでも同じ動作をしなければなりません。\n"
+"これを実現するために推奨される方法は、:c:member:`~PyTypeObject.tp_call` を :"
+"c:func:`PyVectorcall_Call` に設定することです。\n"
+"繰り返しますが、次の点が重要です。"
 
-#: ../../c-api/call.rst:57
 msgid ""
 "A class supporting vectorcall **must** also implement :c:member:"
 "`~PyTypeObject.tp_call` with the same semantics."
 msgstr ""
+"vectorcall をサポートするクラスは、同じ意味を持つ :c:member:`~PyTypeObject."
+"tp_call` も **必ず** 実装しなければなりません。"
 
-#: ../../c-api/call.rst:62
 msgid ""
 "The :c:macro:`Py_TPFLAGS_HAVE_VECTORCALL` flag is now removed from a class "
 "when the class's :py:meth:`~object.__call__` method is reassigned. (This "
@@ -104,16 +122,24 @@ msgid ""
 "versions, vectorcall should only be used with :c:macro:`immutable "
 "<Py_TPFLAGS_IMMUTABLETYPE>` or static types."
 msgstr ""
+"クラスの :py:meth:`~object.__call__` メソッドが再代入されると、そのクラスか"
+"ら :c:macro:`Py_TPFLAGS_HAVE_VECTORCALL` フラグを取り除くようになりました。\n"
+"(この再代入は内部で :c:member:`~PyTypeObject.tp_call` だけを設定するため、"
+"vectorcall 関数と動作が異なる可能性があります。)\n"
+"以前の Python では、vectorcall は :c:macro:`不変な型 "
+"<Py_TPFLAGS_IMMUTABLETYPE>` または静的な型でのみ使うべきです。"
 
-#: ../../c-api/call.rst:69
 msgid ""
 "A class should not implement vectorcall if that would be slower than "
 "*tp_call*. For example, if the callee needs to convert the arguments to an "
 "args tuple and kwargs dict anyway, then there is no point in implementing "
 "vectorcall."
 msgstr ""
+"*tp_call* より遅くなる場合、クラスは vectorcall を実装すべきではありませ"
+"ん。\n"
+"例えば、呼び出される側が結局引数を args タプルと kwargs 辞書に変換する必要が"
+"あるなら、vectorcall を実装する意味はありません。"
 
-#: ../../c-api/call.rst:74
 msgid ""
 "Classes can implement the vectorcall protocol by enabling the :c:macro:"
 "`Py_TPFLAGS_HAVE_VECTORCALL` flag and setting :c:member:`~PyTypeObject."
@@ -121,10 +147,14 @@ msgid ""
 "*vectorcallfunc* appears. This is a pointer to a function with the following "
 "signature:"
 msgstr ""
+"クラスは :c:macro:`Py_TPFLAGS_HAVE_VECTORCALL` フラグを有効にし、:c:member:"
+"`~PyTypeObject.tp_vectorcall_offset` をオブジェクト構造体内の "
+"*vectorcallfunc* の位置のオフセットに設定することで、vectorcall プロトコルを"
+"実装できます。\n"
+"これは次のシグネチャを持つ関数へのポインタです。"
 
-#: ../../c-api/call.rst:82
 msgid "*callable* is the object being called."
-msgstr ""
+msgstr "``callable`` は呼び出されるオブジェクトです。"
 
 #: ../../c-api/call.rst:83
 msgid ""
@@ -147,129 +177,157 @@ msgid ""
 "positional arguments from *nargsf*, use :c:func:`PyVectorcall_NARGS`."
 msgstr ""
 
-#: ../../c-api/call.rst:90
 msgid "*kwnames* is a tuple containing the names of the keyword arguments;"
-msgstr ""
+msgstr "``kwnames`` はキーワード引数の名前を含むタプルです。"
 
-#: ../../c-api/call.rst:91
 msgid ""
 "in other words, the keys of the kwargs dict. These names must be strings "
 "(instances of ``str`` or a subclass) and they must be unique. If there are "
 "no keyword arguments, then *kwnames* can instead be *NULL*."
 msgstr ""
+"言い換えると、kwargs 辞書のキーです。\n"
+"名前は文字列 (``str`` またはそのサブクラスのインスタンス) で、重複してはいけ"
+"ません。\n"
+"キーワード引数がない場合、``kwnames`` は ``NULL`` でも構いません。"
 
-#: ../../c-api/call.rst:98
 msgid ""
 "If this flag is set in a vectorcall *nargsf* argument, the callee is allowed "
 "to temporarily change ``args[-1]``. In other words, *args* points to "
 "argument 1 (not 0) in the allocated vector. The callee must restore the "
 "value of ``args[-1]`` before returning."
 msgstr ""
+"vectorcall の ``nargsf`` 引数にこのフラグが設定されている場合、呼び出される側"
+"は一時的に ``args[-1]`` を変更できます。\n"
+"つまり、``args`` は割り当てられたベクトル内の引数 0 ではなく引数 1 を指しま"
+"す。\n"
+"呼び出される側は、戻る前に ``args[-1]`` の値を元に戻す必要があります。"
 
-#: ../../c-api/call.rst:103
 msgid ""
 "For :c:func:`PyObject_VectorcallMethod`, this flag means instead that "
 "``args[0]`` may be changed."
 msgstr ""
+":c:func:`PyObject_VectorcallMethod` の場合、このフラグは代わりに ``args[0]`` "
+"を変更してよいことを意味します。"
 
-#: ../../c-api/call.rst:106
 msgid ""
 "Whenever they can do so cheaply (without additional allocation), callers are "
 "encouraged to use :c:macro:`PY_VECTORCALL_ARGUMENTS_OFFSET`. Doing so will "
 "allow callables such as bound methods to make their onward calls (which "
 "include a prepended *self* argument) very efficiently."
 msgstr ""
+"追加の割り当てなしに低コストで設定できる場合、呼び出し側は :c:macro:"
+"`PY_VECTORCALL_ARGUMENTS_OFFSET` を使うことが推奨されます。\n"
+"これにより、束縛メソッドなどの呼び出し可能オブジェクトは、先頭に ``self`` 引"
+"数を追加して次の呼び出しを行う処理を非常に効率的に実行できます。"
 
-#: ../../c-api/call.rst:113
 msgid ""
 "To call an object that implements vectorcall, use a :ref:`call API <capi-"
 "call>` function as with any other callable. :c:func:`PyObject_Vectorcall` "
 "will usually be most efficient."
 msgstr ""
+"vectorcall を実装するオブジェクトを呼び出すには、ほかの呼び出し可能オブジェク"
+"トと同様に :ref:`呼び出し API <capi-call>` の関数を使ってください。\n"
+"通常は :c:func:`PyObject_Vectorcall` が最も効率的です。"
 
 #: ../../c-api/call.rst:119
 msgid "Recursion Control"
 msgstr "再帰の管理"
 
-#: ../../c-api/call.rst:121
 msgid ""
 "When using *tp_call*, callees do not need to worry about :ref:`recursion "
 "<recursion>`: CPython uses :c:func:`Py_EnterRecursiveCall` and :c:func:"
 "`Py_LeaveRecursiveCall` for calls made using *tp_call*."
 msgstr ""
+"*tp_call* を使う場合、呼び出される側は :ref:`再帰 <recursion>` を管理する必要"
+"はありません。\n"
+"CPython は *tp_call* による呼び出しで :c:func:`Py_EnterRecursiveCall` と :c:"
+"func:`Py_LeaveRecursiveCall` を使います。"
 
-#: ../../c-api/call.rst:126
 msgid ""
 "For efficiency, this is not the case for calls done using vectorcall: the "
 "callee should use *Py_EnterRecursiveCall* and *Py_LeaveRecursiveCall* if "
 "needed."
 msgstr ""
+"効率のため、vectorcall による呼び出しではこの管理を行いません。\n"
+"必要に応じて、呼び出される側が ``Py_EnterRecursiveCall()`` と "
+"``Py_LeaveRecursiveCall()`` を使ってください。"
 
-#: ../../c-api/call.rst:132
 msgid "Vectorcall Support API"
-msgstr ""
+msgstr "vectorcall サポート API"
 
-#: ../../c-api/call.rst:136
 msgid ""
 "Given a vectorcall *nargsf* argument, return the actual number of arguments. "
 "Currently equivalent to::"
 msgstr ""
+"vectorcall の ``nargsf`` 引数から、実際の引数の数を返します。\n"
+"現在は次と同等です。 ::"
 
-#: ../../c-api/call.rst:140
 msgid "(Py_ssize_t)(nargsf & ~PY_VECTORCALL_ARGUMENTS_OFFSET)"
-msgstr ""
+msgstr "(Py_ssize_t)(nargsf & ~PY_VECTORCALL_ARGUMENTS_OFFSET)"
 
-#: ../../c-api/call.rst:142
 msgid ""
 "However, the function ``PyVectorcall_NARGS`` should be used to allow for "
 "future extensions."
 msgstr ""
+"ただし、将来の拡張に対応するため、関数 ``PyVectorcall_NARGS`` を使ってくださ"
+"い。"
 
-#: ../../c-api/call.rst:149
 msgid ""
 "If *op* does not support the vectorcall protocol (either because the type "
 "does not or because the specific instance does not), return *NULL*. "
 "Otherwise, return the vectorcall function pointer stored in *op*. This "
 "function never raises an exception."
 msgstr ""
+"``op`` が vectorcall プロトコルをサポートしていなければ (型がサポートしていな"
+"い場合も、そのインスタンスがサポートしていない場合も) ``NULL`` を返します。\n"
+"それ以外の場合は、``op`` に格納された vectorcall 関数ポインタを返します。\n"
+"この関数が例外を送出することはありません。"
 
-#: ../../c-api/call.rst:154
 msgid ""
 "This is mostly useful to check whether or not *op* supports vectorcall, "
 "which can be done by checking ``PyVectorcall_Function(op) != NULL``."
 msgstr ""
+"主に、``op`` が vectorcall をサポートするかどうかを確認するのに便利です。\n"
+"``PyVectorcall_Function(op) != NULL`` で確認できます。"
 
-#: ../../c-api/call.rst:161
 msgid ""
 "Call *callable*'s :c:type:`vectorcallfunc` with positional and keyword "
 "arguments given in a tuple and dict, respectively."
 msgstr ""
+"それぞれタプルと辞書で与えられた位置引数とキーワード引数を使い、``callable`` "
+"の :c:type:`vectorcallfunc` を呼び出します。"
 
-#: ../../c-api/call.rst:164
 msgid ""
 "This is a specialized function, intended to be put in the :c:member:"
 "`~PyTypeObject.tp_call` slot or be used in an implementation of ``tp_call``. "
 "It does not check the :c:macro:`Py_TPFLAGS_HAVE_VECTORCALL` flag and it does "
 "not fall back to ``tp_call``."
 msgstr ""
+"この特殊用途の関数は、:c:member:`~PyTypeObject.tp_call` スロットに設定する"
+"か、``tp_call`` の実装内で使うためのものです。\n"
+":c:macro:`Py_TPFLAGS_HAVE_VECTORCALL` フラグを確認せず、``tp_call`` への"
+"フォールバックも行いません。"
 
-#: ../../c-api/call.rst:175
 msgid "Object Calling API"
-msgstr ""
+msgstr "オブジェクト呼び出し API"
 
-#: ../../c-api/call.rst:177
 msgid ""
 "Various functions are available for calling a Python object. Each converts "
 "its arguments to a convention supported by the called object – either "
 "*tp_call* or vectorcall. In order to do as little conversion as possible, "
 "pick one that best fits the format of data you have available."
 msgstr ""
+"Python オブジェクトを呼び出すためのさまざまな関数があります。\n"
+"各関数は、呼び出すオブジェクトがサポートする *tp_call* または vectorcall の規"
+"約に引数を変換します。\n"
+"変換を最小限にするため、手元のデータの形式に最も合う関数を選んでください。"
 
-#: ../../c-api/call.rst:183
 msgid ""
 "The following table summarizes the available functions; please see "
 "individual documentation for details."
 msgstr ""
+"利用できる関数を以下の表にまとめます。\n"
+"詳細は個別の説明を参照してください。"
 
 #: ../../c-api/call.rst:187
 msgid "Function"
@@ -301,9 +359,8 @@ msgstr "``PyObject *``"
 msgid "tuple"
 msgstr "tuple"
 
-#: ../../c-api/call.rst:189 ../../c-api/call.rst:211
 msgid "dict/``NULL``"
-msgstr ""
+msgstr "dict/``NULL``"
 
 #: ../../c-api/call.rst:191
 msgid ":c:func:`PyObject_CallNoArgs`"
@@ -319,17 +376,15 @@ msgstr "---"
 msgid ":c:func:`PyObject_CallOneArg`"
 msgstr ":c:func:`PyObject_CallOneArg`"
 
-#: ../../c-api/call.rst:193 ../../c-api/call.rst:207
 msgid "1 object"
-msgstr ""
+msgstr "1 個のオブジェクト"
 
 #: ../../c-api/call.rst:195
 msgid ":c:func:`PyObject_CallObject`"
 msgstr ":c:func:`PyObject_CallObject`"
 
-#: ../../c-api/call.rst:195
 msgid "tuple/``NULL``"
-msgstr ""
+msgstr "tuple/``NULL``"
 
 #: ../../c-api/call.rst:197
 msgid ":c:func:`PyObject_CallFunction`"
@@ -343,25 +398,22 @@ msgstr "format"
 msgid ":c:func:`PyObject_CallMethod`"
 msgstr ":c:func:`PyObject_CallMethod`"
 
-#: ../../c-api/call.rst:199
 msgid "obj + ``char*``"
-msgstr ""
+msgstr "obj + ``char*``"
 
 #: ../../c-api/call.rst:201
 msgid ":c:func:`PyObject_CallFunctionObjArgs`"
 msgstr ":c:func:`PyObject_CallFunctionObjArgs`"
 
-#: ../../c-api/call.rst:201 ../../c-api/call.rst:203
 msgid "variadic"
-msgstr ""
+msgstr "可変長引数"
 
 #: ../../c-api/call.rst:203
 msgid ":c:func:`PyObject_CallMethodObjArgs`"
 msgstr ":c:func:`PyObject_CallMethodObjArgs`"
 
-#: ../../c-api/call.rst:203 ../../c-api/call.rst:205 ../../c-api/call.rst:207
 msgid "obj + name"
-msgstr ""
+msgstr "obj + 名前"
 
 #: ../../c-api/call.rst:205
 msgid ":c:func:`PyObject_CallMethodNoArgs`"
@@ -375,9 +427,8 @@ msgstr ":c:func:`PyObject_CallMethodOneArg`"
 msgid ":c:func:`PyObject_Vectorcall`"
 msgstr ":c:func:`PyObject_Vectorcall`"
 
-#: ../../c-api/call.rst:209 ../../c-api/call.rst:211 ../../c-api/call.rst:213
 msgid "vectorcall"
-msgstr ""
+msgstr "vectorcall"
 
 #: ../../c-api/call.rst:211
 msgid ":c:func:`PyObject_VectorcallDict`"
@@ -387,9 +438,8 @@ msgstr ":c:func:`PyObject_VectorcallDict`"
 msgid ":c:func:`PyObject_VectorcallMethod`"
 msgstr ":c:func:`PyObject_VectorcallMethod`"
 
-#: ../../c-api/call.rst:213
 msgid "arg + name"
-msgstr ""
+msgstr "arg + 名前"
 
 #: ../../c-api/call.rst:219
 msgid ""
@@ -399,14 +449,13 @@ msgstr ""
 "呼び出し可能な Python のオブジェクト *callable* を、タプル *args* として与え"
 "られる引数と辞書 *kwargs* として与えられる名前付き引数とともに呼び出します。"
 
-#: ../../c-api/call.rst:222
 msgid ""
 "*args* must not be *NULL*; use an empty tuple if no arguments are needed. If "
 "no named arguments are needed, *kwargs* can be *NULL*."
 msgstr ""
-"*args* は *NULL* であってはならず、引数を必要としない場合は空のタプルを使って"
-"ください。\n"
-"*kwargs* は *NULL* でも構いません。"
+"``args`` は ``NULL`` であってはいけません。\n"
+"引数が不要な場合は空のタプルを使ってください。\n"
+"キーワード引数が不要な場合は ``kwargs`` を ``NULL`` にできます。"
 
 #: ../../c-api/call.rst:225 ../../c-api/call.rst:237 ../../c-api/call.rst:248
 #: ../../c-api/call.rst:259 ../../c-api/call.rst:271 ../../c-api/call.rst:291
@@ -424,26 +473,27 @@ msgid ""
 "**kwargs)``."
 msgstr "これは次の Python の式と同等です: ``callable(*args, **kwargs)`` 。"
 
-#: ../../c-api/call.rst:234
 msgid ""
 "Call a callable Python object *callable* without any arguments. It is the "
 "most efficient way to call a callable Python object without any argument."
 msgstr ""
+"呼び出し可能な Python オブジェクト ``callable`` を引数なしで呼び出します。\n"
+"引数なしで呼び出すには最も効率的な方法です。"
 
-#: ../../c-api/call.rst:245
 msgid ""
 "Call a callable Python object *callable* with exactly 1 positional argument "
 "*arg* and no keyword arguments."
 msgstr ""
+"呼び出し可能な Python オブジェクト ``callable`` を、位置引数 ``arg`` だけを渡"
+"し、キーワード引数なしで呼び出します。"
 
-#: ../../c-api/call.rst:256
 msgid ""
 "Call a callable Python object *callable*, with arguments given by the tuple "
 "*args*.  If no arguments are needed, then *args* can be *NULL*."
 msgstr ""
-"呼び出し可能な Python のオブジェクト *callable* を、タプル *args* として与え"
-"られる引数とともに呼び出します。\n"
-"引数が必要な場合は、 *args* は *NULL* で構いません。"
+"呼び出し可能な Python オブジェクト ``callable`` を、タプル ``args`` で与えら"
+"れた引数で呼び出します。\n"
+"引数が不要な場合は ``args`` を ``NULL`` にできます。"
 
 #: ../../c-api/call.rst:262 ../../c-api/call.rst:274
 msgid "This is the equivalent of the Python expression: ``callable(*args)``."
@@ -533,52 +583,61 @@ msgstr ""
 "呼び出されます. 引数列は末尾に *NULL* がついた可変数個のパラメタとして与えま"
 "す。"
 
-#: ../../c-api/call.rst:330
 msgid ""
 "Call a method of the Python object *obj* without arguments, where the name "
 "of the method is given as a Python string object in *name*."
 msgstr ""
+"Python オブジェクト ``obj`` のメソッドを引数なしで呼び出します。\n"
+"メソッド名は Python 文字列オブジェクト ``name`` で指定します。"
 
-#: ../../c-api/call.rst:341
 msgid ""
 "Call a method of the Python object *obj* with a single positional argument "
 "*arg*, where the name of the method is given as a Python string object in "
 "*name*."
 msgstr ""
+"Python オブジェクト ``obj`` のメソッドを、一つの位置引数 ``arg`` を渡して呼び"
+"出します。\n"
+"メソッド名は Python 文字列オブジェクト ``name`` で指定します。"
 
-#: ../../c-api/call.rst:355
 msgid ""
 "Call a callable Python object *callable*. The arguments are the same as for :"
 "c:type:`vectorcallfunc`. If *callable* supports vectorcall_, this directly "
 "calls the vectorcall function stored in *callable*."
 msgstr ""
+"呼び出し可能な Python オブジェクト ``callable`` を呼び出します。\n"
+"引数は :c:type:`vectorcallfunc` と同じです。\n"
+"``callable`` が vectorcall_ をサポートしている場合は、``callable`` に格納され"
+"た vectorcall 関数を直接呼び出します。"
 
-#: ../../c-api/call.rst:363
 msgid "as ``_PyObject_Vectorcall``"
-msgstr ""
+msgstr "``_PyObject_Vectorcall`` として追加。"
 
-#: ../../c-api/call.rst:367
 msgid ""
 "Renamed to the current name, without the leading underscore. The old "
 "provisional name is :term:`soft deprecated`."
 msgstr ""
+"先頭のアンダースコアを取り除いた現在の名前に変更しました。\n"
+"以前の暫定的な名前は :term:`緩やかに非推奨 <soft deprecated>` です。"
 
-#: ../../c-api/call.rst:372
 msgid ""
 "Call *callable* with positional arguments passed exactly as in the "
 "vectorcall_ protocol, but with keyword arguments passed as a dictionary "
 "*kwdict*. The *args* array contains only the positional arguments."
 msgstr ""
+"位置引数は vectorcall_ プロトコルとまったく同じ方法で渡し、キーワード引数は辞"
+"書 ``kwdict`` で渡して ``callable`` を呼び出します。\n"
+"``args`` 配列には位置引数だけを含めます。"
 
-#: ../../c-api/call.rst:376
 msgid ""
 "Regardless of which protocol is used internally, a conversion of arguments "
 "needs to be done. Therefore, this function should only be used if the caller "
 "already has a dictionary ready to use for the keyword arguments, but not a "
 "tuple for the positional arguments."
 msgstr ""
+"内部でどちらのプロトコルを使っても、引数の変換が必要です。\n"
+"そのため、この関数は呼び出し側がキーワード引数の辞書をすでに用意していて、位"
+"置引数のタプルは持っていない場合だけに使ってください。"
 
-#: ../../c-api/call.rst:386
 msgid ""
 "Call a method using the vectorcall calling convention. The name of the "
 "method is given as a Python string *name*. The object whose method is called "
@@ -589,16 +648,24 @@ msgid ""
 "temporarily be changed. Keyword arguments can be passed just like in :c:func:"
 "`PyObject_Vectorcall`."
 msgstr ""
+"vectorcall の呼び出し規約でメソッドを呼び出します。\n"
+"メソッド名は Python 文字列 ``name`` で指定します。\n"
+"メソッドを呼び出す対象のオブジェクトは ``args[0]`` で、``args[1]`` から始ま"
+"る ``args`` 配列が呼び出しの引数を表します。\n"
+"位置引数は少なくとも一つ必要です。\n"
+"``nargsf`` は ``args[0]`` を含む位置引数の数で、``args[0]`` の値を一時的に変"
+"更してよい場合は :c:macro:`PY_VECTORCALL_ARGUMENTS_OFFSET` を加えます。\n"
+"キーワード引数は :c:func:`PyObject_Vectorcall` と同じ方法で渡せます。"
 
-#: ../../c-api/call.rst:395
 msgid ""
 "If the object has the :c:macro:`Py_TPFLAGS_METHOD_DESCRIPTOR` feature, this "
 "will call the unbound method object with the full *args* vector as arguments."
 msgstr ""
+"オブジェクトが :c:macro:`Py_TPFLAGS_METHOD_DESCRIPTOR` の機能を持つ場合、"
+"``args`` ベクトル全体を引数として非束縛メソッドオブジェクトを呼び出します。"
 
-#: ../../c-api/call.rst:406
 msgid "Call Support API"
-msgstr ""
+msgstr "呼び出しサポート API"
 
 #: ../../c-api/call.rst:410
 msgid ""
