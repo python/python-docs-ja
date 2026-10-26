@@ -22,68 +22,77 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../../howto/free-threading-extensions.rst:7
 msgid "C API Extension Support for Free Threading"
-msgstr ""
+msgstr "C API 拡張のフリースレッド対応"
 
-#: ../../howto/free-threading-extensions.rst:9
 msgid ""
 "Starting with the 3.13 release, CPython has support for running with the :"
 "term:`global interpreter lock` (GIL) disabled in a configuration called :"
 "term:`free threading`.  This document describes how to adapt C API "
 "extensions to support free threading."
 msgstr ""
+"CPython 3.13 から、:term:`global interpreter lock` (GIL) を無効にして実行す"
+"る :term:`free threading` という構成がサポートされています。\n"
+"このドキュメントでは、C API を使う拡張をフリースレッドに対応させる方法を説明"
+"します。"
 
-#: ../../howto/free-threading-extensions.rst:16
 msgid "Identifying the Free-Threaded Build in C"
-msgstr ""
+msgstr "C からフリースレッドビルドを識別する"
 
-#: ../../howto/free-threading-extensions.rst:18
 msgid ""
 "The CPython C API exposes the ``Py_GIL_DISABLED`` macro: in the free-"
 "threaded build it's defined to ``1``, and in the regular build it's not "
 "defined. You can use it to enable code that only runs under the free-"
 "threaded build::"
 msgstr ""
+"CPython の C API は ``Py_GIL_DISABLED`` マクロを公開しています。\n"
+"フリースレッドビルドでは ``1`` に定義され、通常のビルドでは定義されません。\n"
+"これを使って、フリースレッドビルドでだけ実行するコードを有効にできます。 ::"
 
-#: ../../howto/free-threading-extensions.rst:22
 msgid ""
 "#ifdef Py_GIL_DISABLED\n"
 "/* code that only runs in the free-threaded build */\n"
 "#endif"
 msgstr ""
+"#ifdef Py_GIL_DISABLED\n"
+"/* フリースレッドビルドでだけ実行するコード */\n"
+"#endif"
 
-#: ../../howto/free-threading-extensions.rst:28
 msgid ""
 "On Windows, this macro is not defined automatically, but must be specified "
 "to the compiler when building. The :func:`sysconfig.get_config_var` function "
 "can be used to determine whether the current running interpreter had the "
 "macro defined."
 msgstr ""
+"Windows ではこのマクロは自動的には定義されないため、ビルド時にコンパイラへ指"
+"定する必要があります。\n"
+"実行中のインタープリタでこのマクロが定義されていたかは、:func:`sysconfig."
+"get_config_var` 関数で確認できます。"
 
-#: ../../howto/free-threading-extensions.rst:35
 msgid "Module Initialization"
-msgstr ""
+msgstr "モジュールの初期化"
 
-#: ../../howto/free-threading-extensions.rst:37
 msgid ""
 "Extension modules need to explicitly indicate that they support running with "
 "the GIL disabled; otherwise importing the extension will raise a warning and "
 "enable the GIL at runtime."
 msgstr ""
+"拡張モジュールは、GIL を無効にした実行に対応していることを明示する必要があり"
+"ます。\n"
+"そうしなければ、拡張のインポート時に警告が出され、実行時に GIL が有効になりま"
+"す。"
 
-#: ../../howto/free-threading-extensions.rst:41
 msgid ""
 "There are two ways to indicate that an extension module supports running "
 "with the GIL disabled depending on whether the extension uses multi-phase or "
 "single-phase initialization."
 msgstr ""
+"GIL を無効にした実行に対応していることを示す方法は、拡張が複数フェーズ初期化"
+"と単一フェーズ初期化のどちらを使うかによって、2 通りあります。"
 
-#: ../../howto/free-threading-extensions.rst:46
 msgid "Multi-Phase Initialization"
-msgstr ""
+msgstr "複数フェーズ初期化"
 
-#: ../../howto/free-threading-extensions.rst:48
 msgid ""
 "Extensions that use :ref:`multi-phase initialization <multi-phase-"
 "initialization>` (functions like :c:func:`PyModuleDef_Init`, :c:func:"
@@ -92,8 +101,13 @@ msgid ""
 "module definition. If your extension supports older versions of CPython, you "
 "should guard the slot with a :c:data:`PY_VERSION_HEX` check."
 msgstr ""
+":ref:`複数フェーズ初期化 <multi-phase-initialization>` (:c:func:"
+"`PyModuleDef_Init`、:c:func:`PyModExport_* <PyModExport_modulename>` エクス"
+"ポートフック、:c:func:`PyModule_FromSlotsAndSpec` など) を使う拡張では、モ"
+"ジュール定義に :c:data:`Py_mod_gil` スロットを追加してください。\n"
+"古い CPython バージョンにも対応する場合は、:c:data:`PY_VERSION_HEX` を確認"
+"し、対応するバージョンでだけこのスロットを追加してください。"
 
-#: ../../howto/free-threading-extensions.rst:58
 msgid ""
 "static struct PyModuleDef_Slot module_slots[] = {\n"
 "    ...\n"
@@ -103,12 +117,17 @@ msgid ""
 "    {0, NULL}\n"
 "};"
 msgstr ""
+"static struct PyModuleDef_Slot module_slots[] = {\n"
+"    ...\n"
+"#if PY_VERSION_HEX >= 0x030D0000\n"
+"    {Py_mod_gil, Py_MOD_GIL_NOT_USED},\n"
+"#endif\n"
+"    {0, NULL}\n"
+"};"
 
-#: ../../howto/free-threading-extensions.rst:68
 msgid "Single-Phase Initialization"
-msgstr ""
+msgstr "単一フェーズ初期化"
 
-#: ../../howto/free-threading-extensions.rst:70
 msgid ""
 "Extensions that use legacy :ref:`single-phase initialization <single-phase-"
 "initialization>` (that is, :c:func:`PyModule_Create`) should call :c:func:"
@@ -117,8 +136,13 @@ msgid ""
 "you should guard the call with ``#ifdef Py_GIL_DISABLED`` to avoid "
 "compilation errors in the regular build."
 msgstr ""
+"従来の :ref:`単一フェーズ初期化 <single-phase-initialization>` (つまり :c:"
+"func:`PyModule_Create`) を使う拡張では、:c:func:`PyUnstable_Module_SetGIL` を"
+"呼び出して、GIL を無効にした実行に対応していることを示してください。\n"
+"この関数はフリースレッドビルドでのみ定義されるため、通常のビルドでのコンパイ"
+"ルエラーを避けるには、呼び出しを ``#ifdef Py_GIL_DISABLED`` で囲んでくださ"
+"い。"
 
-#: ../../howto/free-threading-extensions.rst:78
 msgid ""
 "static struct PyModuleDef moduledef = {\n"
 "    PyModuleDef_HEAD_INIT,\n"
@@ -138,22 +162,38 @@ msgid ""
 "    return m;\n"
 "}"
 msgstr ""
+"static struct PyModuleDef moduledef = {\n"
+"    PyModuleDef_HEAD_INIT,\n"
+"    ...\n"
+"};\n"
+"\n"
+"PyMODINIT_FUNC\n"
+"PyInit_mymodule(void)\n"
+"{\n"
+"    PyObject *m = PyModule_Create(&moduledef);\n"
+"    if (m == NULL) {\n"
+"        return NULL;\n"
+"    }\n"
+"#ifdef Py_GIL_DISABLED\n"
+"    PyUnstable_Module_SetGIL(m, Py_MOD_GIL_NOT_USED);\n"
+"#endif\n"
+"    return m;\n"
+"}"
 
-#: ../../howto/free-threading-extensions.rst:98
 msgid "General API Guidelines"
-msgstr ""
+msgstr "API 全般の指針"
 
-#: ../../howto/free-threading-extensions.rst:100
 msgid "Most of the C API is thread-safe, but there are some exceptions."
-msgstr ""
+msgstr "C API の大部分はスレッドセーフですが、例外もあります。"
 
-#: ../../howto/free-threading-extensions.rst:102
 msgid ""
 "**Struct Fields**: Accessing fields in Python C API objects or structs "
 "directly is not thread-safe if the field may be concurrently modified."
 msgstr ""
+"**構造体のフィールド**: Python C API のオブジェクトや構造体のフィールドが並行"
+"して変更される可能性がある場合、そのフィールドへの直接アクセスはスレッドセー"
+"フではありません。"
 
-#: ../../howto/free-threading-extensions.rst:104
 msgid ""
 "**Macros**: Accessor macros like :c:macro:`PyList_GET_ITEM`, :c:macro:"
 "`PyList_SET_ITEM`, and macros like :c:macro:`PySequence_Fast_GET_SIZE` that "
@@ -161,40 +201,50 @@ msgid ""
 "error checking or locking. These macros are not thread-safe if the container "
 "object may be modified concurrently."
 msgstr ""
+"**マクロ**: :c:macro:`PyList_GET_ITEM`、:c:macro:`PyList_SET_ITEM` などのアク"
+"セス用マクロや、:c:func:`PySequence_Fast` が返すオブジェクトを使う :c:macro:"
+"`PySequence_Fast_GET_SIZE` などのマクロは、エラーチェックもロックも行いませ"
+"ん。\n"
+"コンテナオブジェクトが並行して変更される可能性がある場合、これらのマクロはス"
+"レッドセーフではありません。"
 
-#: ../../howto/free-threading-extensions.rst:110
 msgid ""
 "**Borrowed References**: C API functions that return :term:`borrowed "
 "references <borrowed reference>` may not be thread-safe if the containing "
 "object is modified concurrently.  See the section on :ref:`borrowed "
 "references <borrowed-references>` for more information."
 msgstr ""
+"**借用参照**: :term:`借用参照 <borrowed reference>` を返す C API 関数は、参照"
+"先を保持するオブジェクトが並行して変更される場合、スレッドセーフでないことが"
+"あります。\n"
+"詳しくは :ref:`借用参照の節 <borrowed-references>` を参照してください。"
 
-#: ../../howto/free-threading-extensions.rst:117
 msgid "Container Thread Safety"
-msgstr ""
+msgstr "コンテナのスレッド安全性"
 
-#: ../../howto/free-threading-extensions.rst:119
 msgid ""
 "Containers like :c:struct:`PyListObject`, :c:struct:`PyDictObject`, and :c:"
 "struct:`PySetObject` perform internal locking in the free-threaded build.  "
 "For example, the :c:func:`PyList_Append` will lock the list before appending "
 "an item."
 msgstr ""
+":c:struct:`PyListObject`、:c:struct:`PyDictObject`、:c:struct:`PySetObject` "
+"などのコンテナは、フリースレッドビルドでは内部でロックを使います。\n"
+"例えば、:c:func:`PyList_Append` は要素を追加する前にリストをロックします。"
 
-#: ../../howto/free-threading-extensions.rst:127
 msgid "``PyDict_Next``"
-msgstr ""
+msgstr "``PyDict_Next``"
 
-#: ../../howto/free-threading-extensions.rst:129
 msgid ""
 "A notable exception is :c:func:`PyDict_Next`, which does not lock the "
 "dictionary.  You should use :c:macro:`Py_BEGIN_CRITICAL_SECTION` to protect "
 "the dictionary while iterating over it if the dictionary may be concurrently "
 "modified::"
 msgstr ""
+"注意すべき例外は :c:func:`PyDict_Next` で、この関数は辞書をロックしません。\n"
+"辞書が並行して変更される可能性がある場合は、:c:macro:"
+"`Py_BEGIN_CRITICAL_SECTION` を使い、イテレート中の辞書を保護してください。 ::"
 
-#: ../../howto/free-threading-extensions.rst:134
 msgid ""
 "Py_BEGIN_CRITICAL_SECTION(dict);\n"
 "PyObject *key, *value;\n"
@@ -204,113 +254,99 @@ msgid ""
 "}\n"
 "Py_END_CRITICAL_SECTION();"
 msgstr ""
+"Py_BEGIN_CRITICAL_SECTION(dict);\n"
+"PyObject *key, *value;\n"
+"Py_ssize_t pos = 0;\n"
+"while (PyDict_Next(dict, &pos, &key, &value)) {\n"
+"    ...\n"
+"}\n"
+"Py_END_CRITICAL_SECTION();"
 
-#: ../../howto/free-threading-extensions.rst:144
 msgid "Borrowed References"
-msgstr ""
+msgstr "借用参照"
 
-#: ../../howto/free-threading-extensions.rst:148
 msgid ""
 "Some C API functions return :term:`borrowed references <borrowed "
 "reference>`. These APIs are not thread-safe if the containing object is "
 "modified concurrently.  For example, it's not safe to use :c:func:"
 "`PyList_GetItem` if the list may be modified concurrently."
 msgstr ""
+"一部の C API 関数は :term:`借用参照 <borrowed reference>` を返します。\n"
+"参照先を保持するオブジェクトが並行して変更される場合、これらの API はスレッド"
+"セーフではありません。\n"
+"例えば、リストが並行して変更される可能性がある状況で :c:func:"
+"`PyList_GetItem` を使うのは安全ではありません。"
 
-#: ../../howto/free-threading-extensions.rst:153
 msgid ""
 "The following table lists some borrowed reference APIs and their "
 "replacements that return :term:`strong references <strong reference>`."
 msgstr ""
+"次の表は、借用参照を返す API の一部と、代わりに使える :term:`強参照 <strong "
+"reference>` を返す API を示します。"
 
-#: ../../howto/free-threading-extensions.rst:157
 msgid "Borrowed reference API"
-msgstr ""
+msgstr "借用参照を返す API"
 
-#: ../../howto/free-threading-extensions.rst:157
 msgid "Strong reference API"
-msgstr ""
+msgstr "強参照を返す API"
 
-#: ../../howto/free-threading-extensions.rst:159
 msgid ":c:func:`PyList_GetItem`"
-msgstr ""
+msgstr ":c:func:`PyList_GetItem`"
 
-#: ../../howto/free-threading-extensions.rst:159
-#: ../../howto/free-threading-extensions.rst:161
 msgid ":c:func:`PyList_GetItemRef`"
-msgstr ""
+msgstr ":c:func:`PyList_GetItemRef`"
 
-#: ../../howto/free-threading-extensions.rst:161
 msgid ":c:func:`PyList_GET_ITEM`"
-msgstr ""
+msgstr ":c:func:`PyList_GET_ITEM`"
 
-#: ../../howto/free-threading-extensions.rst:163
 msgid ":c:func:`PyDict_GetItem`"
-msgstr ""
+msgstr ":c:func:`PyDict_GetItem`"
 
-#: ../../howto/free-threading-extensions.rst:163
-#: ../../howto/free-threading-extensions.rst:165
 msgid ":c:func:`PyDict_GetItemRef`"
-msgstr ""
+msgstr ":c:func:`PyDict_GetItemRef`"
 
-#: ../../howto/free-threading-extensions.rst:165
 msgid ":c:func:`PyDict_GetItemWithError`"
-msgstr ""
+msgstr ":c:func:`PyDict_GetItemWithError`"
 
-#: ../../howto/free-threading-extensions.rst:167
 msgid ":c:func:`PyDict_GetItemString`"
-msgstr ""
+msgstr ":c:func:`PyDict_GetItemString`"
 
-#: ../../howto/free-threading-extensions.rst:167
 msgid ":c:func:`PyDict_GetItemStringRef`"
-msgstr ""
+msgstr ":c:func:`PyDict_GetItemStringRef`"
 
-#: ../../howto/free-threading-extensions.rst:169
 msgid ":c:func:`PyDict_SetDefault`"
-msgstr ""
+msgstr ":c:func:`PyDict_SetDefault`"
 
-#: ../../howto/free-threading-extensions.rst:169
 msgid ":c:func:`PyDict_SetDefaultRef`"
-msgstr ""
+msgstr ":c:func:`PyDict_SetDefaultRef`"
 
-#: ../../howto/free-threading-extensions.rst:171
 msgid ":c:func:`PyDict_Next`"
-msgstr ""
+msgstr ":c:func:`PyDict_Next`"
 
-#: ../../howto/free-threading-extensions.rst:171
 msgid "none (see :ref:`PyDict_Next`)"
-msgstr ""
+msgstr "なし (:ref:`PyDict_Next` を参照)"
 
-#: ../../howto/free-threading-extensions.rst:173
 msgid ":c:func:`!PyWeakref_GetObject`"
-msgstr ""
+msgstr ":c:func:`!PyWeakref_GetObject`"
 
-#: ../../howto/free-threading-extensions.rst:173
-#: ../../howto/free-threading-extensions.rst:175
 msgid ":c:func:`PyWeakref_GetRef`"
-msgstr ""
+msgstr ":c:func:`PyWeakref_GetRef`"
 
-#: ../../howto/free-threading-extensions.rst:175
 msgid ":c:func:`!PyWeakref_GET_OBJECT`"
-msgstr ""
+msgstr ":c:func:`!PyWeakref_GET_OBJECT`"
 
-#: ../../howto/free-threading-extensions.rst:177
 msgid ":c:func:`PyImport_AddModule`"
-msgstr ""
+msgstr ":c:func:`PyImport_AddModule`"
 
-#: ../../howto/free-threading-extensions.rst:177
 msgid ":c:func:`PyImport_AddModuleRef`"
-msgstr ""
+msgstr ":c:func:`PyImport_AddModuleRef`"
 
-#: ../../howto/free-threading-extensions.rst:179
 msgid ":c:func:`PyCell_GET`"
-msgstr ""
+msgstr ":c:func:`PyCell_GET`"
 
-#: ../../howto/free-threading-extensions.rst:179
 msgid ":c:func:`PyCell_Get`"
-msgstr ""
+msgstr ":c:func:`PyCell_Get`"
 
-#: ../../howto/free-threading-extensions.rst:182
 msgid ""
 "Not all APIs that return borrowed references are problematic.  For example, :"
 "c:func:`PyTuple_GetItem` is safe because tuples are immutable. Similarly, "
@@ -320,19 +356,26 @@ msgid ""
 "(not accessible by other threads), so using borrowed references in that "
 "context is safe."
 msgstr ""
+"借用参照を返すすべての API が問題になるわけではありません。\n"
+"例えば、タプルはイミュータブルなので :c:func:`PyTuple_GetItem` は安全です。\n"
+"また、上記 API の使い方がすべて問題になるわけでもありません。\n"
+"例えば、:c:func:`PyDict_GetItem` は関数呼び出しのキーワード引数辞書の解析によ"
+"く使われます。\n"
+"この辞書は実質的にプライベートで、ほかのスレッドからアクセスできないため、そ"
+"の状況で借用参照を使うのは安全です。"
 
-#: ../../howto/free-threading-extensions.rst:190
 msgid ""
 "Some of these functions were added in Python 3.13.  You can use the "
 "`pythoncapi-compat <https://github.com/python/pythoncapi-compat>`_ package "
 "to provide implementations of these functions for older Python versions."
 msgstr ""
+"これらの関数の一部は Python 3.13 で追加されました。\n"
+"古い Python バージョン向けには、`pythoncapi-compat <https://github.com/"
+"python/pythoncapi-compat>`_ パッケージでこれらの関数の実装を利用できます。"
 
-#: ../../howto/free-threading-extensions.rst:198
 msgid "Memory Allocation APIs"
-msgstr ""
+msgstr "メモリ割り当て API"
 
-#: ../../howto/free-threading-extensions.rst:200
 msgid ""
 "Python's memory management C API provides functions in three different :ref:"
 "`allocation domains <allocator-domains>`: \"raw\", \"mem\", and \"object\". "
@@ -341,43 +384,49 @@ msgid ""
 "allocated using that domain.  This differs from the prior Python versions, "
 "where this was only a best practice and not a hard requirement."
 msgstr ""
+"Python のメモリ管理 C API は、raw、mem、object という 3 つの :ref:`割り当てド"
+"メイン <allocator-domains>` の関数を提供します。\n"
+"フリースレッドビルドではスレッド安全性のため、object ドメインで割り当てるの"
+"は Python オブジェクトだけでなければならず、すべての Python オブジェクトをこ"
+"のドメインで割り当てる必要があります。\n"
+"以前の Python では、これは推奨事項にすぎず、必須条件ではありませんでした。"
 
-#: ../../howto/free-threading-extensions.rst:209
 msgid ""
 "Search for uses of :c:func:`PyObject_Malloc` in your extension and check "
 "that the allocated memory is used for Python objects. Use :c:func:"
 "`PyMem_Malloc` to allocate buffers instead of :c:func:`PyObject_Malloc`."
 msgstr ""
+"拡張内の :c:func:`PyObject_Malloc` の使用箇所を探し、割り当てたメモリを "
+"Python オブジェクトに使っているか確認してください。\n"
+"バッファの割り当てには、:c:func:`PyObject_Malloc` ではなく :c:func:"
+"`PyMem_Malloc` を使ってください。"
 
-#: ../../howto/free-threading-extensions.rst:216
 msgid "Thread State and GIL APIs"
-msgstr ""
+msgstr "スレッド状態と GIL の API"
 
-#: ../../howto/free-threading-extensions.rst:218
 msgid ""
 "Python provides a set of functions and macros to manage thread state and the "
 "GIL, such as:"
 msgstr ""
+"Python は、スレッド状態と GIL を管理するために、次のような関数やマクロを提供"
+"しています。"
 
-#: ../../howto/free-threading-extensions.rst:221
 msgid ""
 ":c:func:`PyThreadState_Ensure`, :c:func:`PyThreadState_EnsureFromView`, and :"
 "c:func:`PyThreadState_Release`"
 msgstr ""
+":c:func:`PyThreadState_Ensure`、:c:func:`PyThreadState_EnsureFromView`、:c:"
+"func:`PyThreadState_Release`"
 
-#: ../../howto/free-threading-extensions.rst:223
 msgid ":c:func:`PyGILState_Ensure` and :c:func:`PyGILState_Release`"
-msgstr ""
+msgstr ":c:func:`PyGILState_Ensure` と :c:func:`PyGILState_Release`"
 
-#: ../../howto/free-threading-extensions.rst:224
 msgid ":c:func:`PyEval_SaveThread` and :c:func:`PyEval_RestoreThread`"
-msgstr ""
+msgstr ":c:func:`PyEval_SaveThread` と :c:func:`PyEval_RestoreThread`"
 
-#: ../../howto/free-threading-extensions.rst:225
 msgid ":c:macro:`Py_BEGIN_ALLOW_THREADS` and :c:macro:`Py_END_ALLOW_THREADS`"
-msgstr ""
+msgstr ":c:macro:`Py_BEGIN_ALLOW_THREADS` と :c:macro:`Py_END_ALLOW_THREADS`"
 
-#: ../../howto/free-threading-extensions.rst:227
 msgid ""
 "These functions should still be used in the free-threaded build to manage "
 "thread state even when the :term:`GIL` is disabled.  For example, if you "
@@ -385,46 +434,60 @@ msgid ""
 "`PyThreadState_Ensure` before calling into the Python API to ensure that the "
 "thread has a valid Python thread state."
 msgstr ""
+"フリースレッドビルドで :term:`GIL` が無効な場合も、スレッド状態の管理にはこれ"
+"らの関数を引き続き使う必要があります。\n"
+"例えば、Python の外部で作成したスレッドから Python API を呼び出す場合は、先"
+"に :c:func:`PyThreadState_Ensure` を呼び出し、有効な Python スレッド状態を持"
+"つことを保証しなければなりません。"
 
-#: ../../howto/free-threading-extensions.rst:233
 msgid ""
 "You should continue to call :c:func:`PyEval_SaveThread` or :c:macro:"
 "`Py_BEGIN_ALLOW_THREADS` around blocking operations, such as I/O or lock "
 "acquisitions, to allow other threads to run the :term:`cyclic garbage "
 "collector <garbage collection>`."
 msgstr ""
+"I/O やロック取得などのブロッキング操作の前後では、引き続き :c:func:"
+"`PyEval_SaveThread` や :c:macro:`Py_BEGIN_ALLOW_THREADS` を使ってください。\n"
+"これにより、ほかのスレッドが :term:`循環ガベージコレクタ <garbage "
+"collection>` を実行できるようになります。"
 
-#: ../../howto/free-threading-extensions.rst:240
 msgid "Protecting Internal Extension State"
-msgstr ""
+msgstr "拡張の内部状態の保護"
 
-#: ../../howto/free-threading-extensions.rst:242
 msgid ""
 "Your extension may have internal state that was previously protected by the "
 "GIL.  You may need to add locking to protect this state.  The approach will "
 "depend on your extension, but some common patterns include:"
 msgstr ""
+"拡張には、以前は GIL によって保護されていた内部状態があるかもしれません。\n"
+"その状態を保護するためにロックを追加する必要がある場合があります。\n"
+"方法は拡張によりますが、よくあるパターンには次のものがあります。"
 
-#: ../../howto/free-threading-extensions.rst:246
 msgid ""
 "**Caches**: global caches are a common source of shared state.  Consider "
 "using a lock to protect the cache or disabling it in the free-threaded build "
 "if the cache is not critical for performance."
 msgstr ""
+"**キャッシュ**: グローバルなキャッシュは、共有状態が生まれる典型的な場所で"
+"す。\n"
+"ロックでキャッシュを保護するか、性能上不可欠でなければ、フリースレッドビルド"
+"ではキャッシュを無効にすることを検討してください。"
 
-#: ../../howto/free-threading-extensions.rst:249
 msgid ""
 "**Global State**: global state may need to be protected by a lock or moved "
 "to thread local storage. C11 and C++11 provide the ``thread_local`` or "
 "``_Thread_local`` for `thread-local storage <https://en.cppreference.com/w/c/"
 "language/storage_duration>`_."
 msgstr ""
+"**グローバルな状態**: グローバルな状態には、ロックによる保護やスレッドローカ"
+"ルストレージへの移動が必要な場合があります。\n"
+"C11 と C++11 は、`スレッドローカルストレージ <https://en.cppreference.com/w/"
+"c/language/storage_duration>`_ のために ``thread_local`` または "
+"``_Thread_local`` を提供しています。"
 
-#: ../../howto/free-threading-extensions.rst:256
 msgid "Critical Sections"
-msgstr ""
+msgstr "クリティカルセクション"
 
-#: ../../howto/free-threading-extensions.rst:260
 msgid ""
 "In the free-threaded build, CPython provides a mechanism called \"critical "
 "sections\" to protect data that would otherwise be protected by the GIL. "
@@ -432,12 +495,14 @@ msgid ""
 "implementation directly, understanding their behavior is crucial when using "
 "certain C API functions or managing shared state in the free-threaded build."
 msgstr ""
+"CPython のフリースレッドビルドには、通常なら GIL が保護するデータを保護する"
+"「クリティカルセクション」という仕組みがあります。\n"
+"拡張の開発者がその内部実装を直接扱うことはなくても、特定の C API 関数を使うと"
+"きや共有状態を管理するときには、動作を理解しておくことが重要です。"
 
-#: ../../howto/free-threading-extensions.rst:267
 msgid "What Are Critical Sections?"
-msgstr ""
+msgstr "クリティカルセクションとは"
 
-#: ../../howto/free-threading-extensions.rst:269
 msgid ""
 "Conceptually, critical sections act as a deadlock avoidance layer built on "
 "top of simple mutexes. Each thread maintains a stack of active critical "
@@ -446,42 +511,55 @@ msgid ""
 "func:`PyDict_SetItem`, or explicitly using macros), it attempts to acquire "
 "the underlying mutex."
 msgstr ""
+"概念的には、クリティカルセクションは単純なミューテックスの上に設けられた、"
+"デッドロックを回避するための層です。\n"
+"各スレッドは、有効なクリティカルセクションのスタックを保持します。\n"
+"スレッドがクリティカルセクションのロックを取得する必要があると、その基盤とな"
+"るミューテックスの取得を試みます。\n"
+"これは、:c:func:`PyDict_SetItem` のようなスレッドセーフな C API 関数の呼び出"
+"しで暗黙に行われる場合も、マクロで明示的に行われる場合もあります。"
 
-#: ../../howto/free-threading-extensions.rst:277
 msgid "Using Critical Sections"
-msgstr ""
+msgstr "クリティカルセクションの使い方"
 
-#: ../../howto/free-threading-extensions.rst:279
 msgid "The primary APIs for using critical sections are:"
-msgstr ""
+msgstr "クリティカルセクションを使う主な API は次のとおりです。"
 
-#: ../../howto/free-threading-extensions.rst:281
 msgid ""
 ":c:macro:`Py_BEGIN_CRITICAL_SECTION` and :c:macro:`Py_END_CRITICAL_SECTION` "
 "- For locking a single object"
 msgstr ""
+":c:macro:`Py_BEGIN_CRITICAL_SECTION` と :c:macro:`Py_END_CRITICAL_SECTION` — "
+"1 つのオブジェクトをロックします。"
 
-#: ../../howto/free-threading-extensions.rst:284
 msgid ""
 ":c:macro:`Py_BEGIN_CRITICAL_SECTION2` and :c:macro:"
 "`Py_END_CRITICAL_SECTION2` - For locking two objects simultaneously"
 msgstr ""
+":c:macro:`Py_BEGIN_CRITICAL_SECTION2` と :c:macro:`Py_END_CRITICAL_SECTION2` "
+"— 2 つのオブジェクトを同時にロックします。"
 
-#: ../../howto/free-threading-extensions.rst:287
 msgid ""
 "These macros must be used in matching pairs and must appear in the same C "
 "scope, since they establish a new local scope.  These macros are no-ops in "
 "non-free-threaded builds, so they can be safely added to code that needs to "
 "support both build types."
 msgstr ""
+"これらのマクロは新しいローカルスコープを作るため、必ず対応する組で使い、同じ "
+"C のスコープに置く必要があります。\n"
+"非フリースレッドビルドでは何もしないので、両方のビルドに対応するコードにも安"
+"全に追加できます。"
 
-#: ../../howto/free-threading-extensions.rst:292
 msgid ""
 "A common use of a critical section would be to lock an object while "
 "accessing an internal attribute of it.  For example, if an extension type "
 "has an internal count field, you could use a critical section while reading "
 "or writing that field::"
 msgstr ""
+"クリティカルセクションのよくある用途は、オブジェクトの内部属性へのアクセス中"
+"に、そのオブジェクトをロックすることです。\n"
+"例えば、拡張型に内部的なカウントのフィールドがあれば、その読み書きにクリティ"
+"カルセクションを使えます。 ::"
 
 #: ../../howto/free-threading-extensions.rst:297
 msgid ""
@@ -498,11 +576,9 @@ msgid ""
 "Py_END_CRITICAL_SECTION();"
 msgstr ""
 
-#: ../../howto/free-threading-extensions.rst:311
 msgid "How Critical Sections Work"
-msgstr ""
+msgstr "クリティカルセクションの仕組み"
 
-#: ../../howto/free-threading-extensions.rst:313
 msgid ""
 "Unlike traditional locks, critical sections do not guarantee exclusive "
 "access throughout their entire duration. If a thread would block while "
@@ -510,60 +586,75 @@ msgid ""
 "O), the critical section is temporarily suspended—all locks are released—and "
 "then resumed when the blocking operation completes."
 msgstr ""
+"通常のロックとは異なり、クリティカルセクションはその期間全体にわたる排他的ア"
+"クセスを保証しません。\n"
+"クリティカルセクション内で別のロックの取得や I/O などによってスレッドがブロッ"
+"クする場合、クリティカルセクションは一時的に中断され、すべてのロックが解放さ"
+"れます。\n"
+"ブロッキング操作が完了すると再開されます。"
 
-#: ../../howto/free-threading-extensions.rst:319
 msgid ""
 "This behavior is similar to what happens with the GIL when a thread makes a "
 "blocking call. The key differences are:"
 msgstr ""
+"これは、スレッドがブロッキング呼び出しを行うときの GIL の動作に似ています。\n"
+"主な違いは次のとおりです。"
 
-#: ../../howto/free-threading-extensions.rst:322
 msgid "Critical sections operate on a per-object basis rather than globally"
 msgstr ""
+"クリティカルセクションは全体で 1 つではなく、オブジェクト単位で動作します。"
 
-#: ../../howto/free-threading-extensions.rst:324
 msgid ""
 "Critical sections follow a stack discipline within each thread (the "
 "\"begin\" and \"end\" macros enforce this since they must be paired and "
 "within the same scope)"
 msgstr ""
+"クリティカルセクションは各スレッド内でスタックの順序に従います。\n"
+"開始マクロと終了マクロは同じスコープ内で対にする必要があるため、この順序が強"
+"制されます。"
 
-#: ../../howto/free-threading-extensions.rst:327
 msgid ""
 "Critical sections automatically release and reacquire locks around potential "
 "blocking operations"
 msgstr ""
+"クリティカルセクションは、ブロックする可能性のある操作の前後で、自動的にロッ"
+"クを解放して再取得します。"
 
-#: ../../howto/free-threading-extensions.rst:331
 msgid "Deadlock Avoidance"
-msgstr ""
+msgstr "デッドロックの回避"
 
-#: ../../howto/free-threading-extensions.rst:333
 msgid "Critical sections help avoid deadlocks in two ways:"
 msgstr ""
+"クリティカルセクションは、次の 2 つの方法でデッドロックの回避を助けます。"
 
-#: ../../howto/free-threading-extensions.rst:335
 msgid ""
 "If a thread tries to acquire a lock that's already held by another thread, "
 "it first suspends all of its active critical sections, temporarily releasing "
 "their locks"
 msgstr ""
+"スレッドが別のスレッドに保持されているロックを取得しようとすると、まず自身の"
+"有効なクリティカルセクションをすべて中断し、それらのロックを一時的に解放しま"
+"す。"
 
-#: ../../howto/free-threading-extensions.rst:339
 msgid ""
 "When the blocking operation completes, only the top-most critical section is "
 "reacquired first"
 msgstr ""
+"ブロッキング操作が完了すると、最初に最上位のクリティカルセクションだけが再取"
+"得されます。"
 
-#: ../../howto/free-threading-extensions.rst:342
 msgid ""
 "This means you cannot rely on nested critical sections to lock multiple "
 "objects at once, as the inner critical section may suspend the outer ones. "
 "Instead, use :c:macro:`Py_BEGIN_CRITICAL_SECTION2` to lock two objects "
 "simultaneously."
 msgstr ""
+"このため、複数のオブジェクトを同時にロックする目的で、クリティカルセクション"
+"の入れ子を使うことはできません。\n"
+"内側のクリティカルセクションが外側を中断する可能性があるためです。\n"
+"2 つのオブジェクトを同時にロックするには、代わりに :c:macro:"
+"`Py_BEGIN_CRITICAL_SECTION2` を使ってください。"
 
-#: ../../howto/free-threading-extensions.rst:346
 msgid ""
 "Note that the locks described above are only :c:type:`PyMutex` based locks. "
 "The critical section implementation does not know about or affect other "
@@ -573,19 +664,28 @@ msgid ""
 "released.  If :c:type:`PyMutex` is used without a critical section, it will "
 "not be released and therefore does not get the same deadlock avoidance."
 msgstr ""
+"ここで説明したロックは、:c:type:`PyMutex` に基づくロックだけです。\n"
+"クリティカルセクションの実装は、POSIX ミューテックスなどのほかのロック機構を"
+"認識せず、影響も与えません。\n"
+"また、どの :c:type:`PyMutex` でブロックしてもクリティカルセクションは中断され"
+"ますが、解放されるのはクリティカルセクションの一部であるミューテックスだけで"
+"す。\n"
+"クリティカルセクションを使わずに取得した :c:type:`PyMutex` は解放されないた"
+"め、同じデッドロック回避の効果は得られません。"
 
-#: ../../howto/free-threading-extensions.rst:355
 msgid "Important Considerations"
-msgstr ""
+msgstr "重要な注意点"
 
-#: ../../howto/free-threading-extensions.rst:357
 msgid ""
 "Critical sections may temporarily release their locks, allowing other "
 "threads to modify the protected data. Be careful about making assumptions "
 "about the state of the data after operations that might block."
 msgstr ""
+"クリティカルセクションは一時的にロックを解放することがあるため、ほかのスレッ"
+"ドが保護対象のデータを変更できます。\n"
+"ブロックする可能性のある操作の後で、データの状態を仮定する際には注意してくだ"
+"さい。"
 
-#: ../../howto/free-threading-extensions.rst:361
 msgid ""
 "Because locks can be temporarily released (suspended), entering a critical "
 "section does not guarantee exclusive access to the protected resource "
@@ -594,35 +694,49 @@ msgid ""
 "I/O), all locks held by the thread via critical sections will be released. "
 "This is similar to how the GIL can be released during blocking calls."
 msgstr ""
+"ロックが一時的に解放 (中断) される可能性があるため、クリティカルセクションに"
+"入っても、その期間全体にわたって保護対象のリソースへ排他的にアクセスできると"
+"は限りません。\n"
+"クリティカルセクション内で、別のロックの取得やブロッキング I/O などを行う関数"
+"を呼び、その処理がブロックすると、そのスレッドがクリティカルセクションを通じ"
+"て保持するロックはすべて解放されます。\n"
+"これは、ブロッキング呼び出し中に GIL が解放されることがあるのと同様です。"
 
-#: ../../howto/free-threading-extensions.rst:368
 msgid ""
 "Only the lock(s) associated with the most recently entered (top-most) "
 "critical section are guaranteed to be held at any given time. Locks for "
 "outer, nested critical sections might have been suspended."
 msgstr ""
+"ある時点で保持が保証されるのは、最後に入った最上位のクリティカルセクションの"
+"ロックだけです。\n"
+"入れ子になった外側のクリティカルセクションのロックは、中断されている可能性が"
+"あります。"
 
-#: ../../howto/free-threading-extensions.rst:372
 msgid ""
 "You can lock at most two objects simultaneously with these APIs. If you need "
 "to lock more objects, you'll need to restructure your code."
 msgstr ""
+"これらの API で同時にロックできるオブジェクトは最大 2 つです。\n"
+"それ以上をロックする必要があれば、コードの構成を見直す必要があります。"
 
-#: ../../howto/free-threading-extensions.rst:375
 msgid ""
 "While critical sections will not deadlock if you attempt to lock the same "
 "object twice, they are less efficient than purpose-built reentrant locks for "
 "this use case."
 msgstr ""
+"クリティカルセクションで同じオブジェクトを 2 回ロックしようとしてもデッドロッ"
+"クにはなりませんが、この用途に特化した再入可能ロックほど効率的ではありませ"
+"ん。"
 
-#: ../../howto/free-threading-extensions.rst:379
 msgid ""
 "When using :c:macro:`Py_BEGIN_CRITICAL_SECTION2`, the order of the objects "
 "doesn't affect correctness (the implementation handles deadlock avoidance), "
 "but it's good practice to always lock objects in a consistent order."
 msgstr ""
+":c:macro:`Py_BEGIN_CRITICAL_SECTION2` では、実装がデッドロックを回避するた"
+"め、オブジェクトの順序は正しさに影響しません。\n"
+"ただし、常に一貫した順序でロックするのがよい習慣です。"
 
-#: ../../howto/free-threading-extensions.rst:383
 msgid ""
 "Remember that the critical section macros are primarily for protecting "
 "access to *Python objects* that might be involved in internal CPython "
@@ -630,44 +744,58 @@ msgid ""
 "protecting purely internal extension state, standard mutexes or other "
 "synchronization primitives might be more appropriate."
 msgstr ""
+"クリティカルセクションのマクロは主に、上述のようなデッドロックが起こり得る "
+"CPython 内部の操作に関与する *Python オブジェクト* へのアクセスを保護するもの"
+"です。\n"
+"拡張だけが使う内部状態の保護には、標準のミューテックスなどの同期プリミティブ"
+"のほうが適している場合があります。"
 
-#: ../../howto/free-threading-extensions.rst:392
 msgid "Per-Object Locks (``ob_mutex``)"
-msgstr ""
+msgstr "オブジェクトごとのロック (``ob_mutex``)"
 
-#: ../../howto/free-threading-extensions.rst:394
 msgid ""
 "In the free-threaded build, each Python object contains a :c:member:"
 "`~PyObject.ob_mutex` field of type :c:type:`PyMutex`.  This mutex is "
 "**reserved for use by the critical section API** (:c:macro:"
 "`Py_BEGIN_CRITICAL_SECTION` / :c:macro:`Py_END_CRITICAL_SECTION`)."
 msgstr ""
+"フリースレッドビルドでは、各 Python オブジェクトに :c:type:`PyMutex` 型の :c:"
+"member:`~PyObject.ob_mutex` フィールドがあります。\n"
+"このミューテックスは **クリティカルセクション API 専用** です (:c:macro:"
+"`Py_BEGIN_CRITICAL_SECTION` / :c:macro:`Py_END_CRITICAL_SECTION`)。"
 
-#: ../../howto/free-threading-extensions.rst:401
 msgid ""
 "Do **not** lock ``ob_mutex`` directly with ``PyMutex_Lock(&obj->ob_mutex)``. "
 "Mixing direct ``PyMutex_Lock`` calls with the critical section API on the "
 "same mutex can cause deadlocks."
 msgstr ""
+"``PyMutex_Lock(&obj->ob_mutex)`` で ``ob_mutex`` を直接ロック **しないでくだ"
+"さい**。\n"
+"同じミューテックスに対して、``PyMutex_Lock`` の直接呼び出しとクリティカルセク"
+"ション API を混在させると、デッドロックが起こる可能性があります。"
 
-#: ../../howto/free-threading-extensions.rst:405
 msgid ""
 "Even if your own code never uses critical sections on a particular object "
 "type, **CPython internals may use the critical section API on any Python "
 "object**."
 msgstr ""
+"自分のコードでは特定の型のオブジェクトにクリティカルセクションを使っていなく"
+"ても、**CPython 内部ではどの Python オブジェクトにもクリティカルセクション "
+"API を使う可能性があります**。"
 
-#: ../../howto/free-threading-extensions.rst:408
 msgid ""
 "If your extension type needs its own lock, add a separate :c:type:`PyMutex` "
 "field (or another synchronization primitive) to your object struct. :c:type:"
 "`PyMutex` is very lightweight, so there is negligible cost to having an "
 "additional one."
 msgstr ""
+"拡張型に独自のロックが必要な場合は、オブジェクトの構造体に別の :c:type:"
+"`PyMutex` フィールド、またはほかの同期プリミティブを追加してください。\n"
+":c:type:`PyMutex` は非常に軽量なので、追加で 1 つ持ってもコストはほぼ無視でき"
+"ます。"
 
-#: ../../howto/free-threading-extensions.rst:415
 msgid "Building Extensions for the Free-Threaded Build"
-msgstr ""
+msgstr "フリースレッドビルド向けの拡張のビルド"
 
 #: ../../howto/free-threading-extensions.rst:417
 msgid ""
@@ -675,21 +803,22 @@ msgid ""
 "The wheels, shared libraries, and binaries are indicated by a ``t`` suffix."
 msgstr ""
 
-#: ../../howto/free-threading-extensions.rst:420
 msgid ""
 "`pypa/manylinux <https://github.com/pypa/manylinux>`_ supports the free-"
 "threaded build, with the ``t`` suffix, such as ``python3.14t``."
 msgstr ""
+"`pypa/manylinux <https://github.com/pypa/manylinux>`_ は、``python3.14t`` の"
+"ように ``t`` サフィックスを付けたフリースレッドビルドに対応しています。"
 
-#: ../../howto/free-threading-extensions.rst:422
 msgid ""
 "`pypa/cibuildwheel <https://github.com/pypa/cibuildwheel>`_ supports "
 "building wheels for the free-threaded build of Python 3.14 and newer."
 msgstr ""
+"`pypa/cibuildwheel <https://github.com/pypa/cibuildwheel>`_ は、Python 3.14 "
+"以降のフリースレッドビルド向け wheel の作成に対応しています。"
 
-#: ../../howto/free-threading-extensions.rst:426
 msgid "Limited C API and Stable ABI"
-msgstr ""
+msgstr "Limited C API と Stable ABI"
 
 #: ../../howto/free-threading-extensions.rst:428
 msgid ""
@@ -712,15 +841,18 @@ msgstr ""
 msgid "Windows"
 msgstr "Windows"
 
-#: ../../howto/free-threading-extensions.rst:444
 msgid ""
 "Due to a limitation of the official Windows installer, you will need to "
 "manually define ``Py_GIL_DISABLED=1`` when building extensions from source."
 msgstr ""
+"公式 Windows インストーラの制限により、ソースから拡張をビルドする際は、"
+"``Py_GIL_DISABLED=1`` を手動で定義する必要があります。"
 
-#: ../../howto/free-threading-extensions.rst:449
 msgid ""
 "`Porting Extension Modules to Support Free-Threading <https://py-free-"
 "threading.github.io/porting/>`_: A community-maintained porting guide for "
 "extension authors."
 msgstr ""
+"`Porting Extension Modules to Support Free-Threading <https://py-free-"
+"threading.github.io/porting/>`_: 拡張の開発者向けにコミュニティが保守している"
+"移植ガイド。"
