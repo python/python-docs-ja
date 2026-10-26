@@ -118,7 +118,6 @@ msgstr ""
 "(*timeout*、*input*、*check*、*capture_output* は除きます。\n"
 ")"
 
-#: ../../library/subprocess.rst:53
 msgid ""
 "If *capture_output* is true, stdout and stderr will be captured. When used, "
 "the internal :class:`Popen` object is automatically created with *stdout* "
@@ -128,8 +127,14 @@ msgid ""
 "`~subprocess.PIPE` and *stderr* to :data:`~subprocess.STDOUT`, instead of "
 "using *capture_output*."
 msgstr ""
+"*capture_output* が真なら、標準出力と標準エラー出力を捕捉します。\n"
+"この指定を使うと、内部の :class:`Popen` オブジェクトは *stdout* と *stderr* "
+"の両方を :data:`~subprocess.PIPE` に設定して自動的に作成されます。\n"
+"*stdout* や *stderr* 引数は *capture_output* と同時には指定できません。\n"
+"両方のストリームをまとめて捕捉するには、*capture_output* を使わず、*stdout* "
+"を :data:`~subprocess.PIPE`、*stderr* を :data:`~subprocess.STDOUT` に設定し"
+"てください。"
 
-#: ../../library/subprocess.rst:62
 msgid ""
 "A *timeout* may be specified in seconds, it is internally passed on to :meth:"
 "`Popen.communicate`. If the timeout expires, the child process will be "
@@ -138,8 +143,14 @@ msgid ""
 "cannot be interrupted on many platform APIs so you are not guaranteed to see "
 "a timeout exception until at least after however long process creation takes."
 msgstr ""
+"*timeout* には秒数を指定でき、内部で :meth:`Popen.communicate` に渡されま"
+"す。\n"
+"タイムアウトすると子プロセスを強制終了させ、その終了を待ちます。\n"
+"子プロセスが終了した後に :exc:`TimeoutExpired` 例外を再送出します。\n"
+"多くのプラットフォームの API では最初のプロセス作成自体を中断できないため、少"
+"なくともプロセス作成にかかる時間が経過するまでは、タイムアウト例外が発生する"
+"保証はありません。"
 
-#: ../../library/subprocess.rst:70
 msgid ""
 "The *input* argument is passed to :meth:`Popen.communicate` and thus to the "
 "subprocess's stdin.  If used it must be a byte sequence, or a string if "
@@ -147,6 +158,13 @@ msgid ""
 "internal :class:`Popen` object is automatically created with *stdin* set to :"
 "data:`~subprocess.PIPE`, and the *stdin* argument may not be used as well."
 msgstr ""
+"*input* 引数は :meth:`Popen.communicate` に渡され、サブプロセスの標準入力に送"
+"られます。\n"
+"指定する場合はバイト列にする必要がありますが、*encoding* または *errors* を指"
+"定するか *text* が真なら文字列にします。\n"
+"この指定を使うと、内部の :class:`Popen` オブジェクトは *stdin* を :data:"
+"`~subprocess.PIPE` に設定して自動的に作成されるため、*stdin* 引数は併用できま"
+"せん。"
 
 #: ../../library/subprocess.rst:77
 msgid ""
@@ -160,7 +178,6 @@ msgstr ""
 "この例外の属性には、引数、終了コード、標準出力および標準エラー出力が捕捉でき"
 "た場合に格納されます。"
 
-#: ../../library/subprocess.rst:82
 msgid ""
 "If *encoding* or *errors* are specified, or *text* is true, file objects for "
 "stdin, stdout and stderr are opened in text mode using the specified "
@@ -168,13 +185,13 @@ msgid ""
 "*universal_newlines* argument is equivalent  to *text* and is provided for "
 "backwards compatibility. By default, file objects are opened in binary mode."
 msgstr ""
-"*encoding* または *errors* 引数が指定されるか、*text* 引数が true である場"
-"合、stdin, stdout および stderr のためのファイルオブジェクトはテキストモード"
-"でオープンされます。 その際には指定された *encoding* および *errors* が使われ"
-"るか、デフォルトの :class:`io.TextIOWrapper` になります。"
-"*universal_newlines* 引数は *text* 引数と等価であり、後方互換性のために提供さ"
-"れています。そうでない場合、デフォルトでこれらのファイルオブジェクトはバイナ"
-"リモードでオープンされます。"
+"*encoding* または *errors* を指定するか、*text* が真なら、標準入力、標準出"
+"力、標準エラー出力のファイルオブジェクトをテキストモードで開きます。\n"
+"その際には、指定された *encoding* と *errors*、または :class:`io."
+"TextIOWrapper` のデフォルト値を使います。\n"
+"*universal_newlines* 引数は *text* と同じ意味で、後方互換性のために用意されて"
+"います。\n"
+"デフォルトでは、ファイルオブジェクトをバイナリモードで開きます。"
 
 msgid ""
 "If *env* is not ``None``, it must be a mapping that defines the environment "
@@ -198,7 +215,6 @@ msgstr ""
 msgid "Examples::"
 msgstr "例::"
 
-#: ../../library/subprocess.rst:97
 msgid ""
 ">>> subprocess.run([\"ls\", \"-l\"])  # doesn't capture output\n"
 "CompletedProcess(args=['ls', '-l'], returncode=0)\n"
@@ -213,6 +229,18 @@ msgid ""
 "CompletedProcess(args=['ls', '-l', '/dev/null'], returncode=0,\n"
 "stdout=b'crw-rw-rw- 1 root root 1, 3 Jan 23 16:23 /dev/null\\n', stderr=b'')"
 msgstr ""
+">>> subprocess.run([\"ls\", \"-l\"])  # 出力を捕捉しない\n"
+"CompletedProcess(args=['ls', '-l'], returncode=0)\n"
+"\n"
+">>> subprocess.run(\"exit 1\", shell=True, check=True)\n"
+"Traceback (most recent call last):\n"
+"  ...\n"
+"subprocess.CalledProcessError: Command 'exit 1' returned non-zero exit "
+"status 1\n"
+"\n"
+">>> subprocess.run([\"ls\", \"-l\", \"/dev/null\"], capture_output=True)\n"
+"CompletedProcess(args=['ls', '-l', '/dev/null'], returncode=0,\n"
+"stdout=b'crw-rw-rw- 1 root root 1, 3 Jan 23 16:23 /dev/null\\n', stderr=b'')"
 
 msgid "Added *encoding* and *errors* parameters"
 msgstr "*encoding* と *errors* が引数に追加されました。"
@@ -364,17 +392,17 @@ msgstr ""
 msgid "Alias for output, for symmetry with :attr:`stderr`."
 msgstr "output の別名。:attr:`stderr` と対になります。"
 
-#: ../../library/subprocess.rst:223
 msgid ""
 "Stderr output of the child process if it was captured by :func:`run`. "
 "Otherwise, ``None``.  This is always :class:`bytes` when stderr output was "
 "captured regardless of the ``text=True`` setting.  It may remain ``None`` "
 "instead of ``b''`` when no stderr output was observed."
 msgstr ""
-":func:`run` によって捕捉された場合、子プロセスの標準エラー出力が表示され、そ"
-"れ以外の場合は ``None`` となります。``text=True`` の設定に関係なく、標準エ"
-"ラー出力を捕捉した場合は常に :class:`bytes` となります。標準エラー出力がない"
-"場合は、``b''`` の代わりに ``None`` のままになることがあります。"
+":func:`run` が捕捉した子プロセスの標準エラー出力です。\n"
+"捕捉していなければ ``None`` です。\n"
+"標準エラー出力を捕捉した場合、``text=True`` の設定にかかわらず常に :class:"
+"`bytes` です。\n"
+"出力がなければ ``b''`` の代わりに ``None`` のままになることがあります。"
 
 #: ../../library/subprocess.rst:230 ../../library/subprocess.rst:263
 msgid "*stdout* and *stderr* attributes added"
@@ -460,13 +488,17 @@ msgid ""
 "captured into the same file handle as for *stdout*."
 msgstr ""
 
-#: ../../library/subprocess.rst:299
 msgid ""
 "If *encoding* or *errors* are specified, or *text* (also known as "
 "*universal_newlines*) is true, the file objects *stdin*, *stdout* and "
 "*stderr* will be opened in text mode using the *encoding* and *errors* "
 "specified in the call or the defaults for :class:`io.TextIOWrapper`."
 msgstr ""
+"*encoding* または *errors* を指定するか、*text* (*universal_newlines* とも呼"
+"びます) が真なら、ファイルオブジェクト *stdin*、*stdout*、*stderr* をテキスト"
+"モードで開きます。\n"
+"呼び出し時に指定した *encoding* と *errors*、または :class:`io."
+"TextIOWrapper` のデフォルト値を使います。"
 
 #: ../../library/subprocess.rst:305
 msgid ""
@@ -482,11 +514,13 @@ msgstr ""
 "のドキュメントでコンストラクターの引数 *newline* が ``None`` である場合を参照"
 "してください。"
 
-#: ../../library/subprocess.rst:311
 msgid ""
 "If text mode is not used, *stdin*, *stdout* and *stderr* will be opened as "
 "binary streams. No encoding or line ending conversion is performed."
 msgstr ""
+"テキストモードを使わなければ、*stdin*、*stdout*、*stderr* はバイナリストリー"
+"ムとして開かれます。\n"
+"エンコーディングや行末の変換は行いません。"
 
 #: ../../library/subprocess.rst:314 ../../library/subprocess.rst:1503
 #: ../../library/subprocess.rst:1521
@@ -497,15 +531,14 @@ msgstr "*encoding* と *errors* が引数に追加されました。"
 msgid "Added the *text* parameter as an alias for *universal_newlines*."
 msgstr "*universal_newlines* の別名として、*text* 引数が追加されました。"
 
-#: ../../library/subprocess.rst:322
 msgid ""
 "The newlines attribute of the file objects :attr:`Popen.stdin`, :attr:`Popen."
 "stdout` and :attr:`Popen.stderr` are not updated by the :meth:`Popen."
 "communicate` method."
 msgstr ""
-"ファイルオブジェクト :attr:`Popen.stdin`、:attr:`Popen.stdout` ならびに :"
-"attr:`Popen.stderr` の改行属性は :meth:`Popen.communicate` メソッドで更新され"
-"ません。"
+"ファイルオブジェクト :attr:`Popen.stdin`、:attr:`Popen.stdout`、:attr:`Popen."
+"stderr` の ``newlines`` 属性は、:meth:`Popen.communicate` メソッドでは更新さ"
+"れません。"
 
 #: ../../library/subprocess.rst:326
 msgid ""
@@ -598,7 +631,6 @@ msgstr ""
 "いについては *shell* および *executable* 引数を参照してください。特に明記され"
 "ない限り、*args* をシーケンスとして渡すことが推奨されます。"
 
-#: ../../library/subprocess.rst:383
 msgid ""
 "For maximum reliability, use a fully qualified path for the executable. To "
 "search for an unqualified name on :envvar:`PATH`, use :meth:`shutil.which`. "
@@ -606,8 +638,14 @@ msgid ""
 "launch the current Python interpreter again, and use the ``-m`` command-line "
 "format to launch an installed module."
 msgstr ""
+"最も確実なのは、実行ファイルに完全なパスを指定することです。\n"
+"パスの付いていない名前を :envvar:`PATH` 上で検索するには :meth:`shutil."
+"which` を使ってください。\n"
+"どのプラットフォームでも、現在の Python インタープリタをもう一度起動するに"
+"は :data:`sys.executable` を渡すことを推奨します。\n"
+"インストール済みのモジュールを起動するには、コマンドラインの ``-m`` 形式を"
+"使ってください。"
 
-#: ../../library/subprocess.rst:389
 msgid ""
 "Resolving the path of *executable* (or the first item of *args*) is platform "
 "dependent. For POSIX, see :meth:`os.execvpe`, and note that when resolving "
@@ -620,16 +658,25 @@ msgid ""
 "the ``PATH`` environment variable. Using a full path avoids all of these "
 "variations."
 msgstr ""
+"*executable* (または *args* の最初の要素) のパス解決はプラットフォームに依存"
+"します。\n"
+"POSIX については :meth:`os.execvpe` を参照してください。\n"
+"実行ファイルのパスを解決または検索するとき、*cwd* はカレント作業ディレクトリ"
+"を変更し、*env* で環境変数 ``PATH`` を変更できます。\n"
+"Windows については、WinAPI の ``CreateProcess`` の引数 ``lpApplicationName`` "
+"と ``lpCommandLine`` のドキュメントを参照してください。\n"
+"``shell=False`` で実行ファイルのパスを解決または検索するとき、パスの解決・検"
+"索に使うカレント作業ディレクトリは *cwd* では変更できず、*env* で環境変数 "
+"``PATH`` を変更することもできません。\n"
+"完全なパスを使うと、こうした違いをすべて避けられます。"
 
-#: ../../library/subprocess.rst:400
 msgid ""
 "An example of passing some arguments to an external program as a sequence "
 "is::"
-msgstr ""
+msgstr "外部プログラムへの引数をシーケンスで渡す例です。 ::"
 
-#: ../../library/subprocess.rst:403
 msgid "Popen([\"/usr/bin/git\", \"commit\", \"-m\", \"Fixes a bug.\"])"
-msgstr ""
+msgstr "Popen([\"/usr/bin/git\", \"commit\", \"-m\", \"Fixes a bug.\"])"
 
 #: ../../library/subprocess.rst:405
 msgid ""
@@ -641,14 +688,15 @@ msgstr ""
 "たはパスとして解釈されます。しかし、これはプログラムに引数を渡さない場合にの"
 "み可能です。"
 
-#: ../../library/subprocess.rst:411
 msgid ""
 "It may not be obvious how to break a shell command into a sequence of "
 "arguments, especially in complex cases. :meth:`shlex.split` can illustrate "
 "how to determine the correct tokenization for *args*::"
 msgstr ""
+"特に複雑な場合、シェルコマンドを引数のシーケンスにどう分けるかは明らかでない"
+"かもしれません。\n"
+":meth:`shlex.split` を使うと、*args* を適切に分割する方法を確認できます。 ::"
 
-#: ../../library/subprocess.rst:415
 msgid ""
 ">>> import shlex, subprocess\n"
 ">>> command_line = input()\n"
@@ -660,6 +708,15 @@ msgid ""
 "\"echo '$MONEY'\"]\n"
 ">>> p = subprocess.Popen(args) # Success!"
 msgstr ""
+">>> import shlex, subprocess\n"
+">>> command_line = input()\n"
+"/bin/vikings -input eggs.txt -output \"spam spam.txt\" -cmd \"echo "
+"'$MONEY'\"\n"
+">>> args = shlex.split(command_line)\n"
+">>> print(args)\n"
+"['/bin/vikings', '-input', 'eggs.txt', '-output', 'spam spam.txt', '-cmd', "
+"\"echo '$MONEY'\"]\n"
+">>> p = subprocess.Popen(args) # 成功!"
 
 #: ../../library/subprocess.rst:423
 msgid ""
@@ -684,17 +741,21 @@ msgstr ""
 "に記述された方法で文字列に変換されます。これは根底の ``CreateProcess()`` が文"
 "字列上で動作するからです。"
 
-#: ../../library/subprocess.rst:433
 msgid ""
 "*args* parameter accepts a :term:`path-like object` if *shell* is ``False`` "
 "and a sequence containing path-like objects on POSIX."
 msgstr ""
+"POSIX では、*shell* が ``False`` の場合に *args* 引数が :term:`path-like "
+"object`、およびパス類似オブジェクトを含むシーケンスを受け付けるようになりまし"
+"た。"
 
-#: ../../library/subprocess.rst:437
 msgid ""
 "*args* parameter accepts a :term:`path-like object` if *shell* is ``False`` "
 "and a sequence containing bytes and path-like objects on Windows."
 msgstr ""
+"Windows では、*shell* が ``False`` の場合に *args* 引数が :term:`path-like "
+"object`、およびバイト列やパス類似オブジェクトを含むシーケンスを受け付けるよう"
+"になりました。"
 
 #: ../../library/subprocess.rst:442
 msgid ""
@@ -725,9 +786,8 @@ msgstr ""
 "は、最初の要素はコマンド名を表わす文字列として、残りの要素は追加の引数として"
 "シェルに渡されます。つまり、以下の :class:`Popen` と等価ということです::"
 
-#: ../../library/subprocess.rst:455
 msgid "Popen(['/bin/sh', '-c', args[0], args[1], ...])"
-msgstr ""
+msgstr "Popen(['/bin/sh', '-c', args[0], args[1], ...])"
 
 #: ../../library/subprocess.rst:457
 msgid ""
@@ -751,17 +811,19 @@ msgstr ""
 "*bufsize* は標準入力/標準出力/標準エラー出力パイプファイルオブジェクトを生成"
 "するときに :func:`open` 関数の対応する引数に渡されます:"
 
-#: ../../library/subprocess.rst:471
 msgid ""
 "``0`` means unbuffered (read and write are one system call and can return "
 "short)"
 msgstr ""
+"``0`` はバッファリングなしを意味します (読み書きは 1 回のシステムコールで行わ"
+"れ、要求した量より少ないデータで戻ることがあります)。"
 
-#: ../../library/subprocess.rst:473
 msgid ""
 "``1`` means line buffered (only usable if ``text=True`` or "
 "``universal_newlines=True``)"
 msgstr ""
+"``1`` は行バッファリングを意味します (``text=True`` または "
+"``universal_newlines=True`` の場合にだけ使えます)。"
 
 #: ../../library/subprocess.rst:475
 msgid "any other positive value means use a buffer of approximately that size"
@@ -775,7 +837,6 @@ msgstr ""
 "負のサイズ (デフォルト) は io.DEFAULT_BUFFER_SIZE のシステムデフォルトが使用"
 "されることを意味します。"
 
-#: ../../library/subprocess.rst:480
 msgid ""
 "*bufsize* now defaults to -1 to enable buffering by default to match the "
 "behavior that most code expects.  In versions prior to Python 3.2.4 and "
@@ -783,6 +844,14 @@ msgid ""
 "short reads.  This was unintentional and did not match the behavior of "
 "Python 2 as most code expected."
 msgstr ""
+"*bufsize* のデフォルトが -1 になりました。\n"
+"これにより、多くのコードが期待する動作に合わせ、デフォルトでバッファリングが"
+"有効になります。\n"
+"Python 3.2.4 および 3.3.1 より前のバージョンでは、誤ってデフォルトが ``0`` に"
+"なっており、バッファリングなしで要求した量より少ない読み出しが起こり得まし"
+"た。\n"
+"これは意図したものではなく、多くのコードが期待する Python 2 の動作とも異なっ"
+"ていました。"
 
 #: ../../library/subprocess.rst:487
 msgid ""
@@ -851,36 +920,48 @@ msgstr ""
 "るのは**安全ではありません**。exec が呼ばれる前に子プロセスがデッドロックを起"
 "こすことがあります。"
 
-#: ../../library/subprocess.rst:535
 msgid ""
 "If you need to modify the environment for the child use the *env* parameter "
 "rather than doing it in a *preexec_fn*. The *start_new_session* and "
 "*process_group* parameters should take the place of code using *preexec_fn* "
 "to call :func:`os.setsid` or :func:`os.setpgid` in the child."
 msgstr ""
+"子プロセスの環境を変更する場合は、*preexec_fn* 内で行う代わりに *env* 引数を"
+"使ってください。\n"
+"*preexec_fn* を使って子プロセスで :func:`os.setsid` や :func:`os.setpgid` を"
+"呼び出すコードは、*start_new_session* や *process_group* 引数で置き換えてくだ"
+"さい。"
 
-#: ../../library/subprocess.rst:542
 msgid ""
 "The *preexec_fn* parameter is no longer supported in subinterpreters. The "
 "use of the parameter in a subinterpreter raises :exc:`RuntimeError`. The new "
 "restriction may affect applications that are deployed in mod_wsgi, uWSGI, "
 "and other embedded environments."
 msgstr ""
+"サブインタープリタでは *preexec_fn* 引数を使えなくなりました。\n"
+"サブインタープリタでこの引数を使うと :exc:`RuntimeError` を送出します。\n"
+"この新しい制限は、mod_wsgi、uWSGI、その他の埋め込み環境に配置されたアプリケー"
+"ションに影響することがあります。"
 
-#: ../../library/subprocess.rst:547
 msgid ""
 "If *close_fds* is true, all file descriptors except ``0``, ``1`` and ``2`` "
 "will be closed before the child process is executed.  Otherwise when "
 "*close_fds* is false, file descriptors obey their inheritable flag as "
 "described in :ref:`fd_inheritance`."
 msgstr ""
+"*close_fds* が真なら、子プロセスの実行前に ``0``、``1``、``2`` を除くすべての"
+"ファイル記述子を閉じます。\n"
+"*close_fds* が偽なら、ファイル記述子は :ref:`fd_inheritance` で説明されている"
+"継承可能フラグに従います。"
 
-#: ../../library/subprocess.rst:552
 msgid ""
 "On Windows, if *close_fds* is true then no handles will be inherited by the "
 "child process unless explicitly passed in the ``handle_list`` element of :"
 "attr:`STARTUPINFO.lpAttributeList`, or by standard handle redirection."
 msgstr ""
+"Windows では *close_fds* が真の場合、:attr:`STARTUPINFO.lpAttributeList` の "
+"``handle_list`` 要素で明示的に渡したハンドルと、標準ハンドルのリダイレクトで"
+"渡したものを除き、子プロセスはハンドルを継承しません。"
 
 #: ../../library/subprocess.rst:556
 msgid ""
@@ -889,12 +970,15 @@ msgid ""
 msgstr ""
 "*close_fds* のデフォルトは、:const:`False` から上記のものに変更されました。"
 
-#: ../../library/subprocess.rst:560
 msgid ""
 "On Windows the default for *close_fds* was changed from :const:`False` to :"
 "const:`True` when redirecting the standard handles. It's now possible to set "
 "*close_fds* to :const:`True` when redirecting the standard handles."
 msgstr ""
+"Windows では、標準ハンドルをリダイレクトするときの *close_fds* のデフォルト"
+"が :const:`False` から :const:`True` に変わりました。\n"
+"標準ハンドルをリダイレクトするときも *close_fds* を :const:`True` に設定でき"
+"るようになりました。"
 
 #: ../../library/subprocess.rst:565
 msgid ""
@@ -910,7 +994,6 @@ msgstr ""
 msgid "The *pass_fds* parameter was added."
 msgstr "*pass_fds* 引数が追加されました。"
 
-#: ../../library/subprocess.rst:572
 msgid ""
 "If *cwd* is not ``None``, the function changes the working directory to "
 "*cwd* before executing the child.  *cwd* can be a string, bytes or :term:"
@@ -918,6 +1001,12 @@ msgid ""
 "*executable* (or for the first item in *args*) relative to *cwd* if the "
 "executable path is a relative path."
 msgstr ""
+"*cwd* が ``None`` でなければ、子プロセスを実行する前に作業ディレクトリを "
+"*cwd* に変更します。\n"
+"*cwd* には文字列、バイト列、:term:`パス類似オブジェクト <path-like object>` "
+"を指定できます。\n"
+"POSIX では、実行ファイルのパスが相対パスなら、*executable* (または *args* の"
+"最初の要素) を *cwd* からの相対パスとして検索します。"
 
 #: ../../library/subprocess.rst:578
 msgid "*cwd* parameter accepts a :term:`path-like object` on POSIX."
@@ -949,28 +1038,28 @@ msgstr ""
 msgid "*restore_signals* was added."
 msgstr "*restore_signals* が追加されました。"
 
-#: ../../library/subprocess.rst:595
 msgid ""
 "If *start_new_session* is true the ``setsid()`` system call will be made in "
 "the child process prior to the execution of the subprocess."
 msgstr ""
+"*start_new_session* が真なら、サブプロセスを実行する前に子プロセス内で "
+"``setsid()`` システムコールを呼び出します。"
 
 #: ../../library/subprocess.rst:599
 msgid "*start_new_session* was added."
 msgstr "*start_new_session* が追加されました。"
 
-#: ../../library/subprocess.rst:602
 msgid ""
 "If *process_group* is a non-negative integer, the ``setpgid(0, value)`` "
 "system call will be made in the child process prior to the execution of the "
 "subprocess."
 msgstr ""
+"*process_group* が非負の整数なら、サブプロセスを実行する前に子プロセス内で "
+"``setpgid(0, value)`` システムコールを呼び出します。"
 
-#: ../../library/subprocess.rst:606
 msgid "*process_group* was added."
-msgstr ""
+msgstr "*process_group* が追加されました。"
 
-#: ../../library/subprocess.rst:609
 msgid ""
 "If *group* is not ``None``, the setregid() system call will be made in the "
 "child process prior to the execution of the subprocess. If the provided "
@@ -978,8 +1067,12 @@ msgid ""
 "value in ``gr_gid`` will be used. If the value is an integer, it will be "
 "passed verbatim. (POSIX only)"
 msgstr ""
+"*group* が ``None`` でなければ、サブプロセスを実行する前に子プロセス内で "
+"``setregid()`` システムコールを呼び出します。\n"
+"指定した値が文字列なら :func:`grp.getgrnam` で検索し、``gr_gid`` の値を使いま"
+"す。\n"
+"整数ならそのまま渡します (POSIX のみ)。"
 
-#: ../../library/subprocess.rst:618
 msgid ""
 "If *extra_groups* is not ``None``, the setgroups() system call will be made "
 "in the child process prior to the execution of the subprocess. Strings "
@@ -987,8 +1080,12 @@ msgid ""
 "the values in ``gr_gid`` will be used. Integer values will be passed "
 "verbatim. (POSIX only)"
 msgstr ""
+"*extra_groups* が ``None`` でなければ、サブプロセスを実行する前に子プロセス内"
+"で ``setgroups()`` システムコールを呼び出します。\n"
+"*extra_groups* に含まれる文字列は :func:`grp.getgrnam` で検索し、``gr_gid`` "
+"の値を使います。\n"
+"整数はそのまま渡します (POSIX のみ)。"
 
-#: ../../library/subprocess.rst:627
 msgid ""
 "If *user* is not ``None``, the setreuid() system call will be made in the "
 "child process prior to the execution of the subprocess. If the provided "
@@ -996,12 +1093,18 @@ msgid ""
 "value in ``pw_uid`` will be used. If the value is an integer, it will be "
 "passed verbatim. (POSIX only)"
 msgstr ""
+"*user* が ``None`` でなければ、サブプロセスを実行する前に子プロセス内で "
+"``setreuid()`` システムコールを呼び出します。\n"
+"指定した値が文字列なら :func:`pwd.getpwnam` で検索し、``pw_uid`` の値を使いま"
+"す。\n"
+"整数ならそのまま渡します (POSIX のみ)。"
 
-#: ../../library/subprocess.rst:636
 msgid ""
 "If *umask* is not negative, the umask() system call will be made in the "
 "child process prior to the execution of the subprocess."
 msgstr ""
+"*umask* が負でなければ、サブプロセスを実行する前に子プロセス内で ``umask()`` "
+"システムコールを呼び出します。"
 
 msgid ""
 "If *env* is not ``None``, it must be a mapping that defines the environment "
@@ -1030,7 +1133,6 @@ msgstr ""
 "実行するためには、*env* は正しい :envvar:`SystemRoot` を **含まなければなりま"
 "せん** 。"
 
-#: ../../library/subprocess.rst:656
 msgid ""
 "If *encoding* or *errors* are specified, or *text* is true, the file objects "
 "*stdin*, *stdout* and *stderr* are opened in text mode with the specified "
@@ -1039,6 +1141,13 @@ msgid ""
 "is provided for backwards compatibility. By default, file objects are opened "
 "in binary mode."
 msgstr ""
+"*encoding* または *errors* を指定するか *text* が真なら、前述の :ref:"
+"`frequently-used-arguments` のとおり、ファイルオブジェクト *stdin*、"
+"*stdout*、*stderr* は指定した *encoding* と *errors* を使うテキストモードで開"
+"かれます。\n"
+"*universal_newlines* 引数は *text* と同じ意味で、後方互換性のために用意されて"
+"います。\n"
+"デフォルトでは、ファイルオブジェクトはバイナリモードで開かれます。"
 
 #: ../../library/subprocess.rst:662
 msgid "*encoding* and *errors* were added."
@@ -1049,15 +1158,15 @@ msgid "*text* was added as a more readable alias for *universal_newlines*."
 msgstr ""
 "*text* が、*universal_newlines* のより読みやすい別名として追加されました。"
 
-#: ../../library/subprocess.rst:668
 msgid ""
 "If given, *startupinfo* will be a :class:`STARTUPINFO` object, which is "
 "passed to the underlying ``CreateProcess`` function."
 msgstr ""
+"*startupinfo* を指定する場合は :class:`STARTUPINFO` オブジェクトにします。\n"
+"内部の ``CreateProcess`` 関数に渡されます。"
 
-#: ../../library/subprocess.rst:671
 msgid "If given, *creationflags*, can be one or more of the following flags:"
-msgstr ""
+msgstr "*creationflags* には、次のフラグを 1 つ以上指定できます:"
 
 #: ../../library/subprocess.rst:673
 msgid ":data:`CREATE_NEW_CONSOLE`"
@@ -1107,17 +1216,20 @@ msgstr ":data:`CREATE_DEFAULT_ERROR_MODE`"
 msgid ":data:`CREATE_BREAKAWAY_FROM_JOB`"
 msgstr ":data:`CREATE_BREAKAWAY_FROM_JOB`"
 
-#: ../../library/subprocess.rst:686
 msgid ""
 "*pipesize* can be used to change the size of the pipe when :data:`PIPE` is "
 "used for *stdin*, *stdout* or *stderr*. The size of the pipe is only changed "
 "on platforms that support this (only Linux at this time of writing). Other "
 "platforms will ignore this parameter."
 msgstr ""
+"*stdin*、*stdout*、*stderr* に :data:`PIPE` を使う場合、*pipesize* でパイプの"
+"サイズを変更できます。\n"
+"サイズが変更されるのは、この機能に対応するプラットフォームだけです (執筆時点"
+"では Linux のみ)。\n"
+"ほかのプラットフォームでは、この引数は無視されます。"
 
-#: ../../library/subprocess.rst:691
 msgid "Added the *pipesize* parameter."
-msgstr ""
+msgstr "*pipesize* 引数が追加されました。"
 
 #: ../../library/subprocess.rst:694
 msgid ""
@@ -1129,31 +1241,36 @@ msgstr ""
 "サポートされます: 終了時には標準ファイル記述子が閉じられ、プロセスを待機しま"
 "す::"
 
-#: ../../library/subprocess.rst:698
 msgid ""
 "with Popen([\"ifconfig\"], stdout=PIPE) as proc:\n"
 "    log.write(proc.stdout.read())"
 msgstr ""
+"with Popen([\"ifconfig\"], stdout=PIPE) as proc:\n"
+"    log.write(proc.stdout.read())"
 
-#: ../../library/subprocess.rst:701 ../../library/subprocess.rst:703
 msgid ""
 "Popen and the other functions in this module that use it raise an :ref:"
 "`auditing event <auditing>` ``subprocess.Popen`` with arguments "
 "``executable``, ``args``, ``cwd``, and ``env``. The value for ``args`` may "
 "be a single string or a list of strings, depending on platform."
 msgstr ""
+"``Popen`` と、それを使うこのモジュールのほかの関数は、引数 ``executable``、"
+"``args``、``cwd``、``env`` を持つ :ref:`監査イベント <auditing>` "
+"``subprocess.Popen`` を発生させます。\n"
+"プラットフォームによって、``args`` の値は単一の文字列または文字列のリストにな"
+"ります。"
 
 #: ../../library/subprocess.rst:708
 msgid "Added context manager support."
 msgstr "コンテキストマネージャーサポートが追加されました。"
 
-#: ../../library/subprocess.rst:711
 msgid ""
 "Popen destructor now emits a :exc:`ResourceWarning` warning if the child "
 "process is still running."
 msgstr ""
+"子プロセスがまだ実行中の場合、``Popen`` のデストラクタが :exc:"
+"`ResourceWarning` 警告を出すようになりました。"
 
-#: ../../library/subprocess.rst:715
 msgid ""
 "Popen can use :func:`os.posix_spawn` in some cases for better performance. "
 "On Windows Subsystem for Linux and QEMU User Emulation, Popen constructor "
@@ -1161,16 +1278,24 @@ msgid ""
 "missing program, but the child process fails with a non-zero :attr:`~Popen."
 "returncode`."
 msgstr ""
+"``Popen`` は、性能を向上させるため、一部の場合に :func:`os.posix_spawn` を使"
+"えるようになりました。\n"
+"Windows Subsystem for Linux と QEMU User Emulation では、:func:`os."
+"posix_spawn` を使う ``Popen`` コンストラクタは、プログラムが見つからないなど"
+"のエラーでも例外を送出しなくなりました。\n"
+"代わりに、子プロセスが失敗し、:attr:`~Popen.returncode` がゼロ以外の値になり"
+"ます。"
 
 #: ../../library/subprocess.rst:724
 msgid "Exceptions"
 msgstr "例外"
 
-#: ../../library/subprocess.rst:726
 msgid ""
 "Exceptions raised in the child process, before the new program has started "
 "to execute, will be re-raised in the parent."
 msgstr ""
+"子プロセスで新しいプログラムの実行開始前に送出された例外は、親プロセスで再送"
+"出されます。"
 
 #: ../../library/subprocess.rst:729
 msgid ""
@@ -1198,12 +1323,14 @@ msgstr ""
 "呼び出されたプロセスが非ゼロのリターンコードを返した場合 :func:`check_call` "
 "や :func:`check_output` は :exc:`CalledProcessError` を送出します。"
 
-#: ../../library/subprocess.rst:743
 msgid ""
 "All of the functions and methods that accept a *timeout* parameter, such as :"
 "func:`run` and :meth:`Popen.communicate` will raise :exc:`TimeoutExpired` if "
 "the timeout expires before the process exits."
 msgstr ""
+":func:`run` や :meth:`Popen.communicate` など、*timeout* 引数を受け取るすべて"
+"の関数とメソッドは、プロセスが終了する前にタイムアウトすると :exc:"
+"`TimeoutExpired` を送出します。"
 
 #: ../../library/subprocess.rst:747
 msgid ""
@@ -1220,7 +1347,6 @@ msgstr ":exc:`SubprocessError` 基底クラスが追加されました。"
 msgid "Security Considerations"
 msgstr "セキュリティで考慮すべき点"
 
-#: ../../library/subprocess.rst:757
 msgid ""
 "Unlike some other popen functions, this library will not implicitly choose "
 "to call a system shell.  This means that all characters, including shell "
@@ -1232,8 +1358,17 @@ msgid ""
 "<shlex-quote-warning>`, it is possible to use :func:`shlex.quote` for this "
 "escaping."
 msgstr ""
+"ほかの一部の popen 関数と異なり、このライブラリは暗黙的にシステムのシェルを呼"
+"び出しません。\n"
+"そのため、シェルのメタ文字を含め、すべての文字を安全に子プロセスへ渡せま"
+"す。\n"
+"``shell=True`` で明示的にシェルを呼び出す場合は、`シェルインジェクション "
+"<https://en.wikipedia.org/wiki/Shell_injection#Shell_injection>`_ の脆弱性を"
+"避けるため、アプリケーション側ですべての空白やメタ文字を適切にクォートする必"
+"要があります。\n"
+":ref:`一部のプラットフォーム <shlex-quote-warning>` では、このエスケープに :"
+"func:`shlex.quote` を使えます。"
 
-#: ../../library/subprocess.rst:767
 msgid ""
 "On Windows, batch files (:file:`*.bat` or :file:`*.cmd`) may be launched by "
 "the operating system in a system shell regardless of the arguments passed to "
@@ -1243,6 +1378,15 @@ msgid ""
 "passing ``shell=True`` to allow Python to escape special characters. See :gh:"
 "`114539` for additional discussion."
 msgstr ""
+"Windows では、このライブラリに渡す引数にかかわらず、バッチファイル (:file:`*."
+"bat` または :file:`*.cmd`) が OS によってシステムのシェル内で起動されることが"
+"あります。\n"
+"その場合、Python によるエスケープが追加されないまま、シェルの規則に従って引数"
+"が解析される可能性があります。\n"
+"信頼できない情報源からの引数を使って意図的にバッチファイルを起動する場合、"
+"Python に特殊文字をエスケープさせるため、``shell=True`` を渡すことを検討して"
+"ください。\n"
+"詳しい議論は :gh:`114539` を参照してください。"
 
 #: ../../library/subprocess.rst:777
 msgid "Popen Objects"
@@ -1278,17 +1422,17 @@ msgstr ""
 "プロセスが *timeout* 秒後に終了してない場合、:exc:`TimeoutExpired` 例外を送出"
 "します。この例外を捕捉して wait を再試行するのは安全です。"
 
-#: ../../library/subprocess.rst:799
 msgid ""
 "This will deadlock when using ``stdout=PIPE`` or ``stderr=PIPE`` and the "
 "child process generates enough output to a pipe such that it blocks waiting "
 "for the OS pipe buffer to accept more data. Use :meth:`Popen.communicate` "
 "when using pipes to avoid that."
 msgstr ""
-"``stdout=PIPE`` や ``stderr=PIPE`` を使っていて、より多くのデータを受け入れる"
-"ために OS のパイプバッファーをブロックしているパイプに子プロセスが十分な出力"
-"を生成した場合、デッドロックが発生します。これを避けるには :meth:`Popen."
-"communicate` を使用してください。"
+"``stdout=PIPE`` または ``stderr=PIPE`` を使っていると、子プロセスがパイプに大"
+"量の出力を生成し、OS のパイプバッファがデータを受け入れられるようになるまで待"
+"つ状態でブロックして、デッドロックすることがあります。\n"
+"パイプを使う場合は、この問題を避けるため :meth:`Popen.communicate` を使ってく"
+"ださい。"
 
 #: ../../library/subprocess.rst:806
 msgid ""
@@ -1304,7 +1448,6 @@ msgstr ""
 msgid "*timeout* was added."
 msgstr "*timeout* が追加されました"
 
-#: ../../library/subprocess.rst:816
 msgid ""
 "Interact with process: Send data to stdin.  Read data from stdout and "
 "stderr, until end-of-file is reached.  Wait for process to terminate and set "
@@ -1313,12 +1456,22 @@ msgid ""
 "should be sent to the child.  If streams were opened in text mode, *input* "
 "must be a string. Otherwise, it must be bytes."
 msgstr ""
+"プロセスと通信します。\n"
+"標準入力にデータを送り、標準出力と標準エラー出力を EOF まで読み取ります。\n"
+"プロセスの終了を待ち、:attr:`~Popen.returncode` 属性を設定します。\n"
+"省略可能な *input* 引数には子プロセスに送るデータを指定し、送るデータがなけれ"
+"ば ``None`` にします。\n"
+"ストリームをテキストモードで開いた場合、*input* は文字列でなければなりませ"
+"ん。\n"
+"それ以外の場合はバイト列でなければなりません。"
 
-#: ../../library/subprocess.rst:823
 msgid ""
 ":meth:`communicate` returns a tuple ``(stdout_data, stderr_data)``. The data "
 "will be strings if streams were opened in text mode; otherwise, bytes."
 msgstr ""
+":meth:`communicate` はタプル ``(stdout_data, stderr_data)`` を返します。\n"
+"ストリームをテキストモードで開いた場合、データは文字列です。\n"
+"それ以外の場合はバイト列です。"
 
 #: ../../library/subprocess.rst:827
 msgid ""
@@ -1351,7 +1504,6 @@ msgstr ""
 "リーンアップを行うために、正常に動作するアプリケーションは子プロセスを kill "
 "して通信を終了すべきです::"
 
-#: ../../library/subprocess.rst:840
 msgid ""
 "proc = subprocess.Popen(...)\n"
 "try:\n"
@@ -1360,6 +1512,12 @@ msgid ""
 "    proc.kill()\n"
 "    outs, errs = proc.communicate()"
 msgstr ""
+"proc = subprocess.Popen(...)\n"
+"try:\n"
+"    outs, errs = proc.communicate(timeout=15)\n"
+"except TimeoutExpired:\n"
+"    proc.kill()\n"
+"    outs, errs = proc.communicate()"
 
 #: ../../library/subprocess.rst:849
 msgid ""
@@ -1373,9 +1531,8 @@ msgstr ""
 msgid "Sends the signal *signal* to the child."
 msgstr "*signal* シグナルを子プロセスに送ります。"
 
-#: ../../library/subprocess.rst:860
 msgid "Do nothing if the process completed."
-msgstr ""
+msgstr "プロセスが終了していれば何もしません。"
 
 #: ../../library/subprocess.rst:864
 msgid ""
@@ -1387,12 +1544,15 @@ msgstr ""
 "CTRL_BREAK_EVENT を、``CREATE_NEW_PROCESS_GROUP`` を含む *creationflags* で始"
 "まった、プロセスに送れます。"
 
-#: ../../library/subprocess.rst:871
 msgid ""
 "Stop the child. On POSIX OSs the method sends :py:const:`~signal.SIGTERM` to "
 "the child. On Windows the Win32 API function :c:func:`!TerminateProcess` is "
 "called to stop the child."
 msgstr ""
+"子プロセスを終了させます。\n"
+"POSIX OS では、子プロセスに :py:const:`~signal.SIGTERM` を送ります。\n"
+"Windows では Win32 API の :c:func:`!TerminateProcess` 関数を呼び出して子プロ"
+"セスを終了させます。"
 
 #: ../../library/subprocess.rst:878
 msgid ""
@@ -1402,11 +1562,12 @@ msgstr ""
 "子プロセスを kill します。POSIX OS では SIGKILL シグナルを子プロセスに送りま"
 "す。Windows では、:meth:`kill` は :meth:`terminate` の別名です。"
 
-#: ../../library/subprocess.rst:882
 msgid ""
 "The following attributes are also set by the class for you to access. "
 "Reassigning them to new values is unsupported:"
 msgstr ""
+"このクラスは、利用者が参照できるように次の属性も設定します。\n"
+"これらの属性に新しい値を代入することはサポートされていません:"
 
 #: ../../library/subprocess.rst:887
 msgid ""
@@ -1416,7 +1577,6 @@ msgstr ""
 ":class:`Popen` に渡された引数 *args* です -- プログラム引数のシーケンスまた"
 "は 1 個の文字列になります。"
 
-#: ../../library/subprocess.rst:894
 msgid ""
 "If the *stdin* argument was :data:`PIPE`, this attribute is a writeable "
 "stream object as returned by :func:`open`. If the *encoding* or *errors* "
@@ -1424,8 +1584,13 @@ msgid ""
 "``True``, the stream is a text stream, otherwise it is a byte stream. If the "
 "*stdin* argument was not :data:`PIPE`, this attribute is ``None``."
 msgstr ""
+"*stdin* 引数が :data:`PIPE` なら、この属性は :func:`open` が返すような書き込"
+"み可能なストリームオブジェクトです。\n"
+"*encoding* または *errors* 引数を指定するか、*text* または "
+"*universal_newlines* 引数が ``True`` ならテキストストリームになり、それ以外で"
+"はバイトストリームになります。\n"
+"*stdin* 引数が :data:`PIPE` でなければ、この属性は ``None`` です。"
 
-#: ../../library/subprocess.rst:903
 msgid ""
 "If the *stdout* argument was :data:`PIPE`, this attribute is a readable "
 "stream object as returned by :func:`open`. Reading from the stream provides "
@@ -1434,8 +1599,14 @@ msgid ""
 "stream is a text stream, otherwise it is a byte stream. If the *stdout* "
 "argument was not :data:`PIPE`, this attribute is ``None``."
 msgstr ""
+"*stdout* 引数が :data:`PIPE` なら、この属性は :func:`open` が返すような読み取"
+"り可能なストリームオブジェクトです。\n"
+"このストリームから子プロセスの出力を読み取れます。\n"
+"*encoding* または *errors* 引数を指定するか、*text* または "
+"*universal_newlines* 引数が ``True`` ならテキストストリームになり、それ以外で"
+"はバイトストリームになります。\n"
+"*stdout* 引数が :data:`PIPE` でなければ、この属性は ``None`` です。"
 
-#: ../../library/subprocess.rst:913
 msgid ""
 "If the *stderr* argument was :data:`PIPE`, this attribute is a readable "
 "stream object as returned by :func:`open`. Reading from the stream provides "
@@ -1444,6 +1615,13 @@ msgid ""
 "the stream is a text stream, otherwise it is a byte stream. If the *stderr* "
 "argument was not :data:`PIPE`, this attribute is ``None``."
 msgstr ""
+"*stderr* 引数が :data:`PIPE` なら、この属性は :func:`open` が返すような読み取"
+"り可能なストリームオブジェクトです。\n"
+"このストリームから子プロセスのエラー出力を読み取れます。\n"
+"*encoding* または *errors* 引数を指定するか、*text* または "
+"*universal_newlines* 引数が ``True`` ならテキストストリームになり、それ以外で"
+"はバイトストリームになります。\n"
+"*stderr* 引数が :data:`PIPE` でなければ、この属性は ``None`` です。"
 
 #: ../../library/subprocess.rst:922
 msgid ""
@@ -1469,18 +1647,22 @@ msgstr ""
 "*shell* 引数を ``True`` に設定した場合は、生成されたシェルのプロセス ID にな"
 "ります。"
 
-#: ../../library/subprocess.rst:938
 msgid ""
 "The child return code. Initially ``None``, :attr:`returncode` is set by a "
 "call to the :meth:`poll`, :meth:`wait`, or :meth:`communicate` methods if "
 "they detect that the process has terminated."
 msgstr ""
+"子プロセスの終了コードです。\n"
+"初期値は ``None`` です。\n"
+":meth:`poll`、:meth:`wait`、:meth:`communicate` の呼び出しでプロセスの終了を"
+"検出すると、:attr:`returncode` が設定されます。"
 
-#: ../../library/subprocess.rst:942
 msgid ""
 "A ``None`` value indicates that the process hadn't yet terminated at the "
 "time of the last method call."
 msgstr ""
+"値が ``None`` なら、直前のメソッド呼び出しの時点ではプロセスがまだ終了してい"
+"なかったことを示します。"
 
 #: ../../library/subprocess.rst:950
 msgid "Windows Popen Helpers"
@@ -1493,13 +1675,16 @@ msgid ""
 msgstr ""
 ":class:`STARTUPINFO` クラスと以下の定数は、Windows のみで利用できます。"
 
-#: ../../library/subprocess.rst:958
 msgid ""
 "Partial support of the Windows `STARTUPINFO <https://msdn.microsoft.com/en-"
 "us/library/ms686331(v=vs.85).aspx>`__ structure is used for :class:`Popen` "
 "creation.  The following attributes can be set by passing them as keyword-"
 "only arguments."
 msgstr ""
+"Windows の `STARTUPINFO <https://msdn.microsoft.com/en-us/library/"
+"ms686331(v=vs.85).aspx>`__ 構造体を部分的にサポートし、:class:`Popen` の作成"
+"に使います。\n"
+"次の属性は、キーワード専用引数として渡すことで設定できます。"
 
 #: ../../library/subprocess.rst:963
 msgid "Keyword-only argument support was added."
@@ -1513,12 +1698,14 @@ msgstr ""
 "特定の :class:`STARTUPINFO` の属性が、プロセスがウィンドウを生成するときに使"
 "われるかを決定するビットフィールドです::"
 
-#: ../../library/subprocess.rst:971
 msgid ""
 "si = subprocess.STARTUPINFO()\n"
 "si.dwFlags = subprocess.STARTF_USESTDHANDLES | subprocess."
 "STARTF_USESHOWWINDOW"
 msgstr ""
+"si = subprocess.STARTUPINFO()\n"
+"si.dwFlags = subprocess.STARTF_USESTDHANDLES | subprocess."
+"STARTF_USESHOWWINDOW"
 
 msgid ""
 "If :attr:`dwFlags` specifies :data:`STARTF_USESTDHANDLES`, this attribute is "
@@ -1571,36 +1758,40 @@ msgstr ""
 "この属性には :data:`SW_HIDE` が提供されています。これは、:class:`Popen` が "
 "``shell=True`` として呼び出されたときに使われます。"
 
-#: ../../library/subprocess.rst:1008
 msgid ""
 "A dictionary of additional attributes for process creation as given in "
 "``STARTUPINFOEX``, see `UpdateProcThreadAttribute <https://msdn.microsoft."
 "com/en-us/library/windows/desktop/ms686880(v=vs.85).aspx>`__."
 msgstr ""
+"``STARTUPINFOEX`` で指定する、プロセス作成用の追加属性の辞書です。\n"
+"`UpdateProcThreadAttribute <https://msdn.microsoft.com/en-us/library/windows/"
+"desktop/ms686880(v=vs.85).aspx>`__ を参照してください。"
 
-#: ../../library/subprocess.rst:1012
 msgid "Supported attributes:"
-msgstr ""
+msgstr "サポートする属性:"
 
 #: ../../library/subprocess.rst:1014
 msgid "**handle_list**"
 msgstr "**handle_list**"
 
-#: ../../library/subprocess.rst:1015
 msgid ""
 "Sequence of handles that will be inherited. *close_fds* must be true if non-"
 "empty."
 msgstr ""
+"継承するハンドルのシーケンスです。\n"
+"空でなければ *close_fds* を真にする必要があります。"
 
-#: ../../library/subprocess.rst:1018
 msgid ""
 "The handles must be temporarily made inheritable by :func:`os."
 "set_handle_inheritable` when passed to the :class:`Popen` constructor, else :"
 "class:`OSError` will be raised with Windows error "
 "``ERROR_INVALID_PARAMETER`` (87)."
 msgstr ""
+"これらのハンドルを :class:`Popen` コンストラクタに渡すときは、:func:`os."
+"set_handle_inheritable` で一時的に継承可能にしておく必要があります。\n"
+"そうしないと、Windows エラー ``ERROR_INVALID_PARAMETER`` (87) を伴う :class:"
+"`OSError` を送出します。"
 
-#: ../../library/subprocess.rst:1025
 msgid ""
 "In a multithreaded process, use caution to avoid leaking handles that are "
 "marked inheritable when combining this feature with concurrent calls to "
@@ -1608,10 +1799,14 @@ msgid ""
 "system`.  This also applies to standard handle redirection, which "
 "temporarily creates inheritable handles."
 msgstr ""
+"マルチスレッドのプロセスでは、この機能と並行して :func:`os.system` などのすべ"
+"てのハンドルを継承するプロセス作成関数を呼び出すとき、継承可能にしたハンドル"
+"が漏れ出さないように注意してください。\n"
+"一時的に継承可能なハンドルを作成する標準ハンドルのリダイレクトでも同じ注意が"
+"必要です。"
 
-#: ../../library/subprocess.rst:1035
 msgid "Windows Constants"
-msgstr ""
+msgstr "Windows の定数"
 
 #: ../../library/subprocess.rst:1037
 msgid "The :mod:`subprocess` module exposes the following constants."
@@ -1661,18 +1856,21 @@ msgid ""
 msgstr ""
 "追加情報を保持する、 :attr:`STARTUPINFO.wShowWindow` 属性を指定します。"
 
-#: ../../library/subprocess.rst:1071
 msgid ""
 "A :attr:`STARTUPINFO.dwFlags` parameter to specify that the *Working in "
 "Background* mouse cursor will be displayed while a process is launching. "
 "This is the default behavior for GUI processes."
 msgstr ""
+"プロセスの起動中に「バックグラウンドで作業中」のマウスカーソルを表示するよう"
+"指定する、:attr:`STARTUPINFO.dwFlags` の値です。\n"
+"GUI プロセスではこれがデフォルトの動作です。"
 
-#: ../../library/subprocess.rst:1080
 msgid ""
 "A :attr:`STARTUPINFO.dwFlags` parameter to specify that the mouse cursor "
 "will not be changed when launching a process."
 msgstr ""
+"プロセスの起動時にマウスカーソルを変更しないよう指定する、:attr:`STARTUPINFO."
+"dwFlags` の値です。"
 
 #: ../../library/subprocess.rst:1087
 msgid ""
@@ -1697,37 +1895,41 @@ msgid "This flag is ignored if :data:`CREATE_NEW_CONSOLE` is specified."
 msgstr ""
 ":data:`CREATE_NEW_CONSOLE` が指定されていたら、このフラグは無視されます。"
 
-#: ../../library/subprocess.rst:1100
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will have an above average priority."
 msgstr ""
+"新しいプロセスの優先度を通常より高くするよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です。"
 
-#: ../../library/subprocess.rst:1107
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will have a below average priority."
 msgstr ""
+"新しいプロセスの優先度を通常より低くするよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です。"
 
-#: ../../library/subprocess.rst:1114
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will have a high priority."
 msgstr ""
+"新しいプロセスの優先度を高くするよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です。"
 
-#: ../../library/subprocess.rst:1121
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will have an idle (lowest) priority."
 msgstr ""
+"新しいプロセスの優先度をアイドル (最低) にするよう指定する、:class:`Popen` "
+"の ``creationflags`` 引数の値です。"
 
-#: ../../library/subprocess.rst:1128
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will have a normal priority. (default)"
 msgstr ""
+"新しいプロセスの優先度を通常にするよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です (デフォルト)。"
 
-#: ../../library/subprocess.rst:1135
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will have realtime priority. You should almost never use "
@@ -1736,33 +1938,48 @@ msgid ""
 "appropriate for applications that \"talk\" directly to hardware or that "
 "perform brief tasks that should have limited interruptions."
 msgstr ""
+"新しいプロセスの優先度をリアルタイムにするよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です。\n"
+"マウス入力、キーボード入力、バックグラウンドでのディスクのフラッシュを管理す"
+"るシステムスレッドの処理を妨げるため、``REALTIME_PRIORITY_CLASS`` は原則とし"
+"て使わないでください。\n"
+"ハードウェアと直接やり取りするアプリケーションや、割り込みを制限する必要があ"
+"る短い処理を行うアプリケーションでは、このクラスが適切なこともあります。"
 
-#: ../../library/subprocess.rst:1146
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will not create a window."
 msgstr ""
+"新しいプロセスがウィンドウを作成しないよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です。"
 
-#: ../../library/subprocess.rst:1153
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "will not inherit its parent's console. This value cannot be used with "
 "CREATE_NEW_CONSOLE."
 msgstr ""
+"新しいプロセスが親プロセスのコンソールを継承しないよう指定する、:class:"
+"`Popen` の ``creationflags`` 引数の値です。\n"
+"``CREATE_NEW_CONSOLE`` と併用することはできません。"
 
-#: ../../library/subprocess.rst:1161
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "does not inherit the error mode of the calling process. Instead, the new "
 "process gets the default error mode. This feature is particularly useful for "
 "multithreaded shell applications that run with hard errors disabled."
 msgstr ""
+"新しいプロセスが呼び出し元プロセスのエラーモードを継承しないよう指定する、:"
+"class:`Popen` の ``creationflags`` 引数の値です。\n"
+"新しいプロセスには代わりにデフォルトのエラーモードを設定します。\n"
+"ハードエラーを無効にして実行するマルチスレッドのシェルアプリケーションで特に"
+"便利です。"
 
-#: ../../library/subprocess.rst:1171
 msgid ""
 "A :class:`Popen` ``creationflags`` parameter to specify that a new process "
 "is not associated with the job."
 msgstr ""
+"新しいプロセスをジョブに関連付けないよう指定する、:class:`Popen` の "
+"``creationflags`` 引数の値です。"
 
 #: ../../library/subprocess.rst:1179
 msgid "Older high-level API"
@@ -1786,18 +2003,18 @@ msgstr ""
 "*args* で指定されたコマンドを実行します。コマンドの終了を待ち、:attr:`~Popen."
 "returncode` 属性を返します。"
 
-#: ../../library/subprocess.rst:1191 ../../library/subprocess.rst:1231
 msgid ""
 "Code needing to capture stdout or stderr should use :func:`run` instead::"
 msgstr ""
+"標準出力や標準エラー出力を捕捉する必要があるコードでは、代わりに :func:`run` "
+"を使ってください。 ::"
 
-#: ../../library/subprocess.rst:1193
 msgid "run(...).returncode"
-msgstr ""
+msgstr "run(...).returncode"
 
-#: ../../library/subprocess.rst:1195 ../../library/subprocess.rst:1235
 msgid "To suppress stdout or stderr, supply a value of :data:`DEVNULL`."
 msgstr ""
+"標準出力や標準エラー出力を抑制するには、:data:`DEVNULL` を指定してください。"
 
 #: ../../library/subprocess.rst:1197 ../../library/subprocess.rst:1237
 msgid ""
@@ -1821,7 +2038,6 @@ msgstr ""
 "生成した場合、パイプからは読み込まれないので、子プロセスがブロックされること"
 "があります。"
 
-#: ../../library/subprocess.rst:1224
 msgid ""
 "Run command with arguments.  Wait for command to complete. If the return "
 "code was zero then return, otherwise raise :exc:`CalledProcessError`. The :"
@@ -1829,10 +2045,16 @@ msgid ""
 "`~CalledProcessError.returncode` attribute. If :func:`check_call` was unable "
 "to start the process it will propagate the exception that was raised."
 msgstr ""
+"引数を指定してコマンドを実行し、完了を待ちます。\n"
+"終了コードがゼロなら戻り、それ以外なら :exc:`CalledProcessError` を送出しま"
+"す。\n"
+":exc:`CalledProcessError` オブジェクトの :attr:`~CalledProcessError."
+"returncode` 属性には終了コードが入ります。\n"
+":func:`check_call` がプロセスを起動できなかった場合は、発生した例外をそのまま"
+"伝播させます。"
 
-#: ../../library/subprocess.rst:1233
 msgid "run(..., check=True)"
-msgstr ""
+msgstr "run(..., check=True)"
 
 #: ../../library/subprocess.rst:1266
 msgid "Run command with arguments and return its output."
@@ -1854,11 +2076,9 @@ msgstr ""
 msgid "This is equivalent to::"
 msgstr "これは次と等価です::"
 
-#: ../../library/subprocess.rst:1275
 msgid "run(..., check=True, stdout=PIPE).stdout"
-msgstr ""
+msgstr "run(..., check=True, stdout=PIPE).stdout"
 
-#: ../../library/subprocess.rst:1277
 msgid ""
 "The arguments shown above are merely some common ones. The full function "
 "signature is largely the same as that of :func:`run` - most arguments are "
@@ -1867,6 +2087,12 @@ msgid ""
 "``input=b''`` (or ``input=''``, depending on other arguments) rather than "
 "using the parent's standard input file handle."
 msgstr ""
+"上に示したのは、よく使われる引数の一部だけです。\n"
+"完全な関数シグネチャは :func:`run` とほぼ同じで、ほとんどの引数はそのまま渡さ"
+"れます。\n"
+":func:`run` の動作と異なる点が 1 つあります。\n"
+"``input=None`` を渡すと、親プロセスの標準入力のファイルハンドルを使わず、"
+"``input=b''`` (他の引数によっては ``input=''``) と同じ動作になります。"
 
 #: ../../library/subprocess.rst:1284
 msgid ""
@@ -1905,9 +2131,10 @@ msgstr ""
 msgid "Support for the *input* keyword argument was added."
 msgstr "キーワード引数 *input* が追加されました。"
 
-#: ../../library/subprocess.rst:1309
 msgid "*encoding* and *errors* were added.  See :func:`run` for details."
 msgstr ""
+"*encoding* と *errors* が追加されました。\n"
+"詳しくは :func:`run` を参照してください。"
 
 #: ../../library/subprocess.rst:1327
 msgid "Replacing Older Functions with the :mod:`subprocess` Module"
@@ -1950,38 +2177,38 @@ msgstr ""
 "以下の例では、適切な関数が :mod:`subprocess` モジュールからすでにインポートさ"
 "れていることを前提としています。"
 
-#: ../../library/subprocess.rst:1347
 msgid "Replacing :program:`/bin/sh` shell command substitution"
-msgstr ""
+msgstr ":program:`/bin/sh` シェルのコマンド置換を置き換える"
 
-#: ../../library/subprocess.rst:1349
 msgid "output=$(mycmd myarg)"
-msgstr ""
+msgstr "output=$(mycmd myarg)"
 
 #: ../../library/subprocess.rst:1353 ../../library/subprocess.rst:1364
 #: ../../library/subprocess.rst:1381
 msgid "becomes::"
 msgstr "これは以下のようになります::"
 
-#: ../../library/subprocess.rst:1355
 msgid "output = check_output([\"mycmd\", \"myarg\"])"
-msgstr ""
+msgstr "output = check_output([\"mycmd\", \"myarg\"])"
 
 #: ../../library/subprocess.rst:1358
 msgid "Replacing shell pipeline"
 msgstr "シェルのパイプラインを置き換える"
 
-#: ../../library/subprocess.rst:1360 ../../library/subprocess.rst:1377
 msgid "output=$(dmesg | grep hda)"
-msgstr ""
+msgstr "output=$(dmesg | grep hda)"
 
-#: ../../library/subprocess.rst:1366
 msgid ""
 "p1 = Popen([\"dmesg\"], stdout=PIPE)\n"
 "p2 = Popen([\"grep\", \"hda\"], stdin=p1.stdout, stdout=PIPE)\n"
 "p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.\n"
 "output = p2.communicate()[0]"
 msgstr ""
+"p1 = Popen([\"dmesg\"], stdout=PIPE)\n"
+"p2 = Popen([\"grep\", \"hda\"], stdin=p1.stdout, stdout=PIPE)\n"
+"p1.stdout.close()  # p2 が終了したときに p1 が SIGPIPE を受け取れるようにす"
+"る。\n"
+"output = p2.communicate()[0]"
 
 msgid ""
 "The ``p1.stdout.close()`` call after starting the p2 is important in order "
@@ -1999,20 +2226,21 @@ msgstr ""
 "あるいは、信頼された入力に対しては、シェル自身のパイプラインサポートを直接使"
 "用することもできます:"
 
-#: ../../library/subprocess.rst:1383
 msgid "output = check_output(\"dmesg | grep hda\", shell=True)"
-msgstr ""
+msgstr "output = check_output(\"dmesg | grep hda\", shell=True)"
 
 #: ../../library/subprocess.rst:1387
 msgid "Replacing :func:`os.system`"
 msgstr ":func:`os.system` を置き換える"
 
-#: ../../library/subprocess.rst:1391
 msgid ""
 "sts = os.system(\"mycmd\" + \" myarg\")\n"
 "# becomes\n"
 "retcode = call(\"mycmd\" + \" myarg\", shell=True)"
 msgstr ""
+"sts = os.system(\"mycmd\" + \" myarg\")\n"
+"# 次のように置き換える。\n"
+"retcode = call(\"mycmd\" + \" myarg\", shell=True)"
 
 #: ../../library/subprocess.rst:1395
 msgid "Notes:"
@@ -2022,11 +2250,12 @@ msgstr "注釈:"
 msgid "Calling the program through the shell is usually not required."
 msgstr "このプログラムは普通シェル経由で呼び出す必要はありません。"
 
-#: ../../library/subprocess.rst:1398
 msgid ""
 "The :func:`call` return value is encoded differently to that of :func:`os."
 "system`."
 msgstr ""
+":func:`call` の戻り値と :func:`os.system` の戻り値では、終了ステータスの表し"
+"方が異なります。"
 
 #: ../../library/subprocess.rst:1401
 msgid ""
@@ -2039,7 +2268,6 @@ msgstr ""
 msgid "A more realistic example would look like this::"
 msgstr "より現実的な例ではこうなるでしょう::"
 
-#: ../../library/subprocess.rst:1407
 msgid ""
 "try:\n"
 "    retcode = call(\"mycmd\" + \" myarg\", shell=True)\n"
@@ -2051,6 +2279,15 @@ msgid ""
 "except OSError as e:\n"
 "    print(\"Execution failed:\", e, file=sys.stderr)"
 msgstr ""
+"try:\n"
+"    retcode = call(\"mycmd\" + \" myarg\", shell=True)\n"
+"    if retcode < 0:\n"
+"        print(\"Child was terminated by signal\", -retcode, file=sys."
+"stderr)\n"
+"    else:\n"
+"        print(\"Child returned\", retcode, file=sys.stderr)\n"
+"except OSError as e:\n"
+"    print(\"Execution failed:\", e, file=sys.stderr)"
 
 #: ../../library/subprocess.rst:1418
 msgid "Replacing the :func:`os.spawn <os.spawnl>` family"
@@ -2060,34 +2297,40 @@ msgstr ":func:`os.spawn <os.spawnl>` 関数群を置き換える"
 msgid "P_NOWAIT example::"
 msgstr "P_NOWAIT の例::"
 
-#: ../../library/subprocess.rst:1422
 msgid ""
 "pid = os.spawnlp(os.P_NOWAIT, \"/bin/mycmd\", \"mycmd\", \"myarg\")\n"
 "==>\n"
 "pid = Popen([\"/bin/mycmd\", \"myarg\"]).pid"
 msgstr ""
+"pid = os.spawnlp(os.P_NOWAIT, \"/bin/mycmd\", \"mycmd\", \"myarg\")\n"
+"==>\n"
+"pid = Popen([\"/bin/mycmd\", \"myarg\"]).pid"
 
 #: ../../library/subprocess.rst:1426
 msgid "P_WAIT example::"
 msgstr "P_WAIT の例::"
 
-#: ../../library/subprocess.rst:1428
 msgid ""
 "retcode = os.spawnlp(os.P_WAIT, \"/bin/mycmd\", \"mycmd\", \"myarg\")\n"
 "==>\n"
 "retcode = call([\"/bin/mycmd\", \"myarg\"])"
 msgstr ""
+"retcode = os.spawnlp(os.P_WAIT, \"/bin/mycmd\", \"mycmd\", \"myarg\")\n"
+"==>\n"
+"retcode = call([\"/bin/mycmd\", \"myarg\"])"
 
 #: ../../library/subprocess.rst:1432
 msgid "Vector example::"
 msgstr "シーケンスを使った例::"
 
-#: ../../library/subprocess.rst:1434
 msgid ""
 "os.spawnvp(os.P_NOWAIT, path, args)\n"
 "==>\n"
 "Popen([path] + args[1:])"
 msgstr ""
+"os.spawnvp(os.P_NOWAIT, path, args)\n"
+"==>\n"
+"Popen([path] + args[1:])"
 
 #: ../../library/subprocess.rst:1438
 msgid "Environment example::"
@@ -2100,9 +2343,8 @@ msgid ""
 "Popen([\"/bin/mycmd\", \"myarg\"], env={\"PATH\": \"/usr/bin\"})"
 msgstr ""
 
-#: ../../library/subprocess.rst:1447
 msgid "Replacing :func:`os.popen`"
-msgstr ""
+msgstr ":func:`os.popen` を置き換える"
 
 #: ../../library/subprocess.rst:1449
 msgid "Return code handling translates as follows::"
@@ -2151,13 +2393,14 @@ msgid ""
 "details."
 msgstr ""
 
-#: ../../library/subprocess.rst:1481
 msgid ""
 "A trailing newline is stripped from the output. The exit code for the "
 "command can be interpreted as the return code of subprocess.  Example::"
 msgstr ""
+"出力の末尾の改行は取り除かれます。\n"
+"コマンドの終了コードは、subprocess の終了コードとして解釈できます。\n"
+"例を示します。 ::"
 
-#: ../../library/subprocess.rst:1485
 msgid ""
 ">>> subprocess.getstatusoutput('ls /bin/ls')\n"
 "(0, '/bin/ls')\n"
@@ -2168,17 +2411,27 @@ msgid ""
 ">>> subprocess.getstatusoutput('/bin/kill $$')\n"
 "(-15, '')"
 msgstr ""
+">>> subprocess.getstatusoutput('ls /bin/ls')\n"
+"(0, '/bin/ls')\n"
+">>> subprocess.getstatusoutput('cat /bin/junk')\n"
+"(1, 'cat: /bin/junk: No such file or directory')\n"
+">>> subprocess.getstatusoutput('/bin/junk')\n"
+"(127, 'sh: /bin/junk: not found')\n"
+">>> subprocess.getstatusoutput('/bin/kill $$')\n"
+"(-15, '')"
 
 #: ../../library/subprocess.rst:1496
 msgid "Windows support was added."
 msgstr "Windows のサポートが追加されました。"
 
-#: ../../library/subprocess.rst:1499
 msgid ""
 "The function now returns (exitcode, output) instead of (status, output) as "
 "it did in Python 3.3.3 and earlier.  exitcode has the same value as :attr:"
 "`~Popen.returncode`."
 msgstr ""
+"Python 3.3.3 以前の (status, output) に代わり、(exitcode, output) を返すよう"
+"になりました。\n"
+"exitcode は :attr:`~Popen.returncode` と同じ値です。"
 
 #: ../../library/subprocess.rst:1508
 msgid "Return output (stdout and stderr) of executing *cmd* in a shell."
@@ -2192,11 +2445,12 @@ msgstr ""
 ":func:`getstatusoutput` に似ていますが、終了コードは無視され、コマンドの出力"
 "のみを返します。例えば::"
 
-#: ../../library/subprocess.rst:1513
 msgid ""
 ">>> subprocess.getoutput('ls /bin/ls')\n"
 "'/bin/ls'"
 msgstr ""
+">>> subprocess.getoutput('ls /bin/ls')\n"
+"'/bin/ls'"
 
 #: ../../library/subprocess.rst:1518
 msgid "Windows support added"
@@ -2206,32 +2460,37 @@ msgstr "Windowsで利用可能になりました"
 msgid "Notes"
 msgstr "注釈"
 
-#: ../../library/subprocess.rst:1531
 msgid "Timeout Behavior"
-msgstr ""
+msgstr "タイムアウトの動作"
 
-#: ../../library/subprocess.rst:1533
 msgid ""
 "When using the ``timeout`` parameter in functions like :func:`run`, :meth:"
 "`Popen.wait`, or :meth:`Popen.communicate`, users should be aware of the "
 "following behaviors:"
 msgstr ""
+":func:`run`、:meth:`Popen.wait`、:meth:`Popen.communicate` などで "
+"``timeout`` 引数を使う場合は、次の動作に注意してください:"
 
-#: ../../library/subprocess.rst:1537
 msgid ""
 "**Process Creation Delay**: The initial process creation itself cannot be "
 "interrupted on many platform APIs. This means that even when specifying a "
 "timeout, you are not guaranteed to see a timeout exception until at least "
 "after however long process creation takes."
 msgstr ""
+"**プロセス作成による遅延**: 多くのプラットフォームの API では、最初のプロセス"
+"作成自体を中断できません。\n"
+"そのため、タイムアウトを指定しても、少なくともプロセス作成にかかる時間が経過"
+"するまではタイムアウト例外が発生する保証はありません。"
 
-#: ../../library/subprocess.rst:1542
 msgid ""
 "**Extremely Small Timeout Values**: Setting very small timeout values (such "
 "as a few milliseconds) may result in almost immediate :exc:`TimeoutExpired` "
 "exceptions because process creation and system scheduling inherently require "
 "time."
 msgstr ""
+"**非常に短いタイムアウト**: プロセス作成やシステムのスケジューリングには時間"
+"がかかるため、数ミリ秒などの非常に短いタイムアウトを設定すると、ほぼ直ちに :"
+"exc:`TimeoutExpired` 例外が発生することがあります。"
 
 #: ../../library/subprocess.rst:1549
 msgid "Converting an argument sequence to a string on Windows"
@@ -2297,9 +2556,8 @@ msgid "Module which provides function to parse and escape command lines."
 msgstr ""
 "コマンドラインを解析したりエスケープしたりする関数を提供するモジュール。"
 
-#: ../../library/subprocess.rst:1585
 msgid "Disable use of ``posix_spawn()``"
-msgstr ""
+msgstr "``posix_spawn()`` の使用を無効にする"
 
 #: ../../library/subprocess.rst:1587
 msgid ""
@@ -2308,28 +2566,33 @@ msgid ""
 "improves performance."
 msgstr ""
 
-#: ../../library/subprocess.rst:1593
 msgid "subprocess._USE_POSIX_SPAWN = False  # See CPython issue gh-NNNNNN."
 msgstr ""
+"subprocess._USE_POSIX_SPAWN = False  # CPython の issue gh-NNNNNN を参照。"
 
-#: ../../library/subprocess.rst:1595
 msgid ""
 "It is safe to set this to false on any Python version. It will have no "
 "effect on older or newer versions where unsupported. Do not assume the "
 "attribute is available to read. Despite the name, a true value does not "
 "indicate the corresponding function will be used, only that it may be."
 msgstr ""
+"どの Python バージョンでも、この値を偽に設定して問題ありません。\n"
+"対応していない古いバージョンや新しいバージョンでは、効果がありません。\n"
+"この属性が存在して読み出せるとは仮定しないでください。\n"
+"名前とは異なり、値が真でも対応する関数を使うとは限らず、使う可能性があること"
+"だけを示します。"
 
-#: ../../library/subprocess.rst:1600
 msgid ""
 "Please file issues any time you have to use these private knobs with a way "
 "to reproduce the issue you were seeing. Link to that issue from a comment in "
 "your code."
 msgstr ""
+"これらの非公開の設定を使う必要がある場合は、その都度、問題を再現する方法を添"
+"えて issue を報告してください。\n"
+"コード内のコメントから、その issue にリンクしてください。"
 
-#: ../../library/subprocess.rst:1604
 msgid "``_USE_POSIX_SPAWN``"
-msgstr ""
+msgstr "``_USE_POSIX_SPAWN``"
 
 #: ../../library/subprocess.rst:296
 msgid "universal newlines"

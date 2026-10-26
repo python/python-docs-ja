@@ -120,13 +120,13 @@ msgstr ""
 "は) スティッキービット (sticky bit)、実行グループ ID 設定 (set-group-id) およ"
 "び実行ユーザ ID 設定 (set-user-id) ビット --- を返します。"
 
-#: ../../library/stat.rst:91
 msgid ""
 "Return the portion of the file's mode that describes the file type (used by "
 "the :func:`!S_IS\\*` functions above)."
 msgstr ""
+"ファイルのモードのうち、ファイル種別を表す部分を返します (上述の :func:`!"
+"S_IS\\*` 関数で使われます)。"
 
-#: ../../library/stat.rst:94
 msgid ""
 "Normally, you would use the :func:`!os.path.is\\*` functions for testing the "
 "type of a file; the functions here are useful when you are doing multiple "
@@ -135,12 +135,17 @@ msgid ""
 "information about a file that isn't handled by :mod:`os.path`, like the "
 "tests for block and character devices."
 msgstr ""
+"通常、ファイル種別の判定には :func:`!os.path.is\\*` 関数を使います。\n"
+"同じファイルに対して複数の判定を行い、そのたびに :c:func:`stat` システムコー"
+"ルを呼び出すオーバーヘッドを避けたい場合は、このモジュールの関数が役立ちま"
+"す。\n"
+"また、ブロックデバイスやキャラクターデバイスかどうかなど、:mod:`os.path` が扱"
+"わないファイル情報を調べる場合にも便利です。"
 
 #: ../../library/stat.rst:101
 msgid "Example::"
 msgstr "以下はプログラム例です::"
 
-#: ../../library/stat.rst:103
 msgid ""
 "import os, sys\n"
 "from stat import *\n"
@@ -168,6 +173,31 @@ msgid ""
 "if __name__ == '__main__':\n"
 "    walktree(sys.argv[1], visitfile)"
 msgstr ""
+"import os, sys\n"
+"from stat import *\n"
+"\n"
+"def walktree(top, callback):\n"
+"    '''top をルートとするディレクトリツリーを再帰的にたどり、\n"
+"       通常のファイルごとにコールバック関数を呼び出す'''\n"
+"\n"
+"    for f in os.listdir(top):\n"
+"        pathname = os.path.join(top, f)\n"
+"        mode = os.lstat(pathname).st_mode\n"
+"        if S_ISDIR(mode):\n"
+"            # ディレクトリなら再帰的にたどる\n"
+"            walktree(pathname, callback)\n"
+"        elif S_ISREG(mode):\n"
+"            # ファイルならコールバック関数を呼び出す\n"
+"            callback(pathname)\n"
+"        else:\n"
+"            # 不明なファイル種別ならメッセージを表示する\n"
+"            print('Skipping %s' % pathname)\n"
+"\n"
+"def visitfile(file):\n"
+"    print('visiting', file)\n"
+"\n"
+"if __name__ == '__main__':\n"
+"    walktree(sys.argv[1], visitfile)"
 
 #: ../../library/stat.rst:129
 msgid ""
@@ -442,21 +472,18 @@ msgid ""
 "chflags`:"
 msgstr "以下のフラグを :func:`os.chflags` の *flags* 引数として利用できます:"
 
-#: ../../library/stat.rst:355
 msgid "All user settable flags."
-msgstr ""
+msgstr "ユーザーが設定できるすべてのフラグ。"
 
 #: ../../library/stat.rst:361
 msgid "Do not dump the file."
 msgstr "ファイルをダンプしない。"
 
-#: ../../library/stat.rst:365 ../../library/stat.rst:427
 msgid "The file may not be changed."
-msgstr "ファイルは変更されない。"
+msgstr "ファイルを変更してはいけない。"
 
-#: ../../library/stat.rst:369 ../../library/stat.rst:431
 msgid "The file may only be appended to."
-msgstr "ファイルは追記しかされない。"
+msgstr "ファイルへの追記だけを許可する。"
 
 #: ../../library/stat.rst:373
 msgid "The directory is opaque when viewed through a union stack."
@@ -464,60 +491,51 @@ msgstr ""
 "ユニオンファイルシステムのスタックを通したとき、このディレクトリは不透明で"
 "す。"
 
-#: ../../library/stat.rst:377 ../../library/stat.rst:441
 msgid "The file may not be renamed or deleted."
-msgstr "ファイルはリネームや削除されない。"
+msgstr "ファイル名の変更や削除を禁止する。"
 
 #: ../../library/stat.rst:381
 msgid "The file is stored compressed (macOS 10.6+)."
 msgstr "ファイルは圧縮して保存される (macOS 10.6+)。"
 
-#: ../../library/stat.rst:385
 msgid "Used for handling document IDs (macOS)"
-msgstr ""
+msgstr "ドキュメント ID の処理に使う (macOS)。"
 
-#: ../../library/stat.rst:391
 msgid "The file needs an entitlement for reading or writing (macOS 10.13+)"
-msgstr ""
+msgstr "ファイルの読み書きにエンタイトルメントが必要 (macOS 10.13+)。"
 
 #: ../../library/stat.rst:397
 msgid "The file should not be displayed in a GUI (macOS 10.5+)."
 msgstr "ファイルは GUI で表示されるべきでない (macOS 10.5+)。"
 
-#: ../../library/stat.rst:401
 msgid "All super-user changeable flags"
-msgstr ""
+msgstr "スーパーユーザーが変更できるすべてのフラグ。"
 
-#: ../../library/stat.rst:407
 msgid "All super-user supported flags"
-msgstr ""
+msgstr "スーパーユーザーが利用できるすべてのフラグ。"
 
 msgid "Availability"
 msgstr "利用可能な環境"
 
-#: ../../library/stat.rst:415
 msgid "All super-user read-only synthetic flags"
-msgstr ""
+msgstr "スーパーユーザー用の、読み取り専用の合成フラグすべて。"
 
 #: ../../library/stat.rst:423
 msgid "The file may be archived."
 msgstr "ファイルはアーカイブされているかもしれません。"
 
-#: ../../library/stat.rst:435
 msgid "The file needs an entitlement to write to (macOS 10.13+)"
-msgstr ""
+msgstr "ファイルへの書き込みにエンタイトルメントが必要 (macOS 10.13+)。"
 
 #: ../../library/stat.rst:445
 msgid "The file is a snapshot file."
 msgstr "このファイルはスナップショットファイルです。"
 
-#: ../../library/stat.rst:449
 msgid "The file is a firmlink (macOS 10.15+)"
-msgstr ""
+msgstr "ファイルが firmlink である (macOS 10.15+)。"
 
-#: ../../library/stat.rst:455
 msgid "The file is a dataless object (macOS 10.15+)"
-msgstr ""
+msgstr "ファイルがデータを持たないオブジェクトである (macOS 10.15+)。"
 
 #: ../../library/stat.rst:459
 msgid ""

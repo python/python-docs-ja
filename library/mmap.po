@@ -197,7 +197,6 @@ msgstr ""
 "の場合、マップの最大の長さは :class:`~mmap.mmap` が呼ばれた時点でのファイルサ"
 "イズになります。"
 
-#: ../../library/mmap.rst:83
 msgid ""
 "*flags* specifies the nature of the mapping. :const:`MAP_PRIVATE` creates a "
 "private copy-on-write mapping, so changes to the contents of the mmap object "
@@ -207,6 +206,14 @@ msgid ""
 "possible flags with the full list specified in :ref:`MAP_* constants <map-"
 "constants>`."
 msgstr ""
+"*flags* はマッピングの性質を指定します。\n"
+":const:`MAP_PRIVATE` は非公開のコピーオンライトのマッピングを作成するため、"
+"mmap オブジェクトの内容を変更しても、このプロセスだけに影響します。\n"
+":const:`MAP_SHARED` は、ファイルの同じ領域をマップしている他のすべてのプロセ"
+"スと共有するマッピングを作成します。\n"
+"デフォルトは :const:`MAP_SHARED` です。\n"
+"システムによっては追加のフラグを利用できます。\n"
+"全一覧は :ref:`MAP_* 定数 <map-constants>` にあります。"
 
 #: ../../library/mmap.rst:91
 msgid ""
@@ -232,15 +239,19 @@ msgstr ""
 "とは間違っています。このパラメータの使用法についての情報は、先に述べた "
 "*access* の記述を参照してください。"
 
-#: ../../library/mmap.rst:101
 msgid ""
 "*offset* may be specified as a non-negative integer offset. mmap references "
 "will be relative to the offset from the beginning of the file. *offset* "
 "defaults to 0. *offset* must be a multiple of :const:`ALLOCATIONGRANULARITY` "
 "which is equal to :const:`PAGESIZE` on Unix systems."
 msgstr ""
+"*offset* には非負整数のオフセットを指定できます。\n"
+"mmap への参照は、ファイルの先頭からこのオフセットだけ進んだ位置を基準としま"
+"す。\n"
+"*offset* のデフォルトは 0 です。\n"
+"*offset* は :const:`ALLOCATIONGRANULARITY` の倍数でなければなりません。\n"
+"Unix では、この値は :const:`PAGESIZE` と同じです。"
 
-#: ../../library/mmap.rst:106
 msgid ""
 "If *trackfd* is ``False``, the file descriptor specified by *fileno* will "
 "not be duplicated, and the resulting :class:`!mmap` object will not be "
@@ -248,6 +259,11 @@ msgid ""
 "mmap.size` and :meth:`~mmap.mmap.resize` methods will fail. This mode is "
 "useful to limit the number of open file descriptors."
 msgstr ""
+"*trackfd* が ``False`` の場合、*fileno* で指定されたファイル記述子を複製せ"
+"ず、作成する :class:`!mmap` オブジェクトを元のファイルに関連付けません。\n"
+"そのため、:meth:`~mmap.mmap.size` と :meth:`~mmap.mmap.resize` メソッドは失敗"
+"します。\n"
+"このモードは、開くファイル記述子の数を抑えるのに役立ちます。"
 
 #: ../../library/mmap.rst:113
 msgid ""
@@ -267,7 +283,6 @@ msgstr "*trackfd* パラメータが追加されました。"
 msgid "This example shows a simple way of using :class:`~mmap.mmap`::"
 msgstr "この例は :class:`~mmap.mmap` の簡潔な使い方を示すものです::"
 
-#: ../../library/mmap.rst:122
 msgid ""
 "import mmap\n"
 "\n"
@@ -291,6 +306,28 @@ msgid ""
 "    # close the map\n"
 "    mm.close()"
 msgstr ""
+"import mmap\n"
+"\n"
+"# 簡単なサンプルファイルを書き込む\n"
+"with open(\"hello.txt\", \"wb\") as f:\n"
+"    f.write(b\"Hello Python!\\n\")\n"
+"\n"
+"with open(\"hello.txt\", \"r+b\") as f:\n"
+"    # ファイルをメモリにマップする。\n"
+"    # サイズ 0 はファイル全体を表す\n"
+"    mm = mmap.mmap(f.fileno(), 0)\n"
+"    # 標準のファイルメソッドで内容を読む\n"
+"    print(mm.readline())  # 表示する内容: b\"Hello Python!\\n\"\n"
+"    # スライス表記で内容を読む\n"
+"    print(mm[:5])  # 表示する内容: b\"Hello\"\n"
+"    # スライス表記で内容を更新する。\n"
+"    # 新しい内容は同じサイズでなければならない\n"
+"    mm[6:] = b\" world!\\n\"\n"
+"    # ... 標準のファイルメソッドでもう一度読む\n"
+"    mm.seek(0)\n"
+"    print(mm.readline())  # 表示する内容: b\"Hello  world!\\n\"\n"
+"    # マップを閉じる\n"
+"    mm.close()"
 
 #: ../../library/mmap.rst:145
 msgid ""
@@ -300,13 +337,16 @@ msgstr ""
 ":class:`~mmap.mmap` は :keyword:`with` 文の中でコンテキストマネージャとしても"
 "使えます::"
 
-#: ../../library/mmap.rst:148
 msgid ""
 "import mmap\n"
 "\n"
 "with mmap.mmap(-1, 13) as mm:\n"
 "    mm.write(b\"Hello world!\")"
 msgstr ""
+"import mmap\n"
+"\n"
+"with mmap.mmap(-1, 13) as mm:\n"
+"    mm.write(b\"Hello world!\")"
 
 #: ../../library/mmap.rst:153
 msgid "Context manager support."
@@ -320,7 +360,6 @@ msgstr ""
 "次の例では無名マップを作り親プロセスと子プロセスの間でデータのやりとりをして"
 "みせます::"
 
-#: ../../library/mmap.rst:160
 msgid ""
 "import mmap\n"
 "import os\n"
@@ -336,6 +375,19 @@ msgid ""
 "\n"
 "    mm.close()"
 msgstr ""
+"import mmap\n"
+"import os\n"
+"\n"
+"mm = mmap.mmap(-1, 13)\n"
+"mm.write(b\"Hello world!\")\n"
+"\n"
+"pid = os.fork()\n"
+"\n"
+"if pid == 0:  # 子プロセスの場合\n"
+"    mm.seek(0)\n"
+"    print(mm.readline())\n"
+"\n"
+"    mm.close()"
 
 #: ../../library/mmap.rst:176
 msgid "Memory-mapped file objects support the following methods:"
@@ -372,7 +424,6 @@ msgid "Writable :term:`bytes-like object` is now accepted."
 msgstr ""
 "書き込み可能な :term:`bytes-like object` を使用できるようになりました。"
 
-#: ../../library/mmap.rst:205
 msgid ""
 "Flushes changes made to the in-memory copy of a file back to disk. Without "
 "use of this call there is no guarantee that changes are written back before "
@@ -381,6 +432,14 @@ msgid ""
 "extent of the mapping is flushed.  *offset* must be a multiple of the :const:"
 "`PAGESIZE` or :const:`ALLOCATIONGRANULARITY`."
 msgstr ""
+"メモリ内のファイルのコピーに加えた変更をディスクに書き戻します。\n"
+"この呼び出しを行わない場合、オブジェクトが破棄される前に変更が書き戻される保"
+"証はありません。\n"
+"*offset* と *size* を指定した場合は、指定されたバイト範囲の変更だけをディスク"
+"に書き戻します。\n"
+"それ以外の場合は、マッピング全体を書き戻します。\n"
+"*offset* は :const:`PAGESIZE` または :const:`ALLOCATIONGRANULARITY` の倍数で"
+"なければなりません。"
 
 #: ../../library/mmap.rst:212
 msgid ""
@@ -390,14 +449,15 @@ msgstr ""
 "``None`` が返されたら成功を意味します。呼び出しが失敗すると例外が送出されま"
 "す。"
 
-#: ../../library/mmap.rst:215
 msgid ""
 "Previously, a nonzero value was returned on success; zero was returned on "
 "error under Windows.  A zero value was returned on success; an exception was "
 "raised on error under Unix."
 msgstr ""
+"以前の Windows では、成功時にゼロ以外の値を、エラー時にゼロを返していまし"
+"た。\n"
+"Unix では、成功時にゼロを返し、エラー時に例外を送出していました。"
 
-#: ../../library/mmap.rst:223
 msgid ""
 "Send advice *option* to the kernel about the memory region beginning at "
 "*start* and extending *length* bytes.  *option* must be one of the :ref:"
@@ -405,10 +465,16 @@ msgid ""
 "and *length* are omitted, the entire mapping is spanned.  On some systems "
 "(including Linux), *start* must be a multiple of the :const:`PAGESIZE`."
 msgstr ""
+"*start* から始まる *length* バイトのメモリ領域について、カーネルに助言 "
+"*option* を送ります。\n"
+"*option* は、システムで利用できる :ref:`MADV_* 定数 <madvise-constants>` のい"
+"ずれかでなければなりません。\n"
+"*start* と *length* を省略すると、マッピング全体が対象となります。\n"
+"Linux など一部のシステムでは、*start* は :const:`PAGESIZE` の倍数である必要が"
+"あります。"
 
-#: ../../library/mmap.rst:230
 msgid "Availability: Systems with the ``madvise()`` system call."
-msgstr ""
+msgstr "利用可能な環境: ``madvise()`` システムコールを持つシステム。"
 
 #: ../../library/mmap.rst:237
 msgid ""
@@ -443,16 +509,16 @@ msgid ""
 msgstr ""
 "現在のファイル位置のバイトを整数値として返し、ファイル位置を 1 進めます。"
 
-#: ../../library/mmap.rst:261
 msgid ""
 "Returns a single line, starting at the current file position and up to the "
 "next newline. The file position is updated to point after the bytes that "
 "were returned."
 msgstr ""
+"現在のファイル位置から次の改行までの 1 行を返します。\n"
+"ファイル位置は、返したバイト列の直後に更新されます。"
 
-#: ../../library/mmap.rst:268
 msgid "Resizes the map and the underlying file, if any."
-msgstr ""
+msgstr "マップと、元のファイルがあればそのファイルのサイズを変更します。"
 
 #: ../../library/mmap.rst:270
 msgid ""
@@ -462,19 +528,24 @@ msgid ""
 "exception."
 msgstr ""
 
-#: ../../library/mmap.rst:275
 msgid ""
 "**On Windows**: Resizing the map will raise an :exc:`OSError` if there are "
 "other maps against the same named file. Resizing an anonymous map (ie "
 "against the pagefile) will silently create a new map with the original data "
 "copied over up to the length of the new size."
 msgstr ""
+"**Windows の場合**: 同じ名前のファイルに対する他のマップが存在すると、マップ"
+"のサイズ変更は :exc:`OSError` を送出します。\n"
+"無名のマップ (ページファイルを使用するマップ) のサイズを変更すると、新しいサ"
+"イズの長さまで元のデータをコピーした新たなマップを、通知せずに作成します。"
 
-#: ../../library/mmap.rst:280
 msgid ""
 "Correctly fails if attempting to resize when another map is held Allows "
 "resize against an anonymous map on Windows"
 msgstr ""
+"Windows で、他のマップが保持されている場合のサイズ変更が正しく失敗するように"
+"なりました。\n"
+"また、無名のマップのサイズ変更が可能になりました。"
 
 #: ../../library/mmap.rst:286
 msgid ""
@@ -504,11 +575,12 @@ msgstr ""
 msgid "Return the new absolute position instead of ``None``."
 msgstr "``None`` ではなく新しい絶対位置を返します。"
 
-#: ../../library/mmap.rst:307
 msgid ""
 "Return whether the file supports seeking, and the return value is always "
 "``True``."
 msgstr ""
+"ファイルがシークをサポートするかどうかを返します。\n"
+"戻り値は常に ``True`` です。"
 
 #: ../../library/mmap.rst:313
 msgid ""
@@ -555,44 +627,47 @@ msgstr ""
 msgid "MADV_* Constants"
 msgstr "MADV_* 定数"
 
-#: ../../library/mmap.rst:375
 msgid ""
 "These options can be passed to :meth:`mmap.madvise`.  Not every option will "
 "be present on every system."
 msgstr ""
+"これらのオプションは :meth:`mmap.madvise` に渡せます。\n"
+"すべてのシステムですべてのオプションが利用できるわけではありません。"
 
-#: ../../library/mmap.rst:378
 msgid "Availability: Systems with the madvise() system call."
-msgstr ""
+msgstr "利用可能な環境: madvise() システムコールを持つシステム。"
 
 #: ../../library/mmap.rst:385
 msgid "MAP_* Constants"
 msgstr "MAP_* 定数"
 
-#: ../../library/mmap.rst:409
 msgid ""
 "These are the various flags that can be passed to :meth:`mmap.mmap`.  :data:"
 "`MAP_ALIGNED_SUPER` is only available at FreeBSD and :data:`MAP_CONCEAL` is "
 "only available at OpenBSD.  Note that some options might not be present on "
 "some systems."
 msgstr ""
+":meth:`mmap.mmap` に渡せる各種フラグです。\n"
+":data:`MAP_ALIGNED_SUPER` は FreeBSD でのみ、:data:`MAP_CONCEAL` は OpenBSD "
+"でのみ利用できます。\n"
+"システムによっては利用できないオプションもあります。"
 
-#: ../../library/mmap.rst:413
 msgid "Added :data:`MAP_POPULATE` constant."
-msgstr ""
+msgstr ":data:`MAP_POPULATE` 定数を追加しました。"
 
-#: ../../library/mmap.rst:416
 msgid "Added :data:`MAP_STACK` constant."
-msgstr ""
+msgstr ":data:`MAP_STACK` 定数を追加しました。"
 
-#: ../../library/mmap.rst:419
 msgid "Added :data:`MAP_ALIGNED_SUPER` and :data:`MAP_CONCEAL` constants."
-msgstr ""
+msgstr ":data:`MAP_ALIGNED_SUPER` と :data:`MAP_CONCEAL` 定数を追加しました。"
 
-#: ../../library/mmap.rst:422
 msgid ""
 "Added :data:`MAP_32BIT`, :data:`MAP_HASSEMAPHORE`, :data:`MAP_JIT`, :data:"
 "`MAP_NOCACHE`, :data:`MAP_NOEXTEND`, :data:`MAP_NORESERVE`, :data:"
 "`MAP_RESILIENT_CODESIGN`, :data:`MAP_RESILIENT_MEDIA`, :data:`MAP_TPRO`, :"
 "data:`MAP_TRANSLATED_ALLOW_EXECUTE`, and :data:`MAP_UNIX03` constants."
 msgstr ""
+":data:`MAP_32BIT`、:data:`MAP_HASSEMAPHORE`、:data:`MAP_JIT`、:data:"
+"`MAP_NOCACHE`、:data:`MAP_NOEXTEND`、:data:`MAP_NORESERVE`、:data:"
+"`MAP_RESILIENT_CODESIGN`、:data:`MAP_RESILIENT_MEDIA`、:data:`MAP_TPRO`、:"
+"data:`MAP_TRANSLATED_ALLOW_EXECUTE`、:data:`MAP_UNIX03` 定数を追加しました。"

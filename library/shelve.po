@@ -65,12 +65,14 @@ msgstr ""
 "*flag* パラメータは :func:`dbm.open` における *flag* パラメータと同様に解釈さ"
 "れます。"
 
-#: ../../library/shelve.rst:28
 msgid ""
 "By default, pickles created with :const:`pickle.DEFAULT_PROTOCOL` are used "
 "to serialize values.  The version of the pickle protocol can be specified "
 "with the *protocol* parameter."
 msgstr ""
+"デフォルトでは :const:`pickle.DEFAULT_PROTOCOL` を使って作成した pickle で値"
+"を直列化します。\n"
+"*protocol* 引数で pickle プロトコルのバージョンを指定できます。"
 
 #: ../../library/shelve.rst:32
 msgid ""
@@ -99,14 +101,15 @@ msgstr ""
 "るいは実際に変更されたかを決定する方法は存在しないのです) ために、ファイルを"
 "閉じる操作が非常に低速になります。"
 
-#: ../../library/shelve.rst:44 ../../library/shelve.rst:148
 msgid ""
 ":const:`pickle.DEFAULT_PROTOCOL` is now used as the default pickle protocol."
 msgstr ""
+"デフォルトの pickle プロトコルに :const:`pickle.DEFAULT_PROTOCOL` を使うよう"
+"になりました。"
 
-#: ../../library/shelve.rst:48
 msgid "Accepts :term:`path-like object` for filename."
 msgstr ""
+"ファイル名として :term:`path-like object` を受け付けるようになりました。"
 
 #: ../../library/shelve.rst:53
 msgid ""
@@ -118,11 +121,12 @@ msgstr ""
 "常に :meth:`~Shelf.close` を明示的に呼ぶか、 :func:`shelve.open` をコンテキス"
 "トマネージャとして使用してください::"
 
-#: ../../library/shelve.rst:57
 msgid ""
 "with shelve.open('spam') as db:\n"
 "    db['eggs'] = 'eggs'"
 msgstr ""
+"with shelve.open('spam') as db:\n"
+"    db['eggs'] = 'eggs'"
 
 #: ../../library/shelve.rst:64
 msgid ""
@@ -165,12 +169,14 @@ msgstr ""
 "永続的な *辞書* オブジェクトを同期して閉じます。\n"
 "閉じたシェルフに対する操作は :exc:`ValueError` で失敗します。"
 
-#: ../../library/shelve.rst:89
 msgid ""
 "`Persistent dictionary recipe <https://code.activestate.com/recipes/576642-"
 "persistent-dict-with-multiple-standard-file-format/>`_ with widely supported "
 "storage formats and having the speed of native dictionaries."
 msgstr ""
+"広くサポートされる保存形式を使い、組み込みの辞書と同じ速さで動作する `永続辞"
+"書のレシピ <https://code.activestate.com/recipes/576642-persistent-dict-with-"
+"multiple-standard-file-format/>`_。"
 
 #: ../../library/shelve.rst:95
 msgid "Restrictions"
@@ -211,11 +217,13 @@ msgstr ""
 "バージョン間で異なり、使われているデータベースの実装について知識が必要となり"
 "ます。"
 
-#: ../../library/shelve.rst:116
 msgid ""
 "On macOS :mod:`dbm.ndbm` can silently corrupt the database file on updates, "
 "which can cause hard crashes when trying to read from the database."
 msgstr ""
+"macOS では :mod:`dbm.ndbm` が更新時にエラーを報告せずデータベースファイルを破"
+"損することがあり、その後の読み込みでプログラムがクラッシュするおそれがありま"
+"す。"
 
 #: ../../library/shelve.rst:122
 msgid ""
@@ -225,13 +233,16 @@ msgstr ""
 ":class:`collections.abc.MutableMapping` のサブクラスで、 *dict* オブジェクト"
 "内にpickle化された値を保持します。"
 
-#: ../../library/shelve.rst:125
 msgid ""
 "By default, pickles created with :const:`pickle.DEFAULT_PROTOCOL` are used "
 "to serialize values.  The version of the pickle protocol can be specified "
 "with the *protocol* parameter.  See the :mod:`pickle` documentation for a "
 "discussion of the pickle protocols."
 msgstr ""
+"デフォルトでは :const:`pickle.DEFAULT_PROTOCOL` を使って作成した pickle で値"
+"を直列化します。\n"
+"*protocol* 引数で pickle プロトコルのバージョンを指定できます。\n"
+"pickle プロトコルの説明は :mod:`pickle` のドキュメントを参照してください。"
 
 msgid ""
 "If the *writeback* parameter is ``True``, the object will hold a cache of "
@@ -314,7 +325,6 @@ msgstr ""
 "インターフェースは以下のコードに集約されています (``key`` は文字列で、"
 "``data`` は任意のオブジェクトです)::"
 
-#: ../../library/shelve.rst:185
 msgid ""
 "import shelve\n"
 "\n"
@@ -346,6 +356,36 @@ msgid ""
 "\n"
 "d.close()                  # close it"
 msgstr ""
+"import shelve\n"
+"\n"
+"d = shelve.open(filename)  # 開く -- 下位ライブラリによってファイル名に\n"
+"                           # 拡張子が付く場合がある\n"
+"\n"
+"d[key] = data              # key にデータを保存する (既存のキーなら\n"
+"                           # 古いデータを上書きする)\n"
+"data = d[key]              # key のデータのコピーを取得する\n"
+"                           # (キーがなければ KeyError を送出する)\n"
+"del d[key]                 # key に保存したデータを削除する\n"
+"                           # (キーがなければ KeyError を送出する)\n"
+"\n"
+"flag = key in d            # キーが存在すれば真\n"
+"klist = list(d.keys())     # 既存のキーをすべて含むリスト (遅い！)\n"
+"\n"
+"# d は writeback=True を指定せずに開いたので注意:\n"
+"d['xx'] = [0, 1, 2]        # これは期待どおりに動作するが...\n"
+"d['xx'].append(3)          # これは動作しない！ d['xx'] は [0, 1, 2] のま"
+"ま！\n"
+"\n"
+"# writeback=True を指定せずに d を開いた場合、慎重にコードを書く必要がある:\n"
+"temp = d['xx']             # コピーを取り出す\n"
+"temp.append(5)             # コピーを変更する\n"
+"d['xx'] = temp             # コピーを書き戻して変更を永続化する\n"
+"\n"
+"# d=shelve.open(filename,writeback=True) としておけば、単に\n"
+"# d['xx'].append(5) と書くだけで期待どおりに動作するが、\n"
+"# メモリ使用量が増え、d.close() の操作も遅くなる。\n"
+"\n"
+"d.close()                  # 閉じる"
 
 #: ../../library/shelve.rst:218
 msgid "Module :mod:`dbm`"

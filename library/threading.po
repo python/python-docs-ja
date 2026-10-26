@@ -59,7 +59,6 @@ msgstr ""
 msgid "Introduction"
 msgstr "はじめに"
 
-#: ../../library/threading.rst:19
 msgid ""
 "The :mod:`!threading` module provides a way to run multiple `threads "
 "<https://en.wikipedia.org/wiki/Thread_(computing)>`_ (smaller units of a "
@@ -69,15 +68,24 @@ msgid ""
 "bound, such as file operations or making network requests, where much of the "
 "time is spent waiting for external resources."
 msgstr ""
+":mod:`!threading` モジュールを使うと、1 つのプロセス内で複数の `スレッド "
+"<https://en.wikipedia.org/wiki/Thread_(computing)>`_ (プロセスより小さな実行"
+"単位) を並行して実行できます。\n"
+"スレッドの作成と管理ができ、メモリ空間を共有しながらタスクを並列に実行できま"
+"す。\n"
+"スレッドは、ファイル操作やネットワークリクエストなど、外部リソースを待つ時間"
+"が大部分を占める I/O バウンドのタスクで特に役立ちます。"
 
-#: ../../library/threading.rst:27
 msgid ""
 "A typical use case for :mod:`!threading` includes managing a pool of worker "
 "threads that can process multiple tasks concurrently.  Here's a basic "
 "example of creating and starting threads using :class:`~threading.Thread`::"
 msgstr ""
+":mod:`!threading` の典型的な用途には、複数のタスクを並行して処理するワーカー"
+"スレッドのプールの管理があります。\n"
+"以下は :class:`~threading.Thread` を使ってスレッドを作成し、開始する基本的な"
+"例です。 ::"
 
-#: ../../library/threading.rst:31
 msgid ""
 "import threading\n"
 "import time\n"
@@ -109,6 +117,34 @@ msgid ""
 "for t in threads:\n"
 "    t.join()"
 msgstr ""
+"import threading\n"
+"import time\n"
+"\n"
+"def crawl(link, delay=3):\n"
+"    print(f\"crawl started for {link}\")\n"
+"    time.sleep(delay)  # ブロックする I/O (ネットワークリクエストを模擬)\n"
+"    print(f\"crawl ended for {link}\")\n"
+"\n"
+"links = [\n"
+"    \"https://python.org\",\n"
+"    \"https://docs.python.org\",\n"
+"    \"https://peps.python.org\",\n"
+"]\n"
+"\n"
+"# 各リンクのスレッドを開始する\n"
+"threads = []\n"
+"for link in links:\n"
+"    # 位置引数は args、キーワード引数は kwargs で渡す\n"
+"    t = threading.Thread(target=crawl, args=(link,), kwargs={\"delay\": 2})\n"
+"    threads.append(t)\n"
+"\n"
+"# 各スレッドを開始する\n"
+"for t in threads:\n"
+"    t.start()\n"
+"\n"
+"# すべてのスレッドの終了を待つ\n"
+"for t in threads:\n"
+"    t.join()"
 
 #: ../../library/threading.rst:60
 msgid "This module used to be optional, it is now always available."
@@ -116,32 +152,39 @@ msgstr ""
 "このモジュールは以前はオプションでしたが、常に利用可能なモジュールとなりまし"
 "た。"
 
-#: ../../library/threading.rst:65
 msgid ""
 ":class:`concurrent.futures.ThreadPoolExecutor` offers a higher level "
 "interface to push tasks to a background thread without blocking execution of "
 "the calling thread, while still being able to retrieve their results when "
 "needed."
 msgstr ""
+":class:`concurrent.futures.ThreadPoolExecutor` は、呼び出し側のスレッドをブ"
+"ロックせずにバックグラウンドのスレッドへタスクを渡し、必要なときに結果を取得"
+"できる、より高水準のインターフェースを提供します。"
 
-#: ../../library/threading.rst:69
 msgid ""
 ":mod:`queue` provides a thread-safe interface for exchanging data between "
 "running threads."
 msgstr ""
+":mod:`queue` は、実行中のスレッド間でデータを交換するためのスレッドセーフなイ"
+"ンターフェースを提供します。"
 
-#: ../../library/threading.rst:72
 msgid ""
 ":mod:`asyncio` offers an alternative approach to achieving task level "
 "concurrency without requiring the use of multiple operating system threads."
 msgstr ""
+":mod:`asyncio` は、オペレーティングシステムのスレッドを複数使わずに、タスクレ"
+"ベルの並行処理を実現する別の方法を提供します。"
 
-#: ../../library/threading.rst:77
 msgid ""
 "In the Python 2.x series, this module contained ``camelCase`` names for some "
 "methods and functions. These are deprecated as of Python 3.10, but they are "
 "still supported for compatibility with Python 2.5 and lower."
 msgstr ""
+"Python 2.x 系では、このモジュールの一部のメソッドや関数に ``camelCase`` 形式"
+"の名前がありました。\n"
+"これらは Python 3.10 以降では非推奨ですが、Python 2.5 以前との互換性のため、"
+"引き続きサポートされています。"
 
 #: ../../library/threading.rst:84
 msgid ""
@@ -161,11 +204,9 @@ msgstr ""
 "ProcessPoolExecutor` の利用をお勧めします。 ただし、I/Oバウンドなタスクを並行"
 "して複数走らせたい場合においては、 マルチスレッドは正しい選択肢です。"
 
-#: ../../library/threading.rst:95
 msgid "GIL and performance considerations"
-msgstr ""
+msgstr "GIL とパフォーマンスに関する考慮事項"
 
-#: ../../library/threading.rst:97
 msgid ""
 "Unlike the :mod:`multiprocessing` module, which uses separate processes to "
 "bypass the :term:`global interpreter lock` (GIL), the threading module "
@@ -175,6 +216,13 @@ msgid ""
 "bytecode at a time. Despite this, threads remain a useful tool for achieving "
 "concurrency in many scenarios."
 msgstr ""
+"別々のプロセスを使って :term:`グローバルインタープリタロック <global "
+"interpreter lock>` (GIL) を回避する :mod:`multiprocessing` モジュールとは異な"
+"り、threading モジュールは 1 つのプロセス内で動作するため、すべてのスレッドが"
+"同じメモリ空間を共有します。\n"
+"ただし、一度に Python バイトコードを実行できるのは 1 つのスレッドだけなので、"
+"CPU バウンドのタスクでは GIL によってスレッドによる性能向上が制限されます。\n"
+"それでも、多くの場面でスレッドは並行処理を実現する有用な手段です。"
 
 #: ../../library/threading.rst:105
 msgid ""
@@ -202,13 +250,16 @@ msgstr ""
 msgid "The function ``activeCount`` is a deprecated alias for this function."
 msgstr "関数 ``activeCount`` はこの関数の非推奨エイリアスです。"
 
-#: ../../library/threading.rst:127
 msgid ""
 "Return the current :class:`Thread` object, corresponding to the caller's "
 "thread of control.  If the caller's thread of control was not created "
 "through the :mod:`!threading` module, a dummy thread object with limited "
 "functionality is returned."
 msgstr ""
+"呼び出し元の実行スレッドに対応する、現在の :class:`Thread` オブジェクトを返し"
+"ます。\n"
+"呼び出し元のスレッドが :mod:`!threading` モジュールを使って作成されたものでな"
+"ければ、機能が制限されたダミーのスレッドオブジェクトを返します。"
 
 msgid "The function ``currentThread`` is a deprecated alias for this function."
 msgstr "関数 ``currentThread`` はこの関数の非推奨エイリアスです。"
@@ -229,56 +280,66 @@ msgstr "*exc_type*: 例外の型"
 msgid "*exc_value*: Exception value, can be ``None``."
 msgstr "*exc_value*: 例外の値、``None`` の可能性がある。"
 
-#: ../../library/threading.rst:143
 msgid "*exc_traceback*: Exception traceback, can be ``None``."
 msgstr ""
+"*exc_traceback*: 例外のトレースバック。\n"
+"``None`` の場合もあります。"
 
-#: ../../library/threading.rst:144
 msgid "*thread*: Thread which raised the exception, can be ``None``."
 msgstr ""
+"*thread*: 例外を送出したスレッド。\n"
+"``None`` の場合もあります。"
 
-#: ../../library/threading.rst:146
 msgid ""
 "If *exc_type* is :exc:`SystemExit`, the exception is silently ignored. "
 "Otherwise, the exception is printed out on :data:`sys.stderr`."
 msgstr ""
+"*exc_type* が :exc:`SystemExit` の場合は、何も表示せずに例外を無視します。\n"
+"それ以外の場合は、:data:`sys.stderr` に例外を出力します。"
 
-#: ../../library/threading.rst:149
 msgid ""
 "If  this function raises an exception, :func:`sys.excepthook` is called to "
 "handle it."
 msgstr ""
+"この関数が例外を送出した場合は、その例外を処理するために :func:`sys."
+"excepthook` が呼び出されます。"
 
-#: ../../library/threading.rst:152
 msgid ""
 ":func:`threading.excepthook` can be overridden to control how uncaught "
 "exceptions raised by :func:`Thread.run` are handled."
 msgstr ""
+":func:`threading.excepthook` を置き換えることで、:func:`Thread.run` から送出"
+"されて捕捉されなかった例外の処理方法を制御できます。"
 
-#: ../../library/threading.rst:155
 msgid ""
 "Storing *exc_value* using a custom hook can create a reference cycle. It "
 "should be cleared explicitly to break the reference cycle when the exception "
 "is no longer needed."
 msgstr ""
+"独自のフックで *exc_value* を保存すると、循環参照ができることがあります。\n"
+"例外が不要になったときに明示的に消去して、循環参照を断ち切ってください。"
 
-#: ../../library/threading.rst:159
 msgid ""
 "Storing *thread* using a custom hook can resurrect it if it is set to an "
 "object which is being finalized. Avoid storing *thread* after the custom "
 "hook completes to avoid resurrecting objects."
 msgstr ""
+"独自のフックで *thread* を保存した際、その値がファイナライズ中のオブジェクト"
+"である場合は、そのオブジェクトを復活させる可能性があります。\n"
+"オブジェクトの復活を避けるため、独自のフックの完了後まで *thread* を保存しな"
+"いでください。"
 
-#: ../../library/threading.rst:164
 msgid ":func:`sys.excepthook` handles uncaught exceptions."
-msgstr ""
+msgstr ":func:`sys.excepthook` は捕捉されなかった例外を処理します。"
 
-#: ../../library/threading.rst:170
 msgid ""
 "Holds the original value of :func:`threading.excepthook`. It is saved so "
 "that the original value can be restored in case they happen to get replaced "
 "with broken or alternative objects."
 msgstr ""
+":func:`threading.excepthook` の元の値を保持します。\n"
+"壊れたオブジェクトや別のオブジェクトに置き換えられた場合に元の値を復元できる"
+"よう、保存されています。"
 
 #: ../../library/threading.rst:178
 msgid ""
@@ -293,17 +354,19 @@ msgstr ""
 "な、マジッククッキーとして意図されています。スレッドが終了し、他のスレッドが"
 "作られたとき、スレッド ID は再利用されるかもしれません。"
 
-#: ../../library/threading.rst:189
 msgid ""
 "Return the native integral Thread ID of the current thread assigned by the "
 "kernel. This is a non-negative integer. Its value may be used to uniquely "
 "identify this particular thread system-wide (until the thread terminates, "
 "after which the value may be recycled by the OS)."
 msgstr ""
+"カーネルが割り当てた、現在のスレッドのネイティブなスレッド ID を返します。\n"
+"これは非負の整数です。\n"
+"この値で、システム全体においてこのスレッドを一意に識別できます (スレッドが終"
+"了するまでで、その後は OS が値を再利用することがあります)。"
 
-#: ../../library/threading.rst:198
 msgid "Added support for GNU/kFreeBSD."
-msgstr ""
+msgstr "GNU/kFreeBSD のサポートが追加されました。"
 
 #: ../../library/threading.rst:204
 msgid ""
@@ -327,18 +390,22 @@ msgstr ""
 "main :class:`Thread` オブジェクトを返します。通常の条件では、メインスレッドは"
 "Pythonインタプリタが起動したスレッドを指します。"
 
-#: ../../library/threading.rst:224
 msgid ""
 "Set a trace function for all threads started from the :mod:`!threading` "
 "module. The *func* will be passed to  :func:`sys.settrace` for each thread, "
 "before its :meth:`~Thread.run` method is called."
 msgstr ""
+":mod:`!threading` モジュールから開始するすべてのスレッドにトレース関数を設定"
+"します。\n"
+"各スレッドの :meth:`~Thread.run` メソッドが呼ばれる前に、*func* が :func:"
+"`sys.settrace` に渡されます。"
 
-#: ../../library/threading.rst:230
 msgid ""
 "Set a trace function for all threads started from the :mod:`!threading` "
 "module and all Python threads that are currently executing."
 msgstr ""
+":mod:`!threading` モジュールから開始するすべてのスレッドと、現在実行中のすべ"
+"ての Python スレッドにトレース関数を設定します。"
 
 #: ../../library/threading.rst:233
 msgid ""
@@ -350,18 +417,22 @@ msgstr ""
 msgid "Get the trace function as set by :func:`settrace`."
 msgstr ":func:`settrace` 関数で設定したトレース関数を取得します。"
 
-#: ../../library/threading.rst:253
 msgid ""
 "Set a profile function for all threads started from the :mod:`!threading` "
 "module. The *func* will be passed to  :func:`sys.setprofile` for each "
 "thread, before its :meth:`~Thread.run` method is called."
 msgstr ""
+":mod:`!threading` モジュールから開始するすべてのスレッドにプロファイル関数を"
+"設定します。\n"
+"各スレッドの :meth:`~Thread.run` メソッドが呼ばれる前に、*func* が :func:"
+"`sys.setprofile` に渡されます。"
 
-#: ../../library/threading.rst:259
 msgid ""
 "Set a profile function for all threads started from the :mod:`!threading` "
 "module and all Python threads that are currently executing."
 msgstr ""
+":mod:`!threading` モジュールから開始するすべてのスレッドと、現在実行中のすべ"
+"ての Python スレッドにプロファイル関数を設定します。"
 
 #: ../../library/threading.rst:262
 msgid ""
@@ -406,9 +477,8 @@ msgstr ""
 "トフォームに関する情報がない場合は 4096 の整数倍のスタックサイズを選ぶといい"
 "かもしれません)。"
 
-#: ../../library/threading.rst:295
 msgid "Unix platforms with POSIX threads support."
-msgstr ""
+msgstr "POSIX スレッドをサポートする Unix プラットフォーム。"
 
 #: ../../library/threading.rst:298
 msgid "This module also defines the following constant:"
@@ -455,30 +525,32 @@ msgstr ""
 msgid "All of the methods described below are executed atomically."
 msgstr "以下に説明するメソッドは全て原子的 (atomic) に実行されます。"
 
-#: ../../library/threading.rst:325
 msgid "Thread-local data"
-msgstr ""
+msgstr "スレッドローカルデータ"
 
-#: ../../library/threading.rst:327
 msgid ""
 "Thread-local data is data whose values are thread specific. If you have data "
 "that you want to be local to a thread, create a :class:`local` object and "
 "use its attributes::"
 msgstr ""
+"スレッドローカルデータは、スレッドごとに固有の値を持つデータです。\n"
+"スレッド内だけで使いたいデータがある場合は、:class:`local` オブジェクトを作成"
+"し、その属性を使ってください。 ::"
 
-#: ../../library/threading.rst:331
 msgid ""
 ">>> mydata = local()\n"
 ">>> mydata.number = 42\n"
 ">>> mydata.number\n"
 "42"
 msgstr ""
+">>> mydata = local()\n"
+">>> mydata.number = 42\n"
+">>> mydata.number\n"
+"42"
 
-#: ../../library/threading.rst:336
 msgid "You can also access the :class:`local`-object's dictionary::"
-msgstr ""
+msgstr ":class:`local` オブジェクトの辞書にもアクセスできます。 ::"
 
-#: ../../library/threading.rst:338
 msgid ""
 ">>> mydata.__dict__\n"
 "{'number': 42}\n"
@@ -487,12 +559,16 @@ msgid ""
 ">>> mydata.widgets\n"
 "[]"
 msgstr ""
+">>> mydata.__dict__\n"
+"{'number': 42}\n"
+">>> mydata.__dict__.setdefault('widgets', [])\n"
+"[]\n"
+">>> mydata.widgets\n"
+"[]"
 
-#: ../../library/threading.rst:345
 msgid "If we access the data in a different thread::"
-msgstr ""
+msgstr "別のスレッドからデータにアクセスすると、次のようになります。 ::"
 
-#: ../../library/threading.rst:347
 msgid ""
 ">>> log = []\n"
 ">>> def f():\n"
@@ -508,20 +584,35 @@ msgid ""
 ">>> log\n"
 "[[], 11]"
 msgstr ""
+">>> log = []\n"
+">>> def f():\n"
+"...     items = sorted(mydata.__dict__.items())\n"
+"...     log.append(items)\n"
+"...     mydata.number = 11\n"
+"...     log.append(mydata.number)\n"
+"\n"
+">>> import threading\n"
+">>> thread = threading.Thread(target=f)\n"
+">>> thread.start()\n"
+">>> thread.join()\n"
+">>> log\n"
+"[[], 11]"
 
-#: ../../library/threading.rst:361
 msgid ""
 "we get different data.  Furthermore, changes made in the other thread don't "
 "affect data seen in this thread::"
 msgstr ""
+"異なるデータが得られます。\n"
+"また、別のスレッドで変更しても、このスレッドから見えるデータには影響しませ"
+"ん。 ::"
 
-#: ../../library/threading.rst:364
 msgid ""
 ">>> mydata.number\n"
 "42"
 msgstr ""
+">>> mydata.number\n"
+"42"
 
-#: ../../library/threading.rst:367
 msgid ""
 "Of course, values you get from a :class:`local` object, including their :"
 "attr:`~object.__dict__` attribute, are for whatever thread was current at "
@@ -529,14 +620,18 @@ msgid ""
 "to save these values across threads, as they apply only to the thread they "
 "came from."
 msgstr ""
+":attr:`~object.__dict__` 属性を含め、:class:`local` オブジェクトから取得した"
+"値は、その属性を読み出したときのスレッドのものです。\n"
+"値は取得元のスレッドだけに属するため、一般にはスレッドをまたいで保存しない方"
+"がよいでしょう。"
 
-#: ../../library/threading.rst:373
 msgid ""
 "You can create custom :class:`local` objects by subclassing the :class:"
 "`local` class::"
 msgstr ""
+":class:`local` クラスを継承して、独自の :class:`local` オブジェクトを作成でき"
+"ます。 ::"
 
-#: ../../library/threading.rst:376
 msgid ""
 ">>> class MyLocal(local):\n"
 "...     number = 2\n"
@@ -545,59 +640,65 @@ msgid ""
 "...     def squared(self):\n"
 "...         return self.number ** 2"
 msgstr ""
+">>> class MyLocal(local):\n"
+"...     number = 2\n"
+"...     def __init__(self, /, **kw):\n"
+"...         self.__dict__.update(kw)\n"
+"...     def squared(self):\n"
+"...         return self.number ** 2"
 
-#: ../../library/threading.rst:383
 msgid ""
 "This can be useful to support default values, methods and initialization.  "
 "Note that if you define an :py:meth:`~object.__init__` method, it will be "
 "called each time the :class:`local` object is used in a separate thread.  "
 "This is necessary to initialize each thread's dictionary."
 msgstr ""
+"これはデフォルト値、メソッド、初期化をサポートするのに便利です。\n"
+":py:meth:`~object.__init__` メソッドを定義すると、各スレッドで :class:"
+"`local` オブジェクトを初めて使うときに呼び出されることに注意してください。\n"
+"各スレッドの辞書を初期化するために必要な動作です。"
 
-#: ../../library/threading.rst:389
 msgid "Now if we create a :class:`local` object::"
-msgstr ""
+msgstr "この :class:`local` オブジェクトを作成すると、次のようになります。 ::"
 
-#: ../../library/threading.rst:391
 msgid ">>> mydata = MyLocal(color='red')"
-msgstr ""
+msgstr ">>> mydata = MyLocal(color='red')"
 
-#: ../../library/threading.rst:393
 msgid "we have a default number::"
-msgstr ""
+msgstr "``number`` にはデフォルト値があります。 ::"
 
-#: ../../library/threading.rst:395
 msgid ""
 ">>> mydata.number\n"
 "2"
 msgstr ""
+">>> mydata.number\n"
+"2"
 
-#: ../../library/threading.rst:398
 msgid "an initial color::"
-msgstr ""
+msgstr "``color`` には初期値があります。 ::"
 
-#: ../../library/threading.rst:400
 msgid ""
 ">>> mydata.color\n"
 "'red'\n"
 ">>> del mydata.color"
 msgstr ""
+">>> mydata.color\n"
+"'red'\n"
+">>> del mydata.color"
 
-#: ../../library/threading.rst:404
 msgid "And a method that operates on the data::"
-msgstr ""
+msgstr "データを操作するメソッドもあります。 ::"
 
-#: ../../library/threading.rst:406
 msgid ""
 ">>> mydata.squared()\n"
 "4"
 msgstr ""
+">>> mydata.squared()\n"
+"4"
 
-#: ../../library/threading.rst:409
 msgid "As before, we can access the data in a separate thread::"
-msgstr ""
+msgstr "先ほどと同じように、別のスレッドからデータにアクセスできます。 ::"
 
-#: ../../library/threading.rst:411
 msgid ""
 ">>> log = []\n"
 ">>> thread = threading.Thread(target=f)\n"
@@ -606,12 +707,16 @@ msgid ""
 ">>> log\n"
 "[[('color', 'red')], 11]"
 msgstr ""
+">>> log = []\n"
+">>> thread = threading.Thread(target=f)\n"
+">>> thread.start()\n"
+">>> thread.join()\n"
+">>> log\n"
+"[[('color', 'red')], 11]"
 
-#: ../../library/threading.rst:418
 msgid "without affecting this thread's data::"
-msgstr ""
+msgstr "このスレッドのデータには影響しません。 ::"
 
-#: ../../library/threading.rst:420
 msgid ""
 ">>> mydata.number\n"
 "2\n"
@@ -620,14 +725,21 @@ msgid ""
 "...\n"
 "AttributeError: 'MyLocal' object has no attribute 'color'"
 msgstr ""
+">>> mydata.number\n"
+"2\n"
+">>> mydata.color\n"
+"Traceback (most recent call last):\n"
+"...\n"
+"AttributeError: 'MyLocal' object has no attribute 'color'"
 
-#: ../../library/threading.rst:427
 msgid ""
 "Note that subclasses can define :term:`__slots__`, but they are not thread "
 "local. They are shared across threads::"
 msgstr ""
+"サブクラスでは :term:`__slots__` を定義できますが、スロットはスレッドローカル"
+"ではありません。\n"
+"スレッド間で共有されます。 ::"
 
-#: ../../library/threading.rst:430
 msgid ""
 ">>> class MyLocal(local):\n"
 "...     __slots__ = 'number'\n"
@@ -636,37 +748,42 @@ msgid ""
 ">>> mydata.number = 42\n"
 ">>> mydata.color = 'red'"
 msgstr ""
+">>> class MyLocal(local):\n"
+"...     __slots__ = 'number'\n"
+"\n"
+">>> mydata = MyLocal()\n"
+">>> mydata.number = 42\n"
+">>> mydata.color = 'red'"
 
-#: ../../library/threading.rst:437
 msgid "So, the separate thread::"
-msgstr ""
+msgstr "そのため、別のスレッドを実行すると、次のようになります。 ::"
 
-#: ../../library/threading.rst:439
 msgid ""
 ">>> thread = threading.Thread(target=f)\n"
 ">>> thread.start()\n"
 ">>> thread.join()"
 msgstr ""
+">>> thread = threading.Thread(target=f)\n"
+">>> thread.start()\n"
+">>> thread.join()"
 
-#: ../../library/threading.rst:443
 msgid "affects what we see::"
-msgstr ""
+msgstr "このスレッドから見える値にも影響します。 ::"
 
-#: ../../library/threading.rst:445
 msgid ""
 ">>> mydata.number\n"
 "11"
 msgstr ""
+">>> mydata.number\n"
+"11"
 
 #: ../../library/threading.rst:451
 msgid "A class that represents thread-local data."
 msgstr "スレッドローカルデータを表現するクラス。"
 
-#: ../../library/threading.rst:457
 msgid "Thread objects"
-msgstr ""
+msgstr "Thread オブジェクト"
 
-#: ../../library/threading.rst:459
 msgid ""
 "The :class:`Thread` class represents an activity that is run in a separate "
 "thread of control.  There are two ways to specify the activity: by passing a "
@@ -675,6 +792,14 @@ msgid ""
 "be overridden in a subclass.  In other words, *only*  override the "
 "``__init__()`` and :meth:`~Thread.run` methods of this class."
 msgstr ""
+":class:`Thread` クラスは、別の実行スレッドで行う処理を表します。\n"
+"処理を指定する方法は 2 つあります。\n"
+"呼び出し可能オブジェクトをコンストラクタに渡すか、サブクラスで :meth:"
+"`~Thread.run` メソッドをオーバーライドします。\n"
+"サブクラスでは、コンストラクタを除く他のメソッドをオーバーライドしてはいけま"
+"せん。\n"
+"つまり、このクラスの ``__init__()`` と :meth:`~Thread.run` メソッド *だけ* を"
+"オーバーライドしてください。"
 
 msgid ""
 "Once a thread object is created, its activity must be started by calling the "
@@ -838,7 +963,6 @@ msgstr ""
 "す。``None`` の場合 (デフォルト)、デーモン属性は現在のスレッドから継承されま"
 "す。"
 
-#: ../../library/threading.rst:535
 msgid ""
 "*context* is the :class:`~contextvars.Context` value to use when starting "
 "the thread.  The default value is ``None`` which indicates that the :data:"
@@ -850,20 +974,29 @@ msgid ""
 "context, pass the value from :func:`~contextvars.copy_context`. The flag "
 "defaults true on free-threaded builds and false otherwise."
 msgstr ""
+"*context* はスレッドの開始時に使う :class:`~contextvars.Context` の値です。\n"
+"デフォルト値は ``None`` で、:data:`sys.flags.thread_inherit_context` フラグが"
+"動作を制御します。\n"
+"フラグが真の場合、スレッドは :meth:`~Thread.start` の呼び出し元のコンテキスト"
+"のコピーで開始します。\n"
+"偽の場合は空のコンテキストで開始します。\n"
+"空のコンテキストで開始することを明示するには、新しい :class:`~contextvars."
+"Context()` インスタンスを渡してください。\n"
+"現在のコンテキストのコピーで開始することを明示するには、:func:`~contextvars."
+"copy_context` の戻り値を渡してください。\n"
+"このフラグのデフォルトは、フリースレッドビルドでは真、それ以外では偽です。"
 
-#: ../../library/threading.rst:545
 msgid ""
 "If the subclass overrides the constructor, it must make sure to invoke the "
 "base class constructor (``Thread.__init__()``) before doing anything else to "
 "the thread."
 msgstr ""
-"サブクラスでコンストラクタをオーバライドした場合、必ずスレッドが何かを始める"
-"前に基底クラスのコンストラクタ (``Thread.__init__()``) を呼び出しておかなくて"
-"はなりません。"
+"サブクラスでコンストラクタをオーバーライドする場合は、そのスレッドオブジェク"
+"トに対して他の処理を行う前に、必ず基底クラスのコンストラクタ (``Thread."
+"__init__()``) を呼び出してください。"
 
-#: ../../library/threading.rst:549
 msgid "Added the *daemon* parameter."
-msgstr ""
+msgstr "*daemon* 引数が追加されました。"
 
 #: ../../library/threading.rst:552
 msgid "Use the *target* name if *name* argument is omitted."
@@ -895,16 +1028,18 @@ msgstr ""
 "同じスレッドオブジェクトに対し、このメソッドを2回以上呼び出した場合、 :exc:"
 "`RuntimeError` を送出します。"
 
-#: ../../library/threading.rst:569
 msgid ""
 "If supported, set the operating system thread name to :attr:`threading."
 "Thread.name`. The name can be truncated depending on the operating system "
 "thread name limits."
 msgstr ""
+"サポートされている場合、オペレーティングシステム上のスレッド名を :attr:"
+"`threading.Thread.name` に設定します。\n"
+"名前は、オペレーティングシステムのスレッド名の長さ制限に応じて切り詰められる"
+"ことがあります。"
 
-#: ../../library/threading.rst:573
 msgid "Set the operating system thread name."
-msgstr ""
+msgstr "オペレーティングシステム上のスレッド名を設定するようになりました。"
 
 #: ../../library/threading.rst:578
 msgid "Method representing the thread's activity."
@@ -934,7 +1069,6 @@ msgstr ""
 msgid "Example::"
 msgstr "以下はプログラム例です::"
 
-#: ../../library/threading.rst:590
 msgid ""
 ">>> from threading import Thread\n"
 ">>> t = Thread(target=print, args=[1])\n"
@@ -944,6 +1078,13 @@ msgid ""
 ">>> t.run()\n"
 "1"
 msgstr ""
+">>> from threading import Thread\n"
+">>> t = Thread(target=print, args=[1])\n"
+">>> t.run()\n"
+"1\n"
+">>> t = Thread(target=print, args=(1,))\n"
+">>> t.run()\n"
+"1"
 
 #: ../../library/threading.rst:602
 msgid ""
@@ -998,9 +1139,8 @@ msgid ""
 "a :exc:`PythonFinalizationError`."
 msgstr ""
 
-#: ../../library/threading.rst:630
 msgid "May raise :exc:`PythonFinalizationError`."
-msgstr ""
+msgstr ":exc:`PythonFinalizationError` を送出する場合があります。"
 
 #: ../../library/threading.rst:634
 msgid ""
@@ -1012,20 +1152,26 @@ msgstr ""
 "ありません。複数のスレッドに同じ名前をつけてもかまいません。名前の初期値はコ"
 "ンストラクタで設定されます。"
 
-#: ../../library/threading.rst:638
 msgid ""
 "On some platforms, the thread name is set at the operating system level when "
 "the thread starts, so that it is visible in task managers. This name may be "
 "truncated to fit in a system-specific limit (for example, 15 bytes on Linux "
 "or 63 bytes on macOS)."
 msgstr ""
+"一部のプラットフォームでは、スレッドの開始時にオペレーティングシステム上のス"
+"レッド名も設定され、タスクマネージャに表示されます。\n"
+"この名前は、システム固有の制限 (例えば Linux では 15 バイト、macOS では 63 バ"
+"イト) に収まるように切り詰められることがあります。"
 
-#: ../../library/threading.rst:643
 msgid ""
 "Changes to *name* are only reflected at the OS level when the currently "
 "running thread is renamed. (Setting the *name* attribute of a different "
 "thread only updates the Python Thread object.)"
 msgstr ""
+"*name* の変更が OS に反映されるのは、現在実行しているスレッド自身の名前を変更"
+"した場合だけです。\n"
+"別のスレッドの *name* 属性を設定しても、Python の Thread オブジェクトだけが更"
+"新されます。"
 
 #: ../../library/threading.rst:650
 msgid ""
@@ -1048,7 +1194,6 @@ msgstr ""
 "が終了した後、新たなスレッドが生成された場合、再利用され得ます。スレッド識別"
 "子は、スレッドが終了した後でも利用できます。"
 
-#: ../../library/threading.rst:665
 msgid ""
 "The Thread ID (``TID``) of this thread, as assigned by the OS (kernel). This "
 "is a non-negative integer, or ``None`` if the thread has not been started. "
@@ -1056,13 +1201,19 @@ msgid ""
 "identify this particular thread system-wide (until the thread terminates, "
 "after which the value may be recycled by the OS)."
 msgstr ""
+"OS (カーネル) が割り当てた、このスレッドのスレッド ID (``TID``) です。\n"
+"非負の整数で、スレッドがまだ開始されていない場合は ``None`` です。\n"
+":func:`get_native_id` を参照してください。\n"
+"この値で、システム全体においてこのスレッドを一意に識別できます (スレッドが終"
+"了するまでで、その後は OS が値を再利用することがあります)。"
 
-#: ../../library/threading.rst:674
 msgid ""
 "Similar to Process IDs, Thread IDs are only valid (guaranteed unique system-"
 "wide) from the time the thread is created until the thread has been "
 "terminated."
 msgstr ""
+"プロセス ID と同様に、スレッド ID が有効である (システム全体で一意であると保"
+"証される) のは、スレッドが作成されてから終了するまでの間だけです。"
 
 #: ../../library/threading.rst:684
 msgid "Return whether the thread is alive."
@@ -1109,9 +1260,8 @@ msgstr ""
 ":attr:`~Thread.daemon` に対する非推奨 getter/setter API; 代わりにプロパティを"
 "直接使用してください。"
 
-#: ../../library/threading.rst:713
 msgid "Lock objects"
-msgstr ""
+msgstr "Lock オブジェクト"
 
 #: ../../library/threading.rst:715
 msgid ""
@@ -1182,11 +1332,13 @@ msgstr ""
 "レッドが一度ロックを獲得すると、それ以後のロック獲得の試みはロックが解放され"
 "るまでブロックします。どのスレッドでもロックを解放できます。"
 
-#: ../../library/threading.rst:747
 msgid ""
 "``Lock`` is now a class. In earlier Pythons, ``Lock`` was a factory function "
 "which returned an instance of the underlying private lock type."
 msgstr ""
+"``Lock`` はクラスになりました。\n"
+"以前の Python では、``Lock`` は内部の非公開ロック型のインスタンスを返すファク"
+"トリ関数でした。"
 
 #: ../../library/threading.rst:755 ../../library/threading.rst:849
 msgid "Acquire a lock, blocking or non-blocking."
@@ -1238,15 +1390,15 @@ msgstr ""
 msgid "The *timeout* parameter is new."
 msgstr "新しい *timeout* 引数。"
 
-#: ../../library/threading.rst:776
 msgid ""
 "Lock acquisition can now be interrupted by signals on POSIX if the "
 "underlying threading implementation supports it."
 msgstr ""
+"POSIX で、内部のスレッド実装がサポートしていれば、ロックの獲得をシグナルで中"
+"断できるようになりました。"
 
-#: ../../library/threading.rst:780
 msgid "Lock acquisition can now be interrupted by signals on Windows."
-msgstr ""
+msgstr "Windows でロックの獲得をシグナルで中断できるようになりました。"
 
 #: ../../library/threading.rst:786
 msgid ""
@@ -1280,9 +1432,8 @@ msgstr "戻り値はありません。"
 msgid "Return ``True`` if the lock is acquired."
 msgstr "ロック状態のとき ``True`` を返します。"
 
-#: ../../library/threading.rst:806
 msgid "RLock objects"
-msgstr ""
+msgstr "RLock オブジェクト"
 
 #: ../../library/threading.rst:808
 msgid ""
@@ -1305,13 +1456,17 @@ msgid ""
 "meth:`~Lock.release` method to unlock it."
 msgstr ""
 
-#: ../../library/threading.rst:819
 msgid ""
 "Reentrant locks support the :ref:`context management protocol <with-locks>`, "
 "so it is recommended to use :keyword:`with` instead of manually calling :"
 "meth:`~RLock.acquire` and :meth:`~RLock.release` to handle acquiring and "
 "releasing the lock for a block of code."
 msgstr ""
+"再入可能ロックは :ref:`コンテキスト管理プロトコル <with-locks>` をサポートし"
+"ています。\n"
+"そのため、コードブロックでのロックの獲得と解放には、:meth:`~RLock.acquire` "
+"と :meth:`~RLock.release` を手動で呼び出すよりも :keyword:`with` を使うことを"
+"推奨します。"
 
 #: ../../library/threading.rst:824
 msgid ""
@@ -1322,13 +1477,17 @@ msgid ""
 "in :meth:`~RLock.acquire` to proceed."
 msgstr ""
 
-#: ../../library/threading.rst:830
 msgid ""
 ":meth:`~RLock.acquire`/:meth:`~RLock.release` must be used in pairs: each "
 "acquire must have a release in the thread that has acquired the lock. "
 "Failing to call release as many times the lock has been acquired can lead to "
 "deadlock."
 msgstr ""
+":meth:`~RLock.acquire` と :meth:`~RLock.release` は対にして使わなければなりま"
+"せん。\n"
+"ロックを獲得するたびに、獲得したスレッドで解放する必要があります。\n"
+"獲得した回数と同じ回数だけ解放しないと、デッドロックにつながる可能性がありま"
+"す。"
 
 #: ../../library/threading.rst:837
 msgid ""
@@ -1352,24 +1511,23 @@ msgstr ""
 "率的なバージョンの具体的な RLock クラスのインスタンスを返すことに注意してくだ"
 "さい。"
 
-#: ../../library/threading.rst:853
 msgid ":ref:`Using RLock as a context manager <with-locks>`"
-msgstr ""
+msgstr ":ref:`RLock をコンテキストマネージャとして使う <with-locks>`"
 
-#: ../../library/threading.rst:854
 msgid ""
 "Recommended over manual :meth:`!acquire` and :meth:`release` calls whenever "
 "practical."
 msgstr ""
+"実用上可能なら、:meth:`!acquire` と :meth:`release` を手動で呼び出すよりも推"
+"奨されます。"
 
-#: ../../library/threading.rst:858
 msgid ""
 "When invoked with the *blocking* argument set to ``True`` (the default):"
-msgstr ""
+msgstr "*blocking* 引数を ``True`` (デフォルト) にして呼び出した場合:"
 
-#: ../../library/threading.rst:860 ../../library/threading.rst:872
 msgid "If no thread owns the lock, acquire the lock and return immediately."
 msgstr ""
+"どのスレッドもロックを所有していなければ、ロックを獲得して直ちに戻ります。"
 
 #: ../../library/threading.rst:862
 msgid ""
@@ -1377,41 +1535,49 @@ msgid ""
 "*timeout*, if set to a positive float value."
 msgstr ""
 
-#: ../../library/threading.rst:865
 msgid ""
 "If the same thread owns the lock, acquire the lock again, and return "
 "immediately. This is the difference between :class:`Lock` and :class:`!"
 "RLock`; :class:`Lock` handles this case the same as the previous, blocking "
 "until the lock can be acquired."
 msgstr ""
+"同じスレッドがロックを所有している場合は、再びロックを獲得して直ちに戻りま"
+"す。\n"
+"この点が :class:`Lock` と :class:`!RLock` の違いです。\n"
+":class:`Lock` はこの場合も前項と同様に扱い、ロックを獲得できるまでブロックし"
+"ます。"
 
-#: ../../library/threading.rst:870
 msgid "When invoked with the *blocking* argument set to ``False``:"
-msgstr ""
+msgstr "*blocking* 引数を ``False`` にして呼び出した場合:"
 
-#: ../../library/threading.rst:874
 msgid "If another thread owns the lock, return immediately."
-msgstr ""
+msgstr "別のスレッドがロックを所有している場合は、直ちに戻ります。"
 
-#: ../../library/threading.rst:876
 msgid ""
 "If the same thread owns the lock, acquire the lock again and return "
 "immediately."
 msgstr ""
+"同じスレッドがロックを所有している場合は、再びロックを獲得して直ちに戻りま"
+"す。"
 
-#: ../../library/threading.rst:879
 msgid ""
 "In all cases, if the thread was able to acquire the lock, return ``True``. "
 "If the thread was unable to acquire the lock (i.e. if not blocking or the "
 "timeout was reached) return ``False``."
 msgstr ""
+"いずれの場合も、スレッドがロックを獲得できれば ``True`` を返します。\n"
+"獲得できなければ (ブロックしない場合やタイムアウトに達した場合など)、"
+"``False`` を返します。"
 
-#: ../../library/threading.rst:883
 msgid ""
 "If called multiple times, failing to call :meth:`~RLock.release` as many "
 "times may lead to deadlock. Consider using :class:`!RLock` as a context "
 "manager rather than calling acquire/release directly."
 msgstr ""
+"複数回呼び出した場合、同じ回数だけ :meth:`~RLock.release` を呼び出さないと、"
+"デッドロックにつながる可能性があります。\n"
+"acquire/release を直接呼び出す代わりに、:class:`!RLock` をコンテキストマネー"
+"ジャとして使うことを検討してください。"
 
 #: ../../library/threading.rst:893
 msgid ""
@@ -1428,20 +1594,21 @@ msgstr ""
 "す。デクリメント後も再帰レベルがゼロでない場合、ロックの状態はロックのまま"
 "で、呼び出し側のスレッドに所有されたままになります。"
 
-#: ../../library/threading.rst:899
 msgid ""
 "Only call this method when the calling thread owns the lock. A :exc:"
 "`RuntimeError` is raised if this method is called when the lock is not "
 "acquired."
 msgstr ""
+"このメソッドは、呼び出し元のスレッドがロックを所有している場合にだけ呼び出し"
+"てください。\n"
+"ロックを獲得していないときに呼び出すと、:exc:`RuntimeError` を送出します。"
 
-#: ../../library/threading.rst:908 ../../library/threading.rst:1007
 msgid "Return a boolean indicating whether this object is locked right now."
 msgstr ""
+"このオブジェクトが現在ロックされているかどうかを示すブール値を返します。"
 
-#: ../../library/threading.rst:916
 msgid "Condition objects"
-msgstr ""
+msgstr "Condition オブジェクト"
 
 #: ../../library/threading.rst:918
 msgid ""
@@ -1529,7 +1696,6 @@ msgstr ""
 "す。例えば、以下のコードは無制限のバッファ容量のときの一般的な生産者-消費者問"
 "題です::"
 
-#: ../../library/threading.rst:954
 msgid ""
 "# Consume one item\n"
 "with cv:\n"
@@ -1542,6 +1708,16 @@ msgid ""
 "    make_an_item_available()\n"
 "    cv.notify()"
 msgstr ""
+"# 要素を 1 つ消費する\n"
+"with cv:\n"
+"    while not an_item_is_available():\n"
+"        cv.wait()\n"
+"    get_an_available_item()\n"
+"\n"
+"# 要素を 1 つ生成する\n"
+"with cv:\n"
+"    make_an_item_available()\n"
+"    cv.notify()"
 
 #: ../../library/threading.rst:965
 msgid ""
@@ -1559,13 +1735,16 @@ msgstr ""
 "`~Condition.wait_for` メソッドを使うことができ、それはタイムアウトの計算を簡"
 "略化します::"
 
-#: ../../library/threading.rst:972
 msgid ""
 "# Consume an item\n"
 "with cv:\n"
 "    cv.wait_for(an_item_is_available)\n"
 "    get_an_available_item()"
 msgstr ""
+"# 要素を 1 つ消費する\n"
+"with cv:\n"
+"    cv.wait_for(an_item_is_available)\n"
+"    get_an_available_item()"
 
 #: ../../library/threading.rst:977
 msgid ""
@@ -1631,17 +1810,16 @@ msgstr ""
 "ドがロックを獲得していないときにこのメソッドを呼び出すと :exc:`RuntimeError` "
 "が送出されます。"
 
-#: ../../library/threading.rst:1017
 msgid ""
 "This method releases the underlying lock, and then blocks until it is "
 "awakened by a :meth:`notify` or :meth:`notify_all` call for the same "
 "condition variable in another thread, or until the optional timeout occurs.  "
 "Once awakened or timed out, it re-acquires the lock and returns."
 msgstr ""
-"このメソッドは根底にあるロックを解放し、他のスレッドが同じ条件変数に対して :"
-"meth:`notify` または :meth:`notify_all` を呼び出して現在のスレッドを起こす"
-"か、オプションのタイムアウトが発生するまでブロックします。一度スレッドが起こ"
-"されると、再度ロックを獲得して処理を戻します。"
+"このメソッドは内部のロックを解放し、他のスレッドが同じ条件変数の :meth:"
+"`notify` または :meth:`notify_all` を呼び出して起こすか、指定されたタイムアウ"
+"トが発生するまでブロックします。\n"
+"起こされた場合もタイムアウトした場合も、ロックを再び獲得してから戻ります。"
 
 #: ../../library/threading.rst:1022
 msgid ""
@@ -1709,11 +1887,12 @@ msgstr ""
 "タイムアウト機能を無視すれば、このメソッドの呼び出しは以下のように書くのとほ"
 "ぼ等価です::"
 
-#: ../../library/threading.rst:1054
 msgid ""
 "while not predicate():\n"
 "    cv.wait()"
 msgstr ""
+"while not predicate():\n"
+"    cv.wait()"
 
 #: ../../library/threading.rst:1057
 msgid ""
@@ -1777,11 +1956,10 @@ msgstr ""
 "送出されます。"
 
 msgid "The method ``notifyAll`` is a deprecated alias for this method."
-msgstr "関数 ``notifyAll`` はこの関数の非推奨エイリアスです。"
+msgstr "メソッド ``notifyAll`` は、このメソッドの非推奨エイリアスです。"
 
-#: ../../library/threading.rst:1094
 msgid "Semaphore objects"
-msgstr ""
+msgstr "Semaphore オブジェクト"
 
 #: ../../library/threading.rst:1096
 msgid ""
@@ -1844,15 +2022,15 @@ msgstr ""
 msgid "Acquire a semaphore."
 msgstr "セマフォを獲得します。"
 
-#: ../../library/threading.rst:1129
 msgid "When invoked without arguments:"
-msgstr ""
+msgstr "引数なしで呼び出した場合:"
 
-#: ../../library/threading.rst:1131
 msgid ""
 "If the internal counter is larger than zero on entry, decrement it by one "
 "and return ``True`` immediately."
 msgstr ""
+"呼び出し時に内部カウンタが 0 より大きければ、1 減らして直ちに ``True`` を返し"
+"ます。"
 
 #: ../../library/threading.rst:1133
 msgid ""
@@ -1914,9 +2092,8 @@ msgstr ""
 "従って、セマフォを必要以上の回数解放することはバグが生じているしるしです。\n"
 "*value* を指定しない場合、デフォルトの値は 1 になります。"
 
-#: ../../library/threading.rst:1175
 msgid ":class:`Semaphore` example"
-msgstr ""
+msgstr ":class:`Semaphore` の使用例"
 
 #: ../../library/threading.rst:1177
 msgid ""
@@ -1930,12 +2107,14 @@ msgstr ""
 "ばなりません。主スレッドは、作業スレッドを立ち上げる前にセマフォを初期化しま"
 "す::"
 
-#: ../../library/threading.rst:1182
 msgid ""
 "maxconnections = 5\n"
 "# ...\n"
 "pool_sema = BoundedSemaphore(value=maxconnections)"
 msgstr ""
+"maxconnections = 5\n"
+"# ...\n"
+"pool_sema = BoundedSemaphore(value=maxconnections)"
 
 #: ../../library/threading.rst:1186
 msgid ""
@@ -1945,7 +2124,6 @@ msgstr ""
 "作業スレッドは、ひとたび立ち上がると、サーバへ接続する必要が生じたときにセマ"
 "フォの ``acquire()`` および ``release()`` メソッドを呼び出します::"
 
-#: ../../library/threading.rst:1189
 msgid ""
 "with pool_sema:\n"
 "    conn = connectdb()\n"
@@ -1954,6 +2132,12 @@ msgid ""
 "    finally:\n"
 "        conn.close()"
 msgstr ""
+"with pool_sema:\n"
+"    conn = connectdb()\n"
+"    try:\n"
+"        # ... 接続を使う ...\n"
+"    finally:\n"
+"        conn.close()"
 
 #: ../../library/threading.rst:1196
 msgid ""
@@ -1964,9 +2148,8 @@ msgstr ""
 "有限セマフォを使うと、セマフォを獲得回数以上に解放してしまうというプログラム"
 "上の間違いを見逃しにくくします。"
 
-#: ../../library/threading.rst:1203
 msgid "Event objects"
-msgstr ""
+msgstr "Event オブジェクト"
 
 #: ../../library/threading.rst:1205
 msgid ""
@@ -2028,7 +2211,6 @@ msgstr ""
 "び内部フラグの値を true にセットするまで、 :meth:`wait` を呼び出したスレッド"
 "はブロックするようになります。"
 
-#: ../../library/threading.rst:1243
 msgid ""
 "Block as long as the internal flag is false and the timeout, if given, has "
 "not expired. The return value represents the reason that this blocking "
@@ -2036,6 +2218,11 @@ msgid ""
 "true, or ``False`` if a timeout is given and the internal flag did not "
 "become true within the given wait time."
 msgstr ""
+"内部フラグが偽で、タイムアウトが指定されている場合はその時間が経過していない"
+"間、ブロックします。\n"
+"戻り値は、このブロックするメソッドが処理を戻した理由を示します。\n"
+"内部フラグが真になって戻った場合は ``True``、タイムアウトが指定されており、そ"
+"の待ち時間内に内部フラグが真にならなかった場合は ``False`` です。"
 
 #: ../../library/threading.rst:1249
 msgid ""
@@ -2044,9 +2231,8 @@ msgid ""
 "fractions thereof."
 msgstr ""
 
-#: ../../library/threading.rst:1260
 msgid "Timer objects"
-msgstr ""
+msgstr "Timer オブジェクト"
 
 #: ../../library/threading.rst:1262
 msgid ""
@@ -2059,7 +2245,6 @@ msgstr ""
 "す。 :class:`Timer` は :class:`Thread` のサブクラスであり、自作のスレッドを構"
 "築した一例でもあります。"
 
-#: ../../library/threading.rst:1266
 msgid ""
 "Timers are started, as with threads, by calling their :meth:`Timer.start "
 "<Thread.start>` method.  The timer can be stopped (before its action has "
@@ -2067,12 +2252,17 @@ msgid ""
 "will wait before executing its action may not be exactly the same as the "
 "interval specified by the user."
 msgstr ""
+"タイマは、スレッドと同様に :meth:`Timer.start <Thread.start>` メソッドを呼び"
+"出して開始します。\n"
+":meth:`~Timer.cancel` メソッドを呼び出すと、処理を開始する前であればタイマを"
+"停止できます。\n"
+"処理の実行前にタイマが待つ時間は、指定された時間と厳密には一致しない場合があ"
+"ります。"
 
 #: ../../library/threading.rst:1272
 msgid "For example::"
 msgstr "例えば::"
 
-#: ../../library/threading.rst:1274
 msgid ""
 "def hello():\n"
 "    print(\"hello, world\")\n"
@@ -2080,6 +2270,11 @@ msgid ""
 "t = Timer(30.0, hello)\n"
 "t.start()  # after 30 seconds, \"hello, world\" will be printed"
 msgstr ""
+"def hello():\n"
+"    print(\"hello, world\")\n"
+"\n"
+"t = Timer(30.0, hello)\n"
+"t.start()  # 30 秒後に \"hello, world\" が表示される"
 
 #: ../../library/threading.rst:1283
 msgid ""
@@ -2100,9 +2295,8 @@ msgstr ""
 "タイマをストップして、その動作の実行をキャンセルします。このメソッドはタイマ"
 "がまだ活動待ち状態にある場合にのみ動作します。"
 
-#: ../../library/threading.rst:1298
 msgid "Barrier objects"
-msgstr ""
+msgstr "Barrier オブジェクト"
 
 #: ../../library/threading.rst:1302
 msgid ""
@@ -2131,7 +2325,6 @@ msgstr ""
 "例として、クライアントとサーバの間でスレッドを同期させる単純な方法を紹介しま"
 "す::"
 
-#: ../../library/threading.rst:1312
 msgid ""
 "b = Barrier(2, timeout=5)\n"
 "\n"
@@ -2148,18 +2341,32 @@ msgid ""
 "        connection = make_connection()\n"
 "        process_client_connection(connection)"
 msgstr ""
+"b = Barrier(2, timeout=5)\n"
+"\n"
+"def server():\n"
+"    start_server()\n"
+"    b.wait()\n"
+"    while True:\n"
+"        connection = accept_connection()\n"
+"        process_server_connection(connection)\n"
+"\n"
+"def client():\n"
+"    b.wait()\n"
+"    while True:\n"
+"        connection = make_connection()\n"
+"        process_client_connection(connection)"
 
-#: ../../library/threading.rst:1330
 msgid ""
 "Create a barrier object for *parties* number of threads.  An *action*, when "
 "provided, is a callable to be called by one of the threads when they are "
 "released.  *timeout* is the default timeout value if none is specified for "
 "the :meth:`wait` method."
 msgstr ""
-"*parties* 個のスレッドのためのバリアオブジェクトを作成します。 *action* は、"
-"もし提供されるなら呼び出し可能オブジェクトで、スレッドが解放される時にそのう"
-"ちの1つによって呼ばれます。 *timeout* は、 :meth:`wait` メソッドに対して "
-"none が指定された場合のデフォルトのタイムアウト値です。"
+"*parties* 個のスレッドのためのバリアオブジェクトを作成します。\n"
+"*action* を指定する場合は、スレッドの解放時に、そのうちの 1 つから呼び出され"
+"る呼び出し可能オブジェクトにしてください。\n"
+"*timeout* は、:meth:`wait` メソッドでタイムアウトを指定しなかった場合に使うデ"
+"フォルト値です。"
 
 #: ../../library/threading.rst:1337
 msgid ""
@@ -2182,13 +2389,16 @@ msgstr ""
 "ります。これは、特別な後始末 (housekeeping) を行うスレッドを選択するために使"
 "用することができます。例えば::"
 
-#: ../../library/threading.rst:1346
 msgid ""
 "i = barrier.wait()\n"
 "if i == 0:\n"
 "    # Only one thread needs to print this\n"
 "    print(\"passed the barrier\")"
 msgstr ""
+"i = barrier.wait()\n"
+"if i == 0:\n"
+"    # 1 つのスレッドだけが表示すればよい\n"
+"    print(\"passed the barrier\")"
 
 #: ../../library/threading.rst:1351
 msgid ""
@@ -2275,7 +2485,6 @@ msgid ""
 "Using locks, conditions, and semaphores in the :keyword:`!with` statement"
 msgstr ":keyword:`!with` 文でのロック・条件変数・セマフォの使い方"
 
-#: ../../library/threading.rst:1404
 msgid ""
 "All of the objects provided by this module that have ``acquire`` and "
 "``release`` methods can be used as context managers for a :keyword:`with` "
@@ -2283,18 +2492,24 @@ msgid ""
 "and ``release`` will be called when the block is exited.  Hence, the "
 "following snippet::"
 msgstr ""
+"このモジュールが提供するオブジェクトのうち、``acquire`` メソッドと "
+"``release`` メソッドを持つものはすべて、:keyword:`with` 文のコンテキストマ"
+"ネージャとして使えます。\n"
+"ブロックに入るときに ``acquire``、ブロックを出るときに ``release`` が呼ばれま"
+"す。\n"
+"したがって、次のコードは ::"
 
-#: ../../library/threading.rst:1410
 msgid ""
 "with some_lock:\n"
 "    # do something..."
 msgstr ""
+"with some_lock:\n"
+"    # 何らかの処理を行う..."
 
 #: ../../library/threading.rst:1413
 msgid "is equivalent to::"
 msgstr "は、以下と同じです ::"
 
-#: ../../library/threading.rst:1415
 msgid ""
 "some_lock.acquire()\n"
 "try:\n"
@@ -2302,6 +2517,11 @@ msgid ""
 "finally:\n"
 "    some_lock.release()"
 msgstr ""
+"some_lock.acquire()\n"
+"try:\n"
+"    # 何らかの処理を行う...\n"
+"finally:\n"
+"    some_lock.release()"
 
 #: ../../library/threading.rst:1421
 msgid ""
