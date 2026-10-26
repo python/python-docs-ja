@@ -22,11 +22,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: ../../c-api/perfmaps.rst:6
 msgid "Support for Perf Maps"
-msgstr ""
+msgstr "perf map のサポート"
 
-#: ../../c-api/perfmaps.rst:8
 msgid ""
 "On supported platforms (Linux and macOS), the runtime can take advantage of "
 "*perf map files* to make Python functions visible to an external profiling "
@@ -38,12 +36,22 @@ msgid ""
 "kernel/git/torvalds/linux.git/tree/tools/perf/Documentation/jit-interface."
 "txt>`_."
 msgstr ""
+"対応するプラットフォーム (Linux と macOS) では、ランタイムは *perf map ファイ"
+"ル* を使って Python 関数を外部のプロファイリングツール (例えば `perf "
+"<https://perf.wiki.kernel.org/index.php/Main_Page>`_ や `samply <https://"
+"github.com/mstange/samply/>`_) に認識させることができます。\n"
+"実行中のプロセスは ``/tmp`` ディレクトリにファイルを作成でき、そのファイルの"
+"エントリーによって実行可能コードの領域と名前を対応づけられます。\n"
+"このインターフェースについては `Linux Perf ツールのドキュメント <https://git."
+"kernel.org/pub/scm/linux/ kernel/git/torvalds/linux.git/tree/tools/perf/"
+"Documentation/jit-interface.txt>`_ に記載されています。"
 
-#: ../../c-api/perfmaps.rst:17
 msgid ""
 "In Python, these helper APIs can be used by libraries and features that rely "
 "on generating machine code on the fly."
 msgstr ""
+"Python では、実行中に機械語コードを生成するライブラリや機能が、これらの補助 "
+"API を利用できます。"
 
 #: ../../c-api/perfmaps.rst:20
 msgid ""
@@ -51,7 +59,6 @@ msgid ""
 "APIs."
 msgstr ""
 
-#: ../../c-api/perfmaps.rst:24
 msgid ""
 "Open the ``/tmp/perf-$pid.map`` file, unless it's already opened, and create "
 "a lock to ensure thread-safe writes to the file (provided the writes are "
@@ -60,46 +67,64 @@ msgid ""
 "`PyUnstable_WritePerfMapEntry` and it will initialize the state on first "
 "call."
 msgstr ""
+"``/tmp/perf-$pid.map`` ファイルがまだ開かれていなければ開き、ファイルへの書き"
+"込みをスレッドセーフにするためのロックを作成します (:c:func:"
+"`PyUnstable_WritePerfMapEntry` を通じて書き込む必要があります)。\n"
+"通常、この関数を明示的に呼び出す必要はありません。\n"
+":c:func:`PyUnstable_WritePerfMapEntry` を使うだけで、最初の呼び出し時に状態が"
+"初期化されます。"
 
-#: ../../c-api/perfmaps.rst:30
 msgid ""
 "Returns ``0`` on success, ``-1`` on failure to create/open the perf map "
 "file, or ``-2`` on failure to create a lock. Check ``errno`` for more "
 "information about the cause of a failure."
 msgstr ""
+"成功すると ``0``、perf map ファイルの作成またはオープンに失敗すると ``-1``、"
+"ロックの作成に失敗すると ``-2`` を返します。\n"
+"失敗の原因の詳細は ``errno`` を確認してください。"
 
-#: ../../c-api/perfmaps.rst:36
 msgid ""
 "Write one single entry to the ``/tmp/perf-$pid.map`` file. This function is "
 "thread safe. Here is what an example entry looks like::"
 msgstr ""
+"``/tmp/perf-$pid.map`` ファイルにエントリーを 1 つ書き込みます。\n"
+"この関数はスレッドセーフです。\n"
+"エントリーの例を示します。 ::"
 
-#: ../../c-api/perfmaps.rst:39
 msgid ""
 "# address      size  name\n"
 "7f3529fcf759 b     py::bar:/run/t.py"
 msgstr ""
+"# アドレス     サイズ  名前\n"
+"7f3529fcf759 b     py::bar:/run/t.py"
 
-#: ../../c-api/perfmaps.rst:42
 msgid ""
 "Will call :c:func:`PyUnstable_PerfMapState_Init` before writing the entry, "
 "if the perf map file is not already opened. Returns ``0`` on success, or the "
 "same error codes as :c:func:`PyUnstable_PerfMapState_Init` on failure."
 msgstr ""
+"perf map ファイルがまだ開かれていなければ、エントリーを書き込む前に :c:func:"
+"`PyUnstable_PerfMapState_Init` を呼び出します。\n"
+"成功すると ``0``、失敗すると :c:func:`PyUnstable_PerfMapState_Init` と同じエ"
+"ラーコードを返します。"
 
-#: ../../c-api/perfmaps.rst:48
 msgid ""
 "Close the perf map file opened by :c:func:`PyUnstable_PerfMapState_Init`. "
 "This is called by the runtime itself during interpreter shut-down. In "
 "general, there shouldn't be a reason to explicitly call this, except to "
 "handle specific scenarios such as forking."
 msgstr ""
+":c:func:`PyUnstable_PerfMapState_Init` が開いた perf map ファイルを閉じま"
+"す。\n"
+"インタープリタの終了時にランタイム自身がこの関数を呼び出します。\n"
+"通常、fork などの特定の状況に対処する場合を除き、この関数を明示的に呼び出す必"
+"要はありません。"
 
-#: ../../c-api/perfmaps.rst:55
 msgid ""
 "Open the ``/tmp/perf-$pid.map`` file and append the content of "
 "*parent_filename* to it."
 msgstr ""
+"``/tmp/perf-$pid.map`` ファイルを開き、*parent_filename* の内容を追記します。"
 
 #: ../../c-api/perfmaps.rst:58
 msgid ""
@@ -108,9 +133,10 @@ msgid ""
 "it does nothing."
 msgstr ""
 
-#: ../../c-api/perfmaps.rst:65
 msgid "Compile the given code object using the current perf trampoline."
 msgstr ""
+"現在の perf トランポリンを使って、指定されたコードオブジェクトをコンパイルし"
+"ます。"
 
 #: ../../c-api/perfmaps.rst:67
 msgid ""
@@ -128,9 +154,8 @@ msgstr ""
 msgid "Parameters"
 msgstr "パラメーター"
 
-#: ../../c-api/perfmaps.rst:72
 msgid "The code object to compile."
-msgstr ""
+msgstr "コンパイルするコードオブジェクト。"
 
 #: ../../c-api/perfmaps.rst:0
 msgid "Returns"
@@ -140,26 +165,26 @@ msgstr "返り値"
 msgid "0 on success, -1 on failure."
 msgstr ""
 
-#: ../../c-api/perfmaps.rst:79
 msgid "Set whether the perf trampoline should persist after a fork."
-msgstr ""
+msgstr "fork 後も perf トランポリンを保持するかどうかを設定します。"
 
-#: ../../c-api/perfmaps.rst:81
 msgid ""
 "If ``enable`` is true (non-zero): perf map file remains open/valid post-"
 "fork. Child process inherits all existing perf map entries."
 msgstr ""
+"``enable`` が真 (ゼロ以外) の場合、fork 後も perf map ファイルは開かれた有効"
+"な状態を保ちます。\n"
+"子プロセスは既存のすべての perf map エントリーを引き継ぎます。"
 
-#: ../../c-api/perfmaps.rst:83
 msgid ""
 "If ``enable`` is false (zero): perf map closes post-fork. Child process gets "
 "empty perf map."
 msgstr ""
+"``enable`` が偽 (ゼロ) の場合、fork 後に perf map を閉じます。\n"
+"子プロセスの perf map は空になります。"
 
-#: ../../c-api/perfmaps.rst:86
 msgid "Default: false (clears on fork)."
-msgstr ""
+msgstr "デフォルトは偽です (fork 時に消去します)。"
 
-#: ../../c-api/perfmaps.rst:88
 msgid "1 to enable, 0 to disable."
-msgstr ""
+msgstr "有効にする場合は 1、無効にする場合は 0。"
