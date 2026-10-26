@@ -32,12 +32,14 @@ msgstr ":mod:`!doctest` --- 対話型の Python の例をテストする"
 msgid "**Source code:** :source:`Lib/doctest.py`"
 msgstr "**ソースコード:** :source:`Lib/doctest.py`"
 
-#: ../../library/doctest.rst:11
 msgid ""
 "The :mod:`!doctest` module searches for pieces of text that look like "
 "interactive Python sessions, and then executes those sessions to verify that "
 "they work exactly as shown.  There are several common ways to use doctest:"
 msgstr ""
+":mod:`!doctest` モジュールは Python の対話セッションに見えるテキストを探し、"
+"そのセッションを実行して記載どおりに動作するか検証します。\n"
+"主な使い方は次のとおりです。"
 
 #: ../../library/doctest.rst:15
 msgid ""
@@ -71,7 +73,6 @@ msgstr ""
 msgid "Here's a complete but small example module::"
 msgstr "以下に完全かつ短い実行例を示します::"
 
-#: ../../library/doctest.rst:28
 msgid ""
 "\"\"\"\n"
 "This is the \"example\" module.\n"
@@ -128,12 +129,69 @@ msgid ""
 "    import doctest\n"
 "    doctest.testmod()"
 msgstr ""
+"\"\"\"\n"
+"これは \"example\" モジュールです。\n"
+"\n"
+"example モジュールは factorial() という関数を一つ提供します。\n"
+"例えば、\n"
+"\n"
+">>> factorial(5)\n"
+"120\n"
+"\"\"\"\n"
+"\n"
+"def factorial(n):\n"
+"    \"\"\"0 以上の整数 n の階乗を返します。\n"
+"\n"
+"    >>> [factorial(n) for n in range(6)]\n"
+"    [1, 1, 2, 6, 24, 120]\n"
+"    >>> factorial(30)\n"
+"    265252859812191058636308480000000\n"
+"    >>> factorial(-1)\n"
+"    Traceback (most recent call last):\n"
+"        ...\n"
+"    ValueError: n must be >= 0\n"
+"\n"
+"    浮動小数点数でも階乗を求められますが、その値は厳密に整数でなければなりま"
+"せん:\n"
+"    >>> factorial(30.1)\n"
+"    Traceback (most recent call last):\n"
+"        ...\n"
+"    ValueError: n must be exact integer\n"
+"    >>> factorial(30.0)\n"
+"    265252859812191058636308480000000\n"
+"\n"
+"    また、極端に大きな値も使えません:\n"
+"    >>> factorial(1e100)\n"
+"    Traceback (most recent call last):\n"
+"        ...\n"
+"    OverflowError: n too large\n"
+"    \"\"\"\n"
+"\n"
+"    import math\n"
+"    if not n >= 0:\n"
+"        raise ValueError(\"n must be >= 0\")\n"
+"    if math.floor(n) != n:\n"
+"        raise ValueError(\"n must be exact integer\")\n"
+"    if n+1 == n:  # 1e300 のような値を検出\n"
+"        raise OverflowError(\"n too large\")\n"
+"    result = 1\n"
+"    factor = 2\n"
+"    while factor <= n:\n"
+"        result *= factor\n"
+"        factor += 1\n"
+"    return result\n"
+"\n"
+"\n"
+"if __name__ == \"__main__\":\n"
+"    import doctest\n"
+"    doctest.testmod()"
 
-#: ../../library/doctest.rst:83
 msgid ""
 "If you run :file:`example.py` directly from the command line, :mod:`!"
 "doctest` works its magic:"
 msgstr ""
+":file:`example.py` をコマンドラインから直接実行すると、:mod:`!doctest` が働き"
+"ます。"
 
 #: ../../library/doctest.rst:86
 msgid ""
@@ -143,14 +201,16 @@ msgstr ""
 "$ python example.py\n"
 "$"
 
-#: ../../library/doctest.rst:91
 msgid ""
 "There's no output!  That's normal, and it means all the examples worked.  "
 "Pass ``-v`` to the script, and :mod:`!doctest` prints a detailed log of what "
 "it's trying, and prints a summary at the end:"
 msgstr ""
+"何も出力されません！これは正常で、すべての実行例が動作したことを意味しま"
+"す。\n"
+"スクリプトに ``-v`` を渡すと、:mod:`!doctest` は試している内容の詳細なログを"
+"出力し、最後に結果をまとめて表示します。"
 
-#: ../../library/doctest.rst:95
 msgid ""
 "$ python example.py -v\n"
 "Trying:\n"
@@ -164,12 +224,22 @@ msgid ""
 "    [1, 1, 2, 6, 24, 120]\n"
 "ok"
 msgstr ""
+"$ python example.py -v\n"
+"Trying:\n"
+"    factorial(5)\n"
+"Expecting:\n"
+"    120\n"
+"ok\n"
+"Trying:\n"
+"    [factorial(n) for n in range(6)]\n"
+"Expecting:\n"
+"    [1, 1, 2, 6, 24, 120]\n"
+"ok"
 
 #: ../../library/doctest.rst:109
 msgid "And so on, eventually ending with:"
 msgstr "といった具合で、最後には:"
 
-#: ../../library/doctest.rst:111
 msgid ""
 "Trying:\n"
 "    factorial(1e100)\n"
@@ -186,8 +256,21 @@ msgid ""
 "Test passed.\n"
 "$"
 msgstr ""
+"Trying:\n"
+"    factorial(1e100)\n"
+"Expecting:\n"
+"    Traceback (most recent call last):\n"
+"        ...\n"
+"    OverflowError: n too large\n"
+"ok\n"
+"2 items passed all tests:\n"
+"   1 test in __main__\n"
+"   6 tests in __main__.factorial\n"
+"7 tests in 2 items.\n"
+"7 passed.\n"
+"Test passed.\n"
+"$"
 
-#: ../../library/doctest.rst:128
 msgid ""
 "That's all you need to know to start making productive use of :mod:`!"
 "doctest`! Jump in.  The following sections provide full details.  Note that "
@@ -195,12 +278,19 @@ msgid ""
 "libraries. Especially useful examples can be found in the standard test "
 "file :file:`Lib/test/test_doctest/test_doctest.py`."
 msgstr ""
+":mod:`!doctest` を役立てるには、これだけ知っていれば十分です！さっそく使って"
+"みましょう。\n"
+"以下の節では詳細を説明します。\n"
+"Python 標準のテストスイートやライブラリには、doctest の例が数多くあります。\n"
+"特に参考になる例は、標準のテストファイル :file:`Lib/test/test_doctest/"
+"test_doctest.py` にあります。"
 
-#: ../../library/doctest.rst:134
 msgid ""
 "Output is colorized by default and can be :ref:`controlled using environment "
 "variables <using-on-controlling-color>`."
 msgstr ""
+"出力はデフォルトで色付きになり、:ref:`環境変数で制御できます <using-on-"
+"controlling-color>`。"
 
 #: ../../library/doctest.rst:142
 msgid "Simple Usage: Checking Examples in Docstrings"
@@ -214,12 +304,14 @@ msgstr ""
 "doctest を試す簡単な方法 (とはいえ、いつもそうする必要はないのですが) は、各"
 "モジュール :mod:`!M` の最後を、以下のようにして締めくくることです::"
 
-#: ../../library/doctest.rst:147
 msgid ""
 "if __name__ == \"__main__\":\n"
 "    import doctest\n"
 "    doctest.testmod()"
 msgstr ""
+"if __name__ == \"__main__\":\n"
+"    import doctest\n"
+"    doctest.testmod()"
 
 #: ../../library/doctest.rst:151
 msgid ":mod:`!doctest` then examines docstrings in module :mod:`!M`."
@@ -278,11 +370,12 @@ msgstr ""
 "func:`testmod` は :data:`sys.argv` 上のスイッチを調べません。(したがって、 "
 "``-v`` をつけても効果はありません)。"
 
-#: ../../library/doctest.rst:175
 msgid ""
 "There is also a command line shortcut for running :func:`testmod`, see "
 "section :ref:`doctest-cli`."
 msgstr ""
+":func:`testmod` をコマンドラインから簡単に実行する方法もあります。\n"
+":ref:`doctest-cli` 節を参照してください。"
 
 #: ../../library/doctest.rst:178
 msgid ""
@@ -325,7 +418,6 @@ msgstr ""
 "ラムである必要はありません！例えば、 :file:`example.txt` には以下のような内容"
 "が入っているとします:"
 
-#: ../../library/doctest.rst:197
 msgid ""
 "The ``example`` module\n"
 "======================\n"
@@ -343,6 +435,21 @@ msgid ""
 "    >>> factorial(6)\n"
 "    120"
 msgstr ""
+"``example`` モジュール\n"
+"=====================\n"
+"\n"
+"``factorial`` の使い方\n"
+"---------------------\n"
+"\n"
+"これは reStructuredText 形式のテキストファイルの例です。\n"
+"まず ``example`` モジュールから ``factorial`` をインポートします:\n"
+"\n"
+"    >>> from example import factorial\n"
+"\n"
+"次に、使ってみましょう:\n"
+"\n"
+"    >>> factorial(6)\n"
+"    120"
 
 #: ../../library/doctest.rst:215
 msgid ""
@@ -352,7 +459,6 @@ msgstr ""
 "``doctest.testfile(\"example.txt\")`` を実行すると、このドキュメント内のエ"
 "ラーを見つけ出します::"
 
-#: ../../library/doctest.rst:218
 msgid ""
 "File \"./example.txt\", line 14, in example.txt\n"
 "Failed example:\n"
@@ -362,6 +468,13 @@ msgid ""
 "Got:\n"
 "    720"
 msgstr ""
+"File \"./example.txt\", line 14, in example.txt\n"
+"Failed example:\n"
+"    factorial(6)\n"
+"Expected:\n"
+"    120\n"
+"Got:\n"
+"    720"
 
 #: ../../library/doctest.rst:226
 msgid ""
@@ -394,11 +507,12 @@ msgstr ""
 "ンスイッチ ``-v`` またはオプションのキーワード引数 *verbose* によって指定でき"
 "ます。"
 
-#: ../../library/doctest.rst:239
 msgid ""
 "There is also a command line shortcut for running :func:`testfile`, see "
 "section :ref:`doctest-cli`."
 msgstr ""
+":func:`testfile` をコマンドラインから簡単に実行する方法もあります。\n"
+":ref:`doctest-cli` 節を参照してください。"
 
 #: ../../library/doctest.rst:242
 msgid ""
@@ -411,20 +525,21 @@ msgstr ""
 msgid "Command-line Usage"
 msgstr "コマンドラインでの使用"
 
-#: ../../library/doctest.rst:250
 msgid ""
 "The :mod:`!doctest` module can be invoked as a script from the command line:"
 msgstr ""
+":mod:`!doctest` モジュールはコマンドラインからスクリプトとして実行できます。"
 
 #: ../../library/doctest.rst:252
 msgid "python -m doctest [-v] [-o OPTION] [-f] file [file ...]"
 msgstr "python -m doctest [-v] [-o OPTION] [-f] file [file ...]"
 
-#: ../../library/doctest.rst:260
 msgid ""
 "Detailed report of all examples tried is printed to standard output, along "
 "with assorted summaries at the end::"
 msgstr ""
+"試したすべての実行例の詳細な報告を標準出力に表示し、最後に各種の結果をまとめ"
+"ます。 ::"
 
 #: ../../library/doctest.rst:263
 msgid "python -m doctest -v example.py"
@@ -441,25 +556,26 @@ msgstr ""
 "ジュールをそのパッケージからインポートしている場合はうまく動かないことに注意"
 "してください。"
 
-#: ../../library/doctest.rst:269
 msgid ""
 "If the file name does not end with :file:`.py`, :mod:`!doctest` infers that "
 "it must be run with :func:`testfile` instead::"
 msgstr ""
+"ファイル名が :file:`.py` で終わっていない場合、:mod:`!doctest` は代わりに :"
+"func:`testfile` で実行すべきだと判断します。 ::"
 
 #: ../../library/doctest.rst:272
 msgid "python -m doctest -v example.txt"
 msgstr "python -m doctest -v example.txt"
 
-#: ../../library/doctest.rst:276
 msgid ""
 "Option flags control various aspects of doctest's behavior, see section :ref:"
 "`doctest-options`."
 msgstr ""
+"オプションフラグで doctest のさまざまな動作を制御できます。\n"
+":ref:`doctest-options` 節を参照してください。"
 
-#: ../../library/doctest.rst:283
 msgid "This is shorthand for ``-o FAIL_FAST``."
-msgstr ""
+msgstr "``-o FAIL_FAST`` の短縮形です。"
 
 #: ../../library/doctest.rst:291
 msgid "How It Works"
@@ -493,7 +609,6 @@ msgstr ""
 "モジュールの docstring と、すべての関数、クラスおよびメソッドの docstring が"
 "検索されます。モジュールに import されたオブジェクトは検索されません。"
 
-#: ../../library/doctest.rst:316
 msgid ""
 "In addition, there are cases when you want tests to be part of a module but "
 "not part of the help text, which requires that the tests not be included in "
@@ -505,12 +620,21 @@ msgid ""
 "docstrings.  In output, a key ``K`` in ``M.__test__`` appears with name ``M."
 "__test__.K``."
 msgstr ""
+"テストをモジュールに含めつつ、ヘルプテキストには表示したくない場合もありま"
+"す。\n"
+"その場合、テストを docstring に含めることはできません。\n"
+"Doctest はモジュールレベルの変数 ``__test__`` を探し、それを使って他のテスト"
+"を見つけます。\n"
+"``M.__test__`` が存在する場合、その値は辞書でなければならず、各項目は名前 (文"
+"字列) を関数オブジェクト、クラスオブジェクト、または文字列に対応付けます。\n"
+"``M.__test__`` から見つかった関数やクラスの docstring が検索され、文字列は "
+"docstring として扱われます。\n"
+"出力では、``M.__test__`` のキー ``K`` は ``M.__test__.K`` という名前で表示さ"
+"れます。"
 
-#: ../../library/doctest.rst:325
 msgid "For example, place this block of code at the top of :file:`example.py`:"
-msgstr ""
+msgstr "例えば、次のコードブロックを :file:`example.py` の先頭に置きます。"
 
-#: ../../library/doctest.rst:327
 msgid ""
 "__test__ = {\n"
 "    'numbers': \"\"\"\n"
@@ -522,8 +646,16 @@ msgid ""
 "\"\"\"\n"
 "}"
 msgstr ""
+"__test__ = {\n"
+"    'numbers': \"\"\"\n"
+">>> factorial(6)\n"
+"720\n"
+"\n"
+">>> [factorial(n) for n in range(6)]\n"
+"[1, 1, 2, 6, 24, 120]\n"
+"\"\"\"\n"
+"}"
 
-#: ../../library/doctest.rst:339
 msgid ""
 "The value of ``example.__test__[\"numbers\"]`` will be treated as a "
 "docstring and all the tests inside it will be run. It is important to note "
@@ -531,6 +663,11 @@ msgid ""
 "mod:`!doctest` searches them recursively for docstrings, which are then "
 "scanned for tests."
 msgstr ""
+"``example.__test__[\"numbers\"]`` の値は docstring として扱われ、その中のテス"
+"トがすべて実行されます。\n"
+"辞書の値には関数、クラスオブジェクト、モジュールを指定することもできます。\n"
+"その場合、:mod:`!doctest` はそれらから docstring を再帰的に探し、見つかった "
+"docstring からテストを検索します。"
 
 #: ../../library/doctest.rst:345
 msgid ""
@@ -540,17 +677,20 @@ msgstr ""
 "検索中に見つかったクラスも同様に再帰的に検索が行われ、クラスに含まれているメ"
 "ソッドおよびネストされたクラスについて docstring のテストが行われます。"
 
-#: ../../library/doctest.rst:350
 msgid ""
 "``doctest`` can only automatically discover classes and functions that are "
 "defined at the module level or inside other classes."
 msgstr ""
+"``doctest`` が自動的に見つけられるのは、モジュールレベルまたは他のクラス内で"
+"定義されたクラスと関数だけです。"
 
-#: ../../library/doctest.rst:353
 msgid ""
 "Since nested classes and functions only exist when an outer function is "
 "called, they cannot be discovered. Define them outside to make them visible."
 msgstr ""
+"関数内にネストされたクラスや関数は、外側の関数が呼ばれたときにしか存在しない"
+"ため、見つけることができません。\n"
+"見つけられるようにするには、関数の外で定義してください。"
 
 #: ../../library/doctest.rst:359
 msgid "How are Docstring Examples Recognized?"
@@ -565,7 +705,6 @@ msgstr ""
 "ます。とはいえ、 ``doctest`` は特定の Python シェルの振る舞いを正確にエミュ"
 "レーションしようとするわけではありません。"
 
-#: ../../library/doctest.rst:366
 msgid ""
 ">>> # comments are ignored\n"
 ">>> x = 12\n"
@@ -583,6 +722,21 @@ msgid ""
 "NO!!!\n"
 ">>>"
 msgstr ""
+">>> # コメントは無視されます\n"
+">>> x = 12\n"
+">>> x\n"
+"12\n"
+">>> if x == 13:\n"
+"...     print(\"yes\")\n"
+"... else:\n"
+"...     print(\"no\")\n"
+"...     print(\"NO\")\n"
+"...     print(\"NO!!!\")\n"
+"...\n"
+"no\n"
+"NO\n"
+"NO!!!\n"
+">>>"
 
 #: ../../library/doctest.rst:386
 msgid ""
@@ -653,7 +807,6 @@ msgstr ""
 "の理由でバックスラッシュを用いる場合、raw docstring を使ってバックスラッシュ"
 "を入力どおりに扱わせるようにしなければなりません::"
 
-#: ../../library/doctest.rst:416
 msgid ""
 ">>> def f(x):\n"
 "...     r'''Backslashes in a raw docstring: m\\n'''\n"
@@ -661,6 +814,11 @@ msgid ""
 ">>> print(f.__doc__)\n"
 "Backslashes in a raw docstring: m\\n"
 msgstr ""
+">>> def f(x):\n"
+"...     r'''Backslashes in a raw docstring: m\\n'''\n"
+"...\n"
+">>> print(f.__doc__)\n"
+"Backslashes in a raw docstring: m\\n"
 
 #: ../../library/doctest.rst:422
 msgid ""
@@ -674,7 +832,6 @@ msgstr ""
 "doctest にあるバックスラッシュを二重にする (そして raw string を使わない) と"
 "いう方法もあります::"
 
-#: ../../library/doctest.rst:426
 msgid ""
 ">>> def f(x):\n"
 "...     '''Backslashes in a raw docstring: m\\\\n'''\n"
@@ -682,18 +839,26 @@ msgid ""
 ">>> print(f.__doc__)\n"
 "Backslashes in a raw docstring: m\\n"
 msgstr ""
+">>> def f(x):\n"
+"...     '''Backslashes in a raw docstring: m\\\\n'''\n"
+"...\n"
+">>> print(f.__doc__)\n"
+"Backslashes in a raw docstring: m\\n"
 
 #: ../../library/doctest.rst:432
 msgid "The starting column doesn't matter::"
 msgstr "開始カラムはどこでもかまいません::"
 
-#: ../../library/doctest.rst:434
 msgid ""
 ">>> assert \"Easy!\"\n"
 "      >>> import math\n"
 "          >>> math.floor(1.9)\n"
 "          1"
 msgstr ""
+">>> assert \"Easy!\"\n"
+"      >>> import math\n"
+"          >>> math.floor(1.9)\n"
+"          1"
 
 #: ../../library/doctest.rst:439
 msgid ""
@@ -707,7 +872,6 @@ msgstr ""
 msgid "What's the Execution Context?"
 msgstr "実行コンテキストとは何か?"
 
-#: ../../library/doctest.rst:448
 msgid ""
 "By default, each time :mod:`!doctest` finds a docstring to test, it uses a "
 "*shallow copy* of :mod:`!M`'s globals, so that running tests doesn't change "
@@ -717,6 +881,14 @@ msgid ""
 "names defined earlier in the docstring being run. Examples cannot see names "
 "defined in other docstrings."
 msgstr ""
+"デフォルトでは、:mod:`!doctest` はテストする docstring を見つけるたびに :mod:"
+"`!M` のグローバル変数の *浅いコピー* を使います。\n"
+"これにより、テストの実行でモジュールの実際のグローバル変数が変更されるのを防"
+"ぐとともに、:mod:`!M` のあるテストが残した状態によって別のテストが偶然成功す"
+"るのを防ぎます。\n"
+"したがって、実行例では :mod:`!M` のトップレベルで定義された名前や、実行中の "
+"docstring 内でそれ以前に定義された名前を自由に使えます。\n"
+"他の docstring 内で定義された名前は参照できません。"
 
 #: ../../library/doctest.rst:456
 msgid ""
@@ -747,13 +919,16 @@ msgstr ""
 msgid "Simple example::"
 msgstr "簡単な例を示しましょう::"
 
-#: ../../library/doctest.rst:473
 msgid ""
 ">>> [1, 2, 3].remove(42)\n"
 "Traceback (most recent call last):\n"
 "  File \"<stdin>\", line 1, in <module>\n"
 "ValueError: list.remove(x): x not in list"
 msgstr ""
+">>> [1, 2, 3].remove(42)\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"ValueError: list.remove(x): x not in list"
 
 #: ../../library/doctest.rst:478
 msgid ""
@@ -773,11 +948,12 @@ msgstr ""
 "なりません。トレースバックの形式は以下の二通りの行のいずれかで、実行例の最初"
 "の行と同じインデントでなければりません::"
 
-#: ../../library/doctest.rst:485
 msgid ""
 "Traceback (most recent call last):\n"
 "Traceback (innermost last):"
 msgstr ""
+"Traceback (most recent call last):\n"
+"Traceback (innermost last):"
 
 #: ../../library/doctest.rst:488
 msgid ""
@@ -800,7 +976,6 @@ msgstr ""
 "入った行があります。これは通常トレースバックの最後の行ですが、例外が複数行の"
 "詳細情報を持っている場合、複数の行にわたることもあります::"
 
-#: ../../library/doctest.rst:497
 msgid ""
 ">>> raise ValueError('multi\\n    line\\ndetail')\n"
 "Traceback (most recent call last):\n"
@@ -809,6 +984,12 @@ msgid ""
 "    line\n"
 "detail"
 msgstr ""
+">>> raise ValueError('multi\\n    line\\ndetail')\n"
+"Traceback (most recent call last):\n"
+"  File \"<stdin>\", line 1, in <module>\n"
+"ValueError: multi\n"
+"    line\n"
+"detail"
 
 #: ../../library/doctest.rst:504
 msgid ""
@@ -828,7 +1009,6 @@ msgstr ""
 "ない限り、トレースバックスタックは省略する、ということです。したがって、先ほ"
 "どの例は以下のように書くべきでしょう::"
 
-#: ../../library/doctest.rst:510
 msgid ""
 ">>> raise ValueError('multi\\n    line\\ndetail')\n"
 "Traceback (most recent call last):\n"
@@ -837,6 +1017,12 @@ msgid ""
 "    line\n"
 "detail"
 msgstr ""
+">>> raise ValueError('multi\\n    line\\ndetail')\n"
+"Traceback (most recent call last):\n"
+"    ...\n"
+"ValueError: multi\n"
+"    line\n"
+"detail"
 
 msgid ""
 "Note that tracebacks are treated very specially.  In particular, in the "
@@ -910,13 +1096,13 @@ msgstr ""
 "な :exc:`!SyntaxError` をテストする必要があるというごく稀なケースでは、実行例"
 "にトレースバックヘッダを手作業で追加する必要があるでしょう。"
 
-#: ../../library/doctest.rst:550
 msgid ""
 "For some exceptions, Python displays the position of the error using ``^`` "
 "markers and tildes::"
 msgstr ""
+"一部の例外では、Python は ``^`` マーカとチルダを使ってエラーの位置を示しま"
+"す。 ::"
 
-#: ../../library/doctest.rst:553
 msgid ""
 ">>> 1 + None\n"
 "  File \"<stdin>\", line 1\n"
@@ -924,6 +1110,11 @@ msgid ""
 "    ~~^~~~~~\n"
 "TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'"
 msgstr ""
+">>> 1 + None\n"
+"  File \"<stdin>\", line 1\n"
+"    1 + None\n"
+"    ~~^~~~~~\n"
+"TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'"
 
 #: ../../library/doctest.rst:559
 msgid ""
@@ -936,7 +1127,6 @@ msgstr ""
 "ません。例えば、以下の例では、間違った場所に ``^`` マーカを入れても成功してし"
 "まいます::"
 
-#: ../../library/doctest.rst:563
 msgid ""
 ">>> 1 + None\n"
 "  File \"<stdin>\", line 1\n"
@@ -944,6 +1134,11 @@ msgid ""
 "    ^~~~~~~~\n"
 "TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'"
 msgstr ""
+">>> 1 + None\n"
+"  File \"<stdin>\", line 1\n"
+"    1 + None\n"
+"    ^~~~~~~~\n"
+"TypeError: unsupported operand type(s) for +: 'int' and 'NoneType'"
 
 #: ../../library/doctest.rst:574
 msgid "Option Flags"
@@ -1038,14 +1233,15 @@ msgstr ""
 "ように \"しまった、マッチしすぎた！ (match too much!)\" と驚くことになりかね"
 "ません。"
 
-#: ../../library/doctest.rst:629
 msgid ""
 "When specified, doctests expecting exceptions pass so long as an exception "
 "of the expected type is raised, even if the details (message and fully "
 "qualified exception name) don't match."
 msgstr ""
+"このフラグを指定すると、例外を期待する doctest は、期待した型の例外が送出され"
+"れば成功します。\n"
+"詳細 (メッセージと例外の完全修飾名) が一致していなくてもかまいません。"
 
-#: ../../library/doctest.rst:633
 msgid ""
 "For example, an example expecting ``ValueError: 42`` will pass if the actual "
 "exception raised is ``ValueError: 3*14``, but will fail if, say, a :exc:"
@@ -1054,8 +1250,14 @@ msgid ""
 "and versions of Python and the code/libraries in use. Hence, all three of "
 "these variations will work with the flag specified:"
 msgstr ""
+"例えば、``ValueError: 42`` を期待する実行例は、実際に送出された例外が "
+"``ValueError: 3*14`` でも成功しますが、代わりに :exc:`TypeError` などが送出さ"
+"れると失敗します。\n"
+"例外クラスの前に付いた完全修飾名も無視します。\n"
+"この部分は Python の実装やバージョン、使用するコードやライブラリによって異な"
+"ることがあります。\n"
+"したがって、このフラグを指定すると、次の 3 通りはいずれも成功します。"
 
-#: ../../library/doctest.rst:641
 msgid ""
 ">>> raise Exception('message')\n"
 "Traceback (most recent call last):\n"
@@ -1069,13 +1271,26 @@ msgid ""
 "Traceback (most recent call last):\n"
 "__main__.Exception: message"
 msgstr ""
+">>> raise Exception('message')\n"
+"Traceback (most recent call last):\n"
+"Exception: message\n"
+"\n"
+">>> raise Exception('message')\n"
+"Traceback (most recent call last):\n"
+"builtins.Exception: message\n"
+"\n"
+">>> raise Exception('message')\n"
+"Traceback (most recent call last):\n"
+"__main__.Exception: message"
 
-#: ../../library/doctest.rst:655
 msgid ""
 "Note that :const:`ELLIPSIS` can also be used to ignore the details of the "
 "exception message, but such a test may still fail based on whether the "
 "module name is present or matches exactly."
 msgstr ""
+":const:`ELLIPSIS` を使って例外メッセージの詳細を無視することもできますが、そ"
+"の場合はモジュール名の有無や完全一致するかどうかによってテストが失敗する可能"
+"性があります。"
 
 msgid ""
 ":const:`IGNORE_EXCEPTION_DETAIL` now also ignores any information relating "
@@ -1178,11 +1393,12 @@ msgstr ""
 msgid "A bitmask or'ing together all the reporting flags above."
 msgstr "上記のエラー報告に関するフラグすべての論理和をとったビットマスクです。"
 
-#: ../../library/doctest.rst:727
 msgid ""
 "There is also a way to register new option flag names, though this isn't "
 "useful unless you intend to extend :mod:`!doctest` internals via subclassing:"
 msgstr ""
+"新しいオプションフラグ名を登録する方法もありますが、サブクラス化によって :"
+"mod:`!doctest` の内部機能を拡張する場合以外には役立ちません。"
 
 #: ../../library/doctest.rst:733
 msgid ""
@@ -1198,9 +1414,8 @@ msgstr ""
 "トさせる際に使います。 :func:`register_optionflag` は以下のような定形文で呼び"
 "出さなければなりません::"
 
-#: ../../library/doctest.rst:739
 msgid "MY_FLAG = register_optionflag('MY_FLAG')"
-msgstr ""
+msgstr "MY_FLAG = register_optionflag('MY_FLAG')"
 
 #: ../../library/doctest.rst:749
 msgid "Directives"
@@ -1238,29 +1453,31 @@ msgstr ""
 msgid "For example, this test passes:"
 msgstr "例えば、以下のテストは成功します:"
 
-#: ../../library/doctest.rst:771
 msgid ""
 ">>> print(list(range(20)))  # doctest: +NORMALIZE_WHITESPACE\n"
 "[0,   1,  2,  3,  4,  5,  6,  7,  8,  9,\n"
 "10,  11, 12, 13, 14, 15, 16, 17, 18, 19]"
 msgstr ""
+">>> print(list(range(20)))  # doctest: +NORMALIZE_WHITESPACE\n"
+"[0,   1,  2,  3,  4,  5,  6,  7,  8,  9,\n"
+"10,  11, 12, 13, 14, 15, 16, 17, 18, 19]"
 
-#: ../../library/doctest.rst:778
 msgid ""
 "Without the directive it would fail, both because the actual output doesn't "
 "have two blanks before the single-digit list elements, and because the "
 "actual output is on a single line.  This test also passes, and also requires "
 "a directive to do so:"
 msgstr ""
-"ディレクティブがない場合、実際の出力には一桁の数字の間に二つスペースが入って"
-"いないこと、実際の出力は 1 行になることから、テストは成功しないはずです。別の"
-"ディレクティブを使って、このテストを成功させることもできます:"
+"ディレクティブがない場合、実際の出力では 1 桁のリスト要素の前に空白が 2 つ入"
+"らず、出力全体が 1 行になるため、テストは失敗します。\n"
+"次のテストも成功しますが、やはりディレクティブが必要です。"
 
-#: ../../library/doctest.rst:783
 msgid ""
 ">>> print(list(range(20)))  # doctest: +ELLIPSIS\n"
 "[0, 1, ..., 18, 19]"
 msgstr ""
+">>> print(list(range(20)))  # doctest: +ELLIPSIS\n"
+"[0, 1, ..., 18, 19]"
 
 #: ../../library/doctest.rst:789
 msgid ""
@@ -1269,11 +1486,12 @@ msgid ""
 msgstr ""
 "複数のディレクティブは、一つの物理行の中にコンマで区切って指定できます:"
 
-#: ../../library/doctest.rst:792
 msgid ""
 ">>> print(list(range(20)))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE\n"
 "[0,    1, ...,   18,    19]"
 msgstr ""
+">>> print(list(range(20)))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE\n"
+"[0,    1, ...,   18,    19]"
 
 #: ../../library/doctest.rst:798
 msgid ""
@@ -1283,12 +1501,14 @@ msgstr ""
 "一つの実行例中で複数のディレクティブコメントを使った場合、それらは組み合わさ"
 "れます:"
 
-#: ../../library/doctest.rst:801
 msgid ""
 ">>> print(list(range(20)))  # doctest: +ELLIPSIS\n"
 "...                         # doctest: +NORMALIZE_WHITESPACE\n"
 "[0,    1, ...,   18,    19]"
 msgstr ""
+">>> print(list(range(20)))  # doctest: +ELLIPSIS\n"
+"...                         # doctest: +NORMALIZE_WHITESPACE\n"
+"[0,    1, ...,   18,    19]"
 
 #: ../../library/doctest.rst:808
 msgid ""
@@ -1300,12 +1520,14 @@ msgstr ""
 "することができます。この書きかたは、実行例が長すぎるためにディレクティブを同"
 "じ行に入れると収まりが悪い場合に便利です:"
 
-#: ../../library/doctest.rst:812
 msgid ""
 ">>> print(list(range(5)) + list(range(10, 20)) + list(range(30, 40)))\n"
 "... # doctest: +ELLIPSIS\n"
 "[0, ..., 4, 10, ..., 19, 30, ..., 39]"
 msgstr ""
+">>> print(list(range(5)) + list(range(10, 20)) + list(range(30, 40)))\n"
+"... # doctest: +ELLIPSIS\n"
+"[0, ..., 4, 10, ..., 19, 30, ..., 39]"
 
 #: ../../library/doctest.rst:819
 msgid ""
@@ -1326,7 +1548,6 @@ msgstr ""
 msgid "Warnings"
 msgstr "警告"
 
-#: ../../library/doctest.rst:831
 msgid ""
 ":mod:`!doctest` is serious about requiring exact matches in expected "
 "output.  If even a single character doesn't match, the test fails.  This "
@@ -1335,33 +1556,43 @@ msgid ""
 "Python doesn't guarantee that the element is printed in any particular "
 "order, so a test like ::"
 msgstr ""
+":mod:`!doctest` は期待する出力との厳密な一致を求めます。\n"
+"1 文字でも一致しなければテストは失敗します。\n"
+"Python が出力について何を保証し、何を保証しないのかを知るにつれて、意外に思う"
+"こともあるでしょう。\n"
+"例えば、集合を表示するときに要素が特定の順序で表示されることは保証されていな"
+"いため、次のようなテストは ::"
 
-#: ../../library/doctest.rst:837
 msgid ""
 ">>> foo()\n"
 "{\"spam\", \"eggs\"}"
 msgstr ""
+">>> foo()\n"
+"{\"spam\", \"eggs\"}"
 
 #: ../../library/doctest.rst:840
 msgid "is vulnerable!  One workaround is to do ::"
 msgstr "は失敗するかもしれないのです! 回避するには ::"
 
-#: ../../library/doctest.rst:842
 msgid ""
 ">>> foo() == {\"spam\", \"eggs\"}\n"
 "True"
 msgstr ""
+">>> foo() == {\"spam\", \"eggs\"}\n"
+"True"
 
 #: ../../library/doctest.rst:845
 msgid "instead.  Another is to do ::"
 msgstr "とするのが一つのやり方です。別のやり方は ::"
 
-#: ../../library/doctest.rst:847
 msgid ""
 ">>> d = sorted(foo())\n"
 ">>> d\n"
 "['eggs', 'spam']"
 msgstr ""
+">>> d = sorted(foo())\n"
+">>> d\n"
+"['eggs', 'spam']"
 
 #: ../../library/doctest.rst:851
 msgid "There are others, but you get the idea."
@@ -1373,7 +1604,6 @@ msgstr ""
 "以下のように、オブジェクトアドレスを埋め込むような結果を print するのもよくあ"
 "りません :"
 
-#: ../../library/doctest.rst:855
 msgid ""
 ">>> id(1.0)  # certain to fail some of the time\n"
 "7948648\n"
@@ -1381,6 +1611,11 @@ msgid ""
 ">>> C()  # the default repr() for instances embeds an address\n"
 "<C object at 0x00AC18F0>"
 msgstr ""
+">>> id(1.0)  # いつか必ず失敗します\n"
+"7948648\n"
+">>> class C: pass\n"
+">>> C()  # インスタンスのデフォルトの repr() にはアドレスが含まれます\n"
+"<C object at 0x00AC18F0>"
 
 #: ../../library/doctest.rst:863
 msgid ""
@@ -1388,20 +1623,23 @@ msgid ""
 msgstr ""
 ":const:`ELLIPSIS` ディレクティブを使うと、上のような例をうまく解決できます:"
 
-#: ../../library/doctest.rst:865
 msgid ""
 ">>> C()  # doctest: +ELLIPSIS\n"
 "<C object at 0x...>"
 msgstr ""
+">>> C()  # doctest: +ELLIPSIS\n"
+"<C object at 0x...>"
 
-#: ../../library/doctest.rst:871
 msgid ""
 "Floating-point numbers are also subject to small output variations across "
 "platforms, because Python defers to the platform C library for some floating-"
 "point calculations, and C libraries vary widely in quality here. ::"
 msgstr ""
+"浮動小数点数も、プラットフォームによって出力がわずかに変わることがありま"
+"す。\n"
+"Python は一部の浮動小数点演算をプラットフォームの C ライブラリに任せており、"
+"その品質には大きな違いがあるためです。 ::"
 
-#: ../../library/doctest.rst:875
 msgid ""
 ">>> 1000**0.1  # risky\n"
 "1.9952623149688797\n"
@@ -1410,6 +1648,12 @@ msgid ""
 ">>> print(f'{1000**0.1:.4f}') # much safer\n"
 "1.9953"
 msgstr ""
+">>> 1000**0.1  # 危険\n"
+"1.9952623149688797\n"
+">>> round(1000**0.1, 9) # より安全\n"
+"1.995262315\n"
+">>> print(f'{1000**0.1:.4f}') # さらに安全\n"
+"1.9953"
 
 #: ../../library/doctest.rst:882
 msgid ""
@@ -1419,11 +1663,12 @@ msgstr ""
 "``I/2.**J`` の形式になる数値はどのプラットフォームでもうまく動作するので、私"
 "はこの形式の数値を生成するように doctest の実行例を工夫しています::"
 
-#: ../../library/doctest.rst:885
 msgid ""
 ">>> 3./4  # utterly safe\n"
 "0.75"
 msgstr ""
+">>> 3./4  # 完全に安全\n"
+"0.75"
 
 #: ../../library/doctest.rst:888
 msgid ""
@@ -1437,17 +1682,16 @@ msgstr ""
 msgid "Basic API"
 msgstr "基本 API"
 
-#: ../../library/doctest.rst:897
 msgid ""
 "The functions :func:`testmod` and :func:`testfile` provide a simple "
 "interface to doctest that should be sufficient for most basic uses.  For a "
 "less formal introduction to these two functions, see sections :ref:`doctest-"
 "simple-testmod` and :ref:`doctest-simple-testfile`."
 msgstr ""
-"数 :func:`testmod` と :func:`testfile` は、ほとんどの基本的な用途に十分な "
-"doctest インターフェースを提供しています。これら二つの関数についてあまり形式"
-"的でない入門が読みたければ、 :ref:`doctest-simple-testmod` 節や :ref:"
-"`doctest-simple-testfile` 節を参照してください。"
+"関数 :func:`testmod` と :func:`testfile` は、基本的な用途の大半に十分な、"
+"doctest の簡単なインターフェースを提供します。\n"
+"この 2 つの関数の平易な入門については、:ref:`doctest-simple-testmod` 節と :"
+"ref:`doctest-simple-testfile` 節を参照してください。"
 
 #: ../../library/doctest.rst:905
 msgid ""
@@ -1632,13 +1876,17 @@ msgstr ""
 "から到達可能な関数およびクラスの docstring 内にある実行例をテストします。 "
 "``m.__doc__`` 内の実行例からテストを開始します。"
 
-#: ../../library/doctest.rst:982
 msgid ""
 "Also test examples reachable from dict ``m.__test__``, if it exists. ``m."
 "__test__`` maps names (strings) to functions, classes and strings; function "
 "and class docstrings are searched for examples; strings are searched "
 "directly, as if they were docstrings."
 msgstr ""
+"辞書 ``m.__test__`` が存在する場合、そこから到達可能な実行例もテストしま"
+"す。\n"
+"``m.__test__`` は名前 (文字列) を関数、クラス、文字列に対応付けます。\n"
+"関数やクラスでは docstring から実行例を検索し、文字列は docstring とみなして"
+"直接検索します。"
 
 #: ../../library/doctest.rst:987
 msgid ""
@@ -1740,7 +1988,6 @@ msgstr ""
 msgid "Unittest API"
 msgstr "単体テスト API"
 
-#: ../../library/doctest.rst:1032
 msgid ""
 "As your collection of doctest'ed modules grows, you'll want a way to run all "
 "their doctests systematically.  :mod:`!doctest` provides two functions that "
@@ -1749,8 +1996,13 @@ msgid ""
 "discovery, include a :ref:`load_tests <load_tests-protocol>` function in "
 "your test module::"
 msgstr ""
+"doctest を使うモジュールが増えると、すべての doctest を体系的に実行したくなる"
+"でしょう。\n"
+":mod:`!doctest` は、doctest を含むモジュールやテキストファイルから :mod:"
+"`unittest` のテストスイートを作成するための関数を 2 つ提供します。\n"
+":mod:`unittest` のテストディスカバリと統合するには、テストモジュールに :ref:"
+"`load_tests <load_tests-protocol>` 関数を含めます。 ::"
 
-#: ../../library/doctest.rst:1038
 msgid ""
 "import unittest\n"
 "import doctest\n"
@@ -1760,6 +2012,13 @@ msgid ""
 "    tests.addTests(doctest.DocTestSuite(my_module_with_doctests))\n"
 "    return tests"
 msgstr ""
+"import unittest\n"
+"import doctest\n"
+"import my_module_with_doctests\n"
+"\n"
+"def load_tests(loader, tests, ignore):\n"
+"    tests.addTests(doctest.DocTestSuite(my_module_with_doctests))\n"
+"    return tests"
 
 #: ../../library/doctest.rst:1046
 msgid ""
@@ -1777,7 +2036,6 @@ msgstr ""
 "単一または複数のテキストファイルに入っている doctest 形式のテストを、 :class:"
 "`unittest.TestSuite` インスタンスに変換します。"
 
-#: ../../library/doctest.rst:1055
 msgid ""
 "The returned :class:`unittest.TestSuite` is to be run by the unittest "
 "framework and runs the interactive examples in each file. Each file is run "
@@ -1788,6 +2046,15 @@ msgid ""
 "the examples in a file are skipped, then the synthesized unit test is also "
 "marked as skipped."
 msgstr ""
+"返された :class:`unittest.TestSuite` は unittest フレームワークで実行するもの"
+"で、各ファイルの対話実行例を実行します。\n"
+"各ファイルが個別の単体テストとして実行され、ファイル内の各実行例が :ref:`サブ"
+"テスト <subtests>` として実行されます。\n"
+"ファイル内の実行例が一つでも失敗すると、生成された単体テストも失敗します。\n"
+"失敗やエラーのトレースバックには、テストを含むファイルの名前と行番号 (おおよ"
+"その行番号になることもあります) が含まれます。\n"
+"ファイル内の実行例がすべてスキップされると、生成された単体テストもスキップと"
+"して扱われます。"
 
 #: ../../library/doctest.rst:1065
 msgid "Pass one or more paths (as strings) to text files to be examined."
@@ -1904,15 +2171,13 @@ msgstr ""
 ":func:`DocFileSuite` を使用してテキストファイルからロードされた doctests に提"
 "供される globals に、グローバル変数 ``__file__`` が追加されます。"
 
-#: ../../library/doctest.rst:1121 ../../library/doctest.rst:1162
 msgid "Run each example as a :ref:`subtest <subtests>`."
-msgstr ""
+msgstr "各実行例を :ref:`サブテスト <subtests>` として実行します。"
 
 #: ../../library/doctest.rst:1127
 msgid "Convert doctest tests for a module to a :class:`unittest.TestSuite`."
 msgstr "doctest のテストを :class:`unittest.TestSuite` に変換します。"
 
-#: ../../library/doctest.rst:1129
 msgid ""
 "The returned :class:`unittest.TestSuite` is to be run by the unittest "
 "framework and runs each doctest in the module. Each docstring is run as a "
@@ -1923,6 +2188,15 @@ msgid ""
 "examples in a docstring are skipped, then the synthesized unit test is also "
 "marked as skipped."
 msgstr ""
+"返された :class:`unittest.TestSuite` は unittest フレームワークで実行するもの"
+"で、モジュール内の各 doctest を実行します。\n"
+"各 docstring が個別の単体テストとして実行され、docstring 内の各実行例が :ref:"
+"`サブテスト <subtests>` として実行されます。\n"
+"doctest が一つでも失敗すると、生成された単体テストも失敗します。\n"
+"失敗やエラーのトレースバックには、テストを含むファイルの名前と行番号 (おおよ"
+"その行番号になることもあります) が含まれます。\n"
+"docstring 内の実行例がすべてスキップされると、生成された単体テストもスキップ"
+"として扱われます。"
 
 #: ../../library/doctest.rst:1139
 msgid ""
@@ -1935,12 +2209,14 @@ msgstr ""
 "きます。*module* を指定しない場合、この関数を呼び出しているモジュールになりま"
 "す。"
 
-#: ../../library/doctest.rst:1143
 msgid ""
 "Optional argument *globs* is a dictionary containing the initial global "
 "variables for the tests.  A new copy of this dictionary is created for each "
 "test.  By default, *globs* is the module's :attr:`~module.__dict__`."
 msgstr ""
+"オプション引数 *globs* は、テスト用のグローバル変数の初期値を含む辞書です。\n"
+"各テストに対してこの辞書の新しいコピーが作成されます。\n"
+"デフォルトでは、*globs* はモジュールの :attr:`~module.__dict__` です。"
 
 #: ../../library/doctest.rst:1147
 msgid ""
@@ -1959,12 +2235,14 @@ msgstr ""
 "オプション引数 *test_finder* は、モジュールから doctest を抽出するための :"
 "class:`DocTestFinder` オブジェクト (またはその代替となるオブジェクト) です。"
 
-#: ../../library/doctest.rst:1153
 msgid ""
 "Optional arguments *setUp*, *tearDown*, and *optionflags* are the same as "
 "for function :func:`DocFileSuite` above, but they are called for each "
 "docstring."
 msgstr ""
+"オプション引数 *setUp*、*tearDown*、*optionflags* は上記の :func:"
+"`DocFileSuite` と同じですが、準備と後片付けの関数は docstring ごとに呼び出さ"
+"れます。"
 
 #: ../../library/doctest.rst:1156
 msgid "This function uses the same search technique as :func:`testmod`."
@@ -1979,7 +2257,6 @@ msgstr ""
 "`DocTestSuite` は :exc:`ValueError` を送出するのではなく空の  :class:"
 "`unittest.TestSuite` を返します。"
 
-#: ../../library/doctest.rst:1165
 msgid ""
 "Under the covers, :func:`DocTestSuite` creates a :class:`unittest.TestSuite` "
 "out of :class:`!doctest.DocTestCase` instances, and :class:`!DocTestCase` is "
@@ -1987,15 +2264,21 @@ msgid ""
 "documented here (it's an internal detail), but studying its code can answer "
 "questions about the exact details of :mod:`unittest` integration."
 msgstr ""
+"内部では、:func:`DocTestSuite` は :class:`!doctest.DocTestCase` インスタンス"
+"から :class:`unittest.TestSuite` を作成します。\n"
+":class:`!DocTestCase` は :class:`unittest.TestCase` のサブクラスです。\n"
+":class:`!DocTestCase` は実装の詳細にあたるため、ここでは説明しませんが、その"
+"コードを読むと :mod:`unittest` との統合の詳しい仕組みが分かります。"
 
-#: ../../library/doctest.rst:1171
 msgid ""
 "Similarly, :func:`DocFileSuite` creates a :class:`unittest.TestSuite` out "
 "of :class:`!doctest.DocFileCase` instances, and :class:`!DocFileCase` is a "
 "subclass of :class:`!DocTestCase`."
 msgstr ""
+"同様に、:func:`DocFileSuite` は :class:`!doctest.DocFileCase` インスタンスか"
+"ら :class:`unittest.TestSuite` を作成します。\n"
+":class:`!DocFileCase` は :class:`!DocTestCase` のサブクラスです。"
 
-#: ../../library/doctest.rst:1175
 msgid ""
 "So both ways of creating a :class:`unittest.TestSuite` run instances of :"
 "class:`!DocTestCase`.  This is important for a subtle reason: when you run :"
@@ -2007,16 +2290,27 @@ msgid ""
 "(perhaps, e.g., specified by command line options), but there's no way to "
 "pass options through :mod:`!unittest` to :mod:`!doctest` test runners."
 msgstr ""
+"したがって、どちらの方法で :class:`unittest.TestSuite` を作成しても、:class:"
+"`!DocTestCase` のインスタンスが実行されます。\n"
+"この点が重要なのには、少し分かりにくい理由があります。\n"
+"自分で :mod:`!doctest` の関数を実行するときは、:mod:`!doctest` の関数にオプ"
+"ションフラグを渡すことで、使う :mod:`!doctest` のオプションを直接制御できま"
+"す。\n"
+"しかし、:mod:`unittest` のフレームワークを書く場合、テストをいつどのように実"
+"行するかは最終的に :mod:`!unittest` が制御します。\n"
+"フレームワークの作者は通常、例えばコマンドラインオプションによって :mod:`!"
+"doctest` の報告オプションを制御したいと考えますが、:mod:`!unittest` を通し"
+"て :mod:`!doctest` のテストランナーにオプションを渡す方法はありません。"
 
-#: ../../library/doctest.rst:1185
 msgid ""
 "For this reason, :mod:`!doctest` also supports a notion of :mod:`!doctest` "
 "reporting flags specific to :mod:`unittest` support, via this function:"
 msgstr ""
+"このため、:mod:`!doctest` は次の関数によって、:mod:`unittest` との連携専用"
+"の :mod:`!doctest` 報告フラグも提供します。"
 
-#: ../../library/doctest.rst:1191
 msgid "Set the :mod:`!doctest` reporting flags to use."
-msgstr ""
+msgstr "使用する :mod:`!doctest` の報告フラグを設定します。"
 
 #: ../../library/doctest.rst:1193
 msgid ""
@@ -2027,7 +2321,6 @@ msgstr ""
 "す。 :ref:`doctest-options` 節を参照してください。「レポートフラグ」しか使え"
 "ません。"
 
-#: ../../library/doctest.rst:1196
 msgid ""
 "This is a module-global setting, and affects all future doctests run by "
 "module :mod:`unittest`:  the :meth:`!runTest` method of :class:`!"
@@ -2040,6 +2333,17 @@ msgid ""
 "were specified when the :class:`!DocTestCase` instance was constructed, :mod:"
 "`!doctest`'s :mod:`!unittest` reporting flags are ignored."
 msgstr ""
+"これはモジュール全体の設定で、以後 :mod:`unittest` モジュールで実行するすべて"
+"の doctest に影響します。\n"
+":class:`!DocTestCase` の :meth:`!runTest` メソッドは、:class:`!DocTestCase` "
+"インスタンスの作成時にそのテストケースに指定されたオプションフラグを調べま"
+"す。\n"
+"報告フラグが指定されていない場合 (通常はこの使い方を想定しています)、:mod:`!"
+"doctest` の :mod:`!unittest` 用報告フラグをオプションフラグに :ref:`ビット単"
+"位論理和で加え <bitwise>`、doctest の実行用に作成した :class:`DocTestRunner` "
+"インスタンスに渡します。\n"
+":class:`!DocTestCase` インスタンスの作成時に報告フラグが一つでも指定されてい"
+"る場合、:mod:`!doctest` の :mod:`!unittest` 用報告フラグは無視されます。"
 
 #: ../../library/doctest.rst:1207
 msgid ""
@@ -2137,7 +2441,6 @@ msgid ""
 "following diagram::"
 msgstr "これらの処理クラスの関係を図にまとめると、以下のようになります::"
 
-#: ../../library/doctest.rst:1249
 msgid ""
 "                            list of:\n"
 "+------+                   +---------+\n"
@@ -2148,6 +2451,14 @@ msgid ""
 "           DocTestParser   | Example |   OutputChecker\n"
 "                           +---------+"
 msgstr ""
+"                            list of:\n"
+"+------+                   +---------+\n"
+"|module| --DocTestFinder-> | DocTest | --DocTestRunner-> results\n"
+"+------+    |        ^     +---------+     |       ^    (printed)\n"
+"            |        |     | Example |     |       |\n"
+"            v        |     |   ...   |     v       |\n"
+"           DocTestParser   | Example |   OutputChecker\n"
+"                           +---------+"
 
 #: ../../library/doctest.rst:1262
 msgid "DocTest Objects"
@@ -2197,12 +2508,14 @@ msgstr ""
 ":class:`DocTest` を識別する名前の文字列です。通常、この値はテストを取り出した"
 "オブジェクトかファイルの名前になります。"
 
-#: ../../library/doctest.rst:1297
 msgid ""
 "The name of the file that this :class:`DocTest` was extracted from; or "
 "``None`` if the filename is unknown, or if the :class:`!DocTest` was not "
 "extracted from a file."
 msgstr ""
+"この :class:`DocTest` の抽出元のファイル名です。\n"
+"ファイル名が不明な場合、または :class:`!DocTest` をファイルから抽出したのでは"
+"ない場合は ``None`` です。"
 
 #: ../../library/doctest.rst:1304
 msgid ""
@@ -2244,14 +2557,14 @@ msgstr ""
 ":class:`Example` では、以下の属性を定義しています。これらの変数はコンストラク"
 "タで初期化されます。直接変更してはなりません。"
 
-#: ../../library/doctest.rst:1334
 msgid ""
 "A string containing the example's source code.  This source code consists of "
 "a single Python statement, and always ends with a newline; the constructor "
 "adds a newline when necessary."
 msgstr ""
-"実行例のソースコードが入った文字列です。ソースコードは単一の Python で、末尾"
-"は常に改行です。コンストラクタは必要に応じて改行を追加します。"
+"実行例のソースコードを含む文字列です。\n"
+"ソースコードは単一の Python 文で、末尾は常に改行です。\n"
+"コンストラクタは必要に応じて改行を追加します。"
 
 #: ../../library/doctest.rst:1341
 msgid ""
@@ -2296,7 +2609,6 @@ msgstr ""
 "実行例の入っている文字列のインデント、すなわち実行例の最初のプロンプトより前"
 "にある空白文字の数です。"
 
-#: ../../library/doctest.rst:1371
 msgid ""
 "A dictionary mapping from option flags to ``True`` or ``False``, which is "
 "used to override default options for this example.  Any option flags not "
@@ -2304,6 +2616,11 @@ msgid ""
 "by the :class:`DocTestRunner`'s :ref:`optionflags <doctest-options>`). By "
 "default, no options are set."
 msgstr ""
+"オプションフラグを ``True`` または ``False`` に対応付ける辞書で、この実行例の"
+"デフォルトのオプションを上書きするために使われます。\n"
+"この辞書に含まれないオプションフラグは、:class:`DocTestRunner` の :ref:"
+"`optionflags <doctest-options>` で指定されたデフォルト値のままになります。\n"
+"デフォルトではオプションは設定されていません。"
 
 #: ../../library/doctest.rst:1381
 msgid "DocTestFinder objects"
@@ -2425,7 +2742,6 @@ msgstr ""
 "みなします。\n"
 "そのため、内部のすべてのオブジェクトから doctest を再帰的に検索します。"
 
-#: ../../library/doctest.rst:1436
 msgid ""
 "The globals for each :class:`DocTest` is formed by combining *globs* and "
 "*extraglobs* (bindings in *extraglobs* override bindings in *globs*).  A new "
@@ -2434,6 +2750,13 @@ msgid ""
 "attr:`~module.__dict__`, if specified, or ``{}`` otherwise. If *extraglobs* "
 "is not specified, then it defaults to ``{}``."
 msgstr ""
+"各 :class:`DocTest` のグローバル変数は、*globs* と *extraglobs* を組み合わせ"
+"て作られます (*extraglobs* の束縛が *globs* の束縛を上書きします)。\n"
+"各 :class:`!DocTest` に対して、グローバル変数の辞書の新しい浅いコピーが作成さ"
+"れます。\n"
+"*globs* を指定しない場合、モジュールが指定されていればその :attr:`~module."
+"__dict__` を、そうでなければ ``{}`` を使います。\n"
+"*extraglobs* を指定しない場合のデフォルトは ``{}`` です。"
 
 #: ../../library/doctest.rst:1447
 msgid "DocTestParser objects"
@@ -2459,12 +2782,14 @@ msgstr ""
 "指定した文字列からすべての doctest 実行例を抽出し、 :class:`DocTest` オブジェ"
 "クト内に集めます。"
 
-#: ../../library/doctest.rst:1464
 msgid ""
 "*globs*, *name*, *filename*, and *lineno* are attributes for the new :class:"
 "`!DocTest` object.  See the documentation for :class:`DocTest` for more "
 "information."
 msgstr ""
+"*globs*、*name*、*filename*、*lineno* は、新しい :class:`!DocTest` オブジェク"
+"トの属性です。\n"
+"詳しくは :class:`DocTest` のドキュメントを参照してください。"
 
 msgid ""
 "Extract all doctest examples from the given string, and return them as a "
@@ -2477,29 +2802,29 @@ msgstr ""
 "オプション引数 *name* はこの文字列につける名前で、エラーメッセージにしか使わ"
 "れません。"
 
-#: ../../library/doctest.rst:1478
 msgid ""
 "Divide the given string into examples and intervening text, and return them "
 "as a list of alternating :class:`Example`\\ s and strings. Line numbers for "
 "the :class:`!Example`\\ s are 0-based.  The optional argument *name* is a "
 "name identifying this string, and is only used for error messages."
 msgstr ""
+"指定した文字列を実行例とその間のテキストに分割し、:class:`Example` と文字列が"
+"交互に並ぶリストとして返します。\n"
+":class:`!Example` の行番号は 0 から数えます。\n"
+"オプション引数 *name* はこの文字列を識別する名前で、エラーメッセージにのみ使"
+"われます。"
 
-#: ../../library/doctest.rst:1485
 msgid "TestResults objects"
-msgstr ""
+msgstr "TestResults オブジェクト"
 
-#: ../../library/doctest.rst:1492
 msgid "Number of failed tests."
-msgstr ""
+msgstr "失敗したテストの数。"
 
-#: ../../library/doctest.rst:1496
 msgid "Number of attempted tests."
-msgstr ""
+msgstr "実行を試みたテストの数。"
 
-#: ../../library/doctest.rst:1500
 msgid "Number of skipped tests."
-msgstr ""
+msgstr "スキップしたテストの数。"
 
 #: ../../library/doctest.rst:1508
 msgid "DocTestRunner objects"
@@ -2513,7 +2838,6 @@ msgstr ""
 ":class:`DocTest` 内の対話モード実行例を実行し、検証する際に用いられる処理クラ"
 "スです。"
 
-#: ../../library/doctest.rst:1516
 msgid ""
 "The comparison between expected outputs and actual outputs is done by an :"
 "class:`OutputChecker`.  This comparison may be customized with a number of "
@@ -2522,8 +2846,12 @@ msgid ""
 "customized by passing a subclass of :class:`!OutputChecker` to the "
 "constructor."
 msgstr ""
+"期待する出力と実際の出力は :class:`OutputChecker` が比較します。\n"
+"この比較はさまざまなオプションフラグでカスタマイズできます。\n"
+"詳しくは :ref:`doctest-options` 節を参照してください。\n"
+"オプションフラグだけでは不十分な場合、コンストラクタに :class:`!"
+"OutputChecker` のサブクラスを渡して比較をカスタマイズすることもできます。"
 
-#: ../../library/doctest.rst:1522
 msgid ""
 "The test runner's display output can be controlled in two ways. First, an "
 "output function can be passed to :meth:`run`; this function will be called "
@@ -2533,6 +2861,14 @@ msgid ""
 "methods :meth:`report_skip`, :meth:`report_start`, :meth:`report_success`, :"
 "meth:`report_unexpected_exception`, and :meth:`report_failure`."
 msgstr ""
+"テストランナーの表示出力は 2 通りの方法で制御できます。\n"
+"まず、:meth:`run` に出力用の関数を渡せます。\n"
+"この関数には、表示する文字列が渡されます。\n"
+"デフォルトは ``sys.stdout.write`` です。\n"
+"出力を取り込むだけでは不十分な場合、``DocTestRunner`` のサブクラスを作り、:"
+"meth:`report_skip`、:meth:`report_start`、:meth:`report_success`、:meth:"
+"`report_unexpected_exception`、:meth:`report_failure` メソッドをオーバーライ"
+"ドして、表示出力をカスタマイズすることもできます。"
 
 #: ../../library/doctest.rst:1530
 msgid ""
@@ -2569,31 +2905,39 @@ msgstr ""
 "出力と実際の出力を比較する方法や、テストの失敗を表示する方法を制御できます。"
 "詳しくは :ref:`doctest-options` 節を参照してください。"
 
-#: ../../library/doctest.rst:1544
 msgid ""
 "The test runner accumulates statistics. The aggregated number of attempted, "
 "failed and skipped examples is also available via the :attr:`tries`, :attr:"
 "`failures` and :attr:`skips` attributes. The :meth:`run` and :meth:"
 "`summarize` methods return a :class:`TestResults` instance."
 msgstr ""
+"テストランナーは統計情報を蓄積します。\n"
+"実行を試みた実行例、失敗した実行例、スキップした実行例の累計は、それぞれ :"
+"attr:`tries`、:attr:`failures`、:attr:`skips` 属性でも参照できます。\n"
+":meth:`run` と :meth:`summarize` メソッドは :class:`TestResults` インスタンス"
+"を返します。"
 
-#: ../../library/doctest.rst:1549
 msgid ":class:`DocTestRunner` defines the following methods:"
-msgstr ""
+msgstr ":class:`DocTestRunner` は以下のメソッドを定義しています。"
 
-#: ../../library/doctest.rst:1554
 msgid ""
 "Report that the given example was skipped.  This method is provided to allow "
 "subclasses of :class:`DocTestRunner` to customize their output; it should "
 "not be called directly."
 msgstr ""
+"指定した実行例がスキップされたことを報告します。\n"
+"このメソッドは :class:`DocTestRunner` のサブクラスで出力をカスタマイズするた"
+"めに提供されています。\n"
+"直接呼び出さないでください。"
 
-#: ../../library/doctest.rst:1558 ../../library/doctest.rst:1571
 msgid ""
 "*example* is the example about to be processed.  *test* is the test "
 "containing *example*.  *out* is the output function that was passed to :meth:"
 "`DocTestRunner.run`."
 msgstr ""
+"*example* は処理しようとしている実行例です。\n"
+"*test* は *example* を含むテストです。\n"
+"*out* は :meth:`DocTestRunner.run` に渡された出力用の関数です。"
 
 #: ../../library/doctest.rst:1567
 msgid ""
@@ -2657,12 +3001,14 @@ msgstr ""
 "*example* の入っているテストです。 *out* は出力用の関数で、 :meth:"
 "`DocTestRunner.run` に渡されます。"
 
-#: ../../library/doctest.rst:1612
 msgid ""
 "Run the examples in *test* (a :class:`DocTest` object), and display the "
 "results using the writer function *out*. Return a :class:`TestResults` "
 "instance."
 msgstr ""
+"*test* (:class:`DocTest` オブジェクト) 内の実行例を実行し、書き込み用の関数 "
+"*out* で結果を表示します。\n"
+":class:`TestResults` インスタンスを返します。"
 
 #: ../../library/doctest.rst:1616
 msgid ""
@@ -2686,18 +3032,20 @@ msgstr ""
 "セットを指定します。*compileflags* を指定しない場合、デフォルト値は *globs* "
 "で適用されている future-import フラグセットになります。"
 
-#: ../../library/doctest.rst:1625
 msgid ""
 "The output of each example is checked using the :class:`DocTestRunner`'s "
 "output checker, and the results are formatted by the :meth:`!DocTestRunner."
 "report_\\*` methods."
 msgstr ""
+"各実行例の出力は :class:`DocTestRunner` の出力チェッカーで検証され、結果は :"
+"meth:`!DocTestRunner.report_\\*` メソッドで書式化されます。"
 
-#: ../../library/doctest.rst:1632
 msgid ""
 "Print a summary of all the test cases that have been run by this "
 "DocTestRunner, and return a :class:`TestResults` instance."
 msgstr ""
+"この ``DocTestRunner`` が実行したすべてのテストケースの結果をまとめて表示"
+"し、:class:`TestResults` インスタンスを返します。"
 
 #: ../../library/doctest.rst:1635
 msgid ""
@@ -2713,17 +3061,14 @@ msgstr ""
 msgid ":class:`DocTestParser` has the following attributes:"
 msgstr ""
 
-#: ../../library/doctest.rst:1643
 msgid "Number of attempted examples."
-msgstr ""
+msgstr "実行を試みた実行例の数。"
 
-#: ../../library/doctest.rst:1647
 msgid "Number of failed examples."
-msgstr ""
+msgstr "失敗した実行例の数。"
 
-#: ../../library/doctest.rst:1651
 msgid "Number of skipped examples."
-msgstr ""
+msgstr "スキップした実行例の数。"
 
 #: ../../library/doctest.rst:1659
 msgid "OutputChecker objects"
@@ -2819,7 +3164,6 @@ msgstr ""
 "の現在の値などを調べられます。たとえば、以下のようなモジュールレベルの "
 "docstring の入ったファイル :file:`a.py` があるとします::"
 
-#: ../../library/doctest.rst:1712
 msgid ""
 "\"\"\"\n"
 ">>> def f(x):\n"
@@ -2831,12 +3175,20 @@ msgid ""
 "9\n"
 "\"\"\""
 msgstr ""
+"\"\"\"\n"
+">>> def f(x):\n"
+"...     g(x*2)\n"
+">>> def g(x):\n"
+"...     print(x+3)\n"
+"...     import pdb; pdb.set_trace()\n"
+">>> f(3)\n"
+"9\n"
+"\"\"\""
 
 #: ../../library/doctest.rst:1722
 msgid "Then an interactive Python session may look like this::"
 msgstr "対話セッションは以下のようになるでしょう::"
 
-#: ../../library/doctest.rst:1724
 msgid ""
 ">>> import a, doctest\n"
 ">>> doctest.testmod(a)\n"
@@ -2868,6 +3220,35 @@ msgid ""
 "(0, 3)\n"
 ">>>"
 msgstr ""
+">>> import a, doctest\n"
+">>> doctest.testmod(a)\n"
+"--Return--\n"
+"> <doctest a[1]>(3)g()->None\n"
+"-> import pdb; pdb.set_trace()\n"
+"(Pdb) list\n"
+"  1     def g(x):\n"
+"  2         print(x+3)\n"
+"  3  ->     import pdb; pdb.set_trace()\n"
+"[EOF]\n"
+"(Pdb) p x\n"
+"6\n"
+"(Pdb) step\n"
+"--Return--\n"
+"> <doctest a[0]>(2)f()->None\n"
+"-> g(x*2)\n"
+"(Pdb) list\n"
+"  1     def f(x):\n"
+"  2  ->     g(x*2)\n"
+"[EOF]\n"
+"(Pdb) p x\n"
+"3\n"
+"(Pdb) step\n"
+"--Return--\n"
+"> <doctest a[2]>(1)?()->None\n"
+"-> f(3)\n"
+"(Pdb) cont\n"
+"(0, 3)\n"
+">>>"
 
 #: ../../library/doctest.rst:1755
 msgid ""
@@ -2893,7 +3274,6 @@ msgstr ""
 "Python のコメント文になります。生成したスクリプトを文字列で返します。例え"
 "ば、 ::"
 
-#: ../../library/doctest.rst:1768
 msgid ""
 "import doctest\n"
 "print(doctest.script_from_examples(r\"\"\"\n"
@@ -2905,12 +3285,20 @@ msgid ""
 "    3\n"
 "\"\"\"))"
 msgstr ""
+"import doctest\n"
+"print(doctest.script_from_examples(r\"\"\"\n"
+"    Set x and y to 1 and 2.\n"
+"    >>> x, y = 1, 2\n"
+"\n"
+"    Print their sum:\n"
+"    >>> print(x+y)\n"
+"    3\n"
+"\"\"\"))"
 
 #: ../../library/doctest.rst:1778
 msgid "displays::"
 msgstr "は::"
 
-#: ../../library/doctest.rst:1780
 msgid ""
 "# Set x and y to 1 and 2.\n"
 "x, y = 1, 2\n"
@@ -2920,6 +3308,13 @@ msgid ""
 "# Expected:\n"
 "## 3"
 msgstr ""
+"# Set x and y to 1 and 2.\n"
+"x, y = 1, 2\n"
+"#\n"
+"# Print their sum:\n"
+"print(x+y)\n"
+"# Expected:\n"
+"## 3"
 
 #: ../../library/doctest.rst:1788
 msgid ""
@@ -2934,7 +3329,6 @@ msgstr ""
 msgid "Convert the doctest for an object to a script."
 msgstr "あるオブジェクトの doctest をスクリプトに変換します。"
 
-#: ../../library/doctest.rst:1797
 msgid ""
 "Argument *module* is a module object, or dotted name of a module, containing "
 "the object whose doctests are of interest.  Argument *name* is the name "
@@ -2943,18 +3337,28 @@ msgid ""
 "as described for :func:`script_from_examples` above.  For example, if "
 "module :file:`a.py` contains a top-level function :func:`!f`, then ::"
 msgstr ""
+"引数 *module* は、対象の doctest を持つオブジェクトを含むモジュールのオブジェ"
+"クト、またはドット区切りのモジュール名です。\n"
+"引数 *name* は、対象の doctest を持つオブジェクトのモジュール内での名前で"
+"す。\n"
+"戻り値は、上記の :func:`script_from_examples` と同じ方法で、オブジェクトの "
+"docstring を Python スクリプトに変換した文字列です。\n"
+"例えば、モジュール :file:`a.py` のトップレベルに関数 :func:`!f` がある場合、"
+"次のコードは ::"
 
-#: ../../library/doctest.rst:1804
 msgid ""
 "import a, doctest\n"
 "print(doctest.testsource(a, \"a.f\"))"
 msgstr ""
+"import a, doctest\n"
+"print(doctest.testsource(a, \"a.f\"))"
 
-#: ../../library/doctest.rst:1807
 msgid ""
 "prints a script version of function :func:`!f`'s docstring, with doctests "
 "converted to code, and the rest placed in comments."
 msgstr ""
+"関数 :func:`!f` の docstring をスクリプトに変換して表示します。\n"
+"doctest はコードに変換され、残りはコメントになります。"
 
 #: ../../library/doctest.rst:1813
 msgid "Debug the doctests for an object."
@@ -3122,11 +3526,12 @@ msgstr ""
 msgid "Soapbox"
 msgstr "アドバイス"
 
-#: ../../library/doctest.rst:1921
 msgid ""
 "As mentioned in the introduction, :mod:`!doctest` has grown to have three "
 "primary uses:"
 msgstr ""
+"導入で述べたように、:mod:`!doctest` は主に次の 3 つの用途で使われるようになり"
+"ました。"
 
 #: ../../library/doctest.rst:1924
 msgid "Checking examples in docstrings."
@@ -3150,7 +3555,6 @@ msgstr ""
 "に、docstring を曖昧なテストケースに埋もれさせてしまうとドキュメントとしては"
 "最悪です。"
 
-#: ../../library/doctest.rst:1934
 msgid ""
 "When writing a docstring, choose docstring examples with care. There's an "
 "art to this that needs to be learned---it may not be natural at first.  "
@@ -3161,6 +3565,14 @@ msgid ""
 "at how often one of my :mod:`!doctest` examples stops working after a "
 "\"harmless\" change."
 msgstr ""
+"docstring を書くときは、そこに載せる実行例を慎重に選んでください。\n"
+"これには身につけるべきこつがあり、最初は自然にはできないかもしれません。\n"
+"実行例はドキュメントに確かな価値を加えるものであるべきです。\n"
+"よい実行例は、多くの言葉による説明に匹敵することがあります。\n"
+"注意深く作れば、実行例はユーザーにとって非常に役立ち、年月が過ぎて物事が変"
+"わっても、集めるのにかけた時間に何倍もの価値を返してくれるでしょう。\n"
+"「無害な」はずの変更の後で自分の :mod:`!doctest` の実行例が動かなくなること"
+"が、今でも驚くほどよくあります。"
 
 msgid ""
 "Doctest also makes an excellent tool for regression testing, especially if "
@@ -3181,21 +3593,27 @@ msgid ""
 "functionality seemingly at random.  It's a different attitude, and produces "
 "different results, blurring the distinction between testing and explaining."
 msgstr ""
-"説明テキストの作成をけちらなければ、 ``doctest`` は回帰テストの優れたツールに"
-"もなり得ます。説明文と実行例を交互に記述していけば、実際に何をどうしてテスト"
-"しているのかもっと簡単に把握できるようになるでしょう。もちろん、コードベース"
-"のテストに詳しくコメントを入れるのも手ですが、そんなことをするプログラマはほ"
-"とんどいません。多くの人々が、 ``doctest`` のアプローチをとった方がきれいにテ"
-"ストを書けると気づいています。おそらく、これは単にコード中にコメントを書くの"
-"が少し面倒だからという理由でしょう。私はもう少し穿った見方もしています。"
-"doctest ベースのテストを書くときの自然な態度は、自分のソフトウェアのよい点を"
-"説明しようとして、実行例を使って説明しようとするときの態度そのものだからだ、"
-"という理由です。それゆえに、テストファイルは自然と単純な機能の解説から始め、"
-"論理的により複雑で境界条件的なケースに進むような形になります。結果的に、一見"
-"ランダムに見えるような個別の機能をテストしている個別の関数の集まりではなく、"
-"首尾一貫した説明ができるようになるのです。 ``doctest`` によるテストの作成は"
-"まったく別の取り組み方であり、テストと説明の区別をなくして、まったく違う結果"
-"を生み出すのです。"
+"Doctest は回帰テストの優れたツールにもなります。\n"
+"説明文を惜しまず書けば、特に役立ちます。\n"
+"説明文と実行例を交互に記述すると、実際に何を、なぜテストしているのかを把握し"
+"やすくなります。\n"
+"テストが失敗したときにも、よい説明文があれば問題と修正方法が分かりやすくなり"
+"ます。\n"
+"確かに、コードで書くテストにも詳しいコメントを付けられますが、そうするプログ"
+"ラマーは少数です。\n"
+"代わりに doctest を使うと、はるかに分かりやすいテストになると感じる人は多くい"
+"ます。\n"
+"単に、doctest ではコードよりも説明文が少し書きやすく、コード中ではコメントが"
+"少し書きにくいからかもしれません。\n"
+"私はそれよりも深い理由があると考えています。\n"
+"doctest ベースのテストを書くときは、ソフトウェアの細かな点を説明し、実行例で"
+"示そうという姿勢に自然となります。\n"
+"すると、最も単純な機能から始まり、複雑な場合や境界条件へと論理的に進むテスト"
+"ファイルになります。\n"
+"結果として、個々の機能の断片をばらばらにテストする関数の集まりではなく、筋の"
+"通った説明ができます。\n"
+"取り組む姿勢が違うため、テストと説明の区別が薄れるという違った結果を生むので"
+"す。"
 
 #: ../../library/doctest.rst:1960
 msgid ""
@@ -3229,11 +3647,12 @@ msgstr ""
 "ジュールと同じファイルの中にも置けますし、別のテストファイルに分けてもかまい"
 "ません。"
 
-#: ../../library/doctest.rst:1972
 msgid ""
 "Define a :attr:`~module.__test__` dictionary mapping from regression test "
 "topics to docstrings containing test cases."
 msgstr ""
+"回帰テストのトピックを、テストケースを含む docstring に対応付ける :attr:"
+"`~module.__test__` 辞書を定義します。"
 
 msgid ""
 "When you have placed your tests in a module, the module can itself be the "
@@ -3247,7 +3666,6 @@ msgstr ""
 "るようにテストランナーを設定できます。\n"
 "次に、そのようなテストランナーの最小限の例を示します。 ::"
 
-#: ../../library/doctest.rst:1980
 msgid ""
 "if __name__ == '__main__':\n"
 "    import doctest\n"
@@ -3264,6 +3682,20 @@ msgid ""
 "        fail, total = doctest.testmod(optionflags=flags)\n"
 "        print(f\"{fail} failures out of {total} tests\")"
 msgstr ""
+"if __name__ == '__main__':\n"
+"    import doctest\n"
+"    flags = doctest.REPORT_NDIFF|doctest.FAIL_FAST\n"
+"    if len(sys.argv) > 1:\n"
+"        name = sys.argv[1]\n"
+"        if name in globals():\n"
+"            obj = globals()[name]\n"
+"        else:\n"
+"            obj = __test__[name]\n"
+"        doctest.run_docstring_examples(obj, globals(), name=name,\n"
+"                                       optionflags=flags)\n"
+"    else:\n"
+"        fail, total = doctest.testmod(optionflags=flags)\n"
+"        print(f\"{fail} failures out of {total} tests\")"
 
 #: ../../library/doctest.rst:1997
 msgid "Footnotes"
@@ -3283,9 +3715,8 @@ msgstr ""
 msgid ">>>"
 msgstr ">>>"
 
-#: ../../library/doctest.rst:382
 msgid "interpreter prompt"
-msgstr ""
+msgstr "インタープリタのプロンプト"
 
 #: ../../library/doctest.rst:382 ../../library/doctest.rst:617
 msgid "..."
@@ -3295,17 +3726,14 @@ msgstr "..."
 msgid "^ (caret)"
 msgstr "^ (キャレット)"
 
-#: ../../library/doctest.rst:548
 msgid "marker"
-msgstr ""
+msgstr "マーカ"
 
-#: ../../library/doctest.rst:597
 msgid "<BLANKLINE>"
-msgstr ""
+msgstr "<BLANKLINE>"
 
-#: ../../library/doctest.rst:617 ../../library/doctest.rst:742
 msgid "in doctests"
-msgstr ""
+msgstr "doctest 内"
 
 #: ../../library/doctest.rst:742
 msgid "# (hash)"

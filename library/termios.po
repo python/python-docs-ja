@@ -53,17 +53,17 @@ msgstr ""
 "この値は、 ``sys.stdin.fileno()`` が返すような整数のファイル記述子でも、 "
 "``sys.stdin`` 自体のような :term:`file object` でもかまいません。"
 
-#: ../../library/termios.rst:24
 msgid ""
 "This module also defines all the constants needed to work with the functions "
 "provided here; these have the same name as their counterparts in C.  Please "
 "refer to your system documentation for more information on using these "
 "terminal control interfaces."
 msgstr ""
-"このモジュールではまた、モジュールで提供されている関数を使う上で必要となる全"
-"ての定数を定義しています; これらの定数は C の対応する関数と同じ名前を持ってい"
-"ます。これらの端末制御インターフェースを利用する上でのさらなる情報について"
-"は、あなたのシステムのドキュメンテーションを参考にしてください。"
+"このモジュールでは、ここで提供する関数を使うために必要なすべての定数も定義し"
+"ています。\n"
+"定数の名前は C の対応する定数と同じです。\n"
+"これらの端末制御インターフェースの使い方については、システムのドキュメントを"
+"参照してください。"
 
 #: ../../library/termios.rst:29
 msgid "The module defines the following functions:"
@@ -80,26 +80,27 @@ msgid ""
 "constants defined in the :mod:`!termios` module."
 msgstr ""
 
-#: ../../library/termios.rst:45
 msgid ""
 "Set the tty attributes for file descriptor *fd* from the *attributes*, which "
 "is a list like the one returned by :func:`tcgetattr`.  The *when* argument "
 "determines when the attributes are changed:"
 msgstr ""
+"ファイル記述子 *fd* の tty 属性を *attributes* に設定します。\n"
+"*attributes* は :func:`tcgetattr` が返すものと同じ形式のリストです。\n"
+"属性を変更するタイミングは *when* 引数で指定します。"
 
-#: ../../library/termios.rst:51
 msgid "Change attributes immediately."
-msgstr ""
+msgstr "属性を直ちに変更します。"
 
-#: ../../library/termios.rst:55
 msgid "Change attributes after transmitting all queued output."
-msgstr ""
+msgstr "キューにある出力をすべて送信してから属性を変更します。"
 
-#: ../../library/termios.rst:59
 msgid ""
 "Change attributes after transmitting all queued output and discarding all "
 "queued input."
 msgstr ""
+"キューにある出力をすべて送信し、キューにある入力をすべて破棄してから属性を変"
+"更します。"
 
 #: ../../library/termios.rst:65
 msgid ""
@@ -136,14 +137,15 @@ msgstr ""
 "る :const:`TCOON` 、入力をサスペンドする :const:`TCIOFF` 、入力をレジュームす"
 "る :const:`TCION` をとることができます。"
 
-#: ../../library/termios.rst:90
 msgid ""
 "Return a tuple ``(ws_row, ws_col)`` containing the tty window size for file "
 "descriptor *fd*. Requires :const:`termios.TIOCGWINSZ` or :const:`termios."
 "TIOCGSIZE`."
 msgstr ""
+"ファイル記述子 *fd* の tty ウィンドウサイズを表すタプル ``(ws_row, ws_col)`` "
+"を返します。\n"
+":const:`termios.TIOCGWINSZ` または :const:`termios.TIOCGSIZE` が必要です。"
 
-#: ../../library/termios.rst:99
 msgid ""
 "Set the tty window size for file descriptor *fd* from *winsize*, which is a "
 "two-item tuple ``(ws_row, ws_col)`` like the one returned by :func:"
@@ -151,6 +153,12 @@ msgid ""
 "TIOCGWINSZ`, :const:`termios.TIOCSWINSZ`); (:const:`termios.TIOCGSIZE`, :"
 "const:`termios.TIOCSSIZE`) to be defined."
 msgstr ""
+"ファイル記述子 *fd* の tty ウィンドウサイズを *winsize* に設定します。\n"
+"*winsize* は :func:`tcgetwinsize` が返すものと同じ形式の、2 要素のタプル "
+"``(ws_row, ws_col)`` です。\n"
+"(:const:`termios.TIOCGWINSZ`, :const:`termios.TIOCSWINSZ`) と (:const:"
+"`termios.TIOCGSIZE`, :const:`termios.TIOCSSIZE`) のうち、少なくとも一方の組が"
+"定義されている必要があります。"
 
 #: ../../library/termios.rst:110
 msgid "Module :mod:`tty`"
@@ -164,18 +172,17 @@ msgstr "一般的な端末制御操作のための便利な関数。"
 msgid "Example"
 msgstr "使用例"
 
-#: ../../library/termios.rst:119
 msgid ""
 "Here's a function that prompts for a password with echoing turned off.  Note "
 "the technique using a separate :func:`tcgetattr` call and a :keyword:"
 "`try` ... :keyword:`finally` statement to ensure that the old tty attributes "
 "are restored exactly no matter what happens::"
 msgstr ""
-"以下はエコーバックを切った状態でパスワード入力を促す関数です。ユーザの入力に"
-"関わらず以前の端末属性を正確に回復するために、二つの :func:`tcgetattr` と :"
-"keyword:`try` ... :keyword:`finally` 文によるテクニックが使われています::"
+"以下はエコーバックを切った状態でパスワード入力を促す関数です。\n"
+"何が起きても元の tty 属性を正確に復元できるように、:func:`tcgetattr` を別々に"
+"呼び出し、:keyword:`try` ... :keyword:`finally` 文を使う手法に注目してくださ"
+"い。 ::"
 
-#: ../../library/termios.rst:124
 msgid ""
 "def getpass(prompt=\"Password: \"):\n"
 "    import termios, sys\n"
@@ -190,6 +197,18 @@ msgid ""
 "        termios.tcsetattr(fd, termios.TCSADRAIN, old)\n"
 "    return passwd"
 msgstr ""
+"def getpass(prompt=\"Password: \"):\n"
+"    import termios, sys\n"
+"    fd = sys.stdin.fileno()\n"
+"    old = termios.tcgetattr(fd)\n"
+"    new = termios.tcgetattr(fd)\n"
+"    new[3] = new[3] & ~termios.ECHO          # lflags\n"
+"    try:\n"
+"        termios.tcsetattr(fd, termios.TCSADRAIN, new)\n"
+"        passwd = input(prompt)\n"
+"    finally:\n"
+"        termios.tcsetattr(fd, termios.TCSADRAIN, old)\n"
+"    return passwd"
 
 #: ../../library/termios.rst:7
 msgid "POSIX"

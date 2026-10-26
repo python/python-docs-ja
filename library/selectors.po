@@ -71,17 +71,16 @@ msgstr ""
 "的な実装の別名になります: これはほとんどのユーザーにとってのデフォルトの選択"
 "になるはずです。"
 
-#: ../../library/selectors.rst:31
 msgid ""
 "The type of file objects supported depends on the platform: on Windows, "
 "sockets are supported, but not pipes, whereas on Unix, both are supported "
 "(some other types may be supported as well, such as fifos or special file "
 "devices)."
 msgstr ""
-"プラットフォームごとにサポートされているファイルオブジェクトのタイプは異なり"
-"ます: Windows ではソケットはサポートされますが、パイプはされません。Unix では"
-"両方がサポートされます (その他の fifo やスペシャルファイルデバイスなどのタイ"
-"プもサポートされます)。"
+"対応するファイルオブジェクトの種類はプラットフォームによって異なります。\n"
+"Windows ではソケットに対応していますがパイプには対応していません。\n"
+"Unix では両方に対応しています (FIFO や特殊デバイスファイルなど、他の種類にも"
+"対応している場合があります)。"
 
 #: ../../library/selectors.rst:38
 msgid ":mod:`select`"
@@ -110,7 +109,6 @@ msgstr "クラス"
 msgid "Classes hierarchy::"
 msgstr "クラス階層::"
 
-#: ../../library/selectors.rst:48
 msgid ""
 "BaseSelector\n"
 "+-- SelectSelector\n"
@@ -119,13 +117,21 @@ msgid ""
 "+-- DevpollSelector\n"
 "+-- KqueueSelector"
 msgstr ""
+"BaseSelector\n"
+"+-- SelectSelector\n"
+"+-- PollSelector\n"
+"+-- EpollSelector\n"
+"+-- DevpollSelector\n"
+"+-- KqueueSelector"
 
-#: ../../library/selectors.rst:56
 msgid ""
 "In the following, *events* is a bitwise mask indicating which I/O events "
 "should be waited for on a given file object. It can be a combination of the "
 "module's constants below:"
 msgstr ""
+"以下では、*events* は指定したファイルオブジェクトで待機する I/O イベントを表"
+"すビットマスクです。\n"
+"このモジュールの以下の定数を組み合わせて指定できます。"
 
 #: ../../library/selectors.rst:61
 msgid "Constant"
@@ -372,17 +378,14 @@ msgstr ""
 "デフォルトの selector クラスで、現在のプラットフォームで利用できる最も効率的"
 "な実装を使用しています。大半のユーザはこれをデフォルトにすべきです。"
 
-#: ../../library/selectors.rst:208
 msgid ":func:`select.select`-based selector."
-msgstr ":func:`select.select` を基底とするセレクタです。"
+msgstr ":func:`select.select` を使うセレクタです。"
 
-#: ../../library/selectors.rst:213
 msgid ":func:`select.poll`-based selector."
-msgstr ":func:`select.poll` を基底とするセレクタです。"
+msgstr ":func:`select.poll` を使うセレクタです。"
 
-#: ../../library/selectors.rst:218
 msgid ":func:`select.epoll`-based selector."
-msgstr ":func:`select.epoll` を基底とするセレクタです。"
+msgstr ":func:`select.epoll` を使うセレクタです。"
 
 #: ../../library/selectors.rst:222
 msgid ""
@@ -392,9 +395,8 @@ msgstr ""
 "下層の :func:`select.epoll` オブジェクトが使用しているファイル記述子を返しま"
 "す。"
 
-#: ../../library/selectors.rst:227
 msgid ":func:`select.devpoll`-based selector."
-msgstr ":func:`select.devpoll` を基底とするセレクタです。"
+msgstr ":func:`select.devpoll` を使うセレクタです。"
 
 #: ../../library/selectors.rst:231
 msgid ""
@@ -404,9 +406,8 @@ msgstr ""
 "下層の :func:`select.devpoll` オブジェクトが使用しているファイル記述子を返し"
 "ます。"
 
-#: ../../library/selectors.rst:238
 msgid ":func:`select.kqueue`-based selector."
-msgstr ":func:`select.kqueue` を基底とするセレクタです。"
+msgstr ":func:`select.kqueue` を使うセレクタです。"
 
 #: ../../library/selectors.rst:242
 msgid ""
@@ -424,7 +425,6 @@ msgstr "使用例"
 msgid "Here is a simple echo server implementation::"
 msgstr "簡単なエコーサーバの実装です::"
 
-#: ../../library/selectors.rst:251
 msgid ""
 "import selectors\n"
 "import socket\n"
@@ -459,3 +459,35 @@ msgid ""
 "        callback = key.data\n"
 "        callback(key.fileobj, mask)"
 msgstr ""
+"import selectors\n"
+"import socket\n"
+"\n"
+"sel = selectors.DefaultSelector()\n"
+"\n"
+"def accept(sock, mask):\n"
+"    conn, addr = sock.accept()  # 準備ができているはず\n"
+"    print('accepted', conn, 'from', addr)\n"
+"    conn.setblocking(False)\n"
+"    sel.register(conn, selectors.EVENT_READ, read)\n"
+"\n"
+"def read(conn, mask):\n"
+"    data = conn.recv(1000)  # 準備ができているはず\n"
+"    if data:\n"
+"        print('echoing', repr(data), 'to', conn)\n"
+"        conn.send(data)  # ブロックしないことを期待\n"
+"    else:\n"
+"        print('closing', conn)\n"
+"        sel.unregister(conn)\n"
+"        conn.close()\n"
+"\n"
+"sock = socket.socket()\n"
+"sock.bind(('localhost', 1234))\n"
+"sock.listen(100)\n"
+"sock.setblocking(False)\n"
+"sel.register(sock, selectors.EVENT_READ, accept)\n"
+"\n"
+"while True:\n"
+"    events = sel.select()\n"
+"    for key, mask in events:\n"
+"        callback = key.data\n"
+"        callback(key.fileobj, mask)"

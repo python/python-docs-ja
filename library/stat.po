@@ -31,23 +31,27 @@ msgstr ":mod:`!stat` --- :func:`~os.stat` の結果を解釈する"
 msgid "**Source code:** :source:`Lib/stat.py`"
 msgstr "**ソースコード:** :source:`Lib/stat.py`"
 
-#: ../../library/stat.rst:12
 msgid ""
 "The :mod:`!stat` module defines constants and functions for interpreting the "
 "results of :func:`os.stat`, :func:`os.fstat` and :func:`os.lstat` (if they "
 "exist).  For complete details about the :c:func:`stat`, :c:func:`!fstat` "
 "and :c:func:`!lstat` calls, consult the documentation for your system."
 msgstr ""
+":mod:`!stat` モジュールは、:func:`os.stat`、:func:`os.fstat`、:func:`os."
+"lstat` (利用できる場合) の結果を解釈するための定数と関数を定義します。\n"
+":c:func:`stat`、:c:func:`!fstat`、:c:func:`!lstat` 呼び出しの詳細は、お使いの"
+"システムのドキュメントを参照してください。"
 
 #: ../../library/stat.rst:17
 msgid "The stat module is backed by a C implementation."
 msgstr "stat モジュールは、C 実装に裏付けされるようになりました。"
 
-#: ../../library/stat.rst:20
 msgid ""
 "The :mod:`!stat` module defines the following functions to test for specific "
 "file types:"
 msgstr ""
+":mod:`!stat` モジュールは、特定のファイル種別かどうかを調べる以下の関数を定義"
+"します。"
 
 #: ../../library/stat.rst:26
 msgid "Return non-zero if the mode is from a directory."
@@ -112,13 +116,13 @@ msgstr ""
 "は) スティッキービット (sticky bit)、実行グループ ID 設定 (set-group-id) およ"
 "び実行ユーザ ID 設定 (set-user-id) ビット --- を返します。"
 
-#: ../../library/stat.rst:89
 msgid ""
 "Return the portion of the file's mode that describes the file type (used by "
 "the :func:`!S_IS\\*` functions above)."
 msgstr ""
+"ファイルのモードのうち、ファイル種別を表す部分を返します (上述の :func:`!"
+"S_IS\\*` 関数で使われます)。"
 
-#: ../../library/stat.rst:92
 msgid ""
 "Normally, you would use the :func:`!os.path.is\\*` functions for testing the "
 "type of a file; the functions here are useful when you are doing multiple "
@@ -127,12 +131,17 @@ msgid ""
 "information about a file that isn't handled by :mod:`os.path`, like the "
 "tests for block and character devices."
 msgstr ""
+"通常、ファイル種別の判定には :func:`!os.path.is\\*` 関数を使います。\n"
+"同じファイルに対して複数の判定を行い、そのたびに :c:func:`stat` システムコー"
+"ルを呼び出すオーバーヘッドを避けたい場合は、このモジュールの関数が役立ちま"
+"す。\n"
+"また、ブロックデバイスやキャラクターデバイスかどうかなど、:mod:`os.path` が扱"
+"わないファイル情報を調べる場合にも便利です。"
 
 #: ../../library/stat.rst:99
 msgid "Example::"
 msgstr "以下はプログラム例です::"
 
-#: ../../library/stat.rst:101
 msgid ""
 "import os, sys\n"
 "from stat import *\n"
@@ -160,6 +169,31 @@ msgid ""
 "if __name__ == '__main__':\n"
 "    walktree(sys.argv[1], visitfile)"
 msgstr ""
+"import os, sys\n"
+"from stat import *\n"
+"\n"
+"def walktree(top, callback):\n"
+"    '''top をルートとするディレクトリツリーを再帰的にたどり、\n"
+"       通常のファイルごとにコールバック関数を呼び出す'''\n"
+"\n"
+"    for f in os.listdir(top):\n"
+"        pathname = os.path.join(top, f)\n"
+"        mode = os.lstat(pathname).st_mode\n"
+"        if S_ISDIR(mode):\n"
+"            # ディレクトリなら再帰的にたどる\n"
+"            walktree(pathname, callback)\n"
+"        elif S_ISREG(mode):\n"
+"            # ファイルならコールバック関数を呼び出す\n"
+"            callback(pathname)\n"
+"        else:\n"
+"            # 不明なファイル種別ならメッセージを表示する\n"
+"            print('Skipping %s' % pathname)\n"
+"\n"
+"def visitfile(file):\n"
+"    print('visiting', file)\n"
+"\n"
+"if __name__ == '__main__':\n"
+"    walktree(sys.argv[1], visitfile)"
 
 #: ../../library/stat.rst:127
 msgid ""
@@ -434,21 +468,18 @@ msgid ""
 "chflags`:"
 msgstr "以下のフラグを :func:`os.chflags` の *flags* 引数として利用できます:"
 
-#: ../../library/stat.rst:353
 msgid "All user settable flags."
-msgstr ""
+msgstr "ユーザーが設定できるすべてのフラグ。"
 
 #: ../../library/stat.rst:359
 msgid "Do not dump the file."
 msgstr "ファイルをダンプしない。"
 
-#: ../../library/stat.rst:363 ../../library/stat.rst:425
 msgid "The file may not be changed."
-msgstr "ファイルは変更されない。"
+msgstr "ファイルを変更してはいけない。"
 
-#: ../../library/stat.rst:367 ../../library/stat.rst:429
 msgid "The file may only be appended to."
-msgstr "ファイルは追記しかされない。"
+msgstr "ファイルへの追記だけを許可する。"
 
 #: ../../library/stat.rst:371
 msgid "The directory is opaque when viewed through a union stack."
@@ -456,60 +487,51 @@ msgstr ""
 "ユニオンファイルシステムのスタックを通したとき、このディレクトリは不透明で"
 "す。"
 
-#: ../../library/stat.rst:375 ../../library/stat.rst:439
 msgid "The file may not be renamed or deleted."
-msgstr "ファイルはリネームや削除されない。"
+msgstr "ファイル名の変更や削除を禁止する。"
 
 #: ../../library/stat.rst:379
 msgid "The file is stored compressed (macOS 10.6+)."
 msgstr "ファイルは圧縮して保存される (macOS 10.6+)。"
 
-#: ../../library/stat.rst:383
 msgid "Used for handling document IDs (macOS)"
-msgstr ""
+msgstr "ドキュメント ID の処理に使う (macOS)。"
 
-#: ../../library/stat.rst:389
 msgid "The file needs an entitlement for reading or writing (macOS 10.13+)"
-msgstr ""
+msgstr "ファイルの読み書きにエンタイトルメントが必要 (macOS 10.13+)。"
 
 #: ../../library/stat.rst:395
 msgid "The file should not be displayed in a GUI (macOS 10.5+)."
 msgstr "ファイルは GUI で表示されるべきでない (macOS 10.5+)。"
 
-#: ../../library/stat.rst:399
 msgid "All super-user changeable flags"
-msgstr ""
+msgstr "スーパーユーザーが変更できるすべてのフラグ。"
 
-#: ../../library/stat.rst:405
 msgid "All super-user supported flags"
-msgstr ""
+msgstr "スーパーユーザーが利用できるすべてのフラグ。"
 
 msgid "Availability"
 msgstr "利用可能な環境"
 
-#: ../../library/stat.rst:413
 msgid "All super-user read-only synthetic flags"
-msgstr ""
+msgstr "スーパーユーザー用の、読み取り専用の合成フラグすべて。"
 
 #: ../../library/stat.rst:421
 msgid "The file may be archived."
 msgstr "ファイルはアーカイブされているかもしれません。"
 
-#: ../../library/stat.rst:433
 msgid "The file needs an entitlement to write to (macOS 10.13+)"
-msgstr ""
+msgstr "ファイルへの書き込みにエンタイトルメントが必要 (macOS 10.13+)。"
 
 #: ../../library/stat.rst:443
 msgid "The file is a snapshot file."
 msgstr "このファイルはスナップショットファイルです。"
 
-#: ../../library/stat.rst:447
 msgid "The file is a firmlink (macOS 10.15+)"
-msgstr ""
+msgstr "ファイルが firmlink である (macOS 10.15+)。"
 
-#: ../../library/stat.rst:453
 msgid "The file is a dataless object (macOS 10.15+)"
-msgstr ""
+msgstr "ファイルがデータを持たないオブジェクトである (macOS 10.15+)。"
 
 #: ../../library/stat.rst:457
 msgid ""
@@ -542,7 +564,6 @@ msgstr ""
 "の定数が 使えます。\n"
 "これらはよく知られている定数ですが、全てを網羅したリストではありません。"
 
-#: ../../library/stat.rst:495
 msgid ""
 "On Linux, the following file attribute constants are available for use when "
 "testing bits in the :attr:`~os.statx_result.stx_attributes` and :attr:`~os."
@@ -550,3 +571,8 @@ msgid ""
 "the :manpage:`statx(2)` man page for more detail on the meaning of these "
 "constants."
 msgstr ""
+"Linux では、:func:`os.statx` が返す :attr:`~os.statx_result.stx_attributes` "
+"メンバーと :attr:`~os.statx_result.stx_attributes_mask` メンバーのビットを調"
+"べるために、以下のファイル属性定数を利用できます。\n"
+"各定数の意味の詳細は :manpage:`statx(2)` のマニュアルページを参照してくださ"
+"い。"
