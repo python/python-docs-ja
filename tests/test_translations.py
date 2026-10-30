@@ -156,13 +156,18 @@ class TranslationTests(unittest.TestCase):
                 before = DATED_PO.replace(b"\n", newline)
                 changed = before.replace(b"example.rst:10", b"example.rst:200")
                 changed = changed.replace(b"2026-09-29", b"2026-10-24")
-                for name in ("unchanged.po", "translated.po", "deleted.po"):
+                for name in ("unchanged.po", "translated.po", "locations.po", "deleted.po"):
                     (self.destination / name).write_bytes(before)
                 self.track()
                 (self.destination / "unchanged.po").write_bytes(changed)
                 (self.destination / "translated.po").write_bytes(
                     changed.replace('翻訳'.encode(), '新しい訳'.encode())
                 )
+                locations = changed.replace(
+                    b"#: example.rst:200" + newline,
+                    b"#: example.rst:200 example.rst:300" + newline,
+                )
+                (self.destination / "locations.po").write_bytes(locations)
                 (self.destination / "deleted.po").unlink()
                 new = self.destination / ("new-crlf.po" if newline == b"\r\n" else "new-lf.po")
                 new.write_bytes(changed)
@@ -176,6 +181,10 @@ class TranslationTests(unittest.TestCase):
                 expected = expected.replace(b"2026-09-29", b"2026-10-24")
                 expected = expected.replace(b"#: example.rst:10" + newline, b"")
                 self.assertEqual((self.destination / "translated.po").read_bytes(), expected)
+                self.assertEqual(
+                    (self.destination / "locations.po").read_bytes(),
+                    locations.replace(b"#: example.rst:200 example.rst:300" + newline, b""),
+                )
                 self.assertEqual(new.read_bytes(), changed.replace(b"#: example.rst:200" + newline, b""))
                 self.assertFalse((self.destination / "deleted.po").exists())
                 self.track()
@@ -189,8 +198,8 @@ class TranslationTests(unittest.TestCase):
         for old, new, action in [
             (b'msgid "example"', b'msgid "new source"', "drop"),
             (b'msgid "example"', b'msgctxt "new context"\nmsgid "example"', "drop"),
-            (b"example.rst:200", b"renamed.rst:200", "keep"),
-            (b"example.rst:200", b"example.rst:200 other.rst:30", "keep"),
+            (b"example.rst:200", b"renamed.rst:200", "drop"),
+            (b"example.rst:200", b"example.rst:200 other.rst:30", "drop"),
             (b'#: example.rst:200\n', b'', "keep"),
             (b'msgid "example"', b'#, fuzzy\nmsgid "example"', "restore"),
             (b'msgid "example"', b'#. new comment\nmsgid "example"', "restore"),
@@ -200,11 +209,34 @@ class TranslationTests(unittest.TestCase):
                 incoming = changed.replace(old, new)
                 expected = incoming
                 if action == "drop":
-                    expected = incoming.replace(b"#: example.rst:200\n", b"")
+                    expected = b"".join(
+                        line for line in incoming.splitlines(keepends=True)
+                        if not line.startswith(b"#:")
+                    )
                 elif action == "restore":
                     expected = incoming.replace(b"example.rst:200", b"example.rst:10")
                 self.assertEqual(translations.normalize_po_references(DATED_PO, incoming),
                                  expected)
+
+    def test_changed_source_occurrence_counts_drop_all_reference_lines(self):
+        header = DATED_PO.split(b"#: example.rst:10")[0]
+        message = b'msgid "yes"\nmsgstr "yes"\n'
+        old_references = b"#: ../../c-api/buffer.rst:292 ../../c-api/buffer.rst:294\n"
+        for new_references in [
+            b"#: ../../c-api/buffer.rst:304\n",
+            (b"#: ../../c-api/buffer.rst:304 ../../c-api/buffer.rst:305\n"
+             b"#: ../../c-api/buffer.rst:308 ../../c-api/buffer.rst:309\n"),
+        ]:
+            for newline in (b"\n", b"\r\n"):
+                with self.subTest(references=new_references, newline=newline):
+                    original = (header + old_references + message).replace(b"\n", newline)
+                    incoming = (header + new_references + message).replace(b"\n", newline)
+                    expected = (header + message).replace(b"\n", newline)
+                    normalized = translations.normalize_po_references(original, incoming)
+                    self.assertEqual(normalized, expected)
+                    self.assertEqual(
+                        translations.normalize_po_references(normalized, incoming), expected
+                    )
 
     def test_restore_line_numbers_matches_context_plural_and_reordered_entries(self):
         header = DATED_PO.split(b"#: example.rst:10")[0]

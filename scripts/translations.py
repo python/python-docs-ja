@@ -49,7 +49,7 @@ def po_references(content):
 
 
 def normalize_po_references(original, incoming):
-    """Drop references for new/changed messages; ignore line-number updates."""
+    """Drop references for changed messages or source paths; ignore line-number updates."""
     old_lines, old_references = po_references(original)
     lines, references = po_references(incoming)
     for key, (entry, positions) in references.items():
@@ -59,16 +59,15 @@ def normalize_po_references(original, incoming):
         if old_entry is None:
             changed = True
         else:
-            changed = (entry.msgstr, entry.msgstr_plural) != (old_entry.msgstr, old_entry.msgstr_plural)
+            changed = (
+                (entry.msgstr, entry.msgstr_plural)
+                != (old_entry.msgstr, old_entry.msgstr_plural)
+                or [path for path, _ in entry.occurrences]
+                != [path for path, _ in old_entry.occurrences]
+            )
         if changed or (old_entry is not None and not old_positions):
             for pos in positions:
                 lines[pos] = b''
-            continue
-        # Keep added/removed references and file renames for unchanged translations.
-        if not old_positions or (
-            [path for path, _ in entry.occurrences]
-            != [path for path, _ in old_entry.occurrences]
-        ):
             continue
         lines[positions[0]] = b"".join(old_lines[pos] for pos in old_positions)
         for pos in positions[1:]:
@@ -79,7 +78,8 @@ def normalize_po_references(original, incoming):
 def restore_timestamp_only_changes(root, *, normalize_references=False):
     """Restore PO files whose unstaged changes only affect header dates.
 
-    Optionally drop references for new/changed messages and restore other line numbers.
+    Optionally drop references for new/changed messages or source paths and restore
+    other line numbers.
     Run after wrapping so formatting differences do not mask date-only changes.
     """
     result = subprocess.run(
@@ -247,7 +247,7 @@ def main():
     restore_parser.add_argument("root", type=Path)
     restore_parser.add_argument(
         "--references", action="store_true",
-        help="drop references for new/changed messages and ignore other line-number updates",
+        help="drop references for new/changed messages or source paths and ignore other line-number updates",
     )
     args = parser.parse_args()
     if args.command == "sync":
